@@ -1,0 +1,48 @@
+{
+    "name": "sindla/aurora",
+    "type": "symfony-bundle",
+    "description": "Aurora - Symfony 3.4 bundle",
+    "keywords": [
+    ],
+    "homepage": "http://sindla.com",
+    "license": "MIT",
+    "authors": [
+    ],
+    "require": {
+        "php": ">=7.2",
+        "ext-curl": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-zend-opcache": "*",
+        "doctrine/doctrine-bundle": "^1.11",
+        "doctrine/doctrine-cache-bundle": "^1.3",
+        "doctrine/doctrine-migrations-bundle": "^2",
+        "doctrine/orm": "^2.6",
+        "geoip2/geoip2": "^2.9",
+        "symfony/symfony": "3.4.*",
+        "symfony/cache": "^3",
+        "matthiasmullie/minify": "^1.3"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Sindla\\Bundle\\AuroraBundle\\": ""
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sindla\\Bundle\\AuroraBundle\\": ""
+        }
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.x-dev"
+        }
+    }
+}

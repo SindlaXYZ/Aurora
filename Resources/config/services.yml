@@ -1,0 +1,83 @@
+services:
+
+    ####################################################################################################################
+    ###  Aurora  #######################################################################################################
+
+    aurora.calculus:
+        class: Sindla\Bundle\AuroraBundle\Service\Calculus\Calculus
+        #arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.chronos:
+        class: Sindla\Bundle\AuroraBundle\Service\Chronos\Chronos
+        #arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.git:
+        class: Sindla\Bundle\AuroraBundle\Service\Git\Git
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.helper:
+        class: Sindla\Bundle\AuroraBundle\Service\Helper\Helper
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.io:
+        class: Sindla\Bundle\AuroraBundle\Service\IO\IO
+        #arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.sanitizer:
+        class: Sindla\Bundle\AuroraBundle\Service\Sanitizer\Sanitizer
+        #arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.string:
+        class: Sindla\Bundle\AuroraBundle\Service\Strink\Strink
+        #arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.client:
+        class: Sindla\Bundle\AuroraBundle\Service\Client\Client
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.twig.utility:
+        class: Sindla\Bundle\AuroraBundle\Service\Twig\UtilityExtension
+        tags:
+            - { name: twig.extension }
+        arguments: ['@service_container', "@request_stack"]
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    ####################################################################################################################
+    ###  Monolog  ######################################################################################################
+
+    # http://www.petethompson.net/blog/symfony/2015/03/15/symfony-logging-client-ip/
+    monolog.processor.misc:
+        class: Sindla\Bundle\AuroraBundle\Service\Monolog\MiscProcessor
+        arguments: ['@service_container', '@request_stack']
+        tags:
+            - { name: monolog.processor }
+
+    service.monolog.formatter.html:
+        class: Sindla\Bundle\AuroraBundle\Service\Monolog\HtmlFormatter
+        public: true
