@@ -99,8 +99,6 @@ class ComposerUpdateCommand extends Command
 
         $io->newLine();
         $io->success('[AURORA] All commands were successfully run.');
-
-        return 1;
     }
 
     public function updatePHPUnit()
