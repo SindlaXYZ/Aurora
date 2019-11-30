@@ -1,0 +1,40 @@
+<link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
+<link rel="apple-touch-icon" sizes="57x57" href="{{ asset('apple-icon-57x57.png') }}">
+<link rel="apple-touch-icon" sizes="60x60" href="{{ asset('apple-icon-60x60.png') }}">
+<link rel="apple-touch-icon" sizes="72x72" href="{{ asset('apple-icon-72x72.png') }}">
+<link rel="apple-touch-icon" sizes="76x76" href="{{ asset('apple-icon-76x76.png') }}">
+<link rel="apple-touch-icon" sizes="114x114" href="{{ asset('apple-icon-114x114.png') }}">
+<link rel="apple-touch-icon" sizes="120x120" href="{{ asset('apple-icon-120x120.png') }}">
+<link rel="apple-touch-icon" sizes="144x144" href="{{ asset('apple-icon-144x144.png') }}">
+<link rel="apple-touch-icon" sizes="152x152" href="{{ asset('apple-icon-152x152.png') }}">
+<link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-icon-180x180.png') }}">
+<link rel="icon" type="image/png" sizes="192x192"  href="{{ asset('android-icon-192x192.png') }}">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}">
+<link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}">
+
+<meta name="msapplication-TileColor" content="{{ theme_color }}">
+<meta name="msapplication-TileImage" content="{{ asset('ms-icon-144x144.png') }}">
+
+{# https://developers.google.com/web/updates/2014/11/Support-for-theme-color-in-Chrome-39-for-Android #}
+{# https://stackoverflow.com/questions/26960703/how-to-change-the-color-of-header-bar-and-address-bar-in-newest-chrome-version-o #}
+
+{# Chrome, Firefox OS and Opera #}
+<meta name="theme-color" content="{{ theme_color }}">
+
+{# Windows Phone #}
+<meta name="msapplication-navbutton-color" content="#2C3E50">
+
+{# iOS Safari #}
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="#2C3E50">
+
+{# https://developers.google.com/web/fundamentals/web-app-manifest/ #}
+<link rel="manifest" href="{{ asset('manifest.json') }}" {#x-host="{{ host }}" x-secure="{{ app.request.isSecure }}"#}>
+
+{# The Service Worker is a background script that a browser can run even while a user isn't on your page. It's the thing that provides offline support, and wakes up when a notification is triggered. #}
+{% if pwa %}
+<script src="{{ asset('/pwa-main.js') }}" service-worker="{{ asset('/pwa-sw.js') }}" service-worker-version="{{ build }}" service-worker-debug="{{ debug ? 1 : 0 }}"></script>
+{% else %}
+<!-- PWS works only on secured (HTTPS) connection! -->
+{% endif %}

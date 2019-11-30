@@ -1,0 +1,49 @@
+{
+    "name": "sindla/borealis",
+    "type": "symfony-bundle",
+    "description": "Borealis - Symfony 4 bundle",
+    "keywords": [
+    ],
+    "homepage": "http://sindla.com",
+    "license": "MIT",
+    "authors": [
+    ],
+    "require": {
+        "php": ">=7.3",
+        "ext-curl": "*",
+        "ext-ctype": "*",
+        "ext-iconv": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*",
+        "ext-openssl": "*",
+        "ext-pdo_pgsql": "*",
+        "ext-pcre": "*",
+        "ext-session": "*",
+        "ext-simplexml": "*",
+        "ext-tokenizer": "*",
+        "ext-zend-opcache": "*",
+        "geoip2/geoip2": "^2.9",
+        "matthiasmullie/minify": "^1.3"
+    },
+    "require-dev": {
+    },
+    "autoload": {
+        "psr-4": {
+            "Sindla\\Bundle\\BorealisBundle\\": "src/"
+        },
+        "exclude-from-classmap": [
+            "/Tests/"
+        ]
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Sindla\\Bundle\\BorealisBundle\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "extra": {
+        "branch-alias": {
+            "dev-master": "0.x-dev"
+        }
+    }
+}
