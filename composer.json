@@ -1,0 +1,11 @@
+{
+  "name": "sindla/aurora",
+  "type": "symfony-bundle",
+  "description": "Aurora - Symfony bundles",
+  "keywords": [
+  ],
+  "homepage": "http://sindla.com",
+  "license": "MIT",
+  "authors": [
+  ]
+}
