@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Controller;
+namespace Sindla\Bundle\AuroraBundle\Controller;
 
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;

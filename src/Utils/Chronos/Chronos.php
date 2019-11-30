@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Chronos;
+namespace Sindla\Bundle\AuroraBundle\Utils\Chronos;
 
 class Chronos
 {

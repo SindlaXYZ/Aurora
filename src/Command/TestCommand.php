@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Command;
+namespace Sindla\Bundle\AuroraBundle\Command;
 
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,11 +13,11 @@ class TestCommand extends Command
      * The command must be registered in src/Resources/config/services.yaml
      *
      * Usage:
-     *      clear; php bin/console borealis:test
+     *      clear; php bin/console aurora:test
      *
      * @var string
      */
-    protected static $defaultName = 'borealis:test';
+    protected static $defaultName = 'aurora:test';
 
     /**
      * {@inheritDoc}
@@ -27,7 +27,7 @@ class TestCommand extends Command
         $this
             ->setName(self::$defaultName)
             ->setDescription('Test command')
-            ->setHelp('This command allows you to test Borealis Command service');
+            ->setHelp('This command allows you to test Aurora Command service');
     }
 
     /**

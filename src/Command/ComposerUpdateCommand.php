@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Command;
+namespace Sindla\Bundle\AuroraBundle\Command;
 
 // Symfony
 use Symfony\Component\Console\Command\Command;
@@ -15,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Yaml\Yaml;
 
 // Custom
-use Sindla\Bundle\BorealisBundle\Service\IO\IO;
+use Sindla\Bundle\AuroraBundle\Service\IO\IO;
 
 class ComposerUpdateCommand extends Command
 {
@@ -24,11 +24,11 @@ class ComposerUpdateCommand extends Command
      * The command must be registered in src/Resources/config/services.yaml
      *
      * Usage:
-     *      clear; php bin/console borealis:test
+     *      clear; php bin/console aurora:test
      *
      * @var string
      */
-    protected static $defaultName = 'boreali:composer.update';
+    protected static $defaultName = 'aurora:composer.update';
 
     /**
      * {@inheritDoc}
@@ -50,7 +50,7 @@ class ComposerUpdateCommand extends Command
 
     private function p()
     {
-        return '[BOREALIS]';
+        return '[AURORA]';
     }
 
     /**
@@ -87,18 +87,18 @@ class ComposerUpdateCommand extends Command
         if (false) {
             // Copy /Static/js
             $io->newLine();
-            $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/borealis/</info>', $this->p()));
+            $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/aurora/</info>', $this->p()));
 
             /** @var IO $IOService */
-            $IOService = $this->container->get('borealis.io');
-            $IOService->recursiveCreateDirectory($this->kernelRootDir . '/web/static/borealis/js/');
+            $IOService = $this->container->get('aurora.io');
+            $IOService->recursiveCreateDirectory($this->kernelRootDir . '/web/static/aurora/js/');
 
-            copy(realpath(dirname(__FILE__)) . '/../Static/js/f.adblock.js', $this->kernelRootDir . '/web/static/borealis/js/f.adblock.js');
+            copy(realpath(dirname(__FILE__)) . '/../Static/js/f.adblock.js', $this->kernelRootDir . '/web/static/aurora/js/f.adblock.js');
             $this->output->writeln(sprintf('%s ... done;', $this->p()));
         }
 
         $io->newLine();
-        $io->success('[BOREALIS] All commands were successfully run.');
+        $io->success('[AURORA] All commands were successfully run.');
 
         return 1;
     }
@@ -115,31 +115,31 @@ class ComposerUpdateCommand extends Command
 
         // Check https://phar.phpunit.de/
         if (!$phar = fopen('https://phar.phpunit.de/phpunit.phar', 'r')) {
-            throw new \RuntimeException("[BOREALIS] Cannot download .phar file from phar.phpunit.de.");
+            throw new \RuntimeException("[AURORA] Cannot download .phar file from phar.phpunit.de.");
         }
 
         try {
             file_put_contents($phpUnitFile, $phar);
         } catch (\Exception $e) {
-            throw new \RuntimeException("[BOREALIS] Cannot write phpunit.phar file on disk.");
+            throw new \RuntimeException("[AURORA] Cannot write phpunit.phar file on disk.");
         }
     }
 
     public function updateGeoIP2Contry()
     {
-        $tempDir         = $this->container->getParameter('borealis.tmp') . '/' . microtime(true);
-        $maxmindDir      = $this->container->getParameter('borealis.resources') . '/maxmind-geoip2';
+        $tempDir         = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
+        $maxmindDir      = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $destinationFile = $maxmindDir . '/GeoLite2Country.mmdb';
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
-            throw new \RuntimeException("[BOREALIS] Cannot create temporary dir `{$tempDir}`");
+            throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
         }
 
         if (!is_dir($maxmindDir)) {
             try {
                 mkdir($maxmindDir, 0777, true);
             } catch (\Exception $e) {
-                throw new \RuntimeException("[BOREALIS] Cannot create maxmind dir `{$maxmindDir}`");
+                throw new \RuntimeException("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
             }
         }
 
@@ -151,11 +151,11 @@ class ComposerUpdateCommand extends Command
 
         // Check http://dev.maxmind.com/geoip/geoip2/geolite2/
         if (!$tarGz = fopen("http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz", 'r')) {
-            throw new \RuntimeException("[BOREALIS] Cannot download .tar.gz file from geolite.maxmind.com.");
+            throw new \RuntimeException("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
         if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
-            throw new \RuntimeException("[BOREALIS] Cannot write .tar.gz file on disk.");
+            throw new \RuntimeException("[AURORA] Cannot write .tar.gz file on disk.");
         }
 
         // Decompress from gz
@@ -164,10 +164,10 @@ class ComposerUpdateCommand extends Command
             $PharData = new \PharData($tempDir . '/GeoLite2-Country.tar.gz');
         } catch (\UnexpectedValueException $e) {
             $pharError = true;
-            throw new \Exception('[BOREALIS] Could not read .tar.gz file.');
+            throw new \Exception('[AURORA] Could not read .tar.gz file.');
         } catch (\BadMethodCallException $e) {
             $pharError = true;
-            throw new \Exception('[BOREALIS] Something goes wrong with the .tar.gz file.');
+            throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
         } finally {
             if ($pharError) {
                 return $this->updateGeoIP2Contry();
@@ -181,15 +181,15 @@ class ComposerUpdateCommand extends Command
         $phar->extractTo($tempDir);
 
         if (!copy(glob($tempDir . "/*/*.mmdb")[0], $destinationFile)) {
-            throw new \RuntimeException("[BOREALIS] Cannot copy .mmdb file.");
+            throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
         }
     }
 
     public function clearTmpDir()
     {
         /** @var IO $IOService */
-        $IOService = $this->container->get('borealis.io');
-        foreach (glob($this->container->getParameter('borealis.tmp') . '/', GLOB_ONLYDIR) as $directory) {
+        $IOService = $this->container->get('aurora.io');
+        foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
             $IOService->recursiveDelete($directory, false);
         }
     }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Controller;
+namespace Sindla\Bundle\AuroraBundle\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -12,7 +12,7 @@ class CustomExceptionController extends AbstractController
 {
     public function handler(Request $request, FlattenException $exception, DebugLoggerInterface $logger = null)
     {
-        return $this->render('@Borealis/error.html.twig',
+        return $this->render('@Aurora/error.html.twig',
             [
                 'code'       => $exception->getStatusCode(),
                 'title'      => "[{$exception->getStatusCode()}] Sorry this page does not exist!",

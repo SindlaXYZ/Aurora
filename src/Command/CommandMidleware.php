@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Command;
+namespace Sindla\Bundle\AuroraBundle\Command;
 
 // Symfony
 # use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;

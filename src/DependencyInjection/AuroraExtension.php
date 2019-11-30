@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\DependencyInjection;
+namespace Sindla\Bundle\AuroraBundle\DependencyInjection;
 
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -10,7 +10,7 @@ use Symfony\Component\Routing\RouteCollection;
 
 // https://symfony.com/doc/current/bundles/extension.html
 
-class BorealisExtension extends Extension
+class AuroraExtension extends Extension
 {
     public function load(array $configs, ContainerBuilder $container)
     {

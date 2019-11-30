@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Sanitizer;
+namespace Sindla\Bundle\AuroraBundle\Utils\Sanitizer;
 
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -8,11 +8,11 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * EXPERIMENTAL
  *
- * Debug: php bin/console debug:container borealis.sanitizer
+ * Debug: php bin/console debug:container aurora.sanitizer
  *
  * https://gist.github.com/tovic/d7b310dea3b33e4732c0
  *
- * @package BorealisBundle\Utils
+ * @package AuroraBundle\Utils
  */
 class Sanitizer
 {

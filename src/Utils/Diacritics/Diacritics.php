@@ -1,8 +1,8 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Diacritics;
+namespace Sindla\Bundle\AuroraBundle\Utils\Diacritics;
 
-use Sindla\Bundle\BorealisBundle\Utils\Diacritics\Extension\Romanian;
+use Sindla\Bundle\AuroraBundle\Utils\Diacritics\Extension\Romanian;
 
 /**
  * EXPERIMENTAL

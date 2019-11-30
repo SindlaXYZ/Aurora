@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\PWA;
+namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -22,9 +22,9 @@ use Twig\Environment;
 use MatthiasMullie\Minify;
 
 /**
- * Debug: php bin/console debug:container borealis.pwa
+ * Debug: php bin/console debug:container aurora.pwa
  *
- * @package BorealisBundle\Utils
+ * @package AuroraBundle\Utils
  */
 class PWA
 {
@@ -54,18 +54,18 @@ class PWA
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
 
             $manifest = [
-                'name'             => $this->container->getParameter('borealis.pwa.app_name'),
-                'short_name'       => $this->container->getParameter('borealis.pwa.app_short_name'),
-                'description'      => $this->container->getParameter('borealis.pwa.app_description'),
-                'start_url'        => $this->container->getParameter('borealis.pwa.start_url'),
-                'display'          => $this->container->getParameter('borealis.pwa.display'),
-                'theme_color'      => $this->container->getParameter('borealis.pwa.theme_color'),
-                'background_color' => $this->container->getParameter('borealis.pwa.background_color'),
+                'name'             => $this->container->getParameter('aurora.pwa.app_name'),
+                'short_name'       => $this->container->getParameter('aurora.pwa.app_short_name'),
+                'description'      => $this->container->getParameter('aurora.pwa.app_description'),
+                'start_url'        => $this->container->getParameter('aurora.pwa.start_url'),
+                'display'          => $this->container->getParameter('aurora.pwa.display'),
+                'theme_color'      => $this->container->getParameter('aurora.pwa.theme_color'),
+                'background_color' => $this->container->getParameter('aurora.pwa.background_color'),
                 'icons'            => []
             ];
 
             foreach ([36, 48, 72, 96, 144, 192, 512] as $iconSize) {
-                if (file_exists($this->container->getParameter('borealis.pwa.icons') . "/android-icon-{$iconSize}x{$iconSize}.png")) {
+                if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$iconSize}x{$iconSize}.png")) {
                     $manifest['icons'][] = [
                         'src'   => "/android-icon-{$iconSize}x{$iconSize}.png",
                         'sizes' => "{$iconSize}x{$iconSize}",
@@ -82,7 +82,7 @@ class PWA
 
     public function mainJS()
     {
-        $rendered = $this->twig->render('@Borealis/pwa-main.js.twig', []);
+        $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', []);
 
         // Minify if not DEV
         if ('dev' !== $this->container->getParameter('kernel.environment')) {
@@ -99,13 +99,13 @@ class PWA
 
     public function serviceWorkerJS()
     {
-        $serviceGit = $this->container->get('borealis.git');
+        $serviceGit = $this->container->get('aurora.git');
 
-        $rendered = $this->twig->render('@Borealis/pwa-sw.js.twig', [
-            'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('borealis.pwa.offline')], $this->container->getParameter('borealis.pwa.precache')))) . "'",
-            'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('borealis.pwa.prevent_cache')) . "'",
-            'external_cache' => "/" . implode("/, /", $this->container->getParameter('borealis.pwa.external_cache')) . "/",
-            'offline'        => $this->container->getParameter('borealis.pwa.offline'),
+        $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
+            'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
+            'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
+            'external_cache' => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
+            'offline'        => $this->container->getParameter('aurora.pwa.offline'),
             'build'          => $serviceGit->getHash()
         ]);
 
@@ -127,7 +127,7 @@ class PWA
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($Request) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
-            $iconPath = $this->container->getParameter('borealis.pwa.icons') . $Request->getRequestUri();
+            $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
 
             if (!file_exists($iconPath)) {
                 return new Response(

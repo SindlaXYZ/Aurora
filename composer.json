@@ -1,7 +1,7 @@
 {
-    "name": "sindla/borealis",
+    "name": "sindla/aurora",
     "type": "symfony-bundle",
-    "description": "Borealis - Symfony 4 bundle",
+    "description": "Aurora - Symfony 4.4 bundle",
     "keywords": [
     ],
     "homepage": "http://sindla.com",
@@ -29,7 +29,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Sindla\\Bundle\\BorealisBundle\\": "src/"
+            "Sindla\\Bundle\\AuroraBundle\\": "src/"
         },
         "exclude-from-classmap": [
             "/Tests/"
@@ -37,7 +37,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sindla\\Bundle\\BorealisBundle\\": "src/"
+            "Sindla\\Bundle\\AuroraBundle\\": "src/"
         }
     },
     "minimum-stability": "dev",

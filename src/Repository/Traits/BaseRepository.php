@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Repository\Traits;
+namespace Sindla\Bundle\AuroraBundle\Repository\Traits;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityRepository;

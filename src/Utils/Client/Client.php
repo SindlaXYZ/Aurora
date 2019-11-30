@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Client;
+namespace Sindla\Bundle\AuroraBundle\Utils\Client;
 
 // Symfony
 use Symfony\Component\DependencyInjection\Container;
@@ -12,7 +12,7 @@ use GeoIp2\Database\Reader;
 /**
  * Class Client
  *
- * @package BorealisBundle\Utils
+ * @package AuroraBundle\Utils
  */
 class Client
 {
@@ -25,7 +25,7 @@ class Client
 
     public function ip2CountryCode(string $ipAddress)
     {
-        $GeoLite2CountryFile = $this->container->getParameter('borealis.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
+        $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
         if (!is_file($GeoLite2CountryFile)) {
             throw new \Exception("[{$GeoLite2CountryFile}] file not found!");
         }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Composer;
+namespace Sindla\Bundle\AuroraBundle\Composer;
 
 use Symfony\Component\ClassLoader\ClassCollectionLoader;
 use Symfony\Component\Filesystem\Filesystem;
@@ -43,7 +43,7 @@ class ScriptHandler
         $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'borealis:composer-install', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer-install', $options['process-timeout']);
     }
 
     /**
@@ -63,7 +63,7 @@ class ScriptHandler
         $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'boreali:composer.update', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer.update', $options['process-timeout']);
     }
 
     protected static function getPhp($includeArgs = true)

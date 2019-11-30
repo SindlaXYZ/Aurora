@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Monolog;
+namespace Sindla\Bundle\AuroraBundle\Utils\Monolog;
 
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -37,12 +37,12 @@ class MiscProcessor
     {
         // Ensure we have a request (maybe we're in a console command)
         if ($request = $this->requestStack->getCurrentRequest()) {
-            $borealisClient = $this->container->get('borealis.client');
-            $ip             = $borealisClient->ip($request);
+            $AuroraClient = $this->container->get('aurora.client');
+            $ip             = $AuroraClient->ip($request);
 
             // Misc records
             $this->record['misc']['IP']      = $ip;
-            $this->record['misc']['Country'] = $borealisClient->ip2CountryCode($ip);
+            $this->record['misc']['Country'] = $AuroraClient->ip2CountryCode($ip);
             $this->record['misc']['U/A']     = $request->headers->get('User-Agent');
         }
     }

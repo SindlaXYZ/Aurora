@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Monolog;
+namespace Sindla\Bundle\AuroraBundle\Utils\Monolog;
 
 use Monolog\Formatter\NormalizerFormatter;
 use Monolog\Logger;

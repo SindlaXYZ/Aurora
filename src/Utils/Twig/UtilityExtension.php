@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Twig;
+namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 // Symfony
 use Symfony\Component\HttpFoundation\Request;
@@ -17,7 +17,7 @@ use Twig\Environment;
 use MatthiasMullie\Minify;
 
 // Sindla
-use Sindla\Bundle\BorealisBundle\Utils\PWA\PWA;
+use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Symfony\Component\Yaml\Yaml;
 
 class UtilityExtension extends AbstractExtension
@@ -52,7 +52,7 @@ class UtilityExtension extends AbstractExtension
     public function getFilters()
     {
         return [
-            /** {{ '1987-12-20'|borealis.age }} */
+            /** {{ '1987-12-20'|aurora.age }} */
             new TwigFilter('age', [$this, 'filterAge']),
 
             new TwigFilter('replace_array', [$this, 'filterReplaceArray'])
@@ -91,10 +91,10 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('build', [$this, 'getBuild']),
             new TwigFunction('buildDate', [$this, 'getBuildDate']),
 
-            /** {{ borealis.hash(2) }} */
+            /** {{ aurora.hash(2) }} */
             new TwigFunction('hash', [$this, 'getHash']),
 
-            /** {{ borealis.sha1('my string to sha1') }} */
+            /** {{ aurora.sha1('my string to sha1') }} */
             new TwigFunction('sha1', [$this, 'getSha1']),
             new TwigFunction('ip2Country', [$this, 'ip2Country']),
             new TwigFunction('compressCss', [$this, 'compressCss']),
@@ -108,10 +108,10 @@ class UtilityExtension extends AbstractExtension
      */
     public function pwa(Request $Request, bool $debug)
     {
-        return $this->twig->display('@Borealis/favicon.html.twig', [
+        return $this->twig->display('@Aurora/favicon.html.twig', [
             'host'        => $Request->getHost(),
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
-            'theme_color' => $this->container->getParameter('borealis.pwa.theme_color'),
+            'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
             'debug'       => $debug
         ]);
@@ -119,14 +119,14 @@ class UtilityExtension extends AbstractExtension
 
     public function getBuild($limit = null)
     {
-        $serviceGit = $this->container->get('borealis.git');
+        $serviceGit = $this->container->get('aurora.git');
         $build      = $serviceGit->getHash();
         return substr($build, 0, ($limit ? $limit : strlen($build)));
     }
 
     public function getBuildDate()
     {
-        $serviceGit = $this->container->get('borealis.git');
+        $serviceGit = $this->container->get('aurora.git');
         return $serviceGit->getDate();
     }
 
@@ -144,13 +144,13 @@ class UtilityExtension extends AbstractExtension
 
     public function ip(Request $Request)
     {
-        $Client = $this->container->get('borealis.client');
+        $Client = $this->container->get('aurora.client');
         return $Client->ip($Request);
     }
 
     public function ip2Country(Request $Request)
     {
-        $Client = $this->container->get('borealis.client');
+        $Client = $this->container->get('aurora.client');
         return $Client->ip2CountryCode($this->ip($Request));
     }
 
@@ -165,7 +165,7 @@ class UtilityExtension extends AbstractExtension
      */
     public function compressCss(Request $Request, $combine, $minify, ...$assets)
     {
-        $serviceGit = $this->container->get('borealis.git');
+        $serviceGit = $this->container->get('aurora.git');
 
         if (!$combine) {
             foreach ($assets as $asset) {
@@ -177,7 +177,7 @@ class UtilityExtension extends AbstractExtension
 
             // Combine multiple assets into one single file
         } else {
-            $root          = $this->container->getParameter('borealis.root');
+            $root          = $this->container->getParameter('aurora.root');
             $cacheFileName = $serviceGit->getHash() . '.css';
             $cacheFilePath = "{$root}/web/static/compiled/{$cacheFileName}";
 
@@ -239,8 +239,8 @@ class UtilityExtension extends AbstractExtension
             }
 
         } else {
-            $root       = $this->container->getParameter('borealis.root');
-            $serviceGit = $this->container->get('borealis.git');
+            $root       = $this->container->getParameter('aurora.root');
+            $serviceGit = $this->container->get('aurora.git');
             //$serviceSanitizer = $this->Container->get('service.sanitizer');
             $cacheFileName = $serviceGit->getHash() . '.js';
             $cacheFilePath = "{$root}/web/static/compiled/{$cacheFileName}";

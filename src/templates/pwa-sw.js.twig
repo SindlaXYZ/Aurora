@@ -8,7 +8,7 @@ console.log(self.registration);
 {# list the files you want cached by the service worker under "PRECACHE" #}
 {#
 PRECACHE_URLS = [
-    '{{ path('borealis_pwa_offline')|raw }}'
+    '{{ path('aurora_pwa_offline')|raw }}'
 ];
 #}
 
@@ -69,7 +69,7 @@ self.addEventListener('fetch', event => {
                 });
             {# https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#generic_fallback #}
             }).catch(function() {
-                return caches.match('{{ path('borealis_pwa_offline')|raw }}');
+                return caches.match('{{ path('aurora_pwa_offline')|raw }}');
             })
         );
     }

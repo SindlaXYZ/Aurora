@@ -1,17 +1,17 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Git;
+namespace Sindla\Bundle\AuroraBundle\Utils\Git;
 
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 
 /**
- * Debug: php bin/console debug:container borealis.git
+ * Debug: php bin/console debug:container aurora.git
  *
  * Class Git
  *
- * @package BorealisBundle\Utils
+ * @package AuroraBundle\Utils
  */
 class Git
 {
@@ -28,8 +28,8 @@ class Git
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
             $item->expiresAfter(60 * 30);
 
-            $root = $this->container->getParameter('borealis.root');
-            $this->container->getParameter('borealis.root');
+            $root = $this->container->getParameter('aurora.root');
+            $this->container->getParameter('aurora.root');
 
             if (is_dir($root . '/.git/')) {
                 $stringfromfile = file($root . '/.git/HEAD', FILE_USE_INCLUDE_PATH);
@@ -51,7 +51,7 @@ class Git
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
             $item->expiresAfter(60 * 30);
 
-            $root = $this->container->getParameter('borealis.root');
+            $root = $this->container->getParameter('aurora.root');
 
             if (is_dir($root . '/.git/')) {
                 if (file_exists($root . '/.git/refs/heads/' . $branch)) {
@@ -76,7 +76,7 @@ class Git
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
             $item->expiresAfter(60 * 30);
 
-            $root = $this->container->getParameter('borealis.root');
+            $root = $this->container->getParameter('aurora.root');
             if (is_dir($root . '/.git/')) {
                 if (file_exists($root . '/.git/logs/refs/heads/' . $branch)) {
                     $handle = fopen($root . '/.git/logs/refs/heads/' . $branch, 'r');

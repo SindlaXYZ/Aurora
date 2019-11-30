@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\IO;
+namespace Sindla\Bundle\AuroraBundle\Utils\IO;
 
 class IO
 {

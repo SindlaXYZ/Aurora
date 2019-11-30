@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\EventListener;
+namespace Sindla\Bundle\AuroraBundle\EventListener;
 
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -39,16 +39,16 @@ class OutputSubscriber implements EventSubscriberInterface
     public function onKernelResponse(ResponseEvent $event)
     {
         $pathInfo = $event->getRequest()->getPathInfo();
-        if (true == $this->container->getParameter('borealis.minify.output') && array_map(function ($extension) use ($pathInfo) {
+        if (true == $this->container->getParameter('aurora.minify.output') && array_map(function ($extension) use ($pathInfo) {
                 // If extensions found in path info
                 if (substr_compare($pathInfo, $extension, strlen($pathInfo) - strlen($extension), strlen($extension)) === 0) {
                     return false;
                 }
-            }, $this->container->getParameter('borealis.minify.output.ignore.extensions'))) {
+            }, $this->container->getParameter('aurora.minify.output.ignore.extensions'))) {
 
             $response = $event->getResponse();
-            if (!$response->headers->get('X-Do-Not-Minify') && !$response->headers->get('x-do-not-minify') && !method_exists($response, 'getFile') && !in_array($response->headers->get('content-type'), $this->container->getParameter('borealis.minify.output.ignore.content.type'))) {
-                $serviceSanitizer = $this->container->get('borealis.sanitizer');
+            if (!$response->headers->get('X-Do-Not-Minify') && !$response->headers->get('x-do-not-minify') && !method_exists($response, 'getFile') && !in_array($response->headers->get('content-type'), $this->container->getParameter('aurora.minify.output.ignore.content.type'))) {
+                $serviceSanitizer = $this->container->get('aurora.sanitizer');
                 $response->setContent($serviceSanitizer->minifyHTML($response->getContent()));
             }
         }

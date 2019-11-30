@@ -6,48 +6,48 @@ services:
 
     # controllers are imported separately to make sure services can be injected
     # as action arguments even if you don't extend any base controller class
-    #Borealis\Controller\:
+    #Aurora\Controller\:
         #resource: 'src/Controller/'
         #tags: ['controller.service_arguments']
 
-#    BorealisBundleControllers:
-#        resource: Sindla\Bundle\BorealisBundle\Controller
+#    AuroraBundleControllers:
+#        resource: Sindla\Bundle\AuroraBundle\Controller
 #        type:     annotation
 
-#    borealis.controller.pwa:
-#        class: Sindla\Bundle\BorealisBundle\Controller\PWAController
+#    aurora.controller.pwa:
+#        class: Sindla\Bundle\AuroraBundle\Controller\PWAController
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 
     ###################################################################################################################
-    ###  Borealis Commands ############################################################################################
+    ###  Aurora Commands ##############################################################################################
 
     # Register TestCommand (see class file for the command name)
-    borealis.command.test:
-        class: Sindla\Bundle\BorealisBundle\Command\TestCommand
+    aurora.command.test:
+        class: Sindla\Bundle\AuroraBundle\Command\TestCommand
         tags:
             - { name: console.command }
 
     # Register LazyEntity command (see class file for the command name)
-    borealis.command.lazy_entity:
-        class: Sindla\Bundle\BorealisBundle\Command\LazyEntityCommand
+    aurora.command.lazy_entity:
+        class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
         arguments: ['@service_container']
         tags:
             - { name: console.command }
 
     # Register ComposerUpdate command (see class file for the command name)
-    borealis.command.composer.update:
-        class: Sindla\Bundle\BorealisBundle\Command\ComposerUpdateCommand
+    aurora.command.composer.update:
+        class: Sindla\Bundle\AuroraBundle\Command\ComposerUpdateCommand
         arguments: ['@service_container']
         tags:
             - { name: console.command }
 
     ###################################################################################################################
-    ###  Borealis Twig ################################################################################################
+    ###  Aurora Twig ##################################################################################################
 
-    borealis.twig.utility:
-        class: Sindla\Bundle\BorealisBundle\Utils\Twig\UtilityExtension
+    aurora.twig.utility:
+        class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
         tags:
             - { name: twig.extension }
         arguments: ['@service_container', "@request_stack", "@twig"]
@@ -56,70 +56,70 @@ services:
         public: true
 
     ###################################################################################################################
-    ###  Borealis Services / Utils ####################################################################################
+    ###  Aurora Services / Utils ######################################################################################
 
-    borealis.calculus:
-        class: Sindla\Bundle\BorealisBundle\Utils\Calculus\Calculus
+    aurora.calculus:
+        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.chronos:
-        class: Sindla\Bundle\BorealisBundle\Utils\Chronos\Chronos
+    aurora.chronos:
+        class: Sindla\Bundle\AuroraBundle\Utils\Chronos\Chronos
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.client:
-        class: Sindla\Bundle\BorealisBundle\Utils\Client\Client
+    aurora.client:
+        class: Sindla\Bundle\AuroraBundle\Utils\Client\Client
         arguments: ['@service_container']
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.diacritics:
-        class: Sindla\Bundle\BorealisBundle\Utils\Diacritics\Diacritics
+    aurora.diacritics:
+        class: Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.git:
-        class: Sindla\Bundle\BorealisBundle\Utils\Git\Git
+    aurora.git:
+        class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
         arguments: ['@service_container']
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.io:
-        class: Sindla\Bundle\BorealisBundle\Utils\IO\IO
+    aurora.io:
+        class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
         autowire: true
         autoconfigure: true
         public: true
 
 #   DEPRECATED
-#    borealis.params:
-#        class: Sindla\Bundle\BorealisBundle\Utils\Params\Params
+#    aurora.params:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
 #        arguments: ['@service_container']
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 
-    borealis.pwa:
-        class: Sindla\Bundle\BorealisBundle\Utils\PWA\PWA
+    aurora.pwa:
+        class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
         arguments: ['@service_container', "@twig"]
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.sanitizer:
-        class: Sindla\Bundle\BorealisBundle\Utils\Sanitizer\Sanitizer
+    aurora.sanitizer:
+        class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
         arguments: ['@service_container']
         autowire: true
         autoconfigure: true
         public: true
 
-    borealis.strink:
-        class: Sindla\Bundle\BorealisBundle\Utils\Strink\Strink
+    aurora.strink:
+        class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
         autowire: true
         autoconfigure: true
         public: true

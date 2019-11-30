@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Diacritics\Extension;
+namespace Sindla\Bundle\AuroraBundle\Utils\Diacritics\Extension;
 
 class Romanian
 {

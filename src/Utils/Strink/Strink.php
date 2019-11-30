@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Utils\Strink;
+namespace Sindla\Bundle\AuroraBundle\Utils\Strink;
 
 class Strink
 {

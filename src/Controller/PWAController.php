@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Controller;
+namespace Sindla\Bundle\AuroraBundle\Controller;
 
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,7 +11,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 // Sindla
-use Sindla\Bundle\BorealisBundle\Utils\PWA\PWA;
+use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -37,14 +37,14 @@ class PWAController extends AbstractController
      */
     public function progressiveWebApplication(Request $Request): Response
     {
-        //var_dump($this->container->getParameter('borealis.pwa.offline'));die;
+        //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
 
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
 
             /** @var PWA $PWA */
-            $PWA = $this->get('borealis.pwa');
+            $PWA = $this->get('aurora.pwa');
 
             // Manifest
             if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
@@ -65,13 +65,13 @@ class PWAController extends AbstractController
     }
 
     /**
-     * @Route("/pwa-offline", name="borealis_pwa_offline", methods={"GET","HEAD"})
+     * @Route("/pwa-offline", name="aurora_pwa_offline", methods={"GET","HEAD"})
      */
     public function offline(): Response
     {
         if ($this->container->has('profiler')) {
             $this->container->get('profiler')->disable();
         }
-        return $this->render('@Borealis/offline.html.twig');
+        return $this->render('@Aurora/offline.html.twig');
     }
 }

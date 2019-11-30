@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\BorealisBundle\Controller;
+namespace Sindla\Bundle\AuroraBundle\Controller;
 
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -9,12 +9,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 // Sindla
-use Sindla\Bundle\BorealisBundle\Utils\Client\Client as BorealisClient;
+use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
-class BorealisController extends AbstractController
+class AuroraController extends AbstractController
 {
     /**
-     * @Route("/sindla/borealis", name="borealis_index", methods={"GET","HEAD"})
+     * @Route("/sindla/aurora", name="aurora_index", methods={"GET","HEAD"})
      */
     public function indexAction(Request $Request)
     {
@@ -25,17 +25,17 @@ class BorealisController extends AbstractController
     }
 
     /**
-     * @Route("/sindla/borealis/ip", name="borealis_ip", methods={"GET","HEAD"})
+     * @Route("/sindla/aurora/ip", name="aurora_ip", methods={"GET","HEAD"})
      */
     public function service(Request $Request)
     {
-        /** @var BorealisClient $BorelisClient */
-        $BorelisClient = $this->get('borealis.client');
+        /** @var AuroraClient $AuroraClient */
+        $AuroraClient = $this->get('aurora.client');
 
-        $Response = new Response($BorelisClient->ip($Request), Response::HTTP_OK);
+        $Response = new Response($AuroraClient->ip($Request), Response::HTTP_OK);
         $Response->headers->set('X-Backend-Hit', true);
         $Response->headers->set('X-Robots-Tag', 'noindex');
-        // $countryCode = $this->BorelisClient->ip2CountryCode($this->BorelisClient->ip($Request));
+        // $countryCode = $this->AuroraClient->ip2CountryCode($this->AuroraClient->ip($Request));
         return $Response;
     }
 }
