@@ -188,6 +188,7 @@ class CommandMidleware extends Command
             return ($matches[2] == 'true') ? true : false;
         }
 
-        return false;
+        // If not set, default true (can be null)
+        return true;
     }
 }
