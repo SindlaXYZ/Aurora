@@ -72,7 +72,7 @@ class LazyEntityCommand extends CommandMidleware
 
         $this->generateSettersGetters();
 
-        return 1;
+        return 0;
     }
 
     private function generateSettersGetters()

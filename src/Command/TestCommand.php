@@ -37,6 +37,6 @@ class TestCommand extends Command
     {
         $output->writeln('It works!');
 
-        return 1;
+        return 0;
     }
 }
