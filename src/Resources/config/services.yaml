@@ -1,0 +1,128 @@
+services:
+    # default configuration for services in *this* file
+    _defaults:
+        autowire: true      # Automatically injects dependencies in your services.
+        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
+
+    # controllers are imported separately to make sure services can be injected
+    # as action arguments even if you don't extend any base controller class
+    #Aurora\Controller\:
+        #resource: 'src/Controller/'
+        #tags: ['controller.service_arguments']
+
+#    AuroraBundleControllers:
+#        resource: Sindla\Bundle\AuroraBundle\Controller
+#        type:     annotation
+
+#    aurora.controller.pwa:
+#        class: Sindla\Bundle\AuroraBundle\Controller\PWAController
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+
+    ###################################################################################################################
+    ###  Aurora Commands ##############################################################################################
+
+    # Register TestCommand (see class file for the command name)
+    aurora.command.test:
+        class: Sindla\Bundle\AuroraBundle\Command\TestCommand
+        tags:
+            - { name: console.command }
+
+    # Register LazyEntity command (see class file for the command name)
+    aurora.command.lazy_entity:
+        class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
+        arguments: ['@service_container']
+        tags:
+            - { name: console.command }
+
+    # Register ComposerUpdate command (see class file for the command name)
+    aurora.command.composer.update:
+        class: Sindla\Bundle\AuroraBundle\Command\ComposerUpdateCommand
+        arguments: ['@service_container']
+        tags:
+            - { name: console.command }
+
+    ###################################################################################################################
+    ###  Aurora Twig ##################################################################################################
+
+    aurora.twig.utility:
+        class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
+        tags:
+            - { name: twig.extension }
+        arguments: ['@service_container', "@request_stack", "@twig"]
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    ###################################################################################################################
+    ###  Aurora Services / Utils ######################################################################################
+
+    aurora.calculus:
+        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.chronos:
+        class: Sindla\Bundle\AuroraBundle\Utils\Chronos\Chronos
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.client:
+        class: Sindla\Bundle\AuroraBundle\Utils\Client\Client
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.diacritics:
+        class: Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.git:
+        class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.io:
+        class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
+        autowire: true
+        autoconfigure: true
+        public: true
+
+#   DEPRECATED
+#    aurora.params:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
+#        arguments: ['@service_container']
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+
+    aurora.pwa:
+        class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
+        arguments: ['@service_container', "@twig"]
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.sanitizer:
+        class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.strink:
+        class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    ###################################################################################################################
+    ###################################################################################################################

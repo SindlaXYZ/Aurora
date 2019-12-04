@@ -1,0 +1,96 @@
+var PRECACHE = 'precache-{{ build }}';
+var RUNTIME = 'runtime-{{ build }}';
+
+{% if app.debug %}
+console.log(self.registration);
+{% endif %}
+
+{# list the files you want cached by the service worker under "PRECACHE" #}
+{#
+PRECACHE_URLS = [
+    '{{ path('aurora_pwa_offline')|raw }}'
+];
+#}
+
+PRECACHE_URLS = [{{ precache|raw }}];
+
+{# Installing - the rest below handles the installing and caching #}
+self.addEventListener('install', event => {
+    event.waitUntil(
+        caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(self.skipWaiting())
+    );
+});
+
+{# Active #}
+self.addEventListener('activate', event => {
+    const currentCaches = [PRECACHE, RUNTIME];
+    event.waitUntil(
+        caches.keys().then(cacheNames => {
+            return cacheNames.filter(cacheName => !currentCaches.includes(cacheName));
+        }).then(cachesToDelete => {
+            return Promise.all(cachesToDelete.map(cacheToDelete => {
+                return caches.delete(cacheToDelete);
+            }));
+        }).then(() => self.clients.claim())
+    );
+});
+
+{# Fetch handler Put your logic here #}
+self.addEventListener('fetch', event => {
+    {# console.log(event.request.url); #}
+
+    {# ['/ajax-requests', '/q'] #}
+    var startsWith = [{{ prevent_cache|raw }}];
+
+    for (i = 0; i < startsWith.length; i++) {
+        if(event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
+            {# console.log('Prevent caching the'+ startsWith[i]); #}
+            return false;
+        }
+    }
+
+    {# [/fonts.gstatic.com/, /fonts.googleapis.com/];#}
+    var externalCache = [{{ external_cache|raw }}];
+
+    if (event.request.url.startsWith(self.location.origin) || matchInArray(event.request.url, externalCache)) {
+        event.respondWith(
+            caches.match(event.request).then(cachedResponse => {
+                if (cachedResponse) {
+                    return cachedResponse;
+                }
+
+                return caches.open(RUNTIME).then(cache => {
+                    return fetch(event.request).then(response => {
+                        {# Put a copy of the response in the runtime cache. #}
+                        return cache.put(event.request, response.clone()).then(() => {
+                            return response;
+                        });
+                    });
+                });
+            {# https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#generic_fallback #}
+            }).catch(function() {
+                return caches.match('{{ path('aurora_pwa_offline')|raw }}');
+            })
+        );
+    }
+});
+
+function matchInArray(string, expressions) {
+    var len = expressions.length, i = 0;
+    for (; i < len; i++) {
+        if (string.match(expressions[i])) {
+            return true;
+        }
+    }
+    return false;
+};
+
+{#
+self.addEventListener('push', function(event) {
+    event.waitUntil(
+        self.registration.showNotification('Got Push?', {
+            body: 'Push Message received'
+        })
+    );
+});
+#}
