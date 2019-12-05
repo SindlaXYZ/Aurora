@@ -172,19 +172,19 @@ EOT;
 
                 if (in_array($prop->name, ['id', 'createdAt', 'updatedAt', 'crondAt'])) {
                     $traints = $reflect->getTraits();
-                    if('id' == $prop->name && array_key_exists('App\Entity\Traits\Identifiable', $traints)) {
+                    if ('id' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Identifiable', 'App\Entity\Supers\IdentifiableTrait']), $traints)) {
                         continue;
                     }
 
-                    if('createdAt' == $prop->name && array_key_exists('App\Entity\Traits\Temporal', $traints)) {
+                    if ('createdAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Temporal', 'App\Entity\Supers\TemporalTrait', 'App\Entity\Supers\TemporalCreatedTrait']), $traints)) {
                         continue;
                     }
 
-                    if('updatedAt' == $prop->name && array_key_exists('App\Entity\Traits\Temporal', $traints)) {
+                    if ('updatedAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Temporal', 'App\Entity\Supers\TemporalTrait']), $traints)) {
                         continue;
                     }
 
-                    if('crondAt' == $prop->name && array_key_exists('App\Entity\Traits\TemporalCrond', $traints)) {
+                    if ('crondAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\TemporalCrond', 'App\Entity\Supers\TemporalCrondTrait']), $traints)) {
                         continue;
                     }
                 }
@@ -262,8 +262,9 @@ EOT;
 
             if ($overwrite) {
 
-                \preg_match_all('/private \$(.*);/i', $fileContent, $matches);
+                //\preg_match_all('/private \$(.*);/i', $fileContent, $matches);
                 //preg_match("/(?s)private(?!.*private).+;/", $fileContent, $matches);
+                preg_match_all('/private[\s\w]*\s\$(.*);/', $fileContent, $matches);
 
                 $newContent = '';
                 if ($matches[0]) {
