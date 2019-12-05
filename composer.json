@@ -1,7 +1,7 @@
 {
     "name": "sindla/aurora",
     "type": "symfony-bundle",
-    "description": "Aurora - Symfony 4.4 bundle",
+    "description": "Aurora - Symfony 5.0 bundle",
     "keywords": [
     ],
     "homepage": "http://sindla.com",
@@ -9,7 +9,7 @@
     "authors": [
     ],
     "require": {
-        "php": ">=7.3",
+        "php": ">=7.4",
         "ext-curl": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
