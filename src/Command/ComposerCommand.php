@@ -137,7 +137,7 @@ class ComposerCommand extends Command
 
         // If file is not older than X hours
         if (file_exists($phpUnitFile) && (time() - filemtime($phpUnitFile)) < 60 * 60 * 24) {
-            $this->io->comment(sprintf('%s Skip updating (PHPUnit is too new)', $this->p()));
+            $this->io->comment(sprintf('%s ... skip updating (PHPUnit is too new)', $this->p()));
             return;
         }
 
@@ -177,7 +177,7 @@ class ComposerCommand extends Command
 
         // If file is not older than X hours
         if (file_exists($destinationFile) && time() - filemtime($destinationFile) < 60 * 60 * 24) {
-            $this->io->comment(sprintf('%s Skip updating (GeoIP2/GeoLite2Country is too new)', $this->p()));
+            $this->io->comment(sprintf('%s ... skip updating (GeoIP2/GeoLite2Country is too new)', $this->p()));
             return;
         }
 
