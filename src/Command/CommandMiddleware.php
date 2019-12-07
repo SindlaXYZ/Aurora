@@ -7,16 +7,17 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 // Doctrine
 use Doctrine\ORM\EntityManager;
 
 /**
- * Class CommandMidleware
+ * Class CommandMiddleware
  * Utilities for all command diles
  */
-class CommandMidleware extends Command
+class CommandMiddleware extends Command
 {
     /** @var ContainerInterface */
     protected $container;
@@ -26,6 +27,9 @@ class CommandMidleware extends Command
 
     /** @var OutputInterface */
     protected $output;
+
+    /** @var SymfonyStyle */
+    protected $io;
 
     protected $kernelRootDir;
 
@@ -50,6 +54,11 @@ class CommandMidleware extends Command
     protected function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+    }
+
+    protected function setIo(SymfonyStyle $io)
+    {
+        $this->io = $io;
     }
 
     /**

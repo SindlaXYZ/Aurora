@@ -10,7 +10,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-class LazyEntityCommand extends CommandMidleware
+class LazyEntityCommand extends CommandMiddleware
 {
     private $entity;
     private $namespace;
