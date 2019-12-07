@@ -42,7 +42,9 @@ class ComposerCommand extends Command
         $this
             ->setName(self::$defaultName)
             ->setDescription('Composer commands')
-            ->setHelp('Composer update command');
+            ->setHelp('Composer update command')
+            // Mandatory
+            ->addOption('action', null, InputOption::VALUE_REQUIRED);
     }
 
     public function __construct(ContainerInterface $container)
