@@ -37,8 +37,8 @@ services:
             - { name: console.command }
 
     # Register ComposerUpdate command (see class file for the command name)
-    aurora.command.composer.update:
-        class: Sindla\Bundle\AuroraBundle\Command\ComposerUpdateCommand
+    aurora.command.composer:
+        class: Sindla\Bundle\AuroraBundle\Command\ComposerCommand
         arguments: ['@service_container']
         tags:
             - { name: console.command }
