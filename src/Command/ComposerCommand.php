@@ -68,25 +68,23 @@ class ComposerCommand extends Command
         $this->output = $output;
         $this->io     = new SymfonyStyle($this->input, $this->output);
 
-        $this->io->newLine();
-
-        $this->io->comment(sprintf('%s Start running %s', $this->p(), $this->getName()));
+        $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
         $action = trim($input->getOption('action'));
 
         if (empty($action)) {
-            return $this->outputWithTime("Invalid action: not specified.");
+            return $this->io->warning("Invalid action: not specified.");
         }
 
         if ('_' == substr($action, 0, 1)) {
-            return $this->outputWithTime("Invalid action {$action}()");
+            return $this->io->warning("Invalid action {$action}()");
         }
 
         if (method_exists($this, $action)) {
-            $this->outputWithTime("Start to execute {$action}()");
+            $this->io->comment("[AURORA] Start to execute {$action}()");
             $this->$action();
-            $this->outputWithTime("Done");
-
+            $this->io->newLine();
+            $this->io->success('[AURORA] All commands were successfully run (post update).');
         } else {
             return $this->outputWithTime("Invalid action {$action}()");
         }
@@ -101,9 +99,6 @@ class ComposerCommand extends Command
     {
         // GeoIP2
         $this->_updateGeoIP2Contry();
-
-        $this->io->newLine();
-        $this->io->success('[AURORA] All commands were successfully run (post install).');
     }
 
     /**
@@ -132,21 +127,17 @@ class ComposerCommand extends Command
             copy(realpath(dirname(__FILE__)) . '/../Static/js/f.adblock.js', $this->kernelRootDir . '/web/static/aurora/js/f.adblock.js');
             $this->output->writeln(sprintf('%s ... done;', $this->p()));
         }
-
-        $this->io->newLine();
-        $this->io->success('[AURORA] All commands were successfully run (post update).');
     }
 
     public function _updatePHPUnit()
     {
-        $this->io->newLine();
-        $this->output->writeln(sprintf('%s Updating the <info>PHPUnit</info> ...', $this->p()));
+        $this->io->comment(sprintf('%s Updating the <info>PHPUnit</info> ...', $this->p()));
 
         $phpUnitFile = $this->kernelRootDir . '/phpunit.phar';
 
         // If file is not older than X hours
         if (file_exists($phpUnitFile) && (time() - filemtime($phpUnitFile)) < 60 * 60 * 24) {
-            $this->output->writeln(sprintf('%s Skip updating the <info>PHPUnit</info>. The file is too new.', $this->p()));
+            $this->io->comment(sprintf('%s Skip updating (PHPUnit is too new)', $this->p()));
             return;
         }
 
@@ -166,8 +157,7 @@ class ComposerCommand extends Command
 
     public function _updateGeoIP2Contry()
     {
-        $this->io->newLine();
-        $this->output->writeln(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
+        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
 
         $tempDir         = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir      = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
@@ -187,7 +177,7 @@ class ComposerCommand extends Command
 
         // If file is not older than X hours
         if (file_exists($destinationFile) && time() - filemtime($destinationFile) < 60 * 60 * 24) {
-            $this->output->writeln(sprintf('%s Skip updating the <info>Maxmind GeoIP2/GeoLite2Country</info>. The file is too new.', $this->p()));
+            $this->io->comment(sprintf('%s Skip updating (GeoIP2/GeoLite2Country is too new)', $this->p()));
             return;
         }
 
@@ -226,7 +216,7 @@ class ComposerCommand extends Command
             throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
         }
 
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
     public function _clearTmpDir()
