@@ -39,6 +39,16 @@ class CommandMiddleware extends Command
     protected $em;
 
     /**
+     * CommandMiddleware constructor.
+     *
+     * @param string $defaultName
+     */
+    public function __construct(string $defaultName)
+    {
+        parent::__construct($defaultName);
+    }
+
+    /**
      * {@inheritDoc}
      */
     protected function configure()
