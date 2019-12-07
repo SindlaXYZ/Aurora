@@ -221,8 +221,7 @@ class ComposerCommand extends Command
 
     public function _clearTmpDir()
     {
-        $this->io->newLine();
-        $this->output->writeln(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
+        $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
 
         /** @var IO $IOService */
         $IOService = $this->container->get('aurora.io');
@@ -230,6 +229,6 @@ class ComposerCommand extends Command
             $IOService->recursiveDelete($directory, false);
         }
 
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 }
