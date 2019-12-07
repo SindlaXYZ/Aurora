@@ -40,6 +40,9 @@ parameters:
 ```
 * Edit `composer.json` and add 
 ```json
+    "post-install-cmd": [
+        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall" 
+    ],
     "post-update-cmd": [
         "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate" 
     ]

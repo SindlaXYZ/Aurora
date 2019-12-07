@@ -17,18 +17,22 @@ use Symfony\Component\Yaml\Yaml;
 // Custom
 use Sindla\Bundle\AuroraBundle\Service\IO\IO;
 
-class ComposerUpdateCommand extends Command
+class ComposerCommand extends Command
 {
     /**
      * The name of the command (the part after "bin/console")
      * The command must be registered in src/Resources/config/services.yaml
      *
      * Usage:
-     *      clear; php bin/console aurora:test
+     *      clear; php bin/console aurora:composer
      *
      * @var string
      */
-    protected static $defaultName = 'aurora:composer.update';
+    protected static $defaultName = 'aurora:composer';
+
+    protected $input;
+    protected $output;
+    protected $io;
 
     /**
      * {@inheritDoc}
@@ -44,8 +48,8 @@ class ComposerUpdateCommand extends Command
     public function __construct(ContainerInterface $container)
     {
         parent::__construct();
-        $this->container      = $container;
-        $this->kernelRootDir  = $this->container->getParameter('kernel.project_dir');
+        $this->container     = $container;
+        $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
     private function p()
@@ -60,33 +64,63 @@ class ComposerUpdateCommand extends Command
     {
         $this->input  = $input;
         $this->output = $output;
+        $this->io     = new SymfonyStyle($this->input, $this->output);
 
-        $io = new SymfonyStyle($this->input, $this->output);
-        $io->newLine();
+        $this->io->newLine();
 
-        $io->comment(sprintf('%s Start running %s', $this->p(), $this->getName()));
+        $this->io->comment(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
+        $action = trim($input->getOption('action'));
+
+        if (empty($action)) {
+            return $this->outputWithTime("Invalid action: not specified.");
+        }
+
+        if ('_' == substr($action, 0, 1)) {
+            return $this->outputWithTime("Invalid action {$action}()");
+        }
+
+        if (method_exists($this, $action)) {
+            $this->outputWithTime("Start to execute {$action}()");
+            $this->$action();
+            $this->outputWithTime("Done");
+
+        } else {
+            return $this->outputWithTime("Invalid action {$action}()");
+        }
+
+        return 0;
+    }
+
+    /**
+     * clear; php bin/console aurora:composer --action=postInstall
+     */
+    private function postInstall()
+    {
+        // GeoIP2
+        $this->_updateGeoIP2Contry();
+
+        $this->io->newLine();
+        $this->io->success('[AURORA] All commands were successfully run (post install).');
+    }
+
+    /**
+     * clear; php bin/console aurora:composer --action=postUpdate
+     */
+    private function postUpdate()
+    {
         // PHPUnit
-        $io->newLine();
-        $this->output->writeln(sprintf('%s Updating the <info>PHPUnit</info> ...', $this->p()));
-        $this->updatePHPUnit();
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        $this->_updatePHPUnit();
 
         // GeoIP2
-        $io->newLine();
-        $this->output->writeln(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
-        $this->updateGeoIP2Contry();
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        $this->_updateGeoIP2Contry();
 
-        // /var/tmp/*
-        $io->newLine();
-        $this->output->writeln(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
-        $this->clearTmpDir();
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        // Clear /var/tmp/*
+        $this->_clearTmpDir();
 
         if (false) {
             // Copy /Static/js
-            $io->newLine();
+            $this->io->newLine();
             $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/aurora/</info>', $this->p()));
 
             /** @var IO $IOService */
@@ -97,14 +131,15 @@ class ComposerUpdateCommand extends Command
             $this->output->writeln(sprintf('%s ... done;', $this->p()));
         }
 
-        $io->newLine();
-        $io->success('[AURORA] All commands were successfully run.');
-
-        return 0;
+        $this->io->newLine();
+        $this->io->success('[AURORA] All commands were successfully run (post update).');
     }
 
-    public function updatePHPUnit()
+    public function _updatePHPUnit()
     {
+        $this->io->newLine();
+        $this->output->writeln(sprintf('%s Updating the <info>PHPUnit</info> ...', $this->p()));
+
         $phpUnitFile = $this->kernelRootDir . '/phpunit.phar';
 
         // If file is not older than X hours
@@ -123,10 +158,15 @@ class ComposerUpdateCommand extends Command
         } catch (\Exception $e) {
             throw new \RuntimeException("[AURORA] Cannot write phpunit.phar file on disk.");
         }
+
+        $this->output->writeln(sprintf('%s ... done;', $this->p()));
     }
 
-    public function updateGeoIP2Contry()
+    public function _updateGeoIP2Contry()
     {
+        $this->io->newLine();
+        $this->output->writeln(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
+
         $tempDir         = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir      = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $destinationFile = $maxmindDir . '/GeoLite2Country.mmdb';
@@ -170,7 +210,7 @@ class ComposerUpdateCommand extends Command
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
         } finally {
             if ($pharError) {
-                return $this->updateGeoIP2Contry();
+                return $this->_updateGeoIP2Contry();
             }
         }
 
@@ -183,14 +223,21 @@ class ComposerUpdateCommand extends Command
         if (!copy(glob($tempDir . "/*/*.mmdb")[0], $destinationFile)) {
             throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
         }
+
+        $this->output->writeln(sprintf('%s ... done;', $this->p()));
     }
 
-    public function clearTmpDir()
+    public function _clearTmpDir()
     {
+        $this->io->newLine();
+        $this->output->writeln(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
+
         /** @var IO $IOService */
         $IOService = $this->container->get('aurora.io');
         foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
             $IOService->recursiveDelete($directory, false);
         }
+
+        $this->output->writeln(sprintf('%s ... done;', $this->p()));
     }
 }
