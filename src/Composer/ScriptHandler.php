@@ -42,7 +42,6 @@ class ScriptHandler
     public static function postInstall(Event $event)
     {
         $options          = static::getOptions($event);
-        $argv['--action'] = 'postInstall';
 
         // Run the ComposerCommand [composer:run]
         static::executeCommand($event, 'bin', 'aurora:composer --action=postInstall', $options['process-timeout']);
@@ -63,10 +62,9 @@ class ScriptHandler
     public static function postUpdate(Event $event)
     {
         $options          = static::getOptions($event);
-        $argv['--action'] = 'postUpdate';
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'aurora:composer', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
     }
 
     protected static function getPhp($includeArgs = true)
