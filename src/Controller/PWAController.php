@@ -65,7 +65,7 @@ class PWAController extends AbstractController
     }
 
     /**
-     * @Route("/pwa-offline", name="aurora_pwa_offline", methods={"GET","HEAD"})
+     * @Route("/pwa-offline", name="sindla_aurora_pwa_offline", methods={"GET","HEAD"})
      */
     public function offline(): Response
     {
