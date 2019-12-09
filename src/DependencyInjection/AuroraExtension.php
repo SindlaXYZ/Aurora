@@ -17,6 +17,11 @@ class AuroraExtension extends Extension
         $loader = new YamlFileLoader($container, new FileLocator([__DIR__ . '/../Resources/config']));
         $loader->load('config.yaml');
 
+
+        $this->addAnnotatedClassesToCompile([
+            'Sindla\\Bundle\\AuroraBundle\\Controller\\AuroraController',
+        ]);
+
         # https://symfony.com/doc/current/routing/custom_route_loader.html#creating-a-custom-loader
         # https://symfony.com/doc/current/routing/custom_route_loader.html#more-advanced-loaders
     }
