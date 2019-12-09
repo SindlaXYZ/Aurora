@@ -35,7 +35,7 @@ class TestCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $output->writeln('It works!');
+        $this->io->comment('It works!');
 
         return 0;
     }

@@ -11,10 +11,10 @@ use Symfony\Component\Routing\Annotation\Route;
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
-class AuroraController extends AbstractController
+class AuroraController extends AbstractController implements ContainerAwareInterface
 {
     /**
-     * @Route("/sindla/aurora", name="aurora_index", methods={"GET","HEAD"})
+     * @Route("/sindla/aurora", name="sindla_aurora_index", methods={"GET","HEAD"})
      */
     public function indexAction(Request $Request)
     {
@@ -25,7 +25,7 @@ class AuroraController extends AbstractController
     }
 
     /**
-     * @Route("/sindla/aurora/ip", name="aurora_ip", methods={"GET","HEAD"})
+     * @Route("/sindla/aurora/ip", name="sindla_aurora_ip", methods={"GET","HEAD"})
      */
     public function service(Request $Request)
     {

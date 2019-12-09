@@ -125,7 +125,8 @@ class ComposerCommand extends Command
             $IOService->recursiveCreateDirectory($this->kernelRootDir . '/web/static/aurora/js/');
 
             copy(realpath(dirname(__FILE__)) . '/../Static/js/f.adblock.js', $this->kernelRootDir . '/web/static/aurora/js/f.adblock.js');
-            $this->output->writeln(sprintf('%s ... done;', $this->p()));
+
+            $this->io->comment(sprintf('%s ... done;', $this->p()));
         }
     }
 
@@ -152,7 +153,7 @@ class ComposerCommand extends Command
             throw new \RuntimeException("[AURORA] Cannot write phpunit.phar file on disk.");
         }
 
-        $this->output->writeln(sprintf('%s ... done;', $this->p()));
+        $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
     public function _updateGeoIP2Contry()
