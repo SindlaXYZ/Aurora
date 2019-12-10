@@ -1,0 +1,5 @@
+# BUG: ... has no container set, did you forget to define it as a service subscriber?
+
+#controllers:
+#    resource: '@AuroraBundle/Controller/'
+#    type: annotation

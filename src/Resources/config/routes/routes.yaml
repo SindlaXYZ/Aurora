@@ -1,7 +1,35 @@
-aurora_test:
-    path: '/aurora/test'
-    controller: 'aurora.controller.test::test'
+aurora.controller.test:
+    controller: 'aurora.controller.test'
+    path:
+        - '/aurora/test'
+        - '/aurora/test/service'
 
-aurora_test_service:
-    path: '/aurora/test/service'
-    controller: 'aurora.controller.test::service'
+aurora.controller.blackhole:
+    controller: 'aurora.controller.blackhole:blackHole'
+    path:
+        - '/js/cms/panel/panel.js'
+        - '/(wp|wordpress)/wp-login.php'
+        - '/wp-content/plugins/mm-plugin/inc/vendors/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
+        - '/wp-login.php'
+        - '/fckeditor/editor/filemanager/connectors/php/upload.php'
+        - '/xmlrpc.php'
+
+aurora.controller.pwa.progressiveWebApplication:
+    controller: 'aurora.controller.pwa:progressiveWebApplication'
+    path:
+        - '/favicon.ico'
+        - '/favicon-{width}x{height}.png'
+        - '/android-icon-{width}x{height}.png'
+        - '/apple-icon.png'
+        - '/apple-icon-precomposed.png'
+        - '/apple-icon-{width}x{height}.png'
+        - '/ms-icon-{width}x{height}.png'
+        - '/manifest.webmanifest'
+        - '/manifest.json'
+        - '/pwa-main.js'
+        - '/pwa-sw.js'
+
+aurora.controller.pwa.offline:
+    controller: 'aurora.controller.pwa:offline'
+    path:
+        - '/pwa-offline'

@@ -31,10 +31,3 @@
 
 {# https://developers.google.com/web/fundamentals/web-app-manifest/ #}
 <link rel="manifest" href="{{ asset('manifest.json') }}" {#x-host="{{ host }}" x-secure="{{ app.request.isSecure }}"#}>
-
-{# The Service Worker is a background script that a browser can run even while a user isn't on your page. It's the thing that provides offline support, and wakes up when a notification is triggered. #}
-{% if pwa %}
-<script src="{{ asset('/pwa-main.js') }}" service-worker="{{ asset('/pwa-sw.js') }}" service-worker-version="{{ build }}" service-worker-debug="{{ debug ? 1 : 0 }}"></script>
-{% else %}
-<!-- PWS works only on secured (HTTPS) connection! -->
-{% endif %}

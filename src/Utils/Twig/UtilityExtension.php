@@ -99,6 +99,8 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('ip2Country', [$this, 'ip2Country']),
             new TwigFunction('compressCss', [$this, 'compressCss']),
             new TwigFunction('compressJs', [$this, 'compressJs']),
+
+            new TwigFunction('manifest', [$this, 'manifest']),
             new TwigFunction('pwa', [$this, 'pwa']),
         ];
     }
@@ -106,9 +108,23 @@ class UtilityExtension extends AbstractExtension
     /**
      * Render and output twig template
      */
+    public function manifest(Request $Request, bool $debug)
+    {
+        return $this->twig->display('@Aurora/manifest.html.twig', [
+            'host'        => $Request->getHost(),
+            'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
+            'build'       => $this->getBuild(),
+            'debug'       => $debug
+        ]);
+    }
+
+    /**
+     * Render and output twig template
+     */
     public function pwa(Request $Request, bool $debug)
     {
-        return $this->twig->display('@Aurora/favicon.html.twig', [
+        return $this->twig->display('@Aurora/pwa.html.twig', [
             'host'        => $Request->getHost(),
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),

@@ -63,7 +63,7 @@ twig:
 
 * Edit `config/routes.yaml` and prepend
 ```yaml
-_parent:
+aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
 ```
 

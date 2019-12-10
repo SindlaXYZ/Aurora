@@ -13,9 +13,16 @@ use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
 class TestController extends AbstractController
 {
-    /**
-     * See Resources/config/routes/routes.yaml
-     */
+    public function __invoke(Request $Request)
+    {
+        $parts = explode('/', $Request->getRequestUri());
+        $action = end($parts);
+
+        if (method_exists($this, $action)) {
+            return $this->$action($Request);
+        }
+    }
+
     public function test(Request $Request)
     {
         $Response = new Response('It works!', Response::HTTP_OK);
@@ -24,9 +31,6 @@ class TestController extends AbstractController
         return $Response;
     }
 
-    /**
-     * See Resources/config/routes/routes.yaml
-     */
     public function service(Request $Request)
     {
         /** @var AuroraClient $AuroraClient */
