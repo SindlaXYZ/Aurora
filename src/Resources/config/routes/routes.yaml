@@ -4,4 +4,4 @@ aurora_test:
 
 aurora_test_service:
     path: '/aurora/test/service'
-    controller: 'aurora.controller::service'
+    controller: 'aurora.controller.test::service'
