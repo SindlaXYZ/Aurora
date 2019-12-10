@@ -21,6 +21,27 @@ services:
 #        public: true
 
     ###################################################################################################################
+    ###  Aurora Controller ############################################################################################
+
+    aurora.controller.test:
+        class: 'Sindla\Bundle\AuroraBundle\Controller\TestController'
+        tags: ['controller.service_arguments']
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    aurora.controller.blackhole:
+        class: 'Sindla\Bundle\AuroraBundle\Controller\BlackHoleController'
+        tags: ['controller.service_arguments']
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    aurora.controller.pwa:
+        class: 'Sindla\Bundle\AuroraBundle\Controller\PWAController'
+        tags: ['controller.service_arguments']
+        calls:
+            - [setContainer, ["@service_container"]]
+
+    ###################################################################################################################
     ###  Aurora Commands ##############################################################################################
 
     # Register TestCommand (see class file for the command name)

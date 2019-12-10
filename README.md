@@ -61,6 +61,12 @@ twig:
         aurora: '@aurora.twig.utility'
 ```
 
+* Edit `config/routes.yaml` and prepend
+```yaml
+_parent:
+    resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
+```
+
 Run `composer update` to update and install the rest of the dependencies.
 
 ---

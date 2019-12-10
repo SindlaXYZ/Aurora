@@ -1,0 +1,7 @@
+aurora_test:
+    path: '/aurora/test'
+    controller: 'aurora.controller.test::test'
+
+aurora_test_service:
+    path: '/aurora/test/service'
+    controller: 'aurora.controller::service'

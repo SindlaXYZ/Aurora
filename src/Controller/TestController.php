@@ -11,12 +11,12 @@ use Symfony\Component\Routing\Annotation\Route;
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
-class AuroraController extends AbstractController implements ContainerAwareInterface
+class TestController extends AbstractController
 {
     /**
-     * @Route("/sindla/aurora", name="sindla_aurora_index", methods={"GET","HEAD"})
+     * See Resources/config/routes/routes.yaml
      */
-    public function indexAction(Request $Request)
+    public function test(Request $Request)
     {
         $Response = new Response('It works!', Response::HTTP_OK);
         $Response->headers->set('X-Backend-Hit', true);
@@ -25,7 +25,7 @@ class AuroraController extends AbstractController implements ContainerAwareInter
     }
 
     /**
-     * @Route("/sindla/aurora/ip", name="sindla_aurora_ip", methods={"GET","HEAD"})
+     * See Resources/config/routes/routes.yaml
      */
     public function service(Request $Request)
     {
