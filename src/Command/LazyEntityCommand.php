@@ -44,7 +44,7 @@ class LazyEntityCommand extends CommandMiddleware
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct();
+        parent::__construct(self::$defaultName);
         $this->container      = $container;
         $this->kernelRootDir  = $this->container->getParameter('kernel.project_dir');
     }
