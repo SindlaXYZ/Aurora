@@ -370,6 +370,14 @@ class Strink
     }
 
     /**
+     * https://qaz.wtf/u/convert.cgi?text=AaBbCcDdEe
+     */
+    public function obscure()
+    {
+
+    }
+
+    /**
      * @return string
      */
     public function __toString(): string
