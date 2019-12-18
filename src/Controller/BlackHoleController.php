@@ -19,6 +19,12 @@ class BlackHoleController extends AbstractController
      * @Route("/wp-login.php")
      * @Route("/fckeditor/editor/filemanager/connectors/php/upload.php")
      * @Route("/xmlrpc.php")
+     * @Route("/vendor/phpunit/phpunit/phpunit.xsd")
+     * @Route("/wp-includes/wlwmanifest.xml")
+     * @Route("(admin|administrator|root)/index.php")
+     * @Route("/administrator/")
+     * @Route(".env")
+     * @Route("/components/")
      */
     public function blackHole(): Response
     {
