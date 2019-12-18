@@ -1,19 +1,45 @@
-Run `composer require sindla/aurora`
+# Install
 
+#### Composer
+`composer require sindla/aurora:3.4.*`
 
-#### How to work-around without releasing new versions
+#### `app/AppKernel.php`
+```php
+    $bundles = [
+        new \Sindla\Bundle\AuroraBundle\AuroraBundle()
+    ];
+```
 
-Open your project and run
+#### `app/config/config.yml`:
 
-```bash
-mkdir -p ./vendor/sindla/aurora; \
-cd ./vendor/sindla/aurora; \
-rm -rf .git \
-&& git init \
-&& git remote add origin git@github.com+Sindla:SindlaXYZ/Aurora.git \
-&& git fetch --all \
-&& git clean -df \
-&& git reset --hard \
-&& git pull origin master; \
-cd ./../../../
+```yaml
+aurora:
+    root:       '%kernel.root_dir%/..'
+    tmp:        '%kernel.root_dir%/../var/tmp'
+    resources:  '%kernel.root_dir%/../var/resources/'
+    locale:     '%locale%'
+    bundle:     'App'
+
+twig:
+    globals:
+        aurora: '@aurora.twig.utility'
+```
+* Edit `composer.json` and add
+```json
+    "post-update-cmd": [
+        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
+    ]
+```
+
+Run `composer update` to update and install the rest of the dependencies.
+
+---
+
+#### How to enable Black Hole controller ?
+
+**[1/1]** `app/config/routing.yml`
+```yml
+aurora:
+    resource: '@AuroraBundle/Controller/'
+    type: annotation
 ```
