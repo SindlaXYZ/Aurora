@@ -203,7 +203,7 @@ EOT;
 
                 } else if (preg_match('/PersistentCollection/i', $prop->getDocComment())) {
                     $returnTypeGet = '\Doctrine\ORM\PersistentCollection';
-                    $returnTypeSet = 'ArrayCollection';
+                    $returnTypeSet = '\Doctrine\Common\Collections\ArrayCollection';
 
                 } else if (preg_match("/{$this->namespace}\\\Entity/i", $prop->getDocComment())) {
                     $returnTypeGet = "\\" . $returnType;
