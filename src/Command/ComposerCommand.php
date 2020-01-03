@@ -160,9 +160,11 @@ class ComposerCommand extends Command
     {
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
 
-        $tempDir         = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
-        $maxmindDir      = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
-        $destinationFile = $maxmindDir . '/GeoLite2Country.mmdb';
+
+        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
+        $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
+        $maxmindLicenseKey = $this->container->getParameter('aurora.maxmind.license_key');
+        $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
             throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
@@ -182,8 +184,9 @@ class ComposerCommand extends Command
             return;
         }
 
-        // Check http://dev.maxmind.com/geoip/geoip2/geolite2/
-        if (!$tarGz = fopen("http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz", 'r')) {
+        try {
+            $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
+        } catch (\Exception $e) {
             throw new \RuntimeException("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
