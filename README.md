@@ -16,7 +16,7 @@ parameters:
     aurora.locales:    ['en', 'ro']
     aurora.locale:     'ro'
     # maxmind.com license key
-    aurora.maxmind.license_key: '%env(MAXMIND_LICENSE_KEY)%'
+    aurora.maxmind.license_key: '%env(default::MAXMIND_LICENSE_KEY)%'
     # Minify output
     aurora.minify.output:                     false
     aurora.minify.output.ignore.extensions:   ['.pdf', '.jpg', '.png', '.gif', '.doc']
