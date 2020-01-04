@@ -30,8 +30,13 @@ class ComposerCommand extends Command
      */
     protected static $defaultName = 'aurora:composer';
 
+    /** @var InputInterface input */
     protected $input;
+
+    /** @var OutputInterface output */
     protected $output;
+
+    /** @var SymfonyStyle io */
     protected $io;
 
     /**
@@ -64,8 +69,13 @@ class ComposerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var InputInterface input */
         $this->input  = $input;
+
+        /** @var OutputInterface output */
         $this->output = $output;
+
+        /** @var SymfonyStyle io */
         $this->io     = new SymfonyStyle($this->input, $this->output);
 
         $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
@@ -174,7 +184,7 @@ class ComposerCommand extends Command
             try {
                 mkdir($maxmindDir, 0777, true);
             } catch (\Exception $e) {
-                throw new \RuntimeException("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
+                return $this->io->error("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
             }
         }
 
@@ -187,11 +197,11 @@ class ComposerCommand extends Command
         try {
             $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
         } catch (\Exception $e) {
-            throw new \RuntimeException("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
+            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
         if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
-            throw new \RuntimeException("[AURORA] Cannot write .tar.gz file on disk.");
+            return $this->io->error("[AURORA] Cannot write .tar.gz file on disk.");
         }
 
         // Decompress from gz
