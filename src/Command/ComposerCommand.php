@@ -170,14 +170,15 @@ class ComposerCommand extends Command
     {
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
 
-
         $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
 
         if(empty($maxmindLicenseKey)) {
-            return $this->io->error("[AURORA] Maxmind license key is not set (MAXMIND_LICENSE_KEY= inside .env file).");
+            $this->io->error("[AURORA] Maxmind license key is not set.");
+            $this->io->error("[AURORA] Check `MAXMIND_LICENSE_KEY=` inside .env file).");
+            return;
         }
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
@@ -201,7 +202,7 @@ class ComposerCommand extends Command
         try {
             $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
         } catch (\Exception $e) {
-            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com (invalid key: {$maxmindLicenseKey}).");
+            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
         if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
