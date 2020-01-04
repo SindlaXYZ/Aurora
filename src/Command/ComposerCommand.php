@@ -177,7 +177,7 @@ class ComposerCommand extends Command
         $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
 
         if(empty($maxmindLicenseKey)) {
-            return $this->io->error("[AURORA] Maxmind license key is not set.");
+            return $this->io->error("[AURORA] Maxmind license key is not set (MAXMIND_LICENSE_KEY= inside .env file).");
         }
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
