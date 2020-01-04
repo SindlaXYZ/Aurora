@@ -201,7 +201,7 @@ class ComposerCommand extends Command
         try {
             $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
         } catch (\Exception $e) {
-            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
+            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com (invalid key: {$maxmindLicenseKey}).");
         }
 
         if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
