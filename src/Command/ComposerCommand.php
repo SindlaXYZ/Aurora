@@ -173,8 +173,12 @@ class ComposerCommand extends Command
 
         $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
-        $maxmindLicenseKey = $this->container->getParameter('aurora.maxmind.license_key');
+        $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
+
+        if(empty($maxmindLicenseKey)) {
+            return $this->io->error("[AURORA] Maxmind license key is not set.");
+        }
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
             throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
