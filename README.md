@@ -73,17 +73,6 @@ Run `composer update` to update and install the rest of the dependencies.
 
 ---
 
-#### How to enable Custom Error controller fro PROD ?
-
-**[1/1]** `config/packages/prod/twig.yaml`
-```yml
-twig:
-    exception_controller: 'Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController::handler'
-```
-
-
----
-
 #### How to enable Black Hole controller ?
 
 **[1/1]** `app/config/routing.yml`
