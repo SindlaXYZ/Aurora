@@ -97,6 +97,8 @@ class UtilityExtension extends AbstractExtension
             /** {{ aurora.sha1('my string to sha1') }} */
             new TwigFunction('sha1', [$this, 'getSha1']),
             new TwigFunction('ip2Country', [$this, 'ip2Country']),
+            new TwigFunction('ip2County', [$this, 'ip2County']),
+            new TwigFunction('ip2City', [$this, 'ip2City']),
             new TwigFunction('compressCss', [$this, 'compressCss']),
             new TwigFunction('compressJs', [$this, 'compressJs']),
 
@@ -168,6 +170,18 @@ class UtilityExtension extends AbstractExtension
     {
         $Client = $this->container->get('aurora.client');
         return $Client->ip2CountryCode($this->ip($Request));
+    }
+
+    public function ip2County(Request $Request)
+    {
+        $Client = $this->container->get('aurora.client');
+        return $Client->ip2CityCounty($this->ip($Request));
+    }
+
+    public function ip2City(Request $Request)
+    {
+        $Client = $this->container->get('aurora.client');
+        return $Client->ip2CityName($this->ip($Request));
     }
 
     /**

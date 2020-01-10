@@ -69,19 +69,6 @@ class Client
         return (isset($record)) ? $record->country->isoCode : null;
     }
 
-    public function ip2CityName(string $ipAddress)
-    {
-        $this->readGeoLite2City();
-
-        try {
-            $record = $this->geoLiteCityReader->city($ipAddress);
-        } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
-
-        }
-
-        return (isset($record)) ? $record->city->name : null;
-    }
-
     public function ip2CityCounty(string $ipAddress)
     {
         $this->readGeoLite2City();
@@ -93,6 +80,19 @@ class Client
         }
 
         return (isset($record) && isset($record->subdivisions[0])) ? $record->subdivisions[0]->name : null;
+    }
+    
+    public function ip2CityName(string $ipAddress)
+    {
+        $this->readGeoLite2City();
+
+        try {
+            $record = $this->geoLiteCityReader->city($ipAddress);
+        } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+
+        }
+
+        return (isset($record)) ? $record->city->name : null;
     }
 
     /**
