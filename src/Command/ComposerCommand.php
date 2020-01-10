@@ -107,8 +107,11 @@ class ComposerCommand extends Command
      */
     private function postInstall()
     {
-        // GeoIP2
-        $this->_updateGeoIP2Contry();
+        // GeoIP2Country
+        $this->_updateGeoIP2('Country');
+
+        // GeoIP2City
+        $this->_updateGeoIP2('City');
     }
 
     /**
@@ -119,8 +122,11 @@ class ComposerCommand extends Command
         // PHPUnit
         $this->_updatePHPUnit();
 
-        // GeoIP2
-        $this->_updateGeoIP2Contry();
+        // GeoIP2Country
+        $this->_updateGeoIP2('Country');
+
+        // GeoIP2City
+        $this->_updateGeoIP2('City');
 
         // Clear /var/tmp/*
         $this->_clearTmpDir();
@@ -166,14 +172,23 @@ class ComposerCommand extends Command
         $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
-    public function _updateGeoIP2Contry()
+    /**
+     * @param string $type  Country|City
+     * @throws \Exception
+     */
+    private function _updateGeoIP2(string $type)
     {
-        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
+        if(!in_array($type, ['Country', 'City'])) {
+            $this->io->error("[AURORA] _updateGeoIP2() invalid type!");
+            return;
+        }
+
+        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2'. $type .'</info> ...', $this->p()));
 
         $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
-        $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
+        $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
 
         if(empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
@@ -195,24 +210,24 @@ class ComposerCommand extends Command
 
         // If file is not older than X hours
         if (file_exists($destinationFile) && time() - filemtime($destinationFile) < 60 * 60 * 24) {
-            $this->io->comment(sprintf('%s ... skip updating (GeoIP2/GeoLite2Country is too new)', $this->p()));
+            $this->io->comment(sprintf('%s ... skip updating (GeoIP2/GeoLite2%s is too new)', $this->p(), $type));
             return;
         }
 
         try {
-            $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-Country&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
+            $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-{$type}&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
         } catch (\Exception $e) {
             return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
-        if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
+        if (!file_put_contents("{$tempDir}/GeoLite2-{$type}.tar.gz", $tarGz)) {
             return $this->io->error("[AURORA] Cannot write .tar.gz file on disk.");
         }
 
         // Decompress from gz
         $pharError = false;
         try {
-            $PharData = new \PharData($tempDir . '/GeoLite2-Country.tar.gz');
+            $PharData = new \PharData("{$tempDir}/GeoLite2-{$type}.tar.gz");
         } catch (\UnexpectedValueException $e) {
             $pharError = true;
             throw new \Exception('[AURORA] Could not read .tar.gz file.');
@@ -221,7 +236,7 @@ class ComposerCommand extends Command
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
         } finally {
             if ($pharError) {
-                return $this->_updateGeoIP2Contry();
+                return $this->_updateGeoIP2($type);
             }
         }
 
