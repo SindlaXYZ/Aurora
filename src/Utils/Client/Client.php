@@ -18,30 +18,81 @@ class Client
 {
     private $container;
 
+    private $geoLiteCountryReader;
+    private $geoLiteCityReader;
+
     public function __construct(Container $Container)
     {
         $this->container = $Container;
     }
 
+    private function readGeoLite2Country()
+    {
+        if(!$this->geoLiteCountryReader) {
+            $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
+            if (!is_file($GeoLite2CountryFile)) {
+                throw new \Exception("[{$GeoLite2CountryFile}] file not found!");
+            }
+
+            $this->geoLiteCountryReader = new Reader($GeoLite2CountryFile);
+        }
+    }
+
+    private function readGeoLite2City()
+    {
+        if(!$this->geoLiteCityReader) {
+            $GeoLite2CityFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2City.mmdb';
+            if (!is_file($GeoLite2CityFile)) {
+                throw new \Exception("[{$GeoLite2CityFile}] file not found!");
+            }
+
+            $this->geoLiteCityReader = new Reader($GeoLite2CityFile);
+        }
+    }
+
+    /**
+     * Read country code (ISO-) for an IP address
+     *
+     * @param string $ipAddress
+     * @return string|null
+     */
     public function ip2CountryCode(string $ipAddress)
     {
-        $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
-        if (!is_file($GeoLite2CountryFile)) {
-            throw new \Exception("[{$GeoLite2CountryFile}] file not found!");
-        }
+        $this->readGeoLite2Country();
 
-        $reader = new Reader($GeoLite2CountryFile);
         try {
-            $record = $reader->country($ipAddress);
+            $record = $this->geoLiteCountryReader->country($ipAddress);
         } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
 
         }
 
-        if (isset($record)) {
-            return $record->country->isoCode;
+        return (isset($record)) ? $record->country->isoCode : null;
+    }
+
+    public function ip2CityName(string $ipAddress)
+    {
+        $this->readGeoLite2City();
+
+        try {
+            $record = $this->geoLiteCityReader->city($ipAddress);
+        } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+
         }
 
-        return null;
+        return (isset($record)) ? $record->city->name : null;
+    }
+
+    public function ip2CityCounty(string $ipAddress)
+    {
+        $this->readGeoLite2City();
+
+        try {
+            $record = $this->geoLiteCityReader->city($ipAddress);
+        } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+
+        }
+
+        return (isset($record) && isset($record->subdivisions[0])) ? $record->subdivisions[0]->name : null;
     }
 
     /**
@@ -147,7 +198,7 @@ class Client
             $prefLanguages = array_reduce(
                 explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']),
                 function ($res, $el) {
-                    list($l, $q) = array_merge(explode(';q=', $el), [1]);
+                    [$l, $q] = array_merge(explode(';q=', $el), [1]);
                     $res[$l] = (float)$q;
                     return $res;
                 }, []);
