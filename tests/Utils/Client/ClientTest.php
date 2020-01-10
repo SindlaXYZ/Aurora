@@ -25,24 +25,22 @@ class ClientTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    /**
-     * Fake test. Do not delete this, otherwise Bitbucket Pipeline will fail
-     */
     public function testFake()
     {
         $this->assertTrue(true);
         $this->assertFalse(false);
     }
 
-
-    public function testIp2()
+    public function testIP2CountryCode()
     {
         $Client = new Client($this->containerTest);
 
         foreach ([
                      [
                          'ip'          => '109.99.91.136',
-                         'countryCode' => 'RO'
+                         'countryCode' => 'RO',
+                         'county'      => 'Bucuresti',
+                         'city'        => 'Bucharest'
                      ],
                      [
                          'ip'          => '46.97.168.231',
@@ -54,13 +52,19 @@ class ClientTest extends KernelTestCase
                      ],
                      [
                          'ip'          => '66.249.73.154',
-                         'countryCode' => 'US'
+                         'countryCode' => 'US',
+                         'county'      => 'California'
                      ]
                  ] as $ip) {
-            $this->assertNotNull($Client->ip2CountryCode($ip['ip']));
-            //$this->assertNotNull($Client->ip2CityCounty($ip['ip']));
-            //$this->assertNotNull($Client->ip2CityName($ip['ip']));
+            $this->assertEquals($ip['countryCode'], $Client->ip2CountryCode($ip['ip']));
+
+            if (isset($ip['county'])) {
+                $this->assertEquals($ip['county'], $Client->ip2CityCounty($ip['ip']));
+            }
+
+            if (isset($ip['city'])) {
+                $this->assertEquals($ip['city'], $Client->ip2CityName($ip['ip']));
+            }
         }
     }
-
 }
