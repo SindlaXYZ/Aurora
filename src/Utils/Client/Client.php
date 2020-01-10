@@ -81,7 +81,7 @@ class Client
 
         return (isset($record) && isset($record->subdivisions[0])) ? $record->subdivisions[0]->name : null;
     }
-    
+
     public function ip2CityName(string $ipAddress)
     {
         $this->readGeoLite2City();
