@@ -103,7 +103,7 @@ aurora.pwa:
 #### How to enable HTML Minifier??
 
 * Edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`
-* Edit `templates/services/services.html.twig`
+* Edit `config/services.yaml`
 ```yamp
     Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
         arguments: ['@service_container']
