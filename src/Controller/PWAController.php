@@ -26,6 +26,7 @@ class PWAController extends AbstractController
      * @Route("/apple-icon.png")
      * @Route("/apple-icon-precomposed.png")
      * @Route("/apple-icon-{width}x{height}.png")
+     * @Route("/apple-touch-icon-{width}x{width}-precomposed.png")
      *
      * @Route("/ms-icon-{width}x{height}.png")
      *
@@ -49,16 +50,16 @@ class PWAController extends AbstractController
             // Manifest
             if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
                 return $PWA->manifestJSON();
-
-                // Main JS
-            } else if (in_array($Request->getRequestUri(), ['pwa-main.js', '/pwa-main.js'])) {
+            } // Main JS
+            else if (in_array($Request->getRequestUri(), ['pwa-main.js', '/pwa-main.js'])) {
                 return $PWA->mainJS();
 
-                // Service Worker JS
-            } else if (in_array($Request->getRequestUri(), ['pwa-sw.js', '/pwa-sw.js'])) {
+            } // Service Worker JS
+            else if (in_array($Request->getRequestUri(), ['pwa-sw.js', '/pwa-sw.js'])) {
                 return $PWA->serviceWorkerJS();
 
-            } else {
+            } // Favicons
+            else {
                 return $PWA->icon($Request);
             }
         });
