@@ -130,6 +130,22 @@ class PWA
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
 
             if (!file_exists($iconPath)) {
+
+                preg_match('/(\d+)x(\d+)/i', $Request->getPathInfo(), $matches);
+                if (isset($matches[0]) && isset($matches[1]) && isset($matches[2]) && is_int($matches[1]) && is_int($matches[2])) {
+
+                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "android-icon-{$matches[1]}x{$matches[2]}.png";
+                    if(file_exists($iconPath)) {
+                        return $this->_icon($iconPath);
+                    }
+
+                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "apple-icon-{$matches[1]}x{$matches[2]}.png";
+                    if(file_exists($iconPath)) {
+                        return $this->_icon($iconPath);
+                    }
+                }
+
+                // Return 404 icon
                 return new Response(
                     base64_decode('AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA/4QAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAREQAAEAAAEBABAAAQAAAQEAEAABAAABAQAQAAEAEREBABAREQAQAQEAEBABABABAQAQEAEAEAEBABAQAQAQAQEREBABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD//wAA//8AAP//AAD//wAA9D0AAPW9AAD1vQAA9b0AAIWhAAC1rQAAta0AALWtAAC0LQAA//8AAP//AAD//wAA'),
                     Response::HTTP_OK,
@@ -137,10 +153,15 @@ class PWA
                 );
             }
 
-            $Response = new BinaryFileResponse($iconPath);
-            $Response->headers->set('Content-Length', filesize($iconPath));
-            $Response->headers->set('X-Backend-Hit', true);
-            return $Response;
+            return $this->_icon($iconPath);
         });
+    }
+
+    private function _icon(string $iconPath)
+    {
+        $Response = new BinaryFileResponse($iconPath);
+        $Response->headers->set('Content-Length', filesize($iconPath));
+        $Response->headers->set('X-Backend-Hit', true);
+        return $Response;
     }
 }
