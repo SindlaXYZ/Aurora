@@ -28,6 +28,7 @@ aurora.controller.pwa.favicon:
         - '/android-icon-{width<\d+>}x{height<\d+>}.png'
         - '/apple-icon.png'
         - '/apple-icon-precomposed.png'
+        - '/apple-icon-precomposed-{width<\d+>}x{height<\d+>}.png'
         - '/apple-icon-{width<\d+>}x{height<\d+>}.png'
         - '/apple-touch-icon-{width<\d+>}x{height<\d+>}.png'
         - '/apple-touch-icon-{width<\d+>}x{height<\d+>}-precomposed.png'
