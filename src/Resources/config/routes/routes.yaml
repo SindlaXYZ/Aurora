@@ -20,8 +20,8 @@ aurora.controller.blackhole:
         - '/.env'
         - '/components/'
 
-aurora.controller.pwa.progressiveWebApplication:
-    controller: 'aurora.controller.pwa:favicon'
+aurora.controller.pwa.favicon:
+    controller: 'aurora.controller.pwa:progressiveWebApplication'
     path:
         - '/favicon.ico'
         - '/favicon-{width<\d+>}x{height<\d+>}.png'
