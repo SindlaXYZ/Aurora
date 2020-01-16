@@ -30,6 +30,7 @@ aurora.controller.pwa.favicon:
         - '/apple-icon-precomposed.png'
         - '/apple-icon-precomposed-{width<\d+>}x{height<\d+>}.png'
         - '/apple-icon-{width<\d+>}x{height<\d+>}.png'
+        - '/apple-icon-{width<\d+>}x{height<\d+>}-precomposed.png'
         - '/apple-touch-icon-{width<\d+>}x{height<\d+>}.png'
         - '/apple-touch-icon-{width<\d+>}x{height<\d+>}-precomposed.png'
         - '/ms-icon-{width<\d+>}x{height<\d+>}.png'
