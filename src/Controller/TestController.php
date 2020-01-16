@@ -6,7 +6,6 @@ namespace Sindla\Bundle\AuroraBundle\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
@@ -23,6 +22,9 @@ class TestController extends AbstractController
         }
     }
 
+    /**
+     * See src/Resources/config/routes/routes.yaml
+     */
     public function test(Request $Request)
     {
         $Response = new Response('It works!', Response::HTTP_OK);
@@ -31,6 +33,9 @@ class TestController extends AbstractController
         return $Response;
     }
 
+    /**
+     * See src/Resources/config/routes/routes.yaml
+     */
     public function service(Request $Request)
     {
         /** @var AuroraClient $AuroraClient */

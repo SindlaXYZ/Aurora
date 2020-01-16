@@ -7,7 +7,6 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 // Sindla
@@ -18,25 +17,9 @@ use Symfony\Contracts\Cache\ItemInterface;
 class PWAController extends AbstractController
 {
     /**
-     * @Route("/favicon.ico")
-     * @Route("/favicon-{width}x{height}.png")
-     *
-     * @Route("/android-icon-{width}x{height}.png")
-     *
-     * @Route("/apple-icon.png")
-     * @Route("/apple-icon-precomposed.png")
-     * @Route("/apple-icon-{width}x{height}.png")
-     * @Route("/apple-touch-icon-{width}x{width}-precomposed.png")
-     *
-     * @Route("/ms-icon-{width}x{height}.png")
-     *
-     * @Route("/manifest.webmanifest")
-     * @Route("/manifest.json")
-     *
-     * @Route("/pwa-main.js")
-     * @Route("/pwa-sw.js")
+     * See src/Resources/config/routes/routes.yaml
      */
-    public function progressiveWebApplication(Request $Request): Response
+    public function progressiveWebApplication(Request $Request, ?int $width, ?int $height): Response
     {
         //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
 
@@ -66,7 +49,7 @@ class PWAController extends AbstractController
     }
 
     /**
-     * @Route("/pwa-offline", name="sindla_aurora_pwa_offline", methods={"GET","HEAD"})
+     * See src/Resources/config/routes/routes.yaml
      */
     public function offline(): Response
     {
