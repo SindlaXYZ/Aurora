@@ -132,14 +132,13 @@ class PWA
             if (!file_exists($iconPath)) {
 
                 preg_match('/(\d+)x(\d+)/i', $Request->getPathInfo(), $matches);
-                if (isset($matches[0]) && isset($matches[1]) && isset($matches[2]) && is_int($matches[1]) && is_int($matches[2])) {
-
-                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "android-icon-{$matches[1]}x{$matches[2]}.png";
+                if (isset($matches[0]) && isset($matches[1]) && isset($matches[2]) && 0 != abs(intval($matches[1])) && 0 != abs(intval($matches[2]))) {
+                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$matches[1]}x{$matches[2]}.png";
                     if(file_exists($iconPath)) {
                         return $this->_icon($iconPath);
                     }
 
-                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "apple-icon-{$matches[1]}x{$matches[2]}.png";
+                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "/apple-icon-{$matches[1]}x{$matches[2]}.png";
                     if(file_exists($iconPath)) {
                         return $this->_icon($iconPath);
                     }
