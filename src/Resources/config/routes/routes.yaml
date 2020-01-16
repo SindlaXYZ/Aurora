@@ -17,7 +17,7 @@ aurora.controller.blackhole:
         - '/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
         - '/wp-includes/wlwmanifest.xml'
-        - '/admin|administrator|root)/index.php'
+        - '/(admin|administrator|root)/index.php'
         - '/js/kcfinder/browse.php'
         - '/new_license.php'
         - '/new_license.php'
