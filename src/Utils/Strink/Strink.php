@@ -341,12 +341,12 @@ class Strink
             'ș' => ['ş', 'º'],
             'Ș' => ['Ş'],
             'ț' => ['ţ', 'þ'],
-            'Ț' => ['Ţ']
+            'Ț' => ['Ţ', 'Þ']
         ];
 
         foreach ($sets as $expected => $accents) {
             foreach ($accents as $actual) {
-                $this->string = strtr($this->string, $actual, $expected);
+                $this->string = str_replace($actual, $expected, $this->string);
             }
         }
 
