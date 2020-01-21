@@ -36,7 +36,8 @@ class StrinkTest extends KernelTestCase
         $Strink = new Strink();
 
         foreach ([
-                     'București' => ['Bucureºti', 'Bucureşti']
+                     'București' => ['Bucureºti', 'Bucureşti'],
+                     'Dumbrăvii' => ['Dumbrãvii']
                  ] as $expected => $toFix) {
             foreach ($toFix as $actual) {
                 $this->assertEquals($expected, $Strink->string($actual)->fixDiacritics('ro'));
