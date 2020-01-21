@@ -325,6 +325,35 @@ class Strink
     }
 
     /**
+     * Fix bad diacritics/accents
+     *
+     * @return Strink
+     */
+    public function fixDiacritics(string $ISO6391 = 'ro')
+    {
+        $sets = [
+            'ă' => ['ă'],
+            'Ă' => ['Ă'],
+            'â' => ['â'],
+            'Â' => ['Â'],
+            'î' => ['î'],
+            'Î' => ['Î'],
+            'ș' => ['ş', 'º'],
+            'Ș' => ['Ş'],
+            'ț' => ['ţ', 'þ'],
+            'Ț' => ['Ţ']
+        ];
+
+        foreach ($sets as $replacer => $accents) {
+            foreach ($accents as $accent) {
+                $this->string = strtr($this->string, $accent, $replacer);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Convert a string to-a-slug-one
      *
      * @return Strink
