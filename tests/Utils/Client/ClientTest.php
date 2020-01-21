@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Twig;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Client;
 
 // PHPUnit
 use PHPUnit\Framework\TestCase;
