@@ -332,7 +332,7 @@ class Strink
     public function fixDiacritics(string $ISO6391 = 'ro')
     {
         $sets = [
-            'ă' => ['ă'],
+            'ă' => ['ă', 'ã'],
             'Ă' => ['Ă'],
             'â' => ['â'],
             'Â' => ['Â'],
@@ -344,9 +344,9 @@ class Strink
             'Ț' => ['Ţ']
         ];
 
-        foreach ($sets as $replacer => $accents) {
-            foreach ($accents as $accent) {
-                $this->string = strtr($this->string, $accent, $replacer);
+        foreach ($sets as $expected => $accents) {
+            foreach ($accents as $actual) {
+                $this->string = strtr($this->string, $actual, $expected);
             }
         }
 
