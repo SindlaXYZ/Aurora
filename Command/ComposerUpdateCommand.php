@@ -119,7 +119,7 @@ class ComposerUpdateCommand extends ContainerAwareCommand
     {
         $tempDir           = $this->container->getParameter('aurora')['tmp'] . '/' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora')['resources'] . '/maxmind-geoip2';
-        $maxmindLicenseKey = trim($this->container->getParameter('aurora')['maxmind_license_key']);
+        $maxmindLicenseKey = (isset($this->container->getParameter('aurora')['maxmind_license_key']) ? trim($this->container->getParameter('aurora')['maxmind_license_key']) :  null);
         $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
 
         if(empty($maxmindLicenseKey)) {
