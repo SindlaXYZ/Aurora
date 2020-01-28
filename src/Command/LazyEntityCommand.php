@@ -205,6 +205,8 @@ EOT;
                     $returnTypeGet = '\Doctrine\ORM\PersistentCollection';
                     $returnTypeSet = '\Doctrine\Common\Collections\ArrayCollection';
 
+                // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
+
                 } else if (preg_match("/{$this->namespace}\\\Entity/i", $prop->getDocComment())) {
                     $returnTypeGet = "\\" . $returnType;
                     $returnTypeSet = "\\" . $returnType;
@@ -212,6 +214,8 @@ EOT;
                     $returnTypeGet = "{$returnType}";
                     $returnTypeSet = "{$returnType}";
                 }
+
+                // ManyToMany
 
                 /*
                 if(in_array($paramType[1], ['DateTime'])) {
