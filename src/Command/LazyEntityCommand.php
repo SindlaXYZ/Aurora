@@ -278,9 +278,13 @@ EOT;
         {$returnThis2}
     }
     
+    /**
+     * @param {$returnTypeSet} \${$prop->name}
+     * @return boolean
+     */
     public function bitwise{$function}Has({$returnType} \$$prop->name)
     {
-        return \$this->{$prop->name} & \$$prop->name;
+        return boolval(\$this->{$prop->name} & \$$prop->name);
     }
     
     {$setDoc}
