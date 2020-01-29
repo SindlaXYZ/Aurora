@@ -224,6 +224,7 @@ EOT;
                 */
 
                 $returnThis = "\n" . \str_repeat(' ', 8) . "return \$this;";
+                $returnThis2 = "return \$this;";
 
                 $getDoc = "\n\n\t/**";
                 $getDoc .= "\n\t * @return " . $returnTypeGet;
@@ -247,7 +248,8 @@ EOT;
     }{$setDoc}
     public function set{$function}({$returnTypeSetCanBeBeNull} \$$prop->name): {$reflect->getShortName()}
     {
-        \$this->{$prop->name} = \$$prop->name;{$returnThis}
+        \$this->{$prop->name} = \$$prop->name;
+        {$returnThis2}
     }
 EOT;
 
@@ -256,10 +258,42 @@ EOT;
     {$setDoc}
     public function append{$function}({$returnType} \$$prop->name): {$reflect->getShortName()}
     {
-        \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);{$returnThis}
+        \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
+        {$returnThis2}
     }
 EOT;
+
+                    // TODO: add remove()
                 }
+
+                // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+                // -- bitwise -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if(preg_match('@bitwise', $prop->getDocComment())) {
+                    $xml .= "\n" . <<<EOT
+    public function bitwise{$function}Add({$returnType} \$$prop->name)
+    {
+        \$this->{$prop->name} = \$this->{$prop->name} | \$$prop->name;
+        {$returnThis2}
+    }
+    
+    public function bitwise{$function}Has({$returnType} \$$prop->name)
+    {
+        return \$this->{$prop->name} & \$$prop->name;
+    }
+    
+    public function bitwise{$function}Remove({$returnType} \$$prop->name)
+    {
+        \$this->{$prop->name} = \$this->{$prop->name} & (~\$$prop->name);
+        {$returnThis2}
+    }
+EOT;
+
+                }
+
+                // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+                // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+
             }
 
             $xml .= $toString;
