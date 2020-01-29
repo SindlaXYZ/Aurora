@@ -269,7 +269,7 @@ EOT;
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
                 // -- bitwise -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                if(preg_match('@bitwise', $prop->getDocComment())) {
+                if(preg_match('__bitwise', $prop->getDocComment())) {
                     $xml .= "\n" . <<<EOT
     public function bitwise{$function}Add({$returnType} \$$prop->name)
     {
