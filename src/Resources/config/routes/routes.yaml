@@ -8,6 +8,7 @@ aurora.controller.blackhole:
     controller: 'aurora.controller.blackhole:blackHole'
     path:
         - '/js/cms/panel/panel.js'
+        - '/wordpress/'
         - '/(wp|wordpress)/wp-login.php'
         - '/wp-content/plugins/mm-plugin/inc/vendors/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
         - '/wp-content/plugins/theme-configurator/mini.php'
@@ -16,6 +17,8 @@ aurora.controller.blackhole:
         - '/fckeditor/editor/filemanager/connectors/php/upload.php'
         - '/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
+        - '/lib/phpunit/'
+        - '/phpunit/'
         - '/wp-includes/wlwmanifest.xml'
         - '/(admin|administrator|root)/index.php'
         - '/js/kcfinder/browse.php'
@@ -23,7 +26,10 @@ aurora.controller.blackhole:
         - '/new_license.php'
         - '/administrator/'
         - '/.env'
+        - '/.bitcoin'
+        - '/wallet.dat'
         - '/components/'
+        - '/tmp/'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa:progressiveWebApplication'
