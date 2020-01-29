@@ -271,6 +271,7 @@ EOT;
 
                 if(preg_match('/__bitwise/', $prop->getDocComment())) {
                     $xml .= "\n" . <<<EOT
+    {$setDoc}
     public function bitwise{$function}Add({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} | \$$prop->name;
@@ -282,6 +283,7 @@ EOT;
         return \$this->{$prop->name} & \$$prop->name;
     }
     
+    {$setDoc}
     public function bitwise{$function}Remove({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} & (~\$$prop->name);
