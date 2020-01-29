@@ -262,7 +262,6 @@ EOT;
         {$returnThis2}
     }
 EOT;
-
                     // TODO: add remove()
                 }
 
@@ -285,6 +284,13 @@ EOT;
     public function bitwise{$function}Has({$returnType} \$$prop->name)
     {
         return boolval(\$this->{$prop->name} & \$$prop->name);
+    }
+    
+    {$setDoc}
+    public function bitwise{$function}Flip({$returnType} \$$prop->name)
+    {
+        \$this->{$prop->name} = \$this->{$prop->name} ^ \$$prop->name;
+        {$returnThis2}
     }
     
     {$setDoc}
