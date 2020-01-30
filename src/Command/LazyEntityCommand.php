@@ -240,18 +240,27 @@ EOT;
 
                 //$returnTypeFull = ($returnType == 'ArrayCollection' ? '' : ": ?{$returnType}");
 
-                $xml .= "\n" . <<<EOT
+                // If get...() method does not exists on parent class
+                if (!$reflect->getParentClass() || ($reflect->getParentClass() && !$reflect->getParentClass()->hasMethod("get{$function}"))) {
+                    $xml .= "\n" . <<<EOT
     {$getDoc}
     public function get{$function}(){$returnTypeGetCanBeBeNull}{$returnTypeGet}
     {
         return \$this->{$prop->name};
-    }{$setDoc}
-    public function set{$function}({$returnTypeSetCanBeBeNull} \$$prop->name): {$reflect->getShortName()}
-    {
-        \$this->{$prop->name} = \$$prop->name;
-        {$returnThis2}
     }
 EOT;
+                }
+
+                // If set...() method does not exists on parent class
+                if (!$reflect->getParentClass() || ($reflect->getParentClass() && !$reflect->getParentClass()->hasMethod("set{$function}"))) {
+                    $xml .= "\n" . <<<EOT
+    {$setDoc}
+    public function set{$function}({$returnTypeSetCanBeBeNull} \$$prop->name): {$reflect->getShortName()}
+    {
+        \$this->{$prop->name} = \${$prop->name};{$returnThis}
+    }
+EOT;
+                }
 
                 if('array' == $returnType) {
                     $xml .= "\n" . <<<EOT
@@ -315,6 +324,9 @@ EOT;
                 //\preg_match_all('/private \$(.*);/i', $fileContent, $matches);
                 //preg_match("/(?s)private(?!.*private).+;/", $fileContent, $matches);
                 preg_match_all('/private[\s\w]*\s\$(.*);/', $fileContent, $matches);
+                if(empty($matches[0]) && empty($matches[1])) {
+                    preg_match_all('/protected[\s\w]*\s\$(.*);/', $fileContent, $matches);
+                }
 
                 $newContent = '';
                 if ($matches[0]) {
