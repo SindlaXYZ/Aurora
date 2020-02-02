@@ -39,7 +39,8 @@ class OutputSubscriber implements EventSubscriberInterface
     public function onKernelResponse(ResponseEvent $event)
     {
         $pathInfo = $event->getRequest()->getPathInfo();
-        if (!strpos($pathInfo, '_profiler') && true == $this->container->getParameter('aurora.minify.output') && 0 == count(array_filter($this->container->getParameter('aurora.minify.output.ignore.extensions'), function ($extension) use ($pathInfo) {
+
+        if ('/admin/' != substr($pathInfo, 0, 7) && !strpos($pathInfo, '_profiler') && true == $this->container->getParameter('aurora.minify.output') && 0 == count(array_filter($this->container->getParameter('aurora.minify.output.ignore.extensions'), function ($extension) use ($pathInfo) {
                 // If extensions found in path info
                 if (substr_compare($pathInfo, $extension, strlen($pathInfo) - strlen($extension), strlen($extension)) === 0) {
                     return $extension;
