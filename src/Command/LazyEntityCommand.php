@@ -10,6 +10,12 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
+// Doctrine
+use Doctrine\Common\Annotations\AnnotationReader;
+
+// Sindla
+use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
+
 class LazyEntityCommand extends CommandMiddleware
 {
     private $entity;
@@ -45,8 +51,8 @@ class LazyEntityCommand extends CommandMiddleware
     public function __construct(ContainerInterface $container)
     {
         parent::__construct(self::$defaultName);
-        $this->container      = $container;
-        $this->kernelRootDir  = $this->container->getParameter('kernel.project_dir');
+        $this->container     = $container;
+        $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
     /**
@@ -127,6 +133,9 @@ class LazyEntityCommand extends CommandMiddleware
 
             $reflect = new \ReflectionClass($Class);
 
+            $reader           = new AnnotationReader();
+            $classAnnotations = $reader->getClassAnnotations($reflect);
+
             // Get class $vars
             $props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
 
@@ -139,6 +148,20 @@ class LazyEntityCommand extends CommandMiddleware
 
             foreach ($props as $prop) {
 
+                $auroraAnnotation  = new Aurora();
+                $reflectionMethod  = $reflect->getProperty($prop->name);
+                $methodAnnotations = $reader->getPropertyAnnotations($reflectionMethod);
+                //print_r($methodAnnotations);die;
+                foreach ($methodAnnotations as $annotation) {
+                    if ($annotation instanceof Aurora) {
+                        /** @var Aurora $auroraAnnotation */
+                        $auroraAnnotation = $annotation;
+                    }
+                }
+
+                //print_r($auroraAnnotation);die;
+
+
                 // Method @var value. Eg: string | int | Attribute
                 $paramType = $this->getDocCommentVar($prop->getDocComment());
 
@@ -147,6 +170,8 @@ class LazyEntityCommand extends CommandMiddleware
                 $ORMTargetEntityFullyQualifiedName = $this->getDocDocumentORMTargetEntity($prop->getDocComment(), true);
 
                 $ORMTargetEntity = $this->getDocDocumentORMTargetEntity($prop->getDocComment(), false);
+
+                //print_r($ORMTargetEntity);die;
 
                 $returnType = $ORMTargetEntityFullyQualifiedName ? $ORMTargetEntityFullyQualifiedName : $paramType;
 
@@ -162,7 +187,8 @@ class LazyEntityCommand extends CommandMiddleware
 
                 $function = ucfirst($prop->name);
 
-                if (preg_match("/__toString/", $prop->getDocComment())) {
+                //if (preg_match("/__toString/", $prop->getDocComment())) {
+                if ($auroraAnnotation->toSting) {
                     $toString = "\n\n" . <<<EOT
     public function __toString() {
         return (\$this->get{$function}() ? (string) \$this->get{$function}() : '');
@@ -205,7 +231,7 @@ EOT;
                     $returnTypeGet = '\Doctrine\ORM\PersistentCollection';
                     $returnTypeSet = '\Doctrine\Common\Collections\ArrayCollection';
 
-                // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
+                    // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
 
                 } else if (preg_match("/{$this->namespace}\\\Entity/i", $prop->getDocComment())) {
                     $returnTypeGet = "\\" . $returnType;
@@ -223,7 +249,7 @@ EOT;
                 }
                 */
 
-                $returnThis = "\n" . \str_repeat(' ', 8) . "return \$this;";
+                $returnThis  = "\n" . \str_repeat(' ', 8) . "return \$this;";
                 $returnThis2 = "return \$this;";
 
                 $getDoc = "\n\n\t/**";
@@ -262,7 +288,7 @@ EOT;
 EOT;
                 }
 
-                if('array' == $returnType) {
+                if ('array' == $returnType) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
     public function append{$function}({$returnType} \$$prop->name): {$reflect->getShortName()}
@@ -277,7 +303,8 @@ EOT;
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
                 // -- bitwise -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                if(preg_match('/__bitwise/', $prop->getDocComment())) {
+                //if (preg_match('/__bitwise/', $prop->getDocComment())) {
+                if ($auroraAnnotation->bitwise) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
     public function bitwise{$function}Add({$returnType} \$$prop->name)
@@ -285,7 +312,7 @@ EOT;
         \$this->{$prop->name} = \$this->{$prop->name} | \$$prop->name;
         {$returnThis2}
     }
-    
+
     /**
      * @param {$returnTypeSet} \${$prop->name}
      * @return boolean
@@ -294,14 +321,14 @@ EOT;
     {
         return boolval(\$this->{$prop->name} & \$$prop->name);
     }
-    
+
     {$setDoc}
     public function bitwise{$function}Flip({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} ^ \$$prop->name;
         {$returnThis2}
     }
-    
+
     {$setDoc}
     public function bitwise{$function}Remove({$returnType} \$$prop->name)
     {
@@ -324,7 +351,7 @@ EOT;
                 //\preg_match_all('/private \$(.*);/i', $fileContent, $matches);
                 //preg_match("/(?s)private(?!.*private).+;/", $fileContent, $matches);
                 preg_match_all('/private[\s\w]*\s\$(.*);/', $fileContent, $matches);
-                if(empty($matches[0]) && empty($matches[1])) {
+                if (empty($matches[0]) && empty($matches[1])) {
                     preg_match_all('/protected[\s\w]*\s\$(.*);/', $fileContent, $matches);
                 }
 
@@ -386,7 +413,7 @@ use App\Entity\\{$entity};
 class {$entity}Repository extends ServiceEntityRepository
 {
     use \Sindla\Bundle\AuroraBundle\Repository\Traits\BaseRepository;
-    
+
     public function __construct(ManagerRegistry \$registry)
     {
         parent::__construct(\$registry, {$entity}::class);
@@ -410,19 +437,19 @@ EOT;
                     $sonataAdminFileContent = <<<EOT
     <?php
     namespace {$this->namespace}\Admin{$namespaceDir};
-    
+
     use Sonata\AdminBundle\Admin\AbstractAdmin;
     use Sonata\AdminBundle\Datagrid\ListMapper;
     use Sonata\AdminBundle\Datagrid\DatagridMapper;
     use Sonata\AdminBundle\Form\FormMapper;
-    
+
     /**
      * Auto-generated file
      * This file is generated by running command [aurora:lazy.entity]
      * If you want to stop to auto-generate this file, remove the following addannotation
      *
      * Route: admin_app_{$entityLower}_list | admin_app_{$entityLower}_edit | admin_app_{$entityLower}_delete | admin_app_{$entityLower}_show
-     * 
+     *
      * @autogenerate
      */
     class {$entity}Admin extends AbstractAdmin
@@ -439,7 +466,7 @@ EOT;
 
                     $sonataAdminFileContent .= <<<EOT
     \n\t}
-        
+
         // Filter
         protected function configureDatagridFilters(DatagridMapper \$datagridMapper)
         {
@@ -458,7 +485,7 @@ EOT;
 
                     $sonataAdminFileContent .= <<<EOT
     \n\t}
-        
+
         // List (table list)
         protected function configureListFields(ListMapper \$listMapper)
         {
