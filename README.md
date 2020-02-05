@@ -14,11 +14,12 @@
 
 ```yaml
 aurora:
-    root:       '%kernel.root_dir%/..'
-    tmp:        '%kernel.root_dir%/../var/tmp'
-    resources:  '%kernel.root_dir%/../var/resources/'
-    locale:     '%locale%'
-    bundle:     'App'
+    root:                 '%kernel.root_dir%/..'
+    tmp:                  '%kernel.root_dir%/../var/tmp'
+    resources:            '%kernel.root_dir%/../var/resources/'
+    locale:               '%locale%'
+    bundle:               'App'
+    maxmind_license_key:  ~
 
 twig:
     globals:
