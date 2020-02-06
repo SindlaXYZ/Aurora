@@ -22,19 +22,21 @@ use Symfony\Component\Yaml\Yaml;
 
 class UtilityExtension extends AbstractExtension
 {
+    /** @var Container  */
+    protected Container $container;
+
+    /** @var RequestStack  */
+    protected RequestStack $request;
+
+    /** @var Environment  */
+    private Environment $twig;
+
     /**
-     * @var Container
-     */
-    protected $container;
-
-    protected $request;
-
-    private $twig;
-
-    /**
-     * UtilityExtension constructor.
+     * UtilityExtension constructor
      *
-     * @param $serviceContainer
+     * @param Container    $serviceContainer
+     * @param RequestStack $Request
+     * @param Environment  $twig
      */
     public function __construct(Container $serviceContainer, RequestStack $Request, Environment $twig)
     {
@@ -59,13 +61,12 @@ class UtilityExtension extends AbstractExtension
         ];
     }
 
-    public function filterAge($date)
+    /**
+     * @param \DateTime $date
+     * @return int
+     */
+    public function filterAge(\DateTime $date)
     {
-        if (!$date instanceof \DateTime) {
-            // turn $date into a valid \DateTime object or let return
-            return null;
-        }
-
         $referenceDate           = date('01-01-Y');
         $referenceDateTimeObject = new \DateTime($referenceDate);
 
