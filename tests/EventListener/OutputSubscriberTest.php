@@ -33,6 +33,18 @@ class OutputSubscriberTest extends KernelTestCase
 
     public function testXRobotsTag()
     {
+        // Test domain prefix
         $this->assertFalse(boolval(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'stagingoind.com')));
+        $this->assertTrue(boolval(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'stg.singla.com')));
+
+        $this->assertTrue(boolval(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'dev.sindla.com')));
+        $this->assertFalse(boolval(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'developer.com')));
+
+        // Test domain suffix
+        $this->assertFalse(boolval(preg_match(OutputSubscriber::PREG_DEV_SUFFIX, 'sindla.com')));
+        $this->assertFalse(boolval(preg_match(OutputSubscriber::PREG_DEV_SUFFIX, 'ns1.sindla.local.com')));
+
+        $this->assertTrue(boolval(preg_match(OutputSubscriber::PREG_DEV_SUFFIX, 'sindla.com.localhost')));
+        $this->assertTrue(boolval(preg_match(OutputSubscriber::PREG_DEV_SUFFIX, 'sindla.com.local')));
     }
 }
