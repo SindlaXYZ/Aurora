@@ -200,10 +200,13 @@ class UtilityExtension extends AbstractExtension
 
         if (!$combine) {
             foreach ($assets as $asset) {
-                if (!preg_match('/http:|https:/', $asset)) {
-                    $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
+                $asset = trim($asset);
+                if(!empty($asset)) {
+                    if (!preg_match('/http:|https:/', $asset)) {
+                        $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
+                    }
+                    echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" />';
                 }
-                echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" />';
             }
 
             // Combine multiple assets into one single file
@@ -269,7 +272,10 @@ class UtilityExtension extends AbstractExtension
     {
         if (!$combine) {
             foreach ($assets as $asset) {
-                echo "\n\t" . '<script src="' . $asset . '"></script>';
+                $asset = trim($asset);
+                if(!empty($asset)) {
+                    echo "\n\t" . '<script src="' . $asset . '"></script>';
+                }
             }
 
         } else {
