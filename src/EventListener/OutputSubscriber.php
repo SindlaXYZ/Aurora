@@ -17,6 +17,9 @@ class OutputSubscriber implements EventSubscriberInterface
      */
     private $container;
 
+    const PREG_DEV_PREFIX = '/^(stg|staging|dev|develop|test)\./i';
+    const PREG_DEV_SUFFIX = '/\.(localhost|local)$/i';
+
     public function __construct(Container $container)
     {
         /** @var Container Container */
@@ -52,6 +55,14 @@ class OutputSubscriber implements EventSubscriberInterface
                 $serviceSanitizer = $this->container->get('aurora.sanitizer');
                 $response->setContent($serviceSanitizer->minifyHTML($response->getContent()));
             }
+        }
+
+        if(preg_match(self::PREG_DEV_PREFIX, $event->getRequest()->getHost()) || preg_match(self::PREG_DEV_SUFFIX, $event->getRequest()->getHost())) {
+            if(!isset($response)) {
+                $response = $event->getResponse();
+            }
+
+            $response->headers->set('X-Robots-Tag', 'noindex');
         }
     }
 }
