@@ -61,12 +61,7 @@ class OutputSubscriber implements EventSubscriberInterface
             if(!isset($response)) {
                 $response = $event->getResponse();
             }
-
             $response->headers->set('X-Robots-Tag', 'none');
-            $response->headers->set('X-Robots-Tag', 'noindex');
-            $response->headers->set('X-Robots-Tag', 'noimageindex');
-            $response->headers->set('X-Robots-Tag', 'nofollow');
-            $response->headers->set('X-Robots-Tag', 'noarchive');
         }
     }
 }
