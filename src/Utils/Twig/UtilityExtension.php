@@ -225,16 +225,19 @@ class UtilityExtension extends AbstractExtension
                 $output       = '';
                 $minifier     = new Minify\CSS();
                 foreach ($assets as $asset) {
-                    if (preg_match('/http:|https:/', $asset)) {
-                        $outputHeader .= ';@import url("' . $asset . '");';
-                    } else {
-                        $css = ';' . file_get_contents($root . '/web/' . $asset);
-                    }
+                    $asset = trim($asset);
+                    if(!empty($asset)) {
+                        if (preg_match('/http:|https:/', $asset)) {
+                            $outputHeader .= ';@import url("' . $asset . '");';
+                        } else {
+                            $css = ';' . file_get_contents($root . '/web/' . $asset);
+                        }
 
-                    if ($minify) {
-                        $minifier->add($css);
-                    } else {
-                        $output .= $css;
+                        if ($minify) {
+                            $minifier->add($css);
+                        } else {
+                            $output .= $css;
+                        }
                     }
                 }
 
@@ -286,9 +289,12 @@ class UtilityExtension extends AbstractExtension
             if (!file_exists($cacheFilePath)) {
                 $minifier = new Minify\JS();
                 foreach ($assets as $asset) {
-                    //$js = $serviceSanitizer->minifyJS(file_get_contents($root . '/web/' . $asset)); // BUGGY
-                    $js = file_get_contents($root . '/web/' . $asset);
-                    $minifier->add($js);
+                    $asset = trim($asset);
+                    if(!empty($asset)) {
+                        //$js = $serviceSanitizer->minifyJS(file_get_contents($root . '/web/' . $asset)); // BUGGY
+                        $js = file_get_contents($root . '/web/' . $asset);
+                        $minifier->add($js);
+                    }
                 }
 
                 file_put_contents("{$root}/web/static/compiled/{$cacheFileName}", $minifier->minify());
