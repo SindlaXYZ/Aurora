@@ -201,7 +201,7 @@ class UtilityExtension extends AbstractExtension
         if (!$combine) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);
-                if(!empty($asset)) {
+                if(strlen($asset) > 3) {
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
@@ -229,7 +229,7 @@ class UtilityExtension extends AbstractExtension
                 $minifier     = new Minify\CSS();
                 foreach ($assets as $asset) {
                     $asset = trim($asset);
-                    if(!empty($asset)) {
+                    if(strlen($asset) > 3) {
                         if (preg_match('/http:|https:/', $asset)) {
                             $outputHeader .= ';@import url("' . $asset . '");';
                         } else {
@@ -273,7 +273,7 @@ class UtilityExtension extends AbstractExtension
         if (!$combine) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);
-                if(!empty($asset)) {
+                if(strlen($asset) > 3) {
                     echo "\n\t" . '<script src="' . $asset . '"></script>';
                 }
             }
@@ -296,7 +296,7 @@ class UtilityExtension extends AbstractExtension
                 $minifier = new Minify\JS();
                 foreach ($assets as $asset) {
                     $asset = trim($asset);
-                    if(!empty($asset)) {
+                    if(strlen($asset) > 3) {
                         //$js = $serviceSanitizer->minifyJS(file_get_contents($root . '/web/' . $asset)); // BUGGY
                         $js = file_get_contents($root . '/web/' . $asset);
                         $minifier->add($js);
