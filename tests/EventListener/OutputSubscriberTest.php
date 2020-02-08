@@ -33,6 +33,6 @@ class OutputSubscriberTest extends KernelTestCase
 
     public function testXRobotsTag()
     {
-        $this->assertFalse(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'stagingoind.com'));
+        $this->assertFalse(boolval(preg_match(OutputSubscriber::PREG_DEV_PREFIX, 'stagingoind.com')));
     }
 }
