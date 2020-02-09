@@ -9,7 +9,8 @@ aurora.controller.blackhole:
     path:
         - '/js/cms/panel/panel.js'
         - '/wordpress/'
-        - '/(wp|wordpress)/wp-login.php'
+        - '/(wp|wordpress|blog)/wp-login.php'
+        - '/(test|wordpress|blog)/wp-admin/'
         - '/wp-content/plugins/mm-plugin/inc/vendors/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
         - '/wp-content/plugins/theme-configurator/mini.php'
         - '/sites/all/libraries/mailchimp/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
@@ -21,6 +22,10 @@ aurora.controller.blackhole:
         - '/phpunit/'
         - '/wp-includes/wlwmanifest.xml'
         - '/(admin|administrator|root)/index.php'
+        - '/admin/ckfinder/'
+        - '/FCKeditor/fckconfig.js'
+        - '/data/admin/'
+        - '/administrator/(help|language)/'
         - '/js/kcfinder/browse.php'
         - '/new_license.php'
         - '/new_license.php'
@@ -30,6 +35,11 @@ aurora.controller.blackhole:
         - '/wallet.dat'
         - '/components/'
         - '/tmp/'
+        - '/plugin/system/debug/'
+        - '/router.php'
+        - '/ueditor/net/controller.ashx'
+        - '/mysql/'
+        - '/(phpMyAdmin|myadmin|pma)/'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa:progressiveWebApplication'
