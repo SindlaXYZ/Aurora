@@ -15,4 +15,7 @@ class Aurora
 
     /** @var boolean */
     public bool $bitwise = false;
+
+    /** @var bool */
+    public bool $json = false;
 }
