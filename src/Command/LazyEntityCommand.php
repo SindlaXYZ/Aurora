@@ -288,18 +288,6 @@ EOT;
 EOT;
                 }
 
-                if ('array' == $returnType) {
-                    $xml .= "\n" . <<<EOT
-    {$setDoc}
-    public function append{$function}({$returnType} \$$prop->name): {$reflect->getShortName()}
-    {
-        \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
-        {$returnThis2}
-    }
-EOT;
-                    // TODO: add remove()
-                }
-
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
                 // -- bitwise -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -337,6 +325,21 @@ EOT;
     }
 EOT;
 
+                }
+
+                // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+                // -- json -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  - -
+
+                if ($auroraAnnotation->json) {
+                    $xml .= "\n" . <<<EOT
+    {$setDoc}
+    public function set{$function}Append{$function}({$returnType} \$$prop->name): {$reflect->getShortName()}
+    {
+        \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
+        {$returnThis2}
+    }
+EOT;
+                    // TODO: add remove()
                 }
 
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
