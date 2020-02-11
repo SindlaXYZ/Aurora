@@ -295,7 +295,7 @@ EOT;
                 if ($auroraAnnotation->bitwise) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
-    public function bitwise{$function}Add({$returnType} \$$prop->name)
+    public function set{$function}BitwiseAdd({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} | \$$prop->name;
         {$returnThis2}
@@ -305,20 +305,20 @@ EOT;
      * @param {$returnTypeSet} \${$prop->name}
      * @return boolean
      */
-    public function bitwise{$function}Has({$returnType} \$$prop->name)
+    public function get{$function}BitwiseHas({$returnType} \$$prop->name)
     {
         return boolval(\$this->{$prop->name} & \$$prop->name);
     }
 
     {$setDoc}
-    public function bitwise{$function}Flip({$returnType} \$$prop->name)
+    public function set{$function}BitwiseFlip({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} ^ \$$prop->name;
         {$returnThis2}
     }
 
     {$setDoc}
-    public function bitwise{$function}Remove({$returnType} \$$prop->name)
+    public function set{$function}BitwiseRemove({$returnType} \$$prop->name)    
     {
         \$this->{$prop->name} = \$this->{$prop->name} & (~\$$prop->name);
         {$returnThis2}
@@ -333,7 +333,7 @@ EOT;
                 if ($auroraAnnotation->json) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
-    public function set{$function}Append{$function}({$returnType} \$$prop->name): {$reflect->getShortName()}
+    public function set{$function}Append({$returnType} \$$prop->name): {$reflect->getShortName()}
     {
         \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
         {$returnThis2}
