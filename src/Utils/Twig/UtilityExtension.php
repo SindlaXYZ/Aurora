@@ -22,13 +22,13 @@ use Symfony\Component\Yaml\Yaml;
 
 class UtilityExtension extends AbstractExtension
 {
-    /** @var Container  */
+    /** @var Container */
     protected Container $container;
 
-    /** @var RequestStack  */
+    /** @var RequestStack */
     protected RequestStack $request;
 
-    /** @var Environment  */
+    /** @var Environment */
     private Environment $twig;
 
     /**
@@ -201,7 +201,7 @@ class UtilityExtension extends AbstractExtension
         if (!$combine) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);
-                if(strlen($asset) > 3) {
+                if (strlen($asset) > 3) {
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
@@ -229,11 +229,12 @@ class UtilityExtension extends AbstractExtension
                 $minifier     = new Minify\CSS();
                 foreach ($assets as $asset) {
                     $asset = trim($asset);
-                    if(strlen($asset) > 3) {
+                    if (strlen($asset) > 3) {
+                        $css = '';
                         if (preg_match('/http:|https:/', $asset)) {
                             $outputHeader .= ';@import url("' . $asset . '");';
                         } else {
-                            $css = ';' . file_get_contents($root . '/web/' . $asset);
+                            $css = ';' . file_get_contents($root . '/public/' . $asset);
                         }
 
                         if ($minify) {
@@ -252,7 +253,7 @@ class UtilityExtension extends AbstractExtension
 
                 $cacheContent = ($minify ? $minifier->minify() : $output);
                 $cacheContent = str_replace('url(/static/', 'url(' . $baseurl . '/static/', $cacheContent);
-                file_put_contents("{$root}/web/static/compiled/{$cacheFileName}", $cacheContent);
+                file_put_contents("{$root}/public/static/compiled/{$cacheFileName}", $cacheContent);
             }
 
             echo '<link type="text/css" rel="stylesheet" href="/static/compiled/' . $cacheFileName . '" />';
@@ -273,7 +274,7 @@ class UtilityExtension extends AbstractExtension
         if (!$combine) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);
-                if(strlen($asset) > 3) {
+                if (strlen($asset) > 3) {
                     echo "\n\t" . '<script src="' . $asset . '"></script>';
                 }
             }
@@ -296,7 +297,7 @@ class UtilityExtension extends AbstractExtension
                 $minifier = new Minify\JS();
                 foreach ($assets as $asset) {
                     $asset = trim($asset);
-                    if(strlen($asset) > 3) {
+                    if (strlen($asset) > 3) {
                         //$js = $serviceSanitizer->minifyJS(file_get_contents($root . '/web/' . $asset)); // BUGGY
                         $js = file_get_contents($root . '/web/' . $asset);
                         $minifier->add($js);
