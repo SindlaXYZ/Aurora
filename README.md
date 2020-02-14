@@ -36,6 +36,10 @@ parameters:
     aurora.pwa.prevent_cache:
         - '/ajax-requests'
         - '/q'
+        - '/xhr'
+        - '/login'
+        - '/logout'
+        - '/admin'
     aurora.pwa.external_cache:
         - 'fonts.gstatic.com'
         - 'fonts.googleapis.com'
