@@ -18,23 +18,6 @@ class ExtraLoader extends Loader
 {
     private $isLoaded = false;
 
-    /**
-     * @var ContainerInterface
-     */
-    protected $container;
-
-    /**
-     * @internal
-     * @required
-     */
-    public function setContainer(ContainerInterface $container): ?ContainerInterface
-    {
-        $previous = $this->container;
-        $this->container = $container;
-
-        return $previous;
-    }
-
     public function load($resource, string $type = null)
     {
         if (true === $this->isLoaded) {
