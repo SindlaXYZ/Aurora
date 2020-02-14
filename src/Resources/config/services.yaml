@@ -41,6 +41,10 @@ services:
         calls:
             - [setContainer, ["@service_container"]]
 
+    # Extra controller. See `src/Resources/config/routes/routes.yaml : aurora_extra` &
+    Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader:
+        tags: [routing.loader]
+
     ###################################################################################################################
     ###  Aurora Commands ##############################################################################################
 

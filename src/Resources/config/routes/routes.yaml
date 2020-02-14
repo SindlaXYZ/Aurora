@@ -64,3 +64,8 @@ aurora.controller.pwa.offline:
     controller: 'aurora.controller.pwa:offline'
     path:
         - '/pwa-offline'
+
+# Extra routes, see `src/Resources/config/services.yaml` & `Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader`
+aurora_extra:
+    resource: .
+    type: extra
