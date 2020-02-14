@@ -2,6 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\DependencyInjection;
 
+use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
@@ -17,6 +18,23 @@ class ExtraLoader extends Loader
 {
     private $isLoaded = false;
 
+    /**
+     * @var ContainerInterface
+     */
+    protected $container;
+
+    /**
+     * @internal
+     * @required
+     */
+    public function setContainer(ContainerInterface $container): ?ContainerInterface
+    {
+        $previous = $this->container;
+        $this->container = $container;
+
+        return $previous;
+    }
+
     public function load($resource, string $type = null)
     {
         if (true === $this->isLoaded) {
@@ -27,7 +45,7 @@ class ExtraLoader extends Loader
             [
                 'name'         => 'aurora_pwa_offline',
                 'paths'        => [
-                    '/pwa-sw.js'
+                    '/pwa-offline'
                 ],
                 'defaults'     => [
                     '_controller' => 'Sindla\Bundle\AuroraBundle\Controller\PWAController::offline'
