@@ -26,7 +26,9 @@ class ExtraLoader extends Loader
         $customRoutes = [
             [
                 'name'         => 'aurora_pwa_offline',
-                'path'         => '/pwa-sw.js',
+                'paths'        => [
+                    '/pwa-sw.js'
+                ],
                 'defaults'     => [
                     '_controller' => 'Sindla\Bundle\AuroraBundle\Controller\PWAController::offline'
                 ],
@@ -39,8 +41,10 @@ class ExtraLoader extends Loader
         $routes = new RouteCollection();
 
         foreach ($customRoutes as $customRoute) {
-            $route = new Route($customRoute['path'], $customRoute['defaults'], $customRoute['requirements']);
-            $routes->add($customRoute['name'], $route);
+            foreach ($customRoute['paths'] as $path) {
+                $route = new Route($path, $customRoute['defaults'], $customRoute['requirements']);
+                $routes->add($customRoute['name'], $route);
+            }
         }
 
         $this->isLoaded = true;

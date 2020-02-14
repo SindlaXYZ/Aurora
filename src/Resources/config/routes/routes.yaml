@@ -60,10 +60,11 @@ aurora.controller.pwa.favicon:
         - '/pwa-main.js'
         - '/pwa-sw.js'
 
-aurora.controller.pwa.offline:
-    controller: 'aurora.controller.pwa:offline'
-    path:
-        - '/pwa-offline'
+# Moved to src/DependencyInjection/ExtraLoader.php
+#aurora.controller.pwa.offline:
+#    controller: 'aurora.controller.pwa:offline'
+#    path:
+#        - '/pwa-offline'
 
 # Extra routes, see `src/Resources/config/services.yaml` & `Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader`
 aurora_extra:
