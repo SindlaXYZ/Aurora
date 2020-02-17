@@ -335,7 +335,7 @@ EOT;
     {$setDoc}
     public function set{$function}Append({$returnType} \$$prop->name): {$reflect->getShortName()}
     {
-        \$this->{$prop->name} = (is_array(\$this->meta) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
+        \$this->{$prop->name} = (is_array(\$this->$prop->name) ? array_merge(\$this->$prop->name, \$$prop->name) : \$$prop->name);
         {$returnThis2}
     }
 EOT;

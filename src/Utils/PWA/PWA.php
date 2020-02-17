@@ -102,7 +102,7 @@ class PWA
         $serviceGit = $this->container->get('aurora.git');
 
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
-            'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
+            'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
             'external_cache' => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
             'offline'        => $this->container->getParameter('aurora.pwa.offline'),

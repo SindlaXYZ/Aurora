@@ -205,6 +205,8 @@ class UtilityExtension extends AbstractExtension
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
+                    //echo "\n\t" . '<link rel="preload" href="'. $asset .'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
+                    //<noscript><link rel="stylesheet" href="styles.css"></noscript>
                     echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" />';
                 }
             }
