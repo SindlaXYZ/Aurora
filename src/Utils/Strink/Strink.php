@@ -159,7 +159,7 @@ class Strink
             $limit = $limit + 1;
 
             if ($cut == 'right') {
-                $this->string = mb_substr($this->string, 0, ($limit - count($postText)), 'utf-8') . $postText;
+                $this->string = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
 
             } else if ($cut == 'middle' OR $cut == 'center') {
                 $this->string = mb_substr($this->string, 0, (round($limit / 2) - count($postText)), 'utf-8');
