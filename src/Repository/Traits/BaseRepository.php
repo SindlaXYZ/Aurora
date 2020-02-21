@@ -147,14 +147,24 @@ trait BaseRepository
             }
         }
 
-        // Debug
-        if ($getDQL) {
-            return $qb->getDQL();
+        // ORDER BY
+        if(0 != count($this->orders)) {
+            foreach ($this->orders as $raw => $direction) {
+                $qb->orderBy("{$tableName}.{$raw}", $direction);
+            }
         }
 
+        // LIMIT
         if ($this->limit) {
             $qb->setFirstResult($this->limitOffset);
             $qb->setMaxResults($this->limit);
+        }
+
+        // Debug
+        if ($getDQL) {
+            echo $qb->getDQL();
+
+            exit(0);
         }
 
         if ($count) {
