@@ -2,17 +2,26 @@
 
 namespace Sindla\Bundle\AuroraBundle\Repository\Traits;
 
+// Doctrine
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\QueryBuilder;
+use Doctrine\Common\Annotations\AnnotationReader;
 
+//  Symfony
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 
 trait BaseRepository
 {
     /** @var Container */
-    protected $container;
+    protected Container $container;
+
+    /** @var Request */
+    protected Request $request;
+
+    /** @var QueryBuilder $queryBuilder */
+    protected QueryBuilder $queryBuilder;
 
     public function setContainer(Container $container)
     {
@@ -20,18 +29,150 @@ trait BaseRepository
         return $this;
     }
 
-    /** @var Request */
-    protected $request;
-
     public function setRequest(Request $request)
     {
         $this->request = $request;
         return $this;
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    protected ?array  $where       = [];
+    protected ?int    $limit       = null;
+    protected ?int    $limitOffset = null;
+    protected bool    $count       = false;
+    protected ?array  $orders      = [];
+
+    public function setWhere(array $where)
+    {
+        $this->where = $where;
+        return $this;
+    }
+
+    public function setOrder(array $orders)
+    {
+        $this->orders = $orders;
+        return $this;
+    }
+
+    public function setLimit(int $limit = 1, int $offset = 1)
+    {
+        $this->limit       = $limit;
+        $this->limitOffset = $offset;
+        return $this;
+    }
+
+    /**
+     * Get one result
+     *
+     * @param bool $debug
+     * @return
+     */
+    public function getResult(bool $debug = false)
+    {
+        return $this->extract(false, true, $debug);
+    }
+
+    /**
+     * Get all results
+     *
+     * @param bool $debug
+     * @return
+     */
+    public function getResults(bool $debug = false)
+    {
+        return $this->extract(false, false, $debug);
+    }
+
+    /**
+     * Count and get all results
+     *
+     * @param bool $debug
+     * @return
+     */
+    public function getResultsNumber(bool $debug = false)
+    {
+        $this->count = true;
+
+        return $this->extract(true, null, $debug);
+    }
+
+    private function extract($count = false, $onlyOne = null, bool $getDQL = false)
+    {
+        $reflect        = new \ReflectionClass($this->getClassName());
+        $namespaceParts = explode('\\', $reflect->getNamespaceName());
+
+        $classMetaData = $this->_em->getClassMetadata("{$namespaceParts[0]}:{$reflect->getShortName()}");
+
+        $AnnotationReader = new AnnotationReader();
+        $classAnnotations = $AnnotationReader->getClassAnnotations($reflect);
+
+        //print_r($reflect->name);die;
+
+        $tableName = $classAnnotations[0]->name;
+
+        $em = $this->getEntityManager();
+
+        /** @var QueryBuilder $qb */
+        $qb = $em->createQueryBuilder($tableName);
+
+        if ($count) {
+            $qb->select("count({$tableName}.id)");
+        } else {
+            $qb->select($tableName);
+        }
+
+        $qb->from($reflect->name, $tableName);
+
+        //$qb = $this->createQueryBuilder('office')->addSelect('office');
+
+        //print_r($x);die;
+        //print_r($this->where);die;
+
+        foreach ($this->where as $operation => $conditions) {
+            if ($conditions) {
+                foreach ($conditions as $condition) {
+                    [$column, $operator, $value] = $condition;
+
+                    $ReflectionProperty = new \ReflectionProperty($this->getClassName(), $column);
+                    $ann                = $AnnotationReader->getPropertyAnnotations($ReflectionProperty);
+
+                    //print_r($ann);die;
+                    if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora && true == boolval($ann[1]->bitwise)) {
+                        $qb->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                    } else {
+                        $qb->andWhere("{$tableName}.{$condition[0]} {$condition[1]} '{$condition[2]}'");
+                    }
+                }
+            }
+        }
+
+        // Debug
+        if ($getDQL) {
+            return $qb->getDQL();
+        }
+
+        if ($this->limit) {
+            $qb->setFirstResult($this->limitOffset);
+            $qb->setMaxResults($this->limit);
+        }
+
+        if ($count) {
+            return $qb->getQuery()->getSingleScalarResult();
+        }
+
+        if ($onlyOne) {
+            return $qb->getQuery()->getOneOrNullResult();
+        }
+
+        return $qb->getQuery()->getResult();
+    }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     public function truncate()
     {
-        $reflect = new \ReflectionClass($this->getClassName());
+        $reflect        = new \ReflectionClass($this->getClassName());
         $namespaceParts = explode('\\', $reflect->getNamespaceName());
 
         $classMetaData = $this->_em->getClassMetadata("{$namespaceParts[0]}:{$reflect->getShortName()}");
