@@ -12,7 +12,7 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 class BlackHoleController extends AbstractController
 {
     /**
-     * See src/Resources/config/routes/routes.yaml
+     * @see /src/Resources/config/routes/routes.yaml
      */
     public function blackHole(): Response
     {

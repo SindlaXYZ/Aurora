@@ -28,7 +28,7 @@ aurora.controller.blackhole:
         - '/administrator/(help|language)/'
         - '/js/kcfinder/browse.php'
         - '/new_license.php'
-        - '/new_license.php'
+        - '/license.txt'
         - '/administrator/'
         - '/.env'
         - '/.bitcoin'
