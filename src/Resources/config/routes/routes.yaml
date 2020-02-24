@@ -40,6 +40,7 @@ aurora.controller.blackhole:
         - '/ueditor/net/controller.ashx'
         - '/mysql/'
         - '/(phpMyAdmin|myadmin|pma)/'
+        - '/(data/admin|data|admin)/allowurl.txt'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa:progressiveWebApplication'
