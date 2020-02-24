@@ -67,6 +67,7 @@ twig:
         aurora: '@aurora.twig.utility'
 ```
 
+* Enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
 * Edit `config/routes.yaml` and prepend
 ```yaml
 aurora:
@@ -77,27 +78,7 @@ Run `composer update` to update and install the rest of the dependencies.
 
 ---
 
-#### How to enable Black Hole controller ?
-
-**[1/1]** `app/config/routing.yml`
-```yml
-aurora.blackhole:
-    resource: '@AuroraBundle/Controller/BlackHoleController.php'
-    type: annotation
-```
-
----
-
-#### How to enable Favicons, Manifest & PWA (Progressive Web Application) ?
-
-**[1/2]** `app/config/routing.yml`
-```yml
-aurora.pwa:
-    resource: '@AuroraBundle/Controller/PWAController.php'
-    type: annotation
-```
-
-**[2/2]** Inside your twig template, in HTML `head` tag add: 
+**[PWA]** Inside your twig template, in HTML `head` tag add: 
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
@@ -108,7 +89,7 @@ aurora.pwa:
 
 * Edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`
 * Edit `config/services.yaml`
-```yamp
+```yaml
     Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
         arguments: ['@service_container']
         tags:
