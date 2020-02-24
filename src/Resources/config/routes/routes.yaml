@@ -16,6 +16,7 @@ aurora.controller.blackhole:
         - '/sites/all/libraries/mailchimp/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
         - '/wp-login.php'
         - '/fckeditor/editor/filemanager/connectors/php/upload.php'
+        - '/(js/kcfinder|admin/js/kcfinder|assets/plugin/kcfinder|vendor/kcfinder|ckeditor/plugins/kcfinder|admin/editor/kcfinder|admin/kcfinder|assets/kcfinder)/upload.php'
         - '/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
         - '/lib/phpunit/'
@@ -41,6 +42,8 @@ aurora.controller.blackhole:
         - '/mysql/'
         - '/(phpMyAdmin|myadmin|pma)/'
         - '/(data/admin|data|admin)/allowurl.txt'
+        - '/infusions/mp3player_panel/upload.php'
+        - '/(assets|files)/uploadify/uploadify.php'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa:progressiveWebApplication'
