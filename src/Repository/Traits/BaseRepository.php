@@ -12,6 +12,9 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 
+// Sindla
+use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+
 trait BaseRepository
 {
     /** @var Container */
@@ -99,6 +102,7 @@ trait BaseRepository
 
     private function extract($count = false, $onlyOne = null, bool $getDQL = false)
     {
+        $Strink         = new Strink();
         $reflect        = new \ReflectionClass($this->getClassName());
         $namespaceParts = explode('\\', $reflect->getNamespaceName());
 
@@ -107,9 +111,7 @@ trait BaseRepository
         $AnnotationReader = new AnnotationReader();
         $classAnnotations = $AnnotationReader->getClassAnnotations($reflect);
 
-        //print_r($reflect->name);die;
-
-        $tableName = $classAnnotations[0]->name;
+        $tableName = str_replace('`', '', $classAnnotations[0]->name);
 
         $em = $this->getEntityManager();
 
@@ -124,11 +126,6 @@ trait BaseRepository
 
         $qb->from($reflect->name, $tableName);
 
-        //$qb = $this->createQueryBuilder('office')->addSelect('office');
-
-        //print_r($x);die;
-        //print_r($this->where);die;
-
         foreach ($this->where as $operation => $conditions) {
             if ($conditions) {
                 foreach ($conditions as $condition) {
@@ -136,19 +133,29 @@ trait BaseRepository
 
                     $ReflectionProperty = new \ReflectionProperty($this->getClassName(), $column);
                     $ann                = $AnnotationReader->getPropertyAnnotations($ReflectionProperty);
+                    $randomKey          = $Strink->randomString(6, ['ABCDEFGHIJKLMNOPQRSTUWXYZ']);
 
-                    //print_r($ann);die;
-                    if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora && true == boolval($ann[1]->bitwise)) {
-                        $qb->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                    // Aurora column
+                    if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora) {
+                        // Bitwise
+                        if (true == boolval($ann[1]->bitwise)) {
+                            $qb->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                        } // Json
+                        else if (true == boolval($ann[1]->json)) {
+                            $qb->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
+                            $qb->setParameter($randomKey, $condition[2]);
+                        }
+
                     } else {
-                        $qb->andWhere("{$tableName}.{$condition[0]} {$condition[1]} '{$condition[2]}'");
+                        $qb->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
+                        $qb->setParameter($randomKey, $condition[2]);
                     }
                 }
             }
         }
 
         // ORDER BY
-        if(0 != count($this->orders)) {
+        if (0 != count($this->orders)) {
             foreach ($this->orders as $raw => $direction) {
                 $qb->orderBy("{$tableName}.{$raw}", $direction);
             }
