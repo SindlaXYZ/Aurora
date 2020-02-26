@@ -44,6 +44,15 @@ parameters:
         - 'fonts.gstatic.com'
         - 'fonts.googleapis.com'
 ```
+
+#### `config/packages/dev/aurora.yaml`:
+
+```yaml
+parameters:
+    aurora.minify.output: false
+```
+
+
 * Edit `composer.json` and add 
 ```json
     "post-install-cmd": [
