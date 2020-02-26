@@ -1,0 +1,7 @@
+doctrine:
+    orm:
+        dql:
+            string_functions:
+                unaccent: Sindla\Bundle\AuroraBundle\Doctrine\DQL
+                JSON_GET_TEXT: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Postgresql\JsonGetText
+                JSONB_CONTAINS: Scienta\DoctrineJsonFunctions\Query\AST\Functions\Postgresql\JsonbContains

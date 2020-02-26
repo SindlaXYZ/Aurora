@@ -34,6 +34,7 @@ aurora.controller.blackhole:
         - '/.env'
         - '/.bitcoin'
         - '/wallet.dat'
+        - '/backup/wallet.dat'
         - '/components/'
         - '/tmp/'
         - '/plugin/system/debug/'
@@ -44,6 +45,7 @@ aurora.controller.blackhole:
         - '/(data/admin|data|admin)/allowurl.txt'
         - '/infusions/mp3player_panel/upload.php'
         - '/(assets|files)/uploadify/uploadify.php'
+        - '/config/database.yml'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa:progressiveWebApplication'
