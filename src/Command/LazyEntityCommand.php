@@ -8,6 +8,7 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 // Doctrine
@@ -60,8 +61,15 @@ class LazyEntityCommand extends CommandMiddleware
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        /** @var InputInterface */
         $this->input  = $input;
+
+        /** @var OutputInterface */
         $this->output = $output;
+
+        /** @var SymfonyStyle io */
+        $this->io = new SymfonyStyle($this->input, $this->output);
+
         $this->em     = $this->container->get('doctrine')->getManager();
 
         $this->namespace   = $this->input->getOption('namespace');
@@ -148,6 +156,12 @@ class LazyEntityCommand extends CommandMiddleware
 
             foreach ($props as $prop) {
 
+                /*
+                echo "\n" . str_repeat('-', 50) . "\n";
+                print_r($prop);
+                continue;
+                */
+
                 $auroraAnnotation  = new Aurora();
                 $reflectionMethod  = $reflect->getProperty($prop->name);
                 $methodAnnotations = $reader->getPropertyAnnotations($reflectionMethod);
@@ -178,11 +192,12 @@ class LazyEntityCommand extends CommandMiddleware
                 $canBeNull = $this->canBeNull($prop->getDocComment());
 
                 // DEBUG
-                if (0 && preg_match("/{$this->namespace}\\\Entity\\\???/i", $prop->getDocComment())) {
-                    echo $returnType . "\n\n";
-                    echo $prop->getDocComment() . "\n\n";
-                    print_r($paramType);
-                    die;
+                if (0) {
+                    echo "\n" . str_repeat('-', 50) . "\n";
+                    echo "\n RT: " . $returnType;
+                    echo "\n" . $prop->getDocComment();
+                    echo "\n PT: " . $paramType;
+                    continue;
                 }
 
                 $function = ucfirst($prop->name);
@@ -199,18 +214,22 @@ EOT;
                 if (in_array($prop->name, ['id', 'createdAt', 'updatedAt', 'crondAt'])) {
                     $traints = $reflect->getTraits();
                     if ('id' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Identifiable', 'App\Entity\Supers\IdentifiableTrait']), $traints)) {
+                        $this->io->comment(sprintf("Skip `%s`", $prop->name));
                         continue;
                     }
 
                     if ('createdAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Temporal', 'App\Entity\Supers\TemporalTrait', 'App\Entity\Supers\TemporalCreatedTrait']), $traints)) {
+                        $this->io->comment(sprintf("Skip `%s`", $prop->name));
                         continue;
                     }
 
                     if ('updatedAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\Temporal', 'App\Entity\Supers\TemporalTrait']), $traints)) {
+                        $this->io->comment(sprintf("Skip `%s`", $prop->name));
                         continue;
                     }
 
                     if ('crondAt' == $prop->name && array_diff_key(array_flip(['App\Entity\Traits\TemporalCrond', 'App\Entity\Supers\TemporalCrondTrait']), $traints)) {
+                        $this->io->comment(sprintf("Skip `%s`", $prop->name));
                         continue;
                     }
                 }
@@ -318,7 +337,7 @@ EOT;
     }
 
     {$setDoc}
-    public function set{$function}BitwiseRemove({$returnType} \$$prop->name)    
+    public function set{$function}BitwiseRemove({$returnType} \$$prop->name)
     {
         \$this->{$prop->name} = \$this->{$prop->name} & (~\$$prop->name);
         {$returnThis2}
@@ -353,9 +372,9 @@ EOT;
 
                 //\preg_match_all('/private \$(.*);/i', $fileContent, $matches);
                 //preg_match("/(?s)private(?!.*private).+;/", $fileContent, $matches);
-                preg_match_all('/private[\s\w]*\s\$(.*);/', $fileContent, $matches);
+                preg_match_all('/private[\s\??\w]*\s\$(.*);/', $fileContent, $matches);
                 if (empty($matches[0]) && empty($matches[1])) {
-                    preg_match_all('/protected[\s\w]*\s\$(.*);/', $fileContent, $matches);
+                    preg_match_all('/protected[\s\??\w]*\s\$(.*);/', $fileContent, $matches);
                 }
 
                 $newContent = '';
