@@ -177,7 +177,7 @@ class LazyEntityCommand extends CommandMiddleware
                 foreach ($methodAnnotations as $annotation) {
                     if ($annotation instanceof \Doctrine\ORM\Mapping\ManyToMany) {
                         $manyToMany = [
-                            'orm' => $annotation,
+                            'orm'        => $annotation,
                             'reflection' => new \ReflectionClass($annotation->targetEntity)
                         ];
                     } else if ($annotation instanceof Column) {
@@ -188,7 +188,7 @@ class LazyEntityCommand extends CommandMiddleware
                     }
                 }
 
-                if(0 && $manyToMany) {
+                if (0 && $manyToMany) {
                     echo $manyToMany['reflection']->getShortName();
                     die(print_r($manyToMany));
                 }
@@ -294,7 +294,7 @@ EOT;
                 $getDoc .= "\n\t */";
 
                 $setDoc = "\n\n\t/**";
-                if ($manyToMany) {
+                if ($manyToMany && !empty($manyToMany['orm']->inversedBy)) {
                     $setDoc .= "\n\t * @param {$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
                     $setDoc .= "\n\t * @return boolean|{$reflect->getShortName()}";
                 } else {
@@ -332,7 +332,7 @@ EOT;
 
 
                 // Many to Many
-                if ($manyToMany) {
+                if ($manyToMany && !empty($manyToMany['orm']->inversedBy)) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
     public function set{$function}Add({$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()})
