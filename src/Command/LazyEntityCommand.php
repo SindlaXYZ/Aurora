@@ -2,6 +2,8 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
+use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\Column;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -62,7 +64,7 @@ class LazyEntityCommand extends CommandMiddleware
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var InputInterface */
-        $this->input  = $input;
+        $this->input = $input;
 
         /** @var OutputInterface */
         $this->output = $output;
@@ -70,7 +72,7 @@ class LazyEntityCommand extends CommandMiddleware
         /** @var SymfonyStyle io */
         $this->io = new SymfonyStyle($this->input, $this->output);
 
-        $this->em     = $this->container->get('doctrine')->getManager();
+        $this->em = $this->container->get('doctrine')->getManager();
 
         $this->namespace   = $this->input->getOption('namespace');
         $this->sonataAdmin = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
@@ -156,24 +158,40 @@ class LazyEntityCommand extends CommandMiddleware
 
             foreach ($props as $prop) {
 
+                $manyToMany = false;
+
                 /*
                 echo "\n" . str_repeat('-', 50) . "\n";
                 print_r($prop);
                 continue;
                 */
 
+                //print_r($classAnnotations);die;
+
                 $auroraAnnotation  = new Aurora();
                 $reflectionMethod  = $reflect->getProperty($prop->name);
                 $methodAnnotations = $reader->getPropertyAnnotations($reflectionMethod);
-                //print_r($methodAnnotations);die;
+
+                //die(print_r($methodAnnotations));
+
                 foreach ($methodAnnotations as $annotation) {
-                    if ($annotation instanceof Aurora) {
+                    if ($annotation instanceof \Doctrine\ORM\Mapping\ManyToMany) {
+                        $manyToMany = [
+                            'orm' => $annotation,
+                            'reflection' => new \ReflectionClass($annotation->targetEntity)
+                        ];
+                    } else if ($annotation instanceof Column) {
+
+                    } else if ($annotation instanceof Aurora) {
                         /** @var Aurora $auroraAnnotation */
                         $auroraAnnotation = $annotation;
                     }
                 }
 
-                //print_r($auroraAnnotation);die;
+                if(0 && $manyToMany) {
+                    echo $manyToMany['reflection']->getShortName();
+                    die(print_r($manyToMany));
+                }
 
 
                 // Method @var value. Eg: string | int | Attribute
@@ -276,8 +294,13 @@ EOT;
                 $getDoc .= "\n\t */";
 
                 $setDoc = "\n\n\t/**";
-                $setDoc .= "\n\t * @param {$returnTypeSet} \${$prop->name}";
-                $setDoc .= "\n\t * @return {$reflect->getShortName()}";
+                if ($manyToMany) {
+                    $setDoc .= "\n\t * @param {$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
+                    $setDoc .= "\n\t * @return boolean|{$reflect->getShortName()}";
+                } else {
+                    $setDoc .= "\n\t * @param {$returnTypeSet} \${$prop->name}";
+                    $setDoc .= "\n\t * @return {$reflect->getShortName()}";
+                }
                 $setDoc .= "\n\t */";
 
                 $returnTypeGetCanBeBeNull = ($canBeNull ? ': ?' : ': ');
@@ -303,6 +326,36 @@ EOT;
     public function set{$function}({$returnTypeSetCanBeBeNull} \$$prop->name): {$reflect->getShortName()}
     {
         \$this->{$prop->name} = \${$prop->name};{$returnThis}
+    }
+EOT;
+                }
+
+
+                // Many to Many
+                if ($manyToMany) {
+                    $xml .= "\n" . <<<EOT
+    {$setDoc}
+    public function set{$function}Add({$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()})
+    {
+        if(\$this->{$prop->name}->contains(\${$manyToMany['reflection']->getShortName()})) {
+            return false;
+        }
+
+        \$this->{$prop->name}->add(\${$manyToMany['reflection']->getShortName()});
+        return \$this;
+    }
+EOT;
+
+                    $xml .= "\n" . <<<EOT
+    {$setDoc}
+    public function set{$function}Remove({$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()})
+    {
+        if(\$this->{$prop->name}->contains(\${$manyToMany['reflection']->getShortName()})) {
+            return false;
+        }
+
+        \$this->{$prop->name}->removeElement(\${$manyToMany['reflection']->getShortName()});
+        return \$this;
     }
 EOT;
                 }
