@@ -350,7 +350,7 @@ EOT;
     {$setDoc}
     public function set{$function}Remove({$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()})
     {
-        if(\$this->{$prop->name}->contains(\${$manyToMany['reflection']->getShortName()})) {
+        if(!\$this->{$prop->name}->contains(\${$manyToMany['reflection']->getShortName()})) {
             return false;
         }
 
