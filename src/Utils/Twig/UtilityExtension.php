@@ -105,6 +105,8 @@ class UtilityExtension extends AbstractExtension
 
             new TwigFunction('manifest', [$this, 'manifest']),
             new TwigFunction('pwa', [$this, 'pwa']),
+            new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
+
         ];
     }
 
@@ -134,6 +136,17 @@ class UtilityExtension extends AbstractExtension
             'build'       => $this->getBuild(),
             'debug'       => $debug
         ]);
+    }
+
+    public function dnsPrefach()
+    {
+        $dnsPrefetches = $this->container->getParameter('aurora.dns_prefetch');
+        $html          = '';
+        foreach ($dnsPrefetches as $dnsPrefetch) {
+            $html .= "<link rel='dns-prefetch' href='//{$dnsPrefetch}' />";
+        }
+
+        echo $html;
     }
 
     public function getBuild($limit = null)
