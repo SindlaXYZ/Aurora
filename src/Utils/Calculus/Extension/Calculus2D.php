@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Calculus\Extensions;
+namespace Sindla\Bundle\AuroraBundle\Utils\Calculus\Extension;
 
 trait Calculus2D
 {

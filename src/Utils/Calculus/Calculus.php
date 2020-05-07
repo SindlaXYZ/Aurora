@@ -2,10 +2,10 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Calculus;
 
-use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extensions\Calculus2D;
-use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extensions\Calculus3D;
-use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extensions\CalculusGeo;
-use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extensions\Graph;
+use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extension\Calculus2D;
+use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extension\Calculus3D;
+use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extension\CalculusGeo;
+use Sindla\Bundle\AuroraBundle\Utils\Calculus\Extension\Graph;
 
 require dirname(__FILE__) . '/Extension/Calculus2D.php';
 require dirname(__FILE__) . '/Extension/Calculus3D.php';
