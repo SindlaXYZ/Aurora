@@ -40,7 +40,17 @@ class ChronosTest extends KernelTestCase
                          'startDate' => '2010-01-01 11:12:13',
                          'endDate'   => '2010-01-01 11:12:13',
                          'expected'  => 0
-                     ]
+                     ],
+                     [
+                         'startDate' => '2010-01-01 11:12:13',
+                         'endDate'   => '2010-01-01 11:13:13',
+                         'expected'  => 1
+                     ],
+                     [
+                         'startDate' => '2010-01-01 11:13:13',
+                         'endDate'   => '2010-01-01 11:12:13',
+                         'expected'  => -1
+                     ],
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->minutesBetweenTwoDates($test['startDate'], $test['endDate']));
         }
