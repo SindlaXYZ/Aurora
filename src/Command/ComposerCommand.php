@@ -99,7 +99,7 @@ class ComposerCommand extends Command
             return $this->outputWithTime("Invalid action {$action}()");
         }
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     /**

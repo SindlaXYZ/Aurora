@@ -88,7 +88,7 @@ class LazyEntityCommand extends CommandMiddleware
 
         $this->generateSettersGetters();
 
-        return 0;
+        return Command::SUCCESS;
     }
 
     private function generateSettersGetters()

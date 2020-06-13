@@ -37,6 +37,6 @@ class TestCommand extends Command
     {
         $this->io->comment('It works!');
 
-        return 0;
+        return Command::SUCCESS;
     }
 }
