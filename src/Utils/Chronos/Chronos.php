@@ -8,8 +8,8 @@ class Chronos
      * Transform/parse a human date to machine date (Y-m-d)
      *    eg: 28.09.2013 (d.m.Y) => 2013-09-28
      *
-     * @param   string $datetime
-     * @param   string $humanFormat
+     * @param string $datetime
+     * @param string $humanFormat
      * @return  string
      */
     public function dateToMachineDate($datetime, $humanFormat): string
@@ -22,8 +22,8 @@ class Chronos
      * Transform/parse a human date to machine date (Y-m-d H:i:s)
      *    eg: 28.09.2013 23:41:12 => 2013-09-28 23:41:12
      *
-     * @param   string $datetime
-     * @param   string $humanFormat
+     * @param string $datetime
+     * @param string $humanFormat
      * @return  string
      */
     public function dateToMachineDateTime($datetime, $humanFormat): string
@@ -45,10 +45,30 @@ class Chronos
     }
 
     /**
+     * Return minutes number between two dates
+     *
+     * @param date $startDate
+     * @param date $endDate
+     * @return  integer
+     *
+     * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
+     */
+    public function minutesBetweenTwoDates($startDate, $endDate): int
+    {
+        $startDate = new \DateTime($startDate);
+        $endDate   = new \DateTime($endDate);
+        $interval  = $startDate->diff($endDate);
+        $hours     = $interval->format('%r%h');
+        $minutes   = $interval->format('%r%i');
+
+        return (($hours * 60) + $minutes);
+    }
+
+    /**
      * Return days number between two dates
      *
-     * @param   date $startDate
-     * @param   date $endDate
+     * @param date $startDate
+     * @param date $endDate
      * @return  integer
      *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
@@ -64,22 +84,22 @@ class Chronos
     /**
      * Return months number between two dates
      *
-     * @param   date $startDate
-     * @param   date $endDate
+     * @param date $startDate
+     * @param date $endDate
      * @return  integer
      */
     public function monthsBetweenTwoDates($startDate, $endDate): int
     {
         $startDate = new \DateTime($startDate);
         $endDate   = new \DateTime($endDate);
-        return ( ($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m) );
+        return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
     }
 
     /**
      * Return years number between two dates
      *
-     * @param   date $startDate
-     * @param   date $endDate
+     * @param date $startDate
+     * @param date $endDate
      * @return  integer
      */
     public function yearsBetweenTwoDates($startDate, $endDate): int
