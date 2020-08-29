@@ -76,6 +76,7 @@ aurora.controller.pwa.favicon:
         - '/manifest.webmanifest'
         - '/manifest.json'
         - '/browserconfig.xml'
+        - '/IEconfig.xml'
         - '/pwa-main.js'
         - '/pwa-sw.js'
 
