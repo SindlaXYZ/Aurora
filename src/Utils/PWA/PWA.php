@@ -58,9 +58,9 @@ class PWA
                 'short_name'       => $this->container->getParameter('aurora.pwa.app_short_name'),
                 'description'      => $this->container->getParameter('aurora.pwa.app_description'),
                 'start_url'        => $this->container->getParameter('aurora.pwa.start_url'),
-                'display'          => $this->container->getParameter('aurora.pwa.display'),
-                'theme_color'      => $this->container->getParameter('aurora.pwa.theme_color'),
-                'background_color' => $this->container->getParameter('aurora.pwa.background_color'),
+                'display'          => $this->container->getParameter('aurora.pwa.display'),  // fullscreen
+                'theme_color'      => $this->container->getParameter('aurora.pwa.theme_color'), // #RGB
+                'background_color' => $this->container->getParameter('aurora.pwa.background_color'), // #RGB
                 'icons'            => []
             ];
 
@@ -93,12 +93,12 @@ class PWA
 
             $encoder       = new XmlEncoder();
             $browserConfig = [
-                'msapplication'    => [
+                'msapplication' => [
                     'tile' => [
                         'square70x70logo'   => ['@src' => '/ms-icon-70x70.png'],
                         'square150x150logo' => ['@src' => '/ms-icon-150x150.png'],
                         'square310x310logo' => ['@src' => '/ms-icon-310x310.png'],
-                        'TileColor'         => $this->container->getParameter('aurora.pwa.display')
+                        'TileColor'         => $this->container->getParameter('aurora.pwa.theme_color') // #RGB
                     ]
                 ]
             ];
