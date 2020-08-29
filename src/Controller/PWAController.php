@@ -33,6 +33,9 @@ class PWAController extends AbstractController
             // Manifest
             if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
                 return $PWA->manifestJSON();
+            } // MS browser config
+            else if (in_array($Request->getRequestUri(), ['browserconfig.xml', '/browserconfig.xml', 'IEconfig.xml', '/IEconfig.xml'])) {
+                return $PWA->browserConfig();
             } // Main JS
             else if (in_array($Request->getRequestUri(), ['pwa-main.js', '/pwa-main.js'])) {
                 return $PWA->mainJS();

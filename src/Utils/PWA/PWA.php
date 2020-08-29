@@ -4,6 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+
 #use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -11,6 +12,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 
 // Twig
 use Twig\Extension\AbstractExtension;
@@ -43,8 +45,6 @@ class PWA
     /**
      * manifest.json | manifest.webmanifest
      *
-     * Do not cache it!
-     *
      * @return JsonResponse
      */
     public function manifestJSON()
@@ -76,6 +76,43 @@ class PWA
 
             $Response = new JsonResponse($manifest);
             $Response->setEncodingOptions(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+            return $Response;
+        });
+    }
+
+    /**
+     * browserconfig.xml | IEconfig.xml
+     *
+     * @return XML
+     */
+    public function browserConfig()
+    {
+        $cache = new FilesystemAdapter();
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+
+            $encoder       = new XmlEncoder();
+            $browserConfig = [
+                'msapplication'    => [
+                    'tile' => [
+                        'square70x70logo'   => ['@src' => '/ms-icon-70x70.png'],
+                        'square150x150logo' => ['@src' => '/ms-icon-150x150.png'],
+                        'square310x310logo' => ['@src' => '/ms-icon-310x310.png'],
+                        'TileColor'         => $this->container->getParameter('aurora.pwa.display')
+                    ]
+                ]
+            ];
+
+            # https://symfony.com/doc/current/components/serializer.html#id1
+            $xml = $encoder->encode($browserConfig, 'xml', [
+                'xml_version'        => '1.0',
+                'xml_encoding'       => 'utf-8',
+                'xml_root_node_name' => 'browserconfig'
+            ]);
+
+            $Response = new Response($xml);
+            $Response->headers->set('Content-Type', 'text/xml');
+
             return $Response;
         });
     }
