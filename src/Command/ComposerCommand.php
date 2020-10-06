@@ -192,7 +192,7 @@ class ComposerCommand extends Command
 
         if(empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
-            $this->io->error("[AURORA] Check `MAXMIND_LICENSE_KEY=` inside .env file).");
+            $this->io->error("[AURORA] Check `MAXMIND_LICENSE_KEY=` inside .env file.");
             return;
         }
 

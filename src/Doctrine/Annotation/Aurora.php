@@ -11,7 +11,7 @@ namespace Sindla\Bundle\AuroraBundle\Doctrine\Annotation;
 class Aurora
 {
     /** @var boolean */
-    public bool $toSting = false;
+    public bool $toSting = false; // eg: @Aurora(toSting=true)
 
     /** @var boolean */
     public bool $bitwise = false;
