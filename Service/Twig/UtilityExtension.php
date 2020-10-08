@@ -142,7 +142,7 @@ class UtilityExtension extends AbstractExtension
                 if (!preg_match('/http:|https:/', $asset)) {
                     $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                 }
-                echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" />';
+                echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" media="screen" />';
             }
 
             // Combine multiple assets into one single file
@@ -205,7 +205,7 @@ class UtilityExtension extends AbstractExtension
     {
         if (!$combine) {
             foreach ($assets as $asset) {
-                echo "\n\t" . '<script src="' . $asset . '"></script>';
+                echo "\n\t" . '<script async src="' . $asset . '"></script>';
             }
 
         } else {
@@ -233,7 +233,7 @@ class UtilityExtension extends AbstractExtension
                 file_put_contents("{$root}/web/static/compiled/{$cacheFileName}", $minifier->minify());
             }
 
-            echo '<script src="/static/compiled/' . $cacheFileName . '"></script>';
+            echo '<script async src="/static/compiled/' . $cacheFileName . '"></script>';
 
         }
     }
