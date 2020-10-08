@@ -18,6 +18,7 @@ use Sindla\Bundle\AuroraBundle\Service\IO\IO;
 
 /**
  * Class ComposerCommand
+ *
  * @package AppBundle\Command
  */
 class ComposerUpdateCommand extends ContainerAwareCommand
@@ -70,7 +71,7 @@ class ComposerUpdateCommand extends ContainerAwareCommand
         // GeoIP2
         $io->newLine();
         $this->output->writeln(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoLite2Country</info> ...', $this->p()));
-        $this->updateGeoIP2Contry();
+        $this->updateGeoIP2('Country');
         $this->output->writeln(sprintf('%s ... done;', $this->p()));
 
         // /var/tmp/*
@@ -114,11 +115,18 @@ class ComposerUpdateCommand extends ContainerAwareCommand
         }
     }
 
-    public function updateGeoIP2Contry()
+    public function updateGeoIP2($type)
     {
-        $tempDir         = $this->container->getParameter('aurora')['tmp'] . '/' . microtime(true);
-        $maxmindDir      = $this->container->getParameter('aurora')['resources'] . '/maxmind-geoip2';
-        $destinationFile = $maxmindDir . '/GeoLite2Country.mmdb';
+        $tempDir           = $this->container->getParameter('aurora')['tmp'] . '/' . microtime(true);
+        $maxmindDir        = $this->container->getParameter('aurora')['resources'] . '/maxmind-geoip2';
+        $maxmindLicenseKey = (isset($this->container->getParameter('aurora')['maxmind_license_key']) ? trim($this->container->getParameter('aurora')['maxmind_license_key']) :  null);
+        $destinationFile   = $maxmindDir . '/GeoLite2Country.mmdb';
+
+        if(empty($maxmindLicenseKey)) {
+            $this->output->writeln("[AURORA] Maxmind license key is not set.");
+            $this->output->writeln("[AURORA] Check `aurora: maxmind_license_key: ...` inside app/config/config.yml file).");
+            return;
+        }
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
             throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
@@ -134,19 +142,20 @@ class ComposerUpdateCommand extends ContainerAwareCommand
             return;
         }
 
-        // Check http://dev.maxmind.com/geoip/geoip2/geolite2/
-        if (!$tarGz = fopen("http://geolite.maxmind.com/download/geoip/database/GeoLite2-Country.tar.gz", 'r')) {
+        try {
+            $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-{$type}&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
+        } catch (\Exception $e) {
             throw new \RuntimeException("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
-        if (!file_put_contents($tempDir . '/GeoLite2-Country.tar.gz', $tarGz)) {
+        if (!file_put_contents("{$tempDir}/GeoLite2-{$type}.tar.gz", $tarGz)) {
             throw new \RuntimeException("[AURORA] Cannot write .tar.gz file on disk.");
         }
 
         // Decompress from gz
         $pharError = false;
         try {
-            $PharData = new \PharData($tempDir . '/GeoLite2-Country.tar.gz');
+            $PharData = new \PharData("{$tempDir}/GeoLite2-{$type}.tar.gz");
         } catch (\UnexpectedValueException $e) {
             $pharError = true;
             throw new \Exception('[AURORA] Could not read .tar.gz file.');
@@ -155,7 +164,7 @@ class ComposerUpdateCommand extends ContainerAwareCommand
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
         } finally {
             if ($pharError) {
-                return $this->updateGeoIP2Contry();
+                return $this->updateGeoIP2($type);
             }
         }
 

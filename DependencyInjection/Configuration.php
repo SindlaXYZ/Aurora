@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
             ->scalarNode('locale')->isRequired()->cannotBeEmpty()->end()
             ->arrayNode('locales')->scalarPrototype()->isRequired()->end()->end()
             ->scalarNode('bundle')->isRequired()->cannotBeEmpty()->end()
+            ->scalarNode('maxmind_license_key')->isRequired()->cannotBeEmpty()->end()
         ->end();
 
         return $treeBuilder;
