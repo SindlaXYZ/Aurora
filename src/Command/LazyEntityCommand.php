@@ -148,8 +148,11 @@ class LazyEntityCommand extends CommandMiddleware
             $reader           = new AnnotationReader();
             $classAnnotations = $reader->getClassAnnotations($reflect);
 
-            // Get class $vars
+            // Get class [public|protected|private $vars = ..]
             $props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
+
+            // Get class [const X_Y = ..]
+            $constants = $reflect->getConstants();
 
             $toString = '';
             $xml      = '';
@@ -292,15 +295,15 @@ EOT;
                 $returnThis2 = "return \$this;";
 
                 $getDoc = "\n\n\t/**";
-                $getDoc .= "\n\t * @return " . $returnTypeGet;
+                $getDoc .= "\n\t * @return " . ($canBeNull ? "?" . $returnTypeGet : $returnTypeGet);
                 $getDoc .= "\n\t */";
 
                 $setDoc = "\n\n\t/**";
                 if ($manyToMany && !empty($manyToMany['orm']->inversedBy)) {
-                    $setDoc .= "\n\t * @param {$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
+                    $setDoc .= "\n\t * @param ". ($canBeNull ? '?' : '') ."{$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
                     $setDoc .= "\n\t * @return boolean|{$reflect->getShortName()}";
                 } else {
-                    $setDoc .= "\n\t * @param {$returnTypeSet} \${$prop->name}";
+                    $setDoc .= "\n\t * @param ". ($canBeNull ? '?' : '') ."{$returnTypeSet} \${$prop->name}";
                     $setDoc .= "\n\t * @return {$reflect->getShortName()}";
                 }
                 $setDoc .= "\n\t */";
@@ -363,10 +366,9 @@ EOT;
                 }
 
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
-                // -- bitwise -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                // -- bitwise (+bitwiseConst) -- - - - - - - - - - - - - - - - - - - - - - - - - -
 
-                //if (preg_match('/__bitwise/', $prop->getDocComment())) {
-                if ($auroraAnnotation->bitwise) {
+                if ($auroraAnnotation->bitwise || preg_match('/__bitwise/', $prop->getDocComment()) || $auroraAnnotation->bitwiseConst || preg_match('/__bitwiseConst/', $prop->getDocComment())) {
                     $xml .= "\n" . <<<EOT
     {$setDoc}
     public function set{$function}BitwiseAdd({$returnType} \$$prop->name)
@@ -399,6 +401,49 @@ EOT;
     }
 EOT;
 
+                }
+
+                // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
+                // -- bitwiseConst -- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+                if ($auroraAnnotation->bitwiseConst || preg_match('/__bitwiseConst/', $prop->getDocComment())) {
+                    $bitwiseConstIndex = 0;
+                    foreach ($constants as $constantName => $constantValue) {
+                        // If constant name start with annotation value
+                        if (strpos($constantName, $auroraAnnotation->bitwiseConst) === 0) {
+
+                            $annotationConstat      = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($auroraAnnotation->bitwiseConst)))); // STATUS_ => Status
+                            $constantNameShort      = preg_replace("/^{$auroraAnnotation->bitwiseConst}/", '', $constantName);
+                            $constantNameShort      = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantNameShort))));
+                            $constantNameFunction   = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantName)))); // dash to CamelCase
+
+                            if(true || $bitwiseConstIndex > 0) {
+                                $xml .= "\n";
+                            }
+
+                            $xml .= "\n" . <<<EOT
+    /**
+     * @param bool \$boolean
+     * @return {$reflect->getShortName()}
+     */
+    public function set{$function}Has{$constantNameShort}(bool \$boolean)
+    {
+        \$boolean ? \$this->{$prop->name} |= self::{$constantName} : \$this->{$prop->name} &= ~self::{$constantName};
+        {$returnThis2}
+    }
+
+    /**
+     * @return bool
+     */
+    public function get{$function}Has{$constantNameShort}(): bool
+    {
+        return \$this->{$prop->name} & self::{$constantName};
+    }
+EOT;
+
+                            ++$bitwiseConstIndex;
+                        }
+                    }
                 }
 
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
