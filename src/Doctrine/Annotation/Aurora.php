@@ -16,6 +16,9 @@ class Aurora
     /** @var boolean */
     public bool $bitwise = false;
 
+    /** @var string */
+    public string $bitwiseConst = ''; // eg: @Aurora(bitwiseConst=STATUS_)
+
     /** @var bool */
     public bool $json = false;
 }
