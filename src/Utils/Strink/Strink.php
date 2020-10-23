@@ -9,7 +9,7 @@ class Strink
     /**
      * @return Strink
      */
-    public function string(string $string = null)
+    public function string(string $string = NULL)
     {
         $this->string = $string;
         return $this;
@@ -97,7 +97,7 @@ class Strink
      */
     public function randomString(int $length = 12, array $keysToUse = []): Strink
     {
-        if (is_array($keysToUse) AND count($keysToUse) == 0) {
+        if (is_array($keysToUse) and count($keysToUse) == 0) {
             $keysToUse = [
                 'abcdefghijklmnopqrstuwxyz',
                 'ABCDEFGHIJKLMNOPQRSTUWXYZ',
@@ -108,7 +108,7 @@ class Strink
 
         $password = '';
         $index    = 0;
-        while (true) {
+        while (TRUE) {
             if ($index > (count($keysToUse) - 1)) {
                 $index = 0;
             }
@@ -161,7 +161,7 @@ class Strink
             if ($cut == 'right') {
                 $this->string = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
 
-            } else if ($cut == 'middle' OR $cut == 'center') {
+            } else if ($cut == 'middle' or $cut == 'center') {
                 $this->string = mb_substr($this->string, 0, (round($limit / 2) - count($postText)), 'utf-8');
                 $this->string .= $postText;
                 $this->string .= mb_substr($this->string, count($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
@@ -179,7 +179,7 @@ class Strink
      *
      * @return Strink
      */
-    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): Strink
+    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = FALSE): Strink
     {
         $this->string = strtolower($this->string);
 
@@ -201,7 +201,7 @@ class Strink
      *
      * @return Strink
      */
-    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = false, bool $upperCaseAllLetter = false): Strink
+    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = FALSE, bool $upperCaseAllLetter = FALSE): Strink
     {
         $this->string = strtolower($this->string);
 
@@ -310,7 +310,9 @@ class Strink
 
             '¿' => ['?'],
 
-            "'" => ['´']
+            "'" => ['´'],
+
+            '-' => ['‑']
         ];
 
         //  'ß',      , '', , ' 'Ĳ',  'ĳ',  'ŉ',  'Œ',  'œ', 'Ŕ', 'ŕ', 'Ŗ', 'ŗ', 'Ř', 'ř',  'ų', 'Ŵ', 'ŵ', , 'Ư', 'ư'   ],
@@ -359,7 +361,7 @@ class Strink
      * @return Strink
      * @docs    http://stackoverflow.com/questions/2955251/php-function-to-make-slug-url-string
      */
-    public function slugify(bool $keepUTF8Chars = false): Strink
+    public function slugify(bool $keepUTF8Chars = FALSE): Strink
     {
         /* Not used yet:
         preg_match_all('/[A-Z]/', $this->string, $match);
