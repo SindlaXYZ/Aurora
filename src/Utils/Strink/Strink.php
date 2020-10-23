@@ -97,7 +97,7 @@ class Strink
      */
     public function randomString(int $length = 12, array $keysToUse = []): Strink
     {
-        if (is_array($keysToUse) and count($keysToUse) == 0) {
+        if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
                 'abcdefghijklmnopqrstuwxyz',
                 'ABCDEFGHIJKLMNOPQRSTUWXYZ',
@@ -161,7 +161,7 @@ class Strink
             if ($cut == 'right') {
                 $this->string = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
 
-            } else if ($cut == 'middle' or $cut == 'center') {
+            } else if ($cut == 'middle' || $cut == 'center') {
                 $this->string = mb_substr($this->string, 0, (round($limit / 2) - count($postText)), 'utf-8');
                 $this->string .= $postText;
                 $this->string .= mb_substr($this->string, count($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
