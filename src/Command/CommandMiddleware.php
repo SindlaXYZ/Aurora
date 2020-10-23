@@ -93,7 +93,10 @@ class CommandMiddleware extends Command
         //v1: preg_match('/@var \\\?([a-zA-Z\[\]]*)/i', $docComment, $matches);
 
         // v2: (also, match the ?)
-        preg_match('/@var \\\?\??([a-zA-Z\[\]]*)/i', $docComment, $matches);
+        //preg_match('/@var \\\?\??([a-zA-Z\[\]]*)/i', $docComment, $matches);
+
+        // V3: (match ?\Datetime)
+        preg_match('/@var \\\?\??\\\?([a-zA-Z\[\]]*)/i', $docComment, $matches);
 
         if (isset($matches[1])) {
             return $matches[1];
