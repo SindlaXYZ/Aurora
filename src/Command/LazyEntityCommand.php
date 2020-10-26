@@ -439,6 +439,22 @@ EOT;
     {
         return \$this->{$prop->name} & self::{$constantName};
     }
+
+    /**
+     * @return array
+     */
+    public function get{$constantNameShort}All()
+    {
+        \$flags = [];
+
+        \$oClass = new \ReflectionClass(__CLASS__);
+        foreach (\$oClass->getConstants() as \$constant => \$constantValue) {
+            if (0 === strpos(\$constant, '{$auroraAnnotation->bitwiseConst}') && \$this->{$prop->name} & \$constantValue) {
+                \$flags[] = (string)\$constant;
+            }
+        }
+        return \$flags;
+    }
 EOT;
 
                             ++$bitwiseConstIndex;
