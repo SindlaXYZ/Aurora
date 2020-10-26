@@ -139,7 +139,9 @@ trait BaseRepository
                     if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora) {
                         // Bitwise
                         if (true == boolval($ann[1]->bitwise)) {
+                            // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
                             $qb->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+
                         } // Json
                         else if (true == boolval($ann[1]->json)) {
                             $qb->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
