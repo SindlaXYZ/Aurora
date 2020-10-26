@@ -439,27 +439,51 @@ EOT;
     {
         return \$this->{$prop->name} & self::{$constantName};
     }
-
-    /**
-     * @return array
-     */
-    public function get{$constantNameShort}All()
-    {
-        \$flags = [];
-
-        \$oClass = new \ReflectionClass(__CLASS__);
-        foreach (\$oClass->getConstants() as \$constant => \$constantValue) {
-            if (0 === strpos(\$constant, '{$auroraAnnotation->bitwiseConst}') && \$this->{$prop->name} & \$constantValue) {
-                \$flags[] = (string)\$constant;
-            }
-        }
-        return \$flags;
-    }
 EOT;
 
                             ++$bitwiseConstIndex;
                         }
                     }
+
+                    $xml .= "\n" . <<<EOT
+
+    /**
+     * Return a list of all '{$auroraAnnotation->bitwiseConst}*' constants
+     * Primary useful for UIX, to display all possible constants
+     *
+     * @return array
+     */
+    public function get{$function}ListAll(): array
+    {
+        \$all{$function}Constants = [];
+
+        \$oClass = new \ReflectionClass(__CLASS__);
+        foreach (\$oClass->getConstants() as \$constant => \$constantValue) {
+            if (0 === strpos(\$constant, '{$auroraAnnotation->bitwiseConst}')) {
+                \$all{$function}Constants[(string)\$constant] = \$constantValue;
+            }
+        }
+        return \$all{$function}Constants;
+    }
+
+    /**
+     * Return a list of '{$auroraAnnotation->bitwiseConst}*' constants that are saved intro DB for current DB entry
+     *
+     * @return ?array
+     */
+    public function get{$function}ListSaved(): ?array
+    {
+        \$allSaved{$function}Constants = [];
+
+        \$oClass = new \ReflectionClass(__CLASS__);
+        foreach (\$oClass->getConstants() as \$constant => \$constantValue) {
+            if (0 === strpos(\$constant, '{$auroraAnnotation->bitwiseConst}') && \$this->{$prop->name} & \$constantValue) {
+                \$allSaved{$function}Constants[(string)\$constant] = \$constantValue;
+            }
+        }
+        return \$allSaved{$function}Constants;
+    }
+EOT;
                 }
 
                 // -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -- -
