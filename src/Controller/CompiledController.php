@@ -26,11 +26,13 @@ class CompiledController extends AbstractController
 
         if (file_exists("$file")) {
             $fileContent = file_get_contents($file);
+            $fileStatus  = Response::HTTP_OK;
         } else {
             $fileContent = "/* File {$fileName} not found */";
+            $fileStatus  = Response::HTTP_NOT_FOUND;
         }
 
-        $response = new \Symfony\Component\HttpFoundation\Response($fileContent);
+        $response = new \Symfony\Component\HttpFoundation\Response($fileContent, $fileStatus);
         $response->headers->set('Content-Type', (('.js' == substr($fileName, -3)) ? 'text/javascript' : 'text/css'));
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;

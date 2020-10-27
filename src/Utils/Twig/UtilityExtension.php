@@ -149,7 +149,7 @@ class UtilityExtension extends AbstractExtension
         echo $html;
     }
 
-    public function getBuild($limit = null)
+    public function getBuild($limit = NULL)
     {
         $serviceGit = $this->container->get('aurora.git');
         $build      = $serviceGit->getHash();
@@ -280,56 +280,64 @@ class UtilityExtension extends AbstractExtension
      * Save (if not exists) the minified file using the last GIT branch hash tag
      *
      * https://github.com/matthiasmullie/minify
+     * https://github.com/tedious/JShrink
      *
      * @param       $Request
      * @param mixed ...$assets
      */
     public function compressJs(Request $Request, $combine, $minify, ...$assets)
     {
-        // %kernel.project_dir%/var/tmp
-        $auroraTmpDir = $this->container->getParameter('aurora.tmp');
+        // TODO: external JS files : preg_match('/http:|https:|ftp:/', $asset)
 
-        // Can be: %kernel.project_dir%/var/tmp/compiled
-        $auroraCacheDir = preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled'));
-
-        if (!$combine) {
+        if (!$combine && !$minify) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);
                 if (strlen($asset) > 3) {
                     echo "\n\t" . '<script src="' . $asset . '"></script>';
                 }
             }
-
         } else {
-            $root       = $this->container->getParameter('aurora.root');
-            $serviceGit = $this->container->get('aurora.git');
-            //$serviceSanitizer = $this->Container->get('service.sanitizer');
-            $cacheFileName = $serviceGit->getHash() . '.js';
-            $cacheFilePath = "{$root}/web/static/compiled/{$cacheFileName}";
+            $serviceGit    = $this->container->get('aurora.git');
+            $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
+            $auroraTmpDir  = $this->container->getParameter('aurora.tmp');  // %kernel.project_dir%/var/tmp
 
-            /**
-             * On dev, is we simulate the prod environment, remove the cached js on every request
-             */
-            if ('dev' === $this->container->getParameter('kernel.environment') && file_exists($cacheFilePath)) {
-                unlink($cacheFilePath);
+            // '%kernel.project_dir%/public/static
+            // $auroraStaticDir = $this->container->getParameter('aurora.static');
+
+            // Can be: %kernel.project_dir%/var/tmp/compiled
+            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'));
+            $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
+
+            if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, TRUE)) {
+                throw new \RuntimeException("[AURORA] Cannot create cache dir `{$staticServerDir}`");
             }
 
-            if (!file_exists($cacheFilePath)) {
-                $minifier = new Minify\JS();
-                foreach ($assets as $asset) {
-                    $asset = trim($asset);
-                    if (strlen($asset) > 3) {
-                        //$js = $serviceSanitizer->minifyJS(file_get_contents($root . '/web/' . $asset)); // BUGGY
-                        $js = file_get_contents($root . '/web/' . $asset);
-                        $minifier->add($js);
+            $combined = '/*' . date('Y-m-d H:i:s') . '*/';
+            foreach ($assets as $asset) {
+                $asset = trim($asset);
+                if (strlen($asset) > 3) {
+                    $assetContent = file_get_contents($auroraRootDir . '/public/' . $asset);
+
+                    if ($combine && $minify) {
+                        $combined .= \JShrink\Minifier::minify($assetContent, ['flaggedComments' => FALSE]) . ';';
+                    } else {
+                        $sha1         = sha1($asset . $serviceGit->getHash()) . '.js';
+                        $minifiedCode = \JShrink\Minifier::minify($assetContent, ['flaggedComments' => FALSE]);
+                        if ('dev' === $this->container->getParameter('kernel.environment') || !file_exists("{$staticServerDir}/{$sha1}")) {
+                            file_put_contents("{$staticServerDir}/{$sha1}", '/*' . date('Y-m-d H:i:s') . '*/' . $minifiedCode);
+                        }
+                        echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '"></script>';
                     }
                 }
-
-                file_put_contents("{$root}/web/static/compiled/{$cacheFileName}", $minifier->minify());
             }
 
-            echo '<script src="/static/compiled/' . $cacheFileName . '"></script>';
-
+            if ($combine && $minify) {
+                $sha1 = sha1($serviceGit->getHash()) . '.js';
+                if ('dev' === $this->container->getParameter('kernel.environment') || !file_exists("{$staticServerDir}/{$sha1}")) {
+                    file_put_contents("{$staticServerDir}/{$sha1}", $combined);
+                }
+                echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '"></script>';
+            }
         }
     }
 }

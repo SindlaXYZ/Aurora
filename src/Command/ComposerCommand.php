@@ -113,7 +113,7 @@ class ComposerCommand extends Command
         // GeoIP2City
         $this->_updateGeoIP2('City');
 
-        $this->_auroraCacheDir();
+        $this->_cleanUpAndChecks(__FUNCTION__);
     }
 
     /**
@@ -130,10 +130,7 @@ class ComposerCommand extends Command
         // GeoIP2City
         $this->_updateGeoIP2('City');
 
-        $this->_auroraCacheDir();
-
-        // Clear /var/tmp/*
-        $this->_clearTmpDir();
+        $this->_cleanUpAndChecks(__FUNCTION__);
 
         if (FALSE) {
             // Copy /Static/js
@@ -257,39 +254,47 @@ class ComposerCommand extends Command
         $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
-    private function _auroraCacheDir()
+    private function _cleanUpAndChecks(string $functionName)
     {
-        // Can be: /tmp/domain.tld/var/cache/dev
-        $kernelCacheDir = $this->container->getParameter('kernel.cache_dir');
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Static compiled JS & CSS files
 
-        // %kernel.project_dir%/var/tmp
-        $auroraTmpDir = $this->container->getParameter('aurora.tmp');
+        $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
+        $auroraTmpDir  = $this->container->getParameter('aurora.tmp'); // %kernel.project_dir%/var/tmp
 
         // Can be: /tmp/domain.tld/var/cache/dev/aurora/
-        $auroraCacheDir = preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled'));
+        $auroraCacheDirs = [
+            preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')),
+            preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'))
+        ];
 
-        if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, TRUE)) {
-            throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
-        } else {
-            /** @var IO $IOService */
-            $IOService = $this->container->get('aurora.io');
+        foreach ($auroraCacheDirs as $auroraCacheDir) {
+            if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, TRUE)) {
+                throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
+            } else {
+                /** @var IO $IOService */
+                $IOService = $this->container->get('aurora.io');
 
-            foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
-                $IOService->recursiveDelete($directory, FALSE);
+                foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
+                    $IOService->recursiveDelete($directory, FALSE);
+                }
             }
         }
-    }
 
-    public function _clearTmpDir()
-    {
-        $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // _clearTmpDir : Clear /var/tmp/*
 
-        /** @var IO $IOService */
-        $IOService = $this->container->get('aurora.io');
-        foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
-            $IOService->recursiveDelete($directory, FALSE);
+        if ('postUpdate' == $functionName) {
+
+            $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
+
+            /** @var IO $IOService */
+            $IOService = $this->container->get('aurora.io');
+            foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
+                $IOService->recursiveDelete($directory, FALSE);
+            }
+
+            $this->io->comment(sprintf('%s ... done;', $this->p()));
         }
-
-        $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 }

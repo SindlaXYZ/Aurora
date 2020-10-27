@@ -53,13 +53,13 @@ parameters:
 ```
 
 
-* Edit `composer.json` and add 
+* Edit `composer.json` and add
 ```json
     "post-install-cmd": [
-        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall" 
+        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
     ],
     "post-update-cmd": [
-        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate" 
+        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
     ]
 ```
 
@@ -87,7 +87,7 @@ Run `composer update` to update and install the rest of the dependencies.
 
 ---
 
-**[PWA]** Inside your twig template, in HTML `head` tag add: 
+**[PWA]** Inside your twig template, in HTML `head` tag add:
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
@@ -116,13 +116,13 @@ use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
 class StaticController {
     private $AuroraClient;
-    
+
     public function __construct(AuroraClient $AuroraClient)
     {
         /** @var AuroraClient */
         $this->AuroraClient = $AuroraClient;
     }
-    
+
     public function () ...
     {
         $this->AuroraClient->ip2CountryCode($this->AuroraClient->ip($Request));
@@ -130,7 +130,7 @@ class StaticController {
 }
 ```
 
-**[2/2]** config/services.yaml 
+**[2/2]** config/services.yaml
 
 ```yaml
 services:
