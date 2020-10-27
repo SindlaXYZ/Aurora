@@ -74,6 +74,17 @@ class PWA
                 }
             }
 
+            if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/android-icon-maskable.png")) {
+                [$maskableWidth, $maskableHeight] = function_exists('getimagesize') ? getimagesize("img/flag.jpg") : [196, 196];
+
+                $manifest['icons'][] = [
+                    'src'     => "/android-icon-maskable.png",
+                    'sizes'   => "{$maskableWidth}x{$maskableHeight}",
+                    'type'    => 'image/png',
+                    'purpose' => 'any maskable'
+                ];
+            }
+
             $Response = new JsonResponse($manifest);
             $Response->setEncodingOptions(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
             return $Response;
