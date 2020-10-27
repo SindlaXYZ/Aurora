@@ -51,7 +51,7 @@ class PWA
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
 
             $manifest = [
                 'name'             => $this->container->getParameter('aurora.pwa.app_name'),
@@ -75,8 +75,9 @@ class PWA
                 }
             }
 
-            if (file_exists($this->container->getParameter('aurora.pwa.icons') . '/android-icon-maskable.png')) {
-                [$maskableWidth, $maskableHeight] = (function_exists('getimagesize') ? getimagesize("img/flag.jpg") : [196, 196]);
+            $maskableIcon = $this->container->getParameter('aurora.pwa.icons') . '/android-icon-maskable.png';
+            if (file_exists($maskableIcon)) {
+                [$maskableWidth, $maskableHeight] = (function_exists('getimagesize') ? getimagesize($maskableIcon) : [196, 196]);
 
                 $manifest['icons'][] = [
                     'src'     => "/android-icon-maskable.png",
@@ -101,7 +102,7 @@ class PWA
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
 
             $encoder       = new XmlEncoder();
             $browserConfig = [
@@ -175,7 +176,7 @@ class PWA
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($Request) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
 
             if (!file_exists($iconPath)) {
