@@ -2,6 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle;
 
+// Symfony
 use Symfony\Component\HttpKernel\Bundle\Bundle;
 
 // Aurora

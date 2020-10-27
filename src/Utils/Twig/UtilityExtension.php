@@ -286,6 +286,12 @@ class UtilityExtension extends AbstractExtension
      */
     public function compressJs(Request $Request, $combine, $minify, ...$assets)
     {
+        // %kernel.project_dir%/var/tmp
+        $auroraTmpDir = $this->container->getParameter('aurora.tmp');
+
+        // Can be: %kernel.project_dir%/var/tmp/compiled
+        $auroraCacheDir = preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled'));
+
         if (!$combine) {
             foreach ($assets as $asset) {
                 $asset = trim($asset);

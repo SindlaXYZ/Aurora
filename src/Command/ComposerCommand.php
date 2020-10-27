@@ -49,7 +49,7 @@ class ComposerCommand extends Command
             ->setDescription('Composer commands')
             ->setHelp('Composer update command')
             // Mandatory
-            ->addOption('action', null, InputOption::VALUE_REQUIRED);
+            ->addOption('action', NULL, InputOption::VALUE_REQUIRED);
     }
 
     public function __construct(ContainerInterface $container)
@@ -70,13 +70,13 @@ class ComposerCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         /** @var InputInterface input */
-        $this->input  = $input;
+        $this->input = $input;
 
         /** @var OutputInterface output */
         $this->output = $output;
 
         /** @var SymfonyStyle io */
-        $this->io     = new SymfonyStyle($this->input, $this->output);
+        $this->io = new SymfonyStyle($this->input, $this->output);
 
         $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
@@ -112,6 +112,8 @@ class ComposerCommand extends Command
 
         // GeoIP2City
         $this->_updateGeoIP2('City');
+
+        $this->_auroraCacheDir();
     }
 
     /**
@@ -128,10 +130,12 @@ class ComposerCommand extends Command
         // GeoIP2City
         $this->_updateGeoIP2('City');
 
+        $this->_auroraCacheDir();
+
         // Clear /var/tmp/*
         $this->_clearTmpDir();
 
-        if (false) {
+        if (FALSE) {
             // Copy /Static/js
             $this->io->newLine();
             $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/aurora/</info>', $this->p()));
@@ -173,36 +177,36 @@ class ComposerCommand extends Command
     }
 
     /**
-     * @param string $type  Country|City
+     * @param string $type Country|City
      * @throws \Exception
      */
     private function _updateGeoIP2(string $type)
     {
-        if(!in_array($type, ['Country', 'City'])) {
+        if (!in_array($type, ['Country', 'City'])) {
             $this->io->error("[AURORA] _updateGeoIP2() invalid type!");
             return;
         }
 
-        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2'. $type .'</info> ...', $this->p()));
+        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
-        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
+        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(TRUE);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
 
-        if(empty($maxmindLicenseKey)) {
+        if (empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
             $this->io->error("[AURORA] Check `MAXMIND_LICENSE_KEY=` inside .env file.");
             return;
         }
 
-        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
+        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, TRUE)) {
             throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
         }
 
         if (!is_dir($maxmindDir)) {
             try {
-                mkdir($maxmindDir, 0777, true);
+                mkdir($maxmindDir, 0777, TRUE);
             } catch (\Exception $e) {
                 return $this->io->error("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
             }
@@ -225,14 +229,14 @@ class ComposerCommand extends Command
         }
 
         // Decompress from gz
-        $pharError = false;
+        $pharError = FALSE;
         try {
             $PharData = new \PharData("{$tempDir}/GeoLite2-{$type}.tar.gz");
         } catch (\UnexpectedValueException $e) {
-            $pharError = true;
+            $pharError = TRUE;
             throw new \Exception('[AURORA] Could not read .tar.gz file.');
         } catch (\BadMethodCallException $e) {
-            $pharError = true;
+            $pharError = TRUE;
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
         } finally {
             if ($pharError) {
@@ -253,6 +257,29 @@ class ComposerCommand extends Command
         $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
+    private function _auroraCacheDir()
+    {
+        // Can be: /tmp/domain.tld/var/cache/dev
+        $kernelCacheDir = $this->container->getParameter('kernel.cache_dir');
+
+        // %kernel.project_dir%/var/tmp
+        $auroraTmpDir = $this->container->getParameter('aurora.tmp');
+
+        // Can be: /tmp/domain.tld/var/cache/dev/aurora/
+        $auroraCacheDir = preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled'));
+
+        if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, TRUE)) {
+            throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
+        } else {
+            /** @var IO $IOService */
+            $IOService = $this->container->get('aurora.io');
+
+            foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
+                $IOService->recursiveDelete($directory, FALSE);
+            }
+        }
+    }
+
     public function _clearTmpDir()
     {
         $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
@@ -260,7 +287,7 @@ class ComposerCommand extends Command
         /** @var IO $IOService */
         $IOService = $this->container->get('aurora.io');
         foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
-            $IOService->recursiveDelete($directory, false);
+            $IOService->recursiveDelete($directory, FALSE);
         }
 
         $this->io->comment(sprintf('%s ... done;', $this->p()));
