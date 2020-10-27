@@ -67,15 +67,16 @@ class PWA
             foreach ([36, 48, 72, 96, 144, 192, 512] as $iconSize) {
                 if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$iconSize}x{$iconSize}.png")) {
                     $manifest['icons'][] = [
-                        'src'   => "/android-icon-{$iconSize}x{$iconSize}.png",
-                        'sizes' => "{$iconSize}x{$iconSize}",
-                        'type'  => 'image/png'
+                        'src'     => "/android-icon-{$iconSize}x{$iconSize}.png",
+                        'sizes'   => "{$iconSize}x{$iconSize}",
+                        'type'    => 'image/png',
+                        'purpose' => 'any' // 'any', 'maskable', 'any maskable'
                     ];
                 }
             }
 
-            if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/android-icon-maskable.png")) {
-                [$maskableWidth, $maskableHeight] = function_exists('getimagesize') ? getimagesize("img/flag.jpg") : [196, 196];
+            if (file_exists($this->container->getParameter('aurora.pwa.icons') . '/android-icon-maskable.png')) {
+                [$maskableWidth, $maskableHeight] = (function_exists('getimagesize') ? getimagesize("img/flag.jpg") : [196, 196]);
 
                 $manifest['icons'][] = [
                     'src'     => "/android-icon-maskable.png",
