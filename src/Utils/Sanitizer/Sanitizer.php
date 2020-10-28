@@ -5,6 +5,9 @@ namespace Sindla\Bundle\AuroraBundle\Utils\Sanitizer;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+// Minify
+use MatthiasMullie\Minify;
+
 /**
  * EXPERIMENTAL
  *
@@ -22,6 +25,55 @@ class Sanitizer
     {
         $this->container = $container;
     }
+
+    /**
+     * Remove CSS comments
+     *
+     * @param string $css
+     * @return string
+     */
+    public function cssClearComments(string $css): string
+    {
+        /**
+         * Usage:
+         *  $css = preg_replace(array_keys($regexRemoveCSSComments), $regexRemoveCSSComments, $css);
+         */
+        $regexRemoveCSSComments = [
+            "`^([\t\s]+)`ism"                       => '',
+            "`^\/\*(.+?)\*\/`ism"                   => "",
+            "`(\A|[\n;]+)/\*.+?\*/`s"               => "$1",
+            "`(\A|[;\s]+)//.+\R`"                   => "$1\n",
+            "`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism" => "\n"
+        ];
+
+        return preg_replace(array_keys($regexRemoveCSSComments), $regexRemoveCSSComments, $css);
+    }
+
+    /**
+     * Minify a CSS content, and change url(path) relative to css file
+     *
+     * @param string      $css
+     * @param string|null $asset
+     * @return mixed
+     */
+    public function cssMinify(string $css, ?string $asset = null)
+    {
+        $assetBasename = $asset ? basename($asset) : null;                              // main.css
+        $assetBaseDir  = $asset ? str_ireplace($assetBasename, '', $asset) : null;
+
+        $css = $this->cssClearComments($css);
+        $minifier     = new Minify\CSS();
+
+        preg_match_all("/url\((?!['\"]?(?:data|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
+        foreach ($matches[0] as $urlToImport) {
+            $urlToImport2 = str_ireplace('url(', "url({$assetBaseDir}", $urlToImport);
+            $css = str_replace($urlToImport, $urlToImport2, $css);
+        }
+
+        $minifier->add($css);
+        return $minifier->minify();
+    }
+
 
     public function minifyHTML($Html)
     {
