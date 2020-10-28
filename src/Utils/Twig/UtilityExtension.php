@@ -479,7 +479,7 @@ class UtilityExtension extends AbstractExtension
                         );
                     } else {
                         if ('css' == $assetType) {
-                            $combineAndMinifyOutputContentHead .= ';@import url("' . $assetWebPath . '");';
+                            $combineAndMinifyOutputContentHead .= '@import url("' . $assetWebPath . '");';
                         } else {
                             trigger_error('External JS files not supported.');
                         }
