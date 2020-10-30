@@ -1,7 +1,9 @@
 var PRECACHE = 'precache-{{ build }}';
 var RUNTIME = 'runtime-{{ build }}';
 
-{% if app.debug %}
+{% set _debug = app.debug %}
+
+{% if _debug %}
 console.log(self.registration);
 {% endif %}
 

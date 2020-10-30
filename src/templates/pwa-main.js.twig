@@ -1,11 +1,13 @@
 'use strict';
 
+{% set _debug = app.debug %}
+
 if ('serviceWorker' in navigator) {
     var serviceWorkerPath       = document.currentScript.getAttribute('service-worker');
-    var serviceWorkerVersion    = document.currentScript.getAttribute('service-worker-version');
+    var serviceWorkerVersion    = '{{ build }}'; {# document.currentScript.getAttribute('service-worker-version')#};
     var serviceWorkerDebug      = document.currentScript.getAttribute('service-worker-debug');
 
-    {% if app.debug %}
+    {% if _debug %}
     console.log('Load SW '+ serviceWorkerPath + ', version (build) ' + serviceWorkerVersion);
     {% endif %}
 
@@ -13,14 +15,39 @@ if ('serviceWorker' in navigator) {
     {# See https://developers.google.com/web/fundamentals/instant-and-offline/service-worker/registration #}
     window.addEventListener('load', function() {
         {# Check it here: chrome://serviceworker-internals/ #}
-        navigator.serviceWorker.register(serviceWorkerPath).then(function(reg) {
+        navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
-            {% if app.debug %}console.log('Registered with scope: ', reg.scope);{% endif %}
+            {% if _debug %}console.log('Registered with scope: ', reg.scope);{% endif %}
+
+            {% if false %}
+            {# identical with reg.onupdatefound #}
+            reg.addEventListener('updatefound', () => {
+                {% if _debug %}console.log('reg.addEventListener->updatefound fired.');{% endif %}
+
+                const newSW = reg.installing;
+                newSW.addEventListener('statechange', () => {
+
+                    {# Check service worker state #}
+                    if (newSW.state === 'installed') {
+
+                        {# Clear all caches #}
+                        caches.keys().then(function(cacheNames) {
+                            cacheNames.forEach(function(cacheName) {
+                                caches.delete(cacheName);
+                            });
+                        });
+
+                        {# A new SW is available and installed #}
+                        {# You can update the page directly or better show a notification to the user to prompt for a page reload and inform about the new version available #}
+                    }
+                });
+            });
+            {% endif %}
 
             {# updatefound is fired if service-worker.js (sw.js) changes. #}
             reg.onupdatefound = function() {
 
-                {% if app.debug %}console.log('reg.onupdatefound fired.');{% endif %}
+                {% if _debug %}console.log('reg.onupdatefound fired.');{% endif %}
 
                 {# The updatefound event implies that reg.installing is set; see #}
                 {# https://w3c.github.io/ServiceWorker/#service-worker-registration-updatefound-event #}
@@ -31,24 +58,24 @@ if ('serviceWorker' in navigator) {
                         if (navigator.serviceWorker.controller) {
                             {# At this point, the old content will have been purged and the fresh content will have been added to the cache. #}
                             {# It's the perfect time to display a "New content is available; please refresh." message in the page's interface. #}
-                            {% if app.debug %}console.log('New or updated content is available.');{% endif %}
+                            {% if _debug %}console.log('New or updated content is available.');{% endif %}
                         } else {
                             {# At this point, everything has been precached. #}
                             {# It's the perfect time to display a "Content is cached for offline use." message. #}
-                            {% if app.debug %}console.log('Content is now available offline!');{% endif %}
+                            {% if _debug %}console.log('Content is now available offline!');{% endif %}
                         }
                     } else if('redundant' == installingWorker.state) {
-                        {% if app.debug %}console.error('The installing service worker became redundant.');{% endif %}
+                        {% if _debug %}console.error('The installing service worker became redundant.');{% endif %}
                     }
                 };
             };
 
             reg.controllerchange = function() {
-                {% if app.debug %}console.log('reg.controllerchange fired.');{% endif %}
+                {% if _debug %}console.log('reg.controllerchange fired.');{% endif %}
             };
 
         }).catch(function(e) {
-            {% if app.debug %}console.error('Error during service worker registration:', e);{% endif %}
+            {% if _debug %}console.error('Error during service worker registration:', e);{% endif %}
         });
     });
 }

@@ -52,11 +52,11 @@ class PWA
      *
      * @return JsonResponse
      */
-    public function manifestJSON()
+    public function manifestJSON(Request $Request)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
 
             $manifest = [
                 'name'             => $this->container->getParameter('aurora.pwa.app_name'),
@@ -103,11 +103,11 @@ class PWA
      *
      * @return XML
      */
-    public function browserConfig()
+    public function browserConfig(Request $Request)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
 
             $encoder       = new XmlEncoder();
             $browserConfig = [
@@ -135,9 +135,11 @@ class PWA
         });
     }
 
-    public function mainJS()
+    public function mainJS(Request $Request)
     {
-        $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', []);
+        $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
+            'build' => $this->_build($Request)
+        ]);
 
         // Minify if not DEV
         if ('dev' !== $this->container->getParameter('kernel.environment')) {
@@ -152,16 +154,14 @@ class PWA
         return $response;
     }
 
-    public function serviceWorkerJS()
+    public function serviceWorkerJS(Request $Request)
     {
-        $serviceGit = $this->container->get('aurora.git');
-
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
             'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
             'external_cache' => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
             'offline'        => $this->container->getParameter('aurora.pwa.offline'),
-            'build'          => ($serviceGit->getHash() . $this->session->get('PHPSESSID'))
+            'build'          => $this->_build($Request)
         ]);
 
         // Minify if not DEV
@@ -181,7 +181,7 @@ class PWA
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($Request) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60*60*24) : 0);
+            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
 
             if (!file_exists($iconPath)) {
@@ -216,5 +216,17 @@ class PWA
         $Response->headers->set('Content-Length', filesize($iconPath));
         $Response->headers->set('X-Backend-Hit', true);
         return $Response;
+    }
+
+    /**
+     * PWA build version based on last git commit hash and PHPSESSID
+     *
+     * @param Request $Request
+     * @return string
+     */
+    private function _build(Request $Request)
+    {
+        $serviceGit = $this->container->get('aurora.git');
+        return sha1(($serviceGit->getHash() . ($Request->cookies->get('PHPSESSID') ?? $this->session->get('PHPSESSID'))));
     }
 }

@@ -25,27 +25,30 @@ class PWAController extends AbstractController
 
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
-            $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
-
             /** @var PWA $PWA */
             $PWA = $this->get('aurora.pwa');
 
             // Manifest
             if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
-                return $PWA->manifestJSON();
+                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+                return $PWA->manifestJSON($Request);
             } // MS browser config
             else if (in_array($Request->getRequestUri(), ['browserconfig.xml', '/browserconfig.xml', 'IEconfig.xml', '/IEconfig.xml'])) {
-                return $PWA->browserConfig();
+                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
+                return $PWA->browserConfig($Request);
             } // Main JS
             else if (in_array($Request->getRequestUri(), ['pwa-main.js', '/pwa-main.js'])) {
-                return $PWA->mainJS();
+                $item->expiresAfter(0);
+                return $PWA->mainJS($Request);
 
             } // Service Worker JS
             else if (in_array($Request->getRequestUri(), ['pwa-sw.js', '/pwa-sw.js'])) {
-                return $PWA->serviceWorkerJS();
+                $item->expiresAfter(0);
+                return $PWA->serviceWorkerJS($Request);
 
             } // Favicons
             else {
+                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
                 return $PWA->icon($Request);
             }
         });
