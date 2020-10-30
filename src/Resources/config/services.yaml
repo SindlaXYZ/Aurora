@@ -137,7 +137,7 @@ services:
 
     aurora.pwa:
         class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
-        arguments: [ '@service_container', "@twig" ]
+        arguments: [ '@service_container', '@session', '@twig' ]
         autowire: true
         autoconfigure: true
         public: true

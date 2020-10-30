@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 // Twig
 use Twig\Extension\AbstractExtension;
@@ -33,11 +34,15 @@ class PWA
     /** @var ContainerInterface */
     private $container;
 
+    /** @var Session */
+    private $session;
+
     private $twig;
 
-    public function __construct(ContainerInterface $container, Environment $twig)
+    public function __construct(ContainerInterface $container, Session $session, Environment $twig)
     {
         $this->container     = $container;
+        $this->session       = $session;
         $this->twig          = $twig;
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
@@ -156,7 +161,7 @@ class PWA
             'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
             'external_cache' => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
             'offline'        => $this->container->getParameter('aurora.pwa.offline'),
-            'build'          => $serviceGit->getHash()
+            'build'          => ($serviceGit->getHash() . $this->session->get('PHPSESSID'))
         ]);
 
         // Minify if not DEV
