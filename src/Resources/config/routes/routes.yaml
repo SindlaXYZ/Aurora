@@ -65,6 +65,7 @@ aurora.controller.pwa.favicon:
         - '/favicon.ico'
         - '/favicon-{width<\d+>}x{height<\d+>}.png'
         - '/android-icon-{width<\d+>}x{height<\d+>}.png'
+        - '/android-icon-maskable.png'
         - '/apple-icon.png'
         - '/apple-icon-precomposed.png'
         - '/apple-icon-precomposed-{width<\d+>}x{height<\d+>}.png'
