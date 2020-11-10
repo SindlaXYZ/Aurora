@@ -84,6 +84,7 @@ aurora.controller.pwa.favicon:
 aurora.controller.pwa.offline:
     controller: 'aurora.controller.pwa:offline'
     path:
+        - '/aurora/pwa-offline'
         - '/pwa-offline'
 
 aurora.controller.compiled:

@@ -26,6 +26,18 @@ class ExtraLoader extends Loader
 
         $customRoutes = [
             [
+                'name'         => 'aurora_aurora_pwa_offline',
+                'paths'        => [
+                    '/aurora/pwa-offline'
+                ],
+                'defaults'     => [
+                    '_controller' => 'Sindla\Bundle\AuroraBundle\Controller\PWAController::offline'
+                ],
+                'requirements' => [
+
+                ]
+            ],
+            [
                 'name'         => 'aurora_pwa_offline',
                 'paths'        => [
                     '/pwa-offline'
