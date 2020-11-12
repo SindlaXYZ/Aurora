@@ -100,7 +100,13 @@ Run `composer update` to update and install the rest of the dependencies.
 * Edit `config/services.yaml`
 ```yaml
     Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
-        arguments: ['@service_container']
+        arguments:
+            $container: '@service_container'
+            #$headers:
+                #text/html:
+                    #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+                    #Content-Security-Policy: "default-src 'self'"
+                    #Referrer-Policy: "no-referrer-when-downgrade"
         tags:
             - { name: kernel.event_listener, event: kernel.response }
 ```

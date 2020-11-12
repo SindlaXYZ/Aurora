@@ -17,13 +17,19 @@ class OutputSubscriber implements EventSubscriberInterface
      */
     private $container;
 
+    /** @var array */
+    private $headers;
+
     const PREG_DEV_PREFIX = '/^(stg|staging|dev|develop|test)\./i';
     const PREG_DEV_SUFFIX = '/\.(localhost|local)$/i';
 
-    public function __construct(Container $container)
+    public function __construct(Container $container, ?array $headers = [])
     {
         /** @var Container Container */
         $this->container = $container;
+
+        /** @var array headers */
+        $this->headers = $headers;
     }
 
     public static function getSubscribedEvents()
@@ -57,11 +63,17 @@ class OutputSubscriber implements EventSubscriberInterface
             }
         }
 
-        if(preg_match(self::PREG_DEV_PREFIX, $event->getRequest()->getHost()) || preg_match(self::PREG_DEV_SUFFIX, $event->getRequest()->getHost())) {
-            if(!isset($response)) {
+        if (preg_match(self::PREG_DEV_PREFIX, $event->getRequest()->getHost()) || preg_match(self::PREG_DEV_SUFFIX, $event->getRequest()->getHost())) {
+            if (!isset($response)) {
                 $response = $event->getResponse();
             }
             $response->headers->set('X-Robots-Tag', 'none');
+        }
+
+        if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html'])) {
+            foreach ($this->headers['text/html'] as $header => $value) {
+                $response->headers->set($header, $value);
+            }
         }
     }
 }
