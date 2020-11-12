@@ -5,7 +5,7 @@ aurora.controller.test:
         - '/aurora/test/service'
 
 aurora.controller.blackhole:
-    controller: 'aurora.controller.blackhole:blackHole'
+    controller: 'aurora.controller.blackhole::blackHole'
     path:
         - '/.info.php'
         - '/js/cms/panel/panel.js'
@@ -60,7 +60,7 @@ aurora.controller.blackhole:
         - '/config/database.yml'
 
 aurora.controller.pwa.favicon:
-    controller: 'aurora.controller.pwa:progressiveWebApplication'
+    controller: 'aurora.controller.pwa::progressiveWebApplication'
     path:
         - '/favicon.ico'
         - '/favicon-{width<\d+>}x{height<\d+>}.png'
@@ -82,7 +82,7 @@ aurora.controller.pwa.favicon:
         - '/pwa-sw.js'
 
 aurora.controller.pwa.offline:
-    controller: 'aurora.controller.pwa:offline'
+    controller: 'aurora.controller.pwa::offline'
     path:
         - '/aurora/pwa-offline'
         - '/pwa-offline'
