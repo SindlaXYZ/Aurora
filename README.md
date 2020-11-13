@@ -102,10 +102,12 @@ Run `composer update` to update and install the rest of the dependencies.
     Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
         arguments:
             $container: '@service_container'
+            $utilityExtension: '@aurora.twig.utility'
             #$headers:
                 #text/html:
                     #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
                     #Content-Security-Policy: "default-src 'self'"
+                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
                     #Referrer-Policy: "no-referrer-when-downgrade"
         tags:
             - { name: kernel.event_listener, event: kernel.response }

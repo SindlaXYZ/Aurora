@@ -33,6 +33,9 @@ class UtilityExtension extends AbstractExtension
     /** @var Environment */
     private Environment $twig;
 
+    /** @var String|null */
+    private string $nonce;
+
     /**
      * UtilityExtension constructor
      *
@@ -110,6 +113,8 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('pwa', [$this, 'pwa']),
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
 
+            // {{ aurora.nonce() }}
+            new TwigFunction('nonce', [$this, 'getNonce']),
         ];
     }
 
@@ -501,5 +506,15 @@ class UtilityExtension extends AbstractExtension
                 echo "\n\t" . '<script src="' . $combineAndMinifyOutputWebPath . '"></script>';
             }
         }
+    }
+
+    public function getNonce()
+    {
+        // generation occurs only when $this->nonce is still null
+        if (!$this->nonce) {
+            $this->nonce = base64_encode(random_bytes(20));
+        }
+
+        return $this->nonce;
     }
 }

@@ -7,6 +7,8 @@ use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
+
 /**
  * https://symfony.com/doc/current/session/locale_sticky_session.html
  */
@@ -17,16 +19,22 @@ class OutputSubscriber implements EventSubscriberInterface
      */
     private $container;
 
+    /** @var UtilityExtension */
+    private $UtilityExtension;
+
     /** @var array */
     private $headers;
 
     const PREG_DEV_PREFIX = '/^(stg|staging|dev|develop|test)\./i';
     const PREG_DEV_SUFFIX = '/\.(localhost|local)$/i';
 
-    public function __construct(Container $container, ?array $headers = [])
+    public function __construct(Container $container, UtilityExtension $UtilityExtension, ?array $headers = [])
     {
         /** @var Container Container */
         $this->container = $container;
+
+        /** @var UtilityExtension */
+        $this->UtilityExtension = $UtilityExtension;
 
         /** @var array headers */
         $this->headers = $headers;
@@ -72,7 +80,12 @@ class OutputSubscriber implements EventSubscriberInterface
 
         if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html'])) {
             foreach ($this->headers['text/html'] as $header => $value) {
-                $response->headers->set($header, $value);
+                if ('Content-Security-Policy' == $header) {
+                    // set CPS header on the response object
+                    $response->headers->set("Content-Security-Policy", str_replace('?aurora.nonce?', $this->UtilityExtension->getNonce(), $value));
+                } else {
+                    $response->headers->set($header, $value);
+                }
             }
         }
     }
