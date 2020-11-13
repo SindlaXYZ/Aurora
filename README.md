@@ -107,7 +107,9 @@ Run `composer update` to update and install the rest of the dependencies.
                 #text/html:
                     #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
                     #Content-Security-Policy: "default-src 'self'"
+                    # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
                     #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
+                    #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
                     #Referrer-Policy: "no-referrer-when-downgrade"
         tags:
             - { name: kernel.event_listener, event: kernel.response }
