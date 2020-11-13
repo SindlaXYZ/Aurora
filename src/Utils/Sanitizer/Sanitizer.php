@@ -66,7 +66,8 @@ class Sanitizer
 
         preg_match_all("/url\((?!['\"]?(?:data|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
         foreach ($matches[0] as $urlToImport) {
-            $urlToImport2 = str_ireplace('url(', "url({$assetBaseDir}", $urlToImport);
+            // $urlToImport2 = str_ireplace('url(', "url({$assetBaseDir}", $urlToImport); // BUGGY
+            $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$assetBaseDir}", $urlToImport);
             $css = str_replace($urlToImport, $urlToImport2, $css);
         }
 

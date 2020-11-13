@@ -44,6 +44,24 @@ parameters:
     aurora.pwa.external_cache:
         - 'fonts.gstatic.com'
         - 'fonts.googleapis.com'
+    aurora.dns_prefetch:
+        - 'fonts.googleapis.com'
+        - 'googletagmanager.com'
+        - 'www.googletagmanager.com'
+        - 'gstatic.com'
+        - 'google.com'
+        - 'google.ro'
+        - 'youtube.com'
+        - 'addthis.com'
+        - 'gemius.pl'
+        - 'pubmatic.com'
+        - 'innovid.com'
+        - 'everesttech.net'
+        - 'quantserve.com'
+        - 'rubiconproject.com'
+        - 'facebook.com'
+        - 'agkn.com'
+        - 'casalemedia.com'
 ```
 
 #### `config/packages/dev/aurora.yaml`:
