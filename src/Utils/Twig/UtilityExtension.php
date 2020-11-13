@@ -369,7 +369,7 @@ class UtilityExtension extends AbstractExtension
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
-                    echo "\n\t" . '<script src="' . $asset . '" nonce="'. $this->getNonce() .'"></script>';
+                    echo "\n\t" . '<script src="' . $asset . '" nonce="'. $this->getNonce() .'" nonce="'. $this->getNonce() .'"></script>';
                 }
             }
         } else {
