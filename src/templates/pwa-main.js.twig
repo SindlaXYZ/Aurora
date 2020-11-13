@@ -6,6 +6,7 @@ if ('serviceWorker' in navigator) {
     var serviceWorkerPath       = document.currentScript.getAttribute('service-worker');
     var serviceWorkerVersion    = '{{ build }}'; {# document.currentScript.getAttribute('service-worker-version')#};
     var serviceWorkerDebug      = document.currentScript.getAttribute('service-worker-debug');
+    let deferredPrompt;
 
     {% if _debug %}
     console.log('Load SW '+ serviceWorkerPath + ', version (build) ' + serviceWorkerVersion);
@@ -18,6 +19,18 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
             {% if _debug %}console.log('Registered with scope: ', reg.scope);{% endif %}
+
+            {# if false, then do not automatically show the "Install" prompt #}
+            {% if automatically_prompt == false %}
+            {# https://developers.google.com/web/fundamentals/app-install-banners/native#prefer_related #}
+            {# https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent/prompt #}
+            reg.addEventListener('beforeinstallprompt', (e) => {
+                {# Prevent Chrome 67 and earlier from automatically showing the prompt #}
+                e.preventDefault();
+                {# Stash the event so it can be triggered later. #}
+                deferredPrompt = e;
+            });
+            {% endif %}
 
             {% if false %}
             {# identical with reg.onupdatefound #}

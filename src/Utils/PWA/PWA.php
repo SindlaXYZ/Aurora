@@ -138,7 +138,8 @@ class PWA
     public function mainJS(Request $Request)
     {
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
-            'build' => $this->_build($Request)
+            'build'                => $this->_build($Request),
+            'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
         ]);
 
         // Minify if not DEV
