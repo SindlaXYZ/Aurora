@@ -12,6 +12,18 @@ if ('serviceWorker' in navigator) {
     console.log('Load SW '+ serviceWorkerPath + ', version (build) ' + serviceWorkerVersion);
     {% endif %}
 
+    {# if false, then do not automatically show the "Install" prompt #}
+    {% if automatically_prompt == false %}
+    {# https://developers.google.com/web/fundamentals/app-install-banners/native#prefer_related #}
+    {# https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent/prompt #}
+    window.addEventListener('beforeinstallprompt', (e) => {
+        {# Prevent Chrome 67 and earlier from automatically showing the prompt #}
+        e.preventDefault();
+        {# Stash the event so it can be triggered later. #}
+        deferredPrompt = e;
+    });
+    {% endif %}
+
     {# Delay registration until after the page has loaded, to ensure that our precaching requests don't degrade the first visit experience. #}
     {# See https://developers.google.com/web/fundamentals/instant-and-offline/service-worker/registration #}
     window.addEventListener('load', function() {
@@ -19,18 +31,6 @@ if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register(serviceWorkerPath).then(reg => {
 
             {% if _debug %}console.log('Registered with scope: ', reg.scope);{% endif %}
-
-            {# if false, then do not automatically show the "Install" prompt #}
-            {% if automatically_prompt == false %}
-            {# https://developers.google.com/web/fundamentals/app-install-banners/native#prefer_related #}
-            {# https://developer.mozilla.org/en-US/docs/Web/API/BeforeInstallPromptEvent/prompt #}
-            reg.addEventListener('beforeinstallprompt', (e) => {
-                {# Prevent Chrome 67 and earlier from automatically showing the prompt #}
-                e.preventDefault();
-                {# Stash the event so it can be triggered later. #}
-                deferredPrompt = e;
-            });
-            {% endif %}
 
             {% if false %}
             {# identical with reg.onupdatefound #}
