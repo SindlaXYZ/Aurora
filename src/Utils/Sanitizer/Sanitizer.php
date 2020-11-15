@@ -64,10 +64,10 @@ class Sanitizer
         $css = $this->cssClearComments($css);
         $minifier     = new Minify\CSS();
 
+        // TODO: parse line by line
+
         preg_match_all("/url\((?!['\"]?(?:data|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
         foreach ($matches[0] as $urlToImport) {
-            // $urlToImport2 = str_ireplace('url(', "url({$assetBaseDir}", $urlToImport); // BUGGY
-
             $quote = '';
             if (0 === strpos($urlToImport, "url('")) {
                 $quote = "'";
