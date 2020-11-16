@@ -56,6 +56,7 @@ class OutputSubscriber implements EventSubscriberInterface
     public function onKernelResponse(ResponseEvent $event)
     {
         $pathInfo = $event->getRequest()->getPathInfo();
+        $response = $event->getResponse();
 
         if ('/admin/' != substr($pathInfo, 0, 7) && !strpos($pathInfo, '_profiler') && true == $this->container->getParameter('aurora.minify.output') && 0 == count(array_filter($this->container->getParameter('aurora.minify.output.ignore.extensions'), function ($extension) use ($pathInfo) {
                 // If extensions found in path info
@@ -64,7 +65,6 @@ class OutputSubscriber implements EventSubscriberInterface
                 }
             }))) {
 
-            $response = $event->getResponse();
             if (!$response->headers->get('X-Do-Not-Minify') && !$response->headers->get('x-do-not-minify') && !method_exists($response, 'getFile') && !in_array($response->headers->get('content-type'), $this->container->getParameter('aurora.minify.output.ignore.content.type'))) {
                 $serviceSanitizer = $this->container->get('aurora.sanitizer');
                 $response->setContent($serviceSanitizer->minifyHTML($response->getContent()));
@@ -72,9 +72,6 @@ class OutputSubscriber implements EventSubscriberInterface
         }
 
         if (preg_match(self::PREG_DEV_PREFIX, $event->getRequest()->getHost()) || preg_match(self::PREG_DEV_SUFFIX, $event->getRequest()->getHost())) {
-            if (!isset($response)) {
-                $response = $event->getResponse();
-            }
             $response->headers->set('X-Robots-Tag', 'none');
         }
 
