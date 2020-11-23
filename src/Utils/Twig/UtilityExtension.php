@@ -33,7 +33,7 @@ class UtilityExtension extends AbstractExtension
     /** @var Environment */
     private Environment $twig;
 
-    /** @var string|null  */
+    /** @var string|null */
     private ?string $nonce = null;
 
     /**
@@ -110,11 +110,19 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('compressCSSJS', [$this, 'compressCSSJS']),
 
             new TwigFunction('manifest', [$this, 'manifest']),
+
+            // {{ aurora.pwa(app.request, app.debug) }}
             new TwigFunction('pwa', [$this, 'pwa']),
+
+            // {{ aurora.pwa.delete(app.request, app.debug) }}
+            new TwigFunction('pwa.delete', [$this, 'pwaDelete']),
+
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
 
             // {{ aurora.nonce() }}
             new TwigFunction('nonce', [$this, 'getNonce']),
+
+
         ];
     }
 
@@ -143,6 +151,13 @@ class UtilityExtension extends AbstractExtension
             'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
             'debug'       => $debug
+        ]);
+    }
+
+    public function pwaDelete(Request $Request, bool $debug)
+    {
+        return $this->twig->display('@Aurora/pwa.delete.html.twig', [
+            'debug' => $debug
         ]);
     }
 
@@ -369,7 +384,7 @@ class UtilityExtension extends AbstractExtension
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
-                    echo "\n\t" . '<script src="' . $asset . '" nonce="'. $this->getNonce() .'" nonce="'. $this->getNonce() .'"></script>';
+                    echo "\n\t" . '<script src="' . $asset . '" nonce="' . $this->getNonce() . '" nonce="' . $this->getNonce() . '"></script>';
                 }
             }
         } else {
@@ -401,7 +416,7 @@ class UtilityExtension extends AbstractExtension
                         if ('dev' === $this->container->getParameter('kernel.environment') || !file_exists("{$staticServerDir}/{$sha1}")) {
                             file_put_contents("{$staticServerDir}/{$sha1}", '/*' . date('Y-m-d H:i:s') . '*/' . $minifiedCode);
                         }
-                        echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '" nonce="'. $this->getNonce() .'"></script>';
+                        echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '" nonce="' . $this->getNonce() . '"></script>';
                     }
                 }
             }
@@ -411,7 +426,7 @@ class UtilityExtension extends AbstractExtension
                 if ('dev' === $this->container->getParameter('kernel.environment') || !file_exists("{$staticServerDir}/{$sha1}")) {
                     file_put_contents("{$staticServerDir}/{$sha1}", $combined);
                 }
-                echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '" nonce="'. $this->getNonce() .'"></script>';
+                echo "\n\t" . '<script src="' . $staticWebDir . '/' . $sha1 . '" nonce="' . $this->getNonce() . '"></script>';
             }
         }
     }
@@ -472,7 +487,7 @@ class UtilityExtension extends AbstractExtension
                     }
 
                     if ('js' == $assetType) {
-                        echo "\n\t" . '<script src="' . $assetWebPath . '" nonce="'. $this->getNonce() .'"></script>';
+                        echo "\n\t" . '<script src="' . $assetWebPath . '" nonce="' . $this->getNonce() . '"></script>';
                     }
                 }
 
@@ -503,7 +518,7 @@ class UtilityExtension extends AbstractExtension
             }
 
             if ('js' == $assetType) {
-                echo "\n\t" . '<script src="' . $combineAndMinifyOutputWebPath . '" nonce="'. $this->getNonce() .'"></script>';
+                echo "\n\t" . '<script src="' . $combineAndMinifyOutputWebPath . '" nonce="' . $this->getNonce() . '"></script>';
             }
         }
     }

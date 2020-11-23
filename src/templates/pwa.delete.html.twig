@@ -1,0 +1,17 @@
+{% set _debug = app.debug %}
+
+{% if pwa %}
+<script nonce="{{ aurora.nonce() }}">
+    window.addEventListener('load', function() {
+        {% if _debug %}console.log('Window loaded.');{% endif %}
+        if ('serviceWorker' in navigator) {
+            caches.keys().then(function (cacheNames) {
+                cacheNames.forEach(function (cacheName) {
+                    {% if _debug %}console.log('Delete PWA '+ cacheName);{% endif %}
+                    caches.delete(cacheName);
+                });
+            });
+        };
+    });
+</script>
+{% endif %}
