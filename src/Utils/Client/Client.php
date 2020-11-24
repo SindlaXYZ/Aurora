@@ -227,4 +227,24 @@ class Client
             return false;
         }
     }
+
+    /**
+     * Check if an IPv4 is a Google bot (by hostname)
+     *
+     * @param Request $request
+     *
+     * @return bool
+     */
+    public function ipIsBingBot(Request $request)
+    {
+        $hostname = gethostbyaddr(trim($this->ip($request)));
+
+        preg_match('/.*?\.search\.msn\.com$/i', $hostname, $matches);
+
+        if (is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }
