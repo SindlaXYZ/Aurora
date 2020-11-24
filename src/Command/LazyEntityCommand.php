@@ -136,7 +136,14 @@ class LazyEntityCommand extends CommandMiddleware
             $constructBody = false;
             preg_match('/__construct(.*?)}/is', $fileContent, $matches);
             if (!empty($matches)) {
-                $constructBody = $matches[0];
+                $func           = new \ReflectionMethod($className, '__construct');
+                $filename       = $func->getFileName();
+                $start_line     = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
+                $end_line       = $func->getEndLine();
+                $length         = $end_line - $start_line;
+                $source         = file($filename);
+                $body           = implode("", array_slice($source, $start_line, $length));
+                $constructBody  = $body;
             }
 
             require_once $file;
@@ -158,7 +165,8 @@ class LazyEntityCommand extends CommandMiddleware
             $xml      = '';
 
             if ($constructBody) {
-                $xml .= "\n\n" . '    public function ' . $constructBody;
+                //$xml .= "\n\n" . '    public function ' . $constructBody;
+                $xml .= "\n\n". $constructBody;
             }
 
             foreach ($props as $prop) {
@@ -300,10 +308,10 @@ EOT;
 
                 $setDoc = "\n\n\t/**";
                 if ($manyToMany && !empty($manyToMany['orm']->inversedBy)) {
-                    $setDoc .= "\n\t * @param ". ($canBeNull ? '?' : '') ."{$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
+                    $setDoc .= "\n\t * @param " . ($canBeNull ? '?' : '') . "{$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
                     $setDoc .= "\n\t * @return boolean|{$reflect->getShortName()}";
                 } else {
-                    $setDoc .= "\n\t * @param ". ($canBeNull ? '?' : '') ."{$returnTypeSet} \${$prop->name}";
+                    $setDoc .= "\n\t * @param " . ($canBeNull ? '?' : '') . "{$returnTypeSet} \${$prop->name}";
                     $setDoc .= "\n\t * @return {$reflect->getShortName()}";
                 }
                 $setDoc .= "\n\t */";
@@ -412,12 +420,12 @@ EOT;
                         // If constant name start with annotation value
                         if (strpos($constantName, $auroraAnnotation->bitwiseConst) === 0) {
 
-                            $annotationConstat      = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($auroraAnnotation->bitwiseConst)))); // STATUS_ => Status
-                            $constantNameShort      = preg_replace("/^{$auroraAnnotation->bitwiseConst}/", '', $constantName);
-                            $constantNameShort      = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantNameShort))));
-                            $constantNameFunction   = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantName)))); // dash to CamelCase
+                            $annotationConstat    = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($auroraAnnotation->bitwiseConst)))); // STATUS_ => Status
+                            $constantNameShort    = preg_replace("/^{$auroraAnnotation->bitwiseConst}/", '', $constantName);
+                            $constantNameShort    = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantNameShort))));
+                            $constantNameFunction = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantName)))); // dash to CamelCase
 
-                            if(true || $bitwiseConstIndex > 0) {
+                            if (true || $bitwiseConstIndex > 0) {
                                 $xml .= "\n";
                             }
 
