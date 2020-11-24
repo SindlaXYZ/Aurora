@@ -401,6 +401,21 @@ class Strink
     }
 
     /**
+     * Convert a multi lines string to array - convert every line intro a array element
+     *
+     * @return array
+     */
+    public function linesToArray(): array
+    {
+        $linesArray = [];
+        foreach(preg_split("/((\r?\n)|(\r\n?))/", $this->string) as $line) {
+            $linesArray[] = $line;
+        }
+
+        return $linesArray;
+    }
+
+    /**
      * https://qaz.wtf/u/convert.cgi?text=AaBbCcDdEe
      */
     public function obscure()
