@@ -1,7 +1,7 @@
 # Install
 
 #### Composer
-`composer require sindla/aurora:5.1.*`
+`composer require sindla/aurora:5.2.*`
 
 
 #### `config/packages/aurora.yaml`:
