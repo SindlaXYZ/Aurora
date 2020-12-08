@@ -18,20 +18,20 @@ use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
  *
  * services.yaml:
  *
- * Sindla\Bundle\AuroraBundle\\EventSubscriber\OutputSubscriber:
- * arguments:
- * $container: '@service_container'
- * $utilityExtension: '@aurora.twig.utility'
- * $headers:
- * text/html:
- * Strict-Transport-Security: "max-age=1536000; includeSubDomains"
- * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
- * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
- * Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
- * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: 'self';default-src 'self';"
- * Referrer-Policy: "no-referrer-when-downgrade"
- * tags:
- * - { name: kernel.event_listener, event: kernel.response }
+    Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
+        arguments:
+            $container: '@service_container'
+            $utilityExtension: '@aurora.twig.utility'
+            $headers:
+                text/html:
+                    Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
+                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+                    Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: 'self';default-src 'self';"
+                    Referrer-Policy: "no-referrer-when-downgrade"
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
  */
 class OutputSubscriber implements EventSubscriberInterface
 {

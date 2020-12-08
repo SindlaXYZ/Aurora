@@ -18,7 +18,7 @@ use Doctrine\ORM\Tools\ToolEvents;
  *
  *  services.yaml:
  *
-    Sindla\Bundle\AuroraBundle\\EventSubscriber\FixDefaultSchemaSubscriber:
+    Sindla\Bundle\AuroraBundle\EventSubscriber\FixDefaultSchemaSubscriber:
         tags:
             - { name: doctrine.event_subscriber, connection: default }
  *
