@@ -15,7 +15,7 @@ trait TemporalCrondTrait
      * @ORM\Column(type="datetime", name="crond_at", nullable=true)
      * @var ?\DateTime
      */
-    protected ?\DateTime $crondAt;
+    protected ?\DateTime $crondAt = null;
 
     /**
      * @param ?\DateTime $crondAt

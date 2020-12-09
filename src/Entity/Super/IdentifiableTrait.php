@@ -21,7 +21,7 @@ trait IdentifiableTrait
      * strategy = AUTO      => SEQUENCE
      * strategy = IDENTITY  => SERIAL
      */
-    protected $id;
+    protected int $id = 0;
 
     /**
      * @return int

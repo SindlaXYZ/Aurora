@@ -15,7 +15,7 @@ trait TemporalCreatedTrait
      * @ORM\Column(type="datetime", name="created_at", nullable=true)
      * @var ?\DateTime
      */
-    protected ?\DateTime $createdAt;
+    protected ?\DateTime $createdAt = null;
 
     /** @ORM\PrePersist */
     public function prePersistHook()

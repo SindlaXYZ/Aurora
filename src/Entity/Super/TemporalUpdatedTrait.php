@@ -15,7 +15,7 @@ trait TemporalUpdatedTrait
      * @ORM\Column(type="datetime", name="updated_at", nullable=true)
      * @var ?\DateTime
      */
-    protected ?\DateTime $updatedAt;
+    protected ?\DateTime $updatedAt = null;
 
     /** @ORM\PreUpdate */
     public function preUpdateHook()
