@@ -3,8 +3,6 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 // Symfony
-use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
-use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -21,6 +19,8 @@ use MatthiasMullie\Minify;
 
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
+use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
+use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 
 class UtilityExtension extends AbstractExtension
 {
@@ -164,7 +164,7 @@ class UtilityExtension extends AbstractExtension
         ]);
     }
 
-    public function dnsPrefach()
+    public function dnsPrefetch()
     {
         $dnsPrefetches = $this->container->getParameter('aurora.dns_prefetch');
         $html          = '';

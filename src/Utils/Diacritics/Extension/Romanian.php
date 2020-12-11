@@ -38,31 +38,43 @@ class Romanian
             '(D|d)istract(ie|ii|iilor)'          => '$1istracț$2',
             '(D|d)esfasur(at|ate)'               => '$1esfășur$2',
             '(D|d)upa'                           => '$1upă',
+
             // E
             '(E|e)xtracti(e|a|i|ile|ilor)'       => '$1xtracți$2',
             '(E|e)xcepti(a|e)'                   => '$1xcepți$2',
             '(E|e)ntitat(i|ilor)'                => '$1ntităț$2',
+
             // F
             '(F|f)acilitat(i|ilor|ile)'          => '$1acilităț$2',
             '((\s|^)F|\sf)ara'                   => '$1ără', // fara != afara,
             '(F|f)orte(i|lor)'                   => '$1orțe$2',
+
             // G
+
             // H
             '(H|h)arti(a|ei|ilor)'               => '$1ârti$2',
+
             // I
             //'(I|i)nvataman(t|ul|ului)'           => '$1nvățămân$2',
             '(I|i)nvestigati(a|e|i|ilor)'        => '$1nvestigați$2',
             //'(I|i)nmultir(e|ea|ii|ilor)'         => '$1nmulțir$2',
+
             // J
+
             // K
+
             // L
+
             // M
             '(M|m)asi(na|nile|nii|nilor)'        => '$1ași$2',
             '(M|m)uniti(a|e|ei|ilor)'            => '$1uniți$2',
+
             // N
             '(N|n)avigat(ie|iei|iilor)'          => '$1avigaț$2',
+
             // O
             '(O|o)btin(ut|ute)'                  => '$1bțin$2',
+
             // P
             '(P|p)arint(i|ilor)'                 => '$1ărinț$2',
             '(P|p)iet(ei|elor)'                  => '$1ieț$2',
@@ -70,24 +82,33 @@ class Romanian
             '(P|p)roducti(a|ei|ilor)'            => '$1roducți$2',
             '(P|p)ost(a|ale|ei|elor)'            => '$1oșt$2',
             // Q
+
             // R
             '(R|r)esapar(e|ea|ile)'              => '$1eșapar$2',
+
             // S
             '(S|s)uportilor'                     => '$1uporților',
             '(S|s)emint(e|elor)'                 => '$1eminț$2',
             '(S|s)crisa'                         => '$1crisă',
             '(S|s)culati'                        => '$1culați',
             //'(S|s)tiintif(ic|ica|ice)'           => '$1tiințif$2',
+
             // T
             '(T|t)aier(e|ea|ile)'                => '$1ăier$2',
             '(T|t)abaci(re|rea)'                 => '$1ăbăci$2',
+
             // U
             '(U|u)sil(e|or)'                     => '$1și$2',
+
             // V
             '(V|v)anza(re|rea)'                  => '$1ânza$2',
+
             // W
+
             // X
+
             // Y
+
             // Z
         ];
     }
