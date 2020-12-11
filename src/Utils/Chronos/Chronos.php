@@ -109,7 +109,7 @@ class Chronos
         return $startDate->diff($endDate)->y;
     }
 
-    public function seconds2HMS(int $secs): string
+    public function seconds2HMS(int $secs, ?bool $cutHourIfZero = false): string
     {
         if ($secs < 0) {
             return false;
@@ -124,6 +124,10 @@ class Chronos
         $h = str_pad($h, 2, '0', STR_PAD_LEFT);
         $s = str_pad($s, 2, '0', STR_PAD_LEFT);
 
-        return $h . ':' . $m . ':' . $s;
+        if('00' == $h && $cutHourIfZero) {
+            return $m . ':' . $s;
+        } else {
+            return $h . ':' . $m . ':' . $s;
+        }
     }
 }
