@@ -1,0 +1,21 @@
+{% set _debug = app.debug %}
+
+<script nonce="{{ aurora.nonce() }}">
+    function auroraPWAUnregister() {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+            for (let registration of registrations) {
+                registration.unregister()
+            }
+        });
+    }
+
+    {# self executing function here #}
+    (function() {
+        auroraPWAUnregister();
+        {# the DOM will be available here #}
+
+        setTimeout(function () {
+            auroraPWAUnregister();
+        }, 1500);
+    })();
+</script>

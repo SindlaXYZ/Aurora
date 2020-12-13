@@ -107,6 +107,7 @@ class OutputSubscriber implements EventSubscriberInterface
             $response->headers->set('X-Robots-Tag', 'none');
         }
 
+        // TODO: can be 'text/html; charset=UTF-8
         if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html'])) {
             foreach ($this->headers['text/html'] as $header => $value) {
                 if ('Content-Security-Policy' == $header) {

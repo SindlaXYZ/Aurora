@@ -1,17 +1,42 @@
 {% set _debug = app.debug %}
 
-{% if pwa %}
 <script nonce="{{ aurora.nonce() }}">
-    window.addEventListener('load', function() {
-        {% if _debug %}console.log('Window loaded.');{% endif %}
-        if ('serviceWorker' in navigator) {
-            caches.keys().then(function (cacheNames) {
-                cacheNames.forEach(function (cacheName) {
-                    {% if _debug %}console.log('Delete PWA '+ cacheName);{% endif %}
-                    caches.delete(cacheName);
+    function auroraPWADeleteCache() {
+        window.addEventListener('load', function() {
+            {% if _debug %}console.log('Window loaded.');{% endif %}
+            if ('serviceWorker' in navigator) {
+                caches.keys().then(function (cacheNames) {
+                    cacheNames.forEach(function (cacheName) {
+                        {% if _debug %}console.log('Delete PWA '+ cacheName);{% endif %}
+                        caches.delete(cacheName);
+                    });
                 });
-            });
-        };
-    });
+            };
+        });
+
+        self.addEventListener('activate', function(event) {
+            event.waitUntil(
+                caches.keys().then(function(cacheNames) {
+                    return Promise.all(
+                        cacheNames.filter(function(cacheName) {
+                            {# Return true if you want to remove this cache, but remember that caches are shared across the whole origin #}
+                        }).map(function(cacheName) {
+                            {% if _debug %}console.log('Delete PWA '+ cacheName);{% endif %}
+                            return caches.delete(cacheName);
+                        })
+                    );
+                })
+            );
+        });
+    }
+
+    {# self executing function here #}
+    (function() {
+        auroraPWADeleteCache();
+        {# the DOM will be available here #}
+
+        setTimeout(function () {
+            auroraPWADeleteCache();
+        }, 1500);
+    })();
 </script>
-{% endif %}

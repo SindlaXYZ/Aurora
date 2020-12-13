@@ -117,6 +117,9 @@ class UtilityExtension extends AbstractExtension
             // {{ aurora.pwa.delete(app.request, app.debug) }}
             new TwigFunction('pwa.delete', [$this, 'pwaDelete']),
 
+            // {{ aurora.pwa.unregister(app.request, app.debug) }}
+            new TwigFunction('pwa.unregister', [$this, 'pwaUnregister']),
+
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
 
             // {{ aurora.nonce() }}
@@ -157,6 +160,16 @@ class UtilityExtension extends AbstractExtension
     public function pwaDelete(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.delete.html.twig', [
+            'host'  => $Request->getHost(),
+            'pwa'   => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'build' => $this->getBuild(),
+            'debug' => $debug
+        ]);
+    }
+
+    public function pwaUnregister(Request $Request, bool $debug)
+    {
+        return $this->twig->display('@Aurora/pwa.unregister.html.twig', [
             'host'  => $Request->getHost(),
             'pwa'   => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'build' => $this->getBuild(),
