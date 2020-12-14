@@ -7,6 +7,9 @@
     "homepage": "https://sindla.com",
     "license": "MIT",
     "authors": [
+        {
+            "name": "Sindla XYZ S.R.L."
+        }
     ],
     "require": {
         "php": ">=7.4",
@@ -39,7 +42,7 @@
             "Sindla\\Bundle\\AuroraBundle\\": "src/"
         },
         "exclude-from-classmap": [
-            "/Tests/"
+            "/tests/"
         ]
     },
     "autoload-dev": {
