@@ -94,7 +94,7 @@ jobs:
 
             -   name: "Run tests"
                 #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
-                run: vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
+                run: ${{env.working-directory}}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
                 working-directory: ${{env.working-directory}}
 
         # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
