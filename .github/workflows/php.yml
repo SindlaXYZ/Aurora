@@ -74,16 +74,16 @@ jobs:
             #                        ${{ runner.os }}-php-
 
             -   name: "Install dependencies"
-                #                if: steps.composer-cache.outputs.cache-hit != 'true'
+                # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer install --prefer-dist --no-progress --no-suggest
                 working-directory: ${{env.working-directory}}
 
             -   name: "Install PHPUnit"
-                run: vendor/bin/phpunit install
+                run: vendor/bin/simple-phpunit install
                 working-directory: ${{env.working-directory}}
 
             -   name: "Simple PHPUnit version"
-                run: vendor/bin/phpunit --version
+                run: vendor/bin/simple-phpunit --version
                 working-directory: ${{env.working-directory}}
 
             -   name: "List"
@@ -91,6 +91,9 @@ jobs:
 
             -   name: "List vendor"
                 run: ls -a ${{env.working-directory}}/vendor/
+
+            -   name: "Test 1"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
 
             -   name: "Run tests"
                 #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
