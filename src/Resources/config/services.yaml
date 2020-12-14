@@ -127,6 +127,12 @@ services:
         autoconfigure: true
         public: true
 
+    aurora.match:
+        class: Sindla\Bundle\AuroraBundle\Utils\Match\Match
+        autowire: true
+        autoconfigure: true
+        public: true
+
     #   DEPRECATED
     #    aurora.params:
     #        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
