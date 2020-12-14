@@ -78,10 +78,13 @@ jobs:
                 run: composer install --prefer-dist --no-progress --no-suggest
                 working-directory: ${{env.working-directory}}
 
-            -   name: "Install dependencies 2"
+            -   name: "Install sindla/aurora"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer require sindla/aurora
                 working-directory: ${{env.working-directory}}
+
+            -   name: "Overwrite sindla/aurora"
+                run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "Install PHPUnit"
                 run: vendor/bin/simple-phpunit install
