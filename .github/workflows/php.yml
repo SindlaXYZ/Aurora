@@ -20,20 +20,44 @@ jobs:
         steps:
             -   uses: actions/checkout@v2
 
+#            -   name: "LL 1"
+#                run: ls -a /home/runner/work/
+#
+#            -   name: "LL 2"
+#                run: ls -a /home/runner/work/Aurora
+#
+#            -   name: "LL 3"
+#                run: ls -a /home/runner/work/Aurora/Aurora
+
+            #            -   name: "Install symfony"
+            #                run: composer install symfony/website-skeleton:5.2
+
+            -   name: "mkdir"
+                run: mkdir -p /home/runner/work/test/vendor/sindla/aurora/
+
+            -   name: "Copy A"
+                run: cp -Rf /home/runner/work/Aurora/Aurora/* /home/runner/work/test/vendor/sindla/aurora/
+
+            -   name: "Copy B"
+                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/composer.json /home/runner/work/test/composer.json
+
+            -   name: "cd .."
+                run: cd /home/runner/work/test/
+
             -   name: "Validate composer.json and composer.lock"
                 run: composer validate
 
-#            -   name: "Cache Composer packages"
-#                id: composer-cache
-#                uses: actions/cache@v2
-#                with:
-#                    path: vendor
-#                    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-#                    restore-keys: |
-#                        ${{ runner.os }}-php-
+            #            -   name: "Cache Composer packages"
+            #                id: composer-cache
+            #                uses: actions/cache@v2
+            #                with:
+            #                    path: vendor
+            #                    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
+            #                    restore-keys: |
+            #                        ${{ runner.os }}-php-
 
             -   name: "Install dependencies"
-#                if: steps.composer-cache.outputs.cache-hit != 'true'
+                #                if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer install --prefer-dist --no-progress --no-suggest
 
             -   name: "Install PHPUnit"
@@ -41,18 +65,6 @@ jobs:
 
             -   name: "Simple PHPUnit version"
                 run: vendor/bin/simple-phpunit --version
-
-            -   name: "LL 1"
-                run: ls -a /home/runner/work/
-
-            -   name: "LL 2"
-                run: ls -a /home/runner/work/Aurora
-
-            -   name: "LL 3"
-                run: ls -a /home/runner/work/Aurora/Aurora
-
-#            -   name: "Install symfony"
-#                run: composer install symfony/website-skeleton:5.2
 
             -   name: "Run tests"
                 run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} tests/
