@@ -34,19 +34,22 @@ jobs:
             #                run: composer install symfony/website-skeleton:5.2
 
             -   name: "mkdir"
-                run: mkdir -p /home/runner/work/test/vendor/sindla/aurora/
+                run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "Copy A"
-                run: cp -Rf /home/runner/work/Aurora/Aurora/* /home/runner/work/test/vendor/sindla/aurora/
+                run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "Copy composer.json"
-                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/composer.json /home/runner/work/test/composer.json
+                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
 
             -   name: "Copy phpunit.xml"
-                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/phpunit.xml /home/runner/work/test/phpunit.xml
+                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/phpunit.xml ${{env.working-directory}}/phpunit.xml
+
+            -   name: "mkdir"
+                run: mkdir -p ${{env.working-directory}}/tests/
 
             -   name: "Copy bootstrap.php"
-                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/tests/bootstrap.php /home/runner/work/test/tests/bootstrap.php
+                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/tests/bootstrap.php ${{env.working-directory}}/tests/bootstrap.php
 
             -   name: "Validate composer.json and composer.lock"
                 run: composer validate
@@ -75,10 +78,10 @@ jobs:
                 working-directory: ${{env.working-directory}}
 
             -   name: "List"
-                run: ls -a /home/runner/work/test/
+                run: ls -a ${{env.working-directory}}
 
             -   name: "List vendor"
-                run: ls -a /home/runner/work/test/vendor/
+                run: ls -a ${{env.working-directory}}/vendor/
 
             -   name: "Run tests"
                 #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
