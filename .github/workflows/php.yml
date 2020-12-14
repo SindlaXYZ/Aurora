@@ -34,7 +34,7 @@ jobs:
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "create project symfony/website-skeleton"
-                run: composer create-project symfony/website-skeleton:5.*
+                run: composer create-project symfony/website-skeleton:5.* .
                 working-directory: ${{env.working-directory}}
 
             -   name: "List"
