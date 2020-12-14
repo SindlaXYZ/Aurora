@@ -37,7 +37,7 @@ jobs:
                 run: composer create-project symfony/website-skeleton:5.* ${{env.working-directory}}/website-skeleton
 
             -   name: "Move symfony/website-skeleton"
-                run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
+                run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.* ${{env.working-directory}}/
 
             -   name: "List"
                 run: ls -a ${{env.working-directory}}
