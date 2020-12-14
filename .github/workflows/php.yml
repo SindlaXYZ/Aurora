@@ -60,12 +60,6 @@ jobs:
                 run: composer install --prefer-dist --no-progress --no-suggest
                 working-directory: ${{env.working-directory}}
 
-            -   name: "List"
-                run: ls -a /home/runner/work/test/vendor/sindla/aurora/
-
-            -   name: "List vendor"
-                run: ls -a /home/runner/work/test/vendor/sindla/aurora/vendor/
-
             -   name: "Install PHPUnit"
                 run: vendor/bin/simple-phpunit install
                 working-directory: ${{env.working-directory}}
@@ -74,6 +68,12 @@ jobs:
                 run: vendor/bin/simple-phpunit --version
                 working-directory: ${{env.working-directory}}
 
+            -   name: "List"
+                run: ls -a /home/runner/work/test/
+
+            -   name: "List vendor"
+                run: ls -a /home/runner/work/test/vendor/
+                
             -   name: "Run tests"
                 run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
                 working-directory: ${{env.working-directory}}
