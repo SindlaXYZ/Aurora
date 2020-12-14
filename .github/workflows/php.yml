@@ -21,14 +21,14 @@ jobs:
         steps:
             -   uses: actions/checkout@v2
 
-#            -   name: "LL 1"
-#                run: ls -a /home/runner/work/
-#
-#            -   name: "LL 2"
-#                run: ls -a /home/runner/work/Aurora
-#
-#            -   name: "LL 3"
-#                run: ls -a /home/runner/work/Aurora/Aurora
+            #            -   name: "LL 1"
+            #                run: ls -a /home/runner/work/
+            #
+            #            -   name: "LL 2"
+            #                run: ls -a /home/runner/work/Aurora
+            #
+            #            -   name: "LL 3"
+            #                run: ls -a /home/runner/work/Aurora/Aurora
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
@@ -48,8 +48,8 @@ jobs:
             -   name: "Copy A"
                 run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
 
-#            -   name: "Copy composer.json"
-#                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
+            #            -   name: "Copy composer.json"
+            #                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
 
             -   name: "Copy phpunit.xml"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/phpunit.xml ${{env.working-directory}}/phpunit.xml
@@ -60,9 +60,9 @@ jobs:
             -   name: "Copy bootstrap.php"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/tests/bootstrap.php ${{env.working-directory}}/tests/bootstrap.php
 
-#            -   name: "Validate composer.json and composer.lock"
-#                run: composer validate
-#                working-directory: ${{env.working-directory}}
+            #            -   name: "Validate composer.json and composer.lock"
+            #                run: composer validate
+            #                working-directory: ${{env.working-directory}}
 
             #            -   name: "Cache Composer packages"
             #                id: composer-cache
@@ -78,6 +78,11 @@ jobs:
                 run: composer install --prefer-dist --no-progress --no-suggest
                 working-directory: ${{env.working-directory}}
 
+            -   name: "Install dependencies 2"
+                # if: steps.composer-cache.outputs.cache-hit != 'true'
+                run: composer install sindla/aurora
+                working-directory: ${{env.working-directory}}
+
             -   name: "Install PHPUnit"
                 run: vendor/bin/simple-phpunit install
                 working-directory: ${{env.working-directory}}
@@ -91,6 +96,9 @@ jobs:
 
             -   name: "List vendor"
                 run: ls -a ${{env.working-directory}}/vendor/
+
+            -   name: "Test Strink"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
 
             -   name: "Test 1"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
