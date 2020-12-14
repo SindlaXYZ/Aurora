@@ -39,8 +39,17 @@ jobs:
             -   name: "Install PHPUnit"
                 run: vendor/bin/simple-phpunit install
 
-            -   name: "PHPUnit version"
+            -   name: "Simple PHPUnit version"
                 run: vendor/bin/simple-phpunit --version
+
+            -   name: "LL 1"
+                run: ls -a /home/runner/work/
+
+            -   name: "LL 2"
+                run: ls -a /home/runner/work/Aurora
+
+            -   name: "LL 3"
+                run: ls -a /home/runner/work/Aurora/Aurora
 
 #            -   name: "Install symfony"
 #                run: composer install symfony/website-skeleton:5.2
