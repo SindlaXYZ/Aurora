@@ -11,7 +11,7 @@ env:
     PHPUNIT_FLAGS: "-v"
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.2"
-    working-directory: /home/runner/work/test
+    working-directory: /home/runner/work/aurora
 
 jobs:
     build:
@@ -31,9 +31,6 @@ jobs:
 #                run: ls -a /home/runner/work/Aurora/Aurora
 
             -   name: "mkdir"
-                run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
-
-            -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
             -   name: "Create project symfony/website-skeleton"
@@ -44,6 +41,9 @@ jobs:
 
             -   name: "List"
                 run: ls -a ${{env.working-directory}}
+
+            -   name: "mkdir"
+                run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "Copy A"
                 run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
