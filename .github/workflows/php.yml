@@ -42,8 +42,8 @@ jobs:
             -   name: "PHPUnit version"
                 run: vendor/bin/simple-phpunit --version
 
-            -   name: "Install symfony"
-                run: composer install symfony/website-skeleton:5.2
+#            -   name: "Install symfony"
+#                run: composer install symfony/website-skeleton:5.2
 
             -   name: "Run tests"
                 run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} tests/
