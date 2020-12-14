@@ -6,6 +6,12 @@ on:
     pull_request:
         branches: [ "5.2" ]
 
+env:
+    fail-fast: true
+    PHPUNIT_FLAGS: "-v"
+    SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
+    SYMFONY_REQUIRE: ">=4.4"
+
 jobs:
     build:
 
@@ -29,6 +35,15 @@ jobs:
             -   name: Install dependencies
                 if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer install --prefer-dist --no-progress --no-suggest
+
+            -   name: Install PHPUnit
+                run: vendor/bin/simple-phpunit install
+
+            -   name: "PHPUnit version"
+                run: vendor/bin/simple-phpunit --version
+
+            -   name: "Run tests"
+                run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }}
 
         # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
         # Docs: https://getcomposer.org/doc/articles/scripts.md
