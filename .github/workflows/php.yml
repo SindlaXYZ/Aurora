@@ -60,9 +60,9 @@ jobs:
             -   name: "Copy bootstrap.php"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/tests/bootstrap.php ${{env.working-directory}}/tests/bootstrap.php
 
-            -   name: "Validate composer.json and composer.lock"
-                run: composer validate
-                working-directory: ${{env.working-directory}}
+#            -   name: "Validate composer.json and composer.lock"
+#                run: composer validate
+#                working-directory: ${{env.working-directory}}
 
             #            -   name: "Cache Composer packages"
             #                id: composer-cache
