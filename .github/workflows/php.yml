@@ -11,6 +11,7 @@ env:
     PHPUNIT_FLAGS: "-v"
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.2"
+    working-directory: /home/runner/work/test
 
 jobs:
     build:
@@ -41,11 +42,9 @@ jobs:
             -   name: "Copy B"
                 run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/composer.json /home/runner/work/test/composer.json
 
-            -   name: "cd .."
-                run: cd /home/runner/work/test/
-
             -   name: "Validate composer.json and composer.lock"
                 run: composer validate
+                working-directory: ${{env.working-directory}}
 
             #            -   name: "Cache Composer packages"
             #                id: composer-cache
@@ -59,6 +58,7 @@ jobs:
             -   name: "Install dependencies"
                 #                if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer install --prefer-dist --no-progress --no-suggest
+                working-directory: ${{env.working-directory}}
 
             -   name: "List"
                 run: ls -a /home/runner/work/test/vendor/sindla/aurora/
@@ -68,12 +68,15 @@ jobs:
 
             -   name: "Install PHPUnit"
                 run: vendor/bin/simple-phpunit install
+                working-directory: ${{env.working-directory}}
 
             -   name: "Simple PHPUnit version"
                 run: vendor/bin/simple-phpunit --version
+                working-directory: ${{env.working-directory}}
 
             -   name: "Run tests"
                 run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
+                working-directory: ${{env.working-directory}}
 
         # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
         # Docs: https://getcomposer.org/doc/articles/scripts.md
