@@ -79,11 +79,11 @@ jobs:
                 working-directory: ${{env.working-directory}}
 
             -   name: "Install PHPUnit"
-                run: vendor/bin/simple-phpunit install
+                run: vendor/bin/phpunit install
                 working-directory: ${{env.working-directory}}
 
             -   name: "Simple PHPUnit version"
-                run: vendor/bin/simple-phpunit --version
+                run: vendor/bin/phpunit --version
                 working-directory: ${{env.working-directory}}
 
             -   name: "List"
