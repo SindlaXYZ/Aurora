@@ -45,6 +45,9 @@ jobs:
             -   name: "Copy phpunit.xml"
                 run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/phpunit.xml /home/runner/work/test/phpunit.xml
 
+            -   name: "Copy bootstrap.php"
+                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/tests/bootstrap.php /home/runner/work/test/tests/bootstrap.php
+
             -   name: "Validate composer.json and composer.lock"
                 run: composer validate
                 working-directory: ${{env.working-directory}}
