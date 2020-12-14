@@ -98,7 +98,7 @@ jobs:
                 run: ls -a ${{env.working-directory}}/vendor/
 
             -   name: "Test Strink"
-                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
 
             -   name: "Test 1"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
