@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.4/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="tests/bootstrap.php"
+>
+    <coverage processUncoveredFiles="true">
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <report>
+            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
+        </report>
+    </coverage>
+    <!--
+    <logging>
+        <log type="coverage-html" target="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
+    </logging>
+    -->
+    <php>
+        <ini name="error_reporting" value="-1"/>
+        <server name="APP_ENV" value="test" force="true"/>
+        <server name="SHELL_VERBOSITY" value="-1"/>
+        <server name="SYMFONY_PHPUNIT_REMOVE" value=""/>
+        <server name="SYMFONY_PHPUNIT_VERSION" value="9.4"/>
+        <server name="KERNEL_CLASS" value="AppKernel" />
+        <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/><!-- values: disabled > weak > all -->
+        <env name="APP_ENV" value="test" force="true"/>
+    </php>
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+    <!-- Element 'filter': This element is not expected.
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+    -->
+    <listeners>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+        <listener class="App\Tests\EventListener\ClearLogAndCacheTestListener"/>
+    </listeners>
+
+    <extensions>
+        <!-- it begins a database transaction before every testcase and rolls it back after
+            the test finished, so tests can manipulate the database without affecting other tests -->
+        <extension class="\DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+    </extensions>
+</phpunit>

@@ -39,8 +39,11 @@ jobs:
             -   name: "Copy A"
                 run: cp -Rf /home/runner/work/Aurora/Aurora/* /home/runner/work/test/vendor/sindla/aurora/
 
-            -   name: "Copy B"
+            -   name: "Copy composer.json"
                 run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/composer.json /home/runner/work/test/composer.json
+
+            -   name: "Copy phpunit.xml"
+                run: cp -Rf /home/runner/work/test/vendor/sindla/aurora/phpunit.xml /home/runner/work/test/phpunit.xml
 
             -   name: "Validate composer.json and composer.lock"
                 run: composer validate
