@@ -55,7 +55,7 @@ class PWA
     public function manifestJSON(Request $Request)
     {
         $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function (ItemInterface $item) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
 
             $manifest = [
@@ -70,13 +70,16 @@ class PWA
             ];
 
             foreach ([36, 48, 72, 96, 144, 192, 512] as $iconSize) {
-                if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$iconSize}x{$iconSize}.png")) {
+                $fileName = "android-icon-{$iconSize}x{$iconSize}.png";
+                if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/{$fileName}")) {
                     $manifest['icons'][] = [
                         'src'     => "/android-icon-{$iconSize}x{$iconSize}.png",
                         'sizes'   => "{$iconSize}x{$iconSize}",
                         'type'    => 'image/png',
                         'purpose' => 'any' // 'any', 'maskable', 'any maskable'
                     ];
+                } else {
+                    trigger_error(sprintf('File %s not found.', $fileName), E_USER_NOTICE);
                 }
             }
 
@@ -90,6 +93,8 @@ class PWA
                     'type'    => 'image/png',
                     'purpose' => 'any maskable'
                 ];
+            } else {
+                trigger_error(sprintf('File %s not found.', 'android-icon-maskable.png'), E_USER_NOTICE);
             }
 
             $Response = new JsonResponse($manifest);
@@ -106,7 +111,7 @@ class PWA
     public function browserConfig(Request $Request)
     {
         $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__. __LINE__ . sha1($Request->getRequestUri())), function (ItemInterface $item) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
 
             $encoder       = new XmlEncoder();
@@ -178,10 +183,16 @@ class PWA
         return $response;
     }
 
+    /**
+     * Favicon image
+     *
+     * @param Request $Request
+     * @return image/x-icon
+     */
     public function icon(Request $Request)
     {
         $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($Request) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function (ItemInterface $item) use ($Request) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
 
@@ -198,6 +209,8 @@ class PWA
                         return $this->_icon($iconPath);
                     }
                 }
+
+                trigger_error(sprintf('File %s not found.', $Request->getPathInfo()), E_USER_NOTICE);
 
                 // Return 404 icon
                 return new Response(

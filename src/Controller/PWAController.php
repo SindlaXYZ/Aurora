@@ -24,7 +24,7 @@ class PWAController extends AbstractController
         //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
 
         $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
             /** @var PWA $PWA */
             $PWA = $this->get('aurora.pwa');
 
