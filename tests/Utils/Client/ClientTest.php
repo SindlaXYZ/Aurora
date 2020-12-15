@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\HttpClient\HttpClient;
 
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
@@ -74,17 +75,17 @@ class ClientTest extends KernelTestCase
 
     public function testIpIsGoogleBot()
     {
-        $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
-        $googJson = $this->client->getResponse()->getContent();
+        // BUG: this will test only internal urls (will remove the host from the request)
+        // $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
 
-        fwrite(STDERR, print_r($googJson, TRUE));
+        $httpClient = HttpClient::create();
+        $response   = $httpClient->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
 
-        if(empty($googJson)) {
-            $googJson = file_get_contents('https://www.gstatic.com/ipranges/goog.json');
-        } else {
-            $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
-        }
+        fwrite(STDERR, print_r($response, TRUE));
 
+        $googJson = $response->getContent();
+
+        $this->assertEquals(200, $response->getStatusCode());
         $this->assertFalse(empty(trim($googJson)), 'goog.json is empty');
 
         $googArray = json_decode($googJson, true);
