@@ -21,15 +21,6 @@ jobs:
         steps:
             -   uses: actions/checkout@v2
 
-            #            -   name: "LL 1"
-            #                run: ls -a /home/runner/work/
-            #
-            #            -   name: "LL 2"
-            #                run: ls -a /home/runner/work/Aurora
-            #
-            #            -   name: "LL 3"
-            #                run: ls -a /home/runner/work/Aurora/Aurora
-
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
@@ -39,8 +30,11 @@ jobs:
             -   name: "Move symfony/website-skeleton"
                 run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
 
-            -   name: "List"
-                run: ls -a ${{env.working-directory}}
+            #
+            # Works, no longer need it
+            #
+            #            -   name: "List"
+            #                run: ls -a ${{env.working-directory}}
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
@@ -86,22 +80,28 @@ jobs:
             -   name: "Overwrite sindla/aurora"
                 run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
 
-            -   name: "Install PHPUnit"
-                run: vendor/bin/simple-phpunit install
-                working-directory: ${{env.working-directory}}
-
-            -   name: "Simple PHPUnit version"
-                run: vendor/bin/simple-phpunit --version
-                working-directory: ${{env.working-directory}}
-
-            -   name: "List"
-                run: ls -a ${{env.working-directory}}
-
-            -   name: "List vendor"
-                run: ls -a ${{env.working-directory}}/vendor/
+            #
+            # Works, no longer need it
+            #
+            #            -   name: "Install Simple PHPUnit"
+            #                run: vendor/bin/simple-phpunit install
+            #                working-directory: ${{env.working-directory}}
+            #
+            #            -   name: "Simple PHPUnit version"
+            #                run: vendor/bin/simple-phpunit --version
+            #                working-directory: ${{env.working-directory}}
+            #
+            #            -   name: "List"
+            #                run: ls -a ${{env.working-directory}}
+            #
+            #            -   name: "List vendor"
+            #                run: ls -a ${{env.working-directory}}/vendor/
 
             -   name: "Test Utils/Chronos"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --debug --no-coverage
+
+            -   name: "Test Utils/Client"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --debug --no-coverage
 
             -   name: "Test Utils/Match"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --debug --no-coverage
@@ -109,10 +109,10 @@ jobs:
             -   name: "Test Utils/Strink"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --debug --no-coverage
 
-#            -   name: "Run tests"
-#                #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
-#                run: ${{env.working-directory}}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
-#                working-directory: ${{env.working-directory}}
+        #            -   name: "Run tests"
+        #                #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
+        #                run: ${{env.working-directory}}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
+        #                working-directory: ${{env.working-directory}}
 
         # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
         # Docs: https://getcomposer.org/doc/articles/scripts.md

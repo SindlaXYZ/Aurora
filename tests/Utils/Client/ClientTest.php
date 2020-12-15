@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
@@ -19,10 +20,15 @@ class ClientTest extends KernelTestCase
     private $kernelTest;
     private $containerTest;
 
+    /** @var Client */
+    protected $client;
+
     protected function setUp(): void
     {
         $this->kernelTest    = self::bootKernel();
         $this->containerTest = $this->kernelTest->getContainer();
+
+        $this->client = WebTestCase::createClient([], []);
     }
 
     public function testFake()
@@ -52,8 +58,7 @@ class ClientTest extends KernelTestCase
                      ],
                      [
                          'ip'          => '66.249.73.154',
-                         'countryCode' => 'US',
-                         'county'      => 'California'
+                         'countryCode' => 'US'
                      ]
                  ] as $ip) {
             $this->assertEquals($ip['countryCode'], $Client->ip2CountryCode($ip['ip']));
@@ -70,23 +75,22 @@ class ClientTest extends KernelTestCase
 
     public function testIpIsGoogleBot()
     {
+        $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $googJson = $this->client->getResponse()->getContent();
+
+        $this->assertFalse(empty(trim($googJson)), 'goog.json is empty');
+
+        $googArray = json_decode($googJson, true);
+
+        $this->assertIsArray($googArray);
+        $this->assertArrayHasKey('prefixes', $googArray);
+
+        foreach ($googArray['prefixes'] as $ipv4Prefix) {
+            $ipV4Range = $ipv4Prefix['ipv4Prefix'] ?? '';
+        }
+
         foreach ([
-                     [
-                         'host'     => 'google.com',
-                         'expected' => true
-                     ],
-                     [
-                         'host'     => 'crawl-66-249-66-1.google.com',
-                         'expected' => true
-                     ],
-                     [
-                         'host'     => 'googlebot.com',
-                         'expected' => true
-                     ],
-                     [
-                         'host'     => 'crawl-66-249-66-1.googlebot.com',
-                         'expected' => true
-                     ],
                      // ###########################################################################
                      [
                          'host'     => 'fakegoogle.com',
@@ -122,7 +126,6 @@ class ClientTest extends KernelTestCase
                          'expected' => false
                      ],
                  ] as $agent) {
-
 
         }
 

@@ -9,6 +9,9 @@ use Symfony\Component\HttpFoundation\Request;
 // GeoIp2
 use GeoIp2\Database\Reader;
 
+// Sindla
+use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
+
 /**
  * Class Client
  *
@@ -28,7 +31,7 @@ class Client
 
     private function readGeoLite2Country()
     {
-        if(!$this->geoLiteCountryReader) {
+        if (!$this->geoLiteCountryReader) {
             $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
             if (!is_file($GeoLite2CountryFile)) {
                 throw new \Exception("[{$GeoLite2CountryFile}] file not found!");
@@ -40,7 +43,7 @@ class Client
 
     private function readGeoLite2City()
     {
-        if(!$this->geoLiteCityReader) {
+        if (!$this->geoLiteCityReader) {
             $GeoLite2CityFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2City.mmdb';
             if (!is_file($GeoLite2CityFile)) {
                 throw new \Exception("[{$GeoLite2CityFile}] file not found!");
@@ -190,7 +193,7 @@ class Client
      *
      * @return array
      */
-    public function preferredLanguages()
+    public function preferredLanguages(): array
     {
         $prefLanguages = [];
 
@@ -209,42 +212,46 @@ class Client
     }
 
     /**
-     * Check if an IPv4 is a Google bot (by hostname)
+     * Check if an IPv4 is a Google Bot (by hostname)
      *
-     * @param Request $request
+     * @param string $IP
      *
      * @return bool
      */
-    public function ipIsGoogleBot(Request $request)
+    public function ipIsGoogleBot($IP): bool
     {
-        $hostname = gethostbyaddr(trim($this->ip($request)));
-
-        preg_match('/^crawl-[0-9]+-[0-9]+-[0-9]+-[0-9]+\.googlebot\.com$/i', $hostname, $matches);
-
-        if (is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) {
-            return true;
-        } else {
-            return false;
+        if ($IP instanceof Request) {
+            trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
+            $IP = $this->ip($IP);
         }
+
+        $hostname = gethostbyaddr(trim($IP));
+
+        /** @var Match $Match */
+        $Match = new Match();
+
+        return $Match->matchDomains($hostname, ['google.com', 'googlebot.com']);
     }
 
     /**
-     * Check if an IPv4 is a Google bot (by hostname)
+     * Check if an IPv4 is a Microsoft/Bing bot (by hostname)
      *
-     * @param Request $request
+     * @param string $IP
      *
      * @return bool
      */
-    public function ipIsBingBot(Request $request)
+    public function ipIsBingBot($IP): bool
     {
-        $hostname = gethostbyaddr(trim($this->ip($request)));
-
-        preg_match('/.*?\.search\.msn\.com$/i', $hostname, $matches);
-
-        if (is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) {
-            return true;
-        } else {
-            return false;
+        if ($IP instanceof Request) {
+            trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
+            $IP = $this->ip($IP);
         }
+
+        $hostname = gethostbyaddr(trim($IP));
+
+        /** @var Match $Match */
+        $Match = new Match();
+
+        return $Match->matchDomains($hostname, ['msn.com', 'bing.com']);
     }
 }
