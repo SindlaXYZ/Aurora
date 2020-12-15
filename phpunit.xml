@@ -49,12 +49,4 @@
         <listener class="App\Tests\EventListener\ClearLogAndCacheTestListener"/>
         -->
     </listeners>
-
-    <extensions>
-        <!-- it begins a database transaction before every testcase and rolls it back after
-            the test finished, so tests can manipulate the database without affecting other tests -->
-        <!--
-        <extension class="\DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
-        -->
-    </extensions>
 </phpunit>
