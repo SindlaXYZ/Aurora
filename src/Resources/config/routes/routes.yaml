@@ -30,6 +30,7 @@ aurora.controller.blackhole:
         - '/fckeditor/editor/filemanager/connectors/php/upload.php'
         - '/(js/kcfinder|admin/js/kcfinder|assets/plugin/kcfinder|vendor/kcfinder|ckeditor/plugins/kcfinder|admin/editor/kcfinder|admin/kcfinder|assets/kcfinder)/upload.php'
         - '/xmlrpc.php'
+        - '/web/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
         - '/lib/phpunit/'
         - '/phpunit/'

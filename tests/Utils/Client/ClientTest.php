@@ -67,4 +67,64 @@ class ClientTest extends KernelTestCase
             }
         }
     }
+
+    public function testIpIsGoogleBot()
+    {
+        foreach ([
+                     [
+                         'host'     => 'google.com',
+                         'expected' => true
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.google.com',
+                         'expected' => true
+                     ],
+                     [
+                         'host'     => 'googlebot.com',
+                         'expected' => true
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.googlebot.com',
+                         'expected' => true
+                     ],
+                     // ###########################################################################
+                     [
+                         'host'     => 'fakegoogle.com',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'google.com.ro',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.fakegoogle.com',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.google.com.ro',
+                         'expected' => false
+                     ],
+                     // ---------------------------------------------------------------------------
+                     [
+                         'host'     => 'fakegooglebot.com',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'googlebot.com.ro',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.fakegooglebot.com',
+                         'expected' => false
+                     ],
+                     [
+                         'host'     => 'crawl-66-249-66-1.googlebot.com.ro',
+                         'expected' => false
+                     ],
+                 ] as $agent) {
+
+
+        }
+
+    }
 }
