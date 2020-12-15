@@ -31,125 +31,159 @@ class MatchTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
+    private function _matchDomain()
+    {
+        return [
+            # true ------------------------------------------------------------------------
+            [
+                'needle'   => 'http://sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'https://sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'http://www.sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'https://www.sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'http://sub.domain.sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'www.sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'sub.domain.sindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            # false ------------------------------------------------------------------------
+            [
+                'needle'   => 'http://sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'https://sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'http://www.sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'https://www.sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'http://sub.domain.sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'www.sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'sub.domain.sindla.com.myscamdomain.info',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            # false ------------------------------------------------------------------------
+            [
+                'needle'   => 'http://notsindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'https://notsindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'notsindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'www.notsindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ],
+            [
+                'needle'   => 'sub.domain.notsindla.com',
+                'domain'   => 'sindla.com',
+                'expected' => false,
+            ]
+        ];
+    }
+
     public function testMatchDomain()
     {
         $Match = new Match();
 
-        foreach ([
-                     # true ------------------------------------------------------------------------
-                     [
-                         'needle'   => 'http://sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'https://sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'http://www.sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'https://www.sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'http://sub.domain.sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'www.sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     [
-                         'needle'   => 'sub.domain.sindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => true,
-                     ],
-                     # false ------------------------------------------------------------------------
-                     [
-                         'needle'   => 'http://sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'https://sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'http://www.sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'https://www.sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'http://sub.domain.sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'www.sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'sub.domain.sindla.com.myscamdomain.info',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     # false ------------------------------------------------------------------------
-                     [
-                         'needle'   => 'http://notsindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'https://notsindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'notsindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'www.notsindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ],
-                     [
-                         'needle'   => 'sub.domain.notsindla.com',
-                         'domain'   => 'sindla.com',
-                         'expected' => false,
-                     ]
-                 ] as $assertion) {
-
+        foreach ($this->_matchDomain() as $assertion) {
             if ($assertion['expected']) {
                 $this->assertTrue($Match->matchDomain($assertion['needle'], $assertion['domain']), sprintf('%s & %s', $assertion['needle'], $assertion['domain']));
             } else {
                 $this->assertFalse($Match->matchDomain($assertion['needle'], $assertion['domain']), sprintf('%s & %s', $assertion['needle'], $assertion['domain']));
+            }
+        }
+    }
+
+    public function testMatchDomains()
+    {
+        $Match = new Match();
+
+        $domains = [
+            'expectedTrue'  => [],
+            'expectedFalse' => []
+        ];
+
+        foreach ($this->_matchDomain() as $assertion) {
+            if (true == $assertion['expected'] && key_exists($assertion['domain'], $domains['expectedTrue'])) {
+                $domains['expectedTrue'][$assertion['domain']][] = $assertion['needle'];
+            }
+
+            if (false == $assertion['expected'] && key_exists($assertion['domain'], $domains['expectedFalse'])) {
+                $domains['expectedFalse'][$assertion['domain']][] = $assertion['needle'];
+            }
+        }
+
+        foreach ($domains as $expected => $domainArray) {
+            foreach ($domainArray as $domain => $needle) {
+                if ($expected) {
+                    $this->assertTrue($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
+                } else {
+                    $this->assertFalse($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
+                }
             }
         }
     }
