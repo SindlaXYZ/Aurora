@@ -78,10 +78,12 @@ class ClientTest extends KernelTestCase
         // BUG: this will test only internal urls (will remove the host from the request)
         // $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
 
+        $Client = new Client($this->containerTest);
+
         $httpClient = HttpClient::create();
         $response   = $httpClient->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
 
-        fwrite(STDERR, print_r($response, TRUE));
+        // fwrite(STDERR, print_r($response, TRUE));
 
         $googJson = $response->getContent();
 
@@ -94,7 +96,20 @@ class ClientTest extends KernelTestCase
         $this->assertArrayHasKey('prefixes', $googArray);
 
         foreach ($googArray['prefixes'] as $ipv4Prefix) {
-            $ipV4Range = $ipv4Prefix['ipv4Prefix'] ?? '';
+            $ipV4CIDR = $ipv4Prefix['ipv4Prefix'] ?? '';
+
+            [$net, $mask] = explode('/', $ipV4CIDR);
+
+            $ipsCount = 1 << (32 - $mask);
+            $start    = ip2long($net);
+            $ips      = [];
+
+            for ($i = 0; $i < $ipsCount; $i++) {
+                $ips[] = long2ip($start + $i);
+            }
+
+            $this->assertTrue($Client->ipIsGoogleBot(current($ips)), current($ips));
+            $this->assertTrue($Client->ipIsGoogleBot(end($ips)), end($ips));
         }
 
         foreach ([
@@ -133,7 +148,6 @@ class ClientTest extends KernelTestCase
                          'expected' => false
                      ],
                  ] as $agent) {
-
         }
 
     }
