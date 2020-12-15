@@ -27,8 +27,7 @@ class ClientTest extends KernelTestCase
     {
         $this->kernelTest    = self::bootKernel();
         $this->containerTest = $this->kernelTest->getContainer();
-
-        $this->client = WebTestCase::createClient([], []);
+        $this->client        = $this->containerTest->get('test.client');
     }
 
     public function testFake()
