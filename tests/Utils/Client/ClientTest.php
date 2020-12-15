@@ -77,8 +77,8 @@ class ClientTest extends KernelTestCase
     {
         $Client = new Client($this->containerTest);
 
-        $this->assertTrue($Client->ipIsGoogleBot('66.249.66.1'), '66.249.66.1');
-        $this->assertTrue($Client->ipIsGoogleBot('66.249.90.77'), '66.249.90.77');
+        $this->assertTrue($Client->ipIsGoogleBot('66.249.66.1'), sprintf('IP: %s / Host: %s', '66.249.66.1', gethostbyaddr('66.249.66.1')));
+        $this->assertTrue($Client->ipIsGoogleBot('66.249.90.77'), sprintf('IP: %s / Host: %s', '66.249.90.77', gethostbyaddr('66.249.90.77')));
 
         if(false) {
             // BUG: this will test only internal urls (will remove the host from the request)
