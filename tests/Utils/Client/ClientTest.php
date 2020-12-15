@@ -95,23 +95,29 @@ class ClientTest extends KernelTestCase
         $this->assertIsArray($googArray);
         $this->assertArrayHasKey('prefixes', $googArray);
 
-        $googArray['prefixes'] = ['64.18.0.0/20', '72.14.192.0/18', '74.125.0.0/16', '108.177.8.0/21', '172.217.0.0/19'];
+        $googArray['prefixes'] = [
+            'ipv4Prefix' => '64.18.0.0/20',
+            'ipv4Prefix' => '72.14.192.0/18',
+            'ipv4Prefix' => '74.125.0.0/16',
+            'ipv4Prefix' => '108.177.8.0/21',
+            'ipv4Prefix' => '172.217.0.0/19'
+        ];
 
         foreach ($googArray['prefixes'] as $ipv4Prefix) {
-            $ipV4CIDR = $ipv4Prefix['ipv4Prefix'] ?? '';
+            if ($ipV4CIDR = $ipv4Prefix['ipv4Prefix'] ?? null) {
+                [$net, $mask] = explode('/', $ipV4CIDR);
 
-            [$net, $mask] = explode('/', $ipV4CIDR);
+                $ipsCount = 1 << (32 - $mask);
+                $start    = ip2long($net);
+                $ips      = [];
 
-            $ipsCount = 1 << (32 - $mask);
-            $start    = ip2long($net);
-            $ips      = [];
+                for ($i = 0; $i < $ipsCount; $i++) {
+                    $ips[] = long2ip($start + $i);
+                }
 
-            for ($i = 0; $i < $ipsCount; $i++) {
-                $ips[] = long2ip($start + $i);
+                $this->assertTrue($Client->ipIsGoogleBot(current($ips)), current($ips));
+                $this->assertTrue($Client->ipIsGoogleBot(end($ips)), end($ips));
             }
-
-            $this->assertTrue($Client->ipIsGoogleBot(current($ips)), current($ips));
-            $this->assertTrue($Client->ipIsGoogleBot(end($ips)), end($ips));
         }
 
         foreach ([
