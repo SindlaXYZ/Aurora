@@ -95,6 +95,8 @@ class ClientTest extends KernelTestCase
         $this->assertIsArray($googArray);
         $this->assertArrayHasKey('prefixes', $googArray);
 
+        $googArray['prefixes'] = ['64.18.0.0/20', '72.14.192.0/18', '74.125.0.0/16', '108.177.8.0/21', '172.217.0.0/19'];
+
         foreach ($googArray['prefixes'] as $ipv4Prefix) {
             $ipV4CIDR = $ipv4Prefix['ipv4Prefix'] ?? '';
 
