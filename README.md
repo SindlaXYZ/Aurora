@@ -1,3 +1,5 @@
+![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)
+
 # Install
 
 #### Composer
