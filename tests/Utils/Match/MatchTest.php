@@ -147,9 +147,9 @@ class MatchTest extends KernelTestCase
                  ] as $assertion) {
 
             if ($assertion['expected']) {
-                $this->assertTrue($Match->matchDomain($assertion['needle'], $assertion['domain']));
+                $this->assertTrue($Match->matchDomain($assertion['needle'], $assertion['domain']), sprintf('%s & %s', $assertion['needle'], $assertion['domain']));
             } else {
-                $this->assertFalse($Match->matchDomain($assertion['needle'], $assertion['domain']));
+                $this->assertFalse($Match->matchDomain($assertion['needle'], $assertion['domain']), sprintf('%s & %s', $assertion['needle'], $assertion['domain']));
             }
         }
     }
