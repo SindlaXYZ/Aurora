@@ -75,8 +75,13 @@ class ClientTest extends KernelTestCase
     public function testIpIsGoogleBot()
     {
         $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
-        #$this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $googJson = $this->client->getResponse()->getContent();
+
+        if(empty($googJson)) {
+            $googJson = file_get_contents('https://www.gstatic.com/ipranges/goog.json');
+        } else {
+            $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        }
 
         $this->assertFalse(empty(trim($googJson)), 'goog.json is empty');
 
