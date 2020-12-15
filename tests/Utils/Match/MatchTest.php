@@ -36,6 +36,12 @@ class MatchTest extends KernelTestCase
         return [
             # true ------------------------------------------------------------------------
             [
+                'needle'   => 'crawl-66-249-66-1.googlebot.com',
+                'domain'   => 'googlebot.com',
+                'expected' => true,
+            ],
+            # true ------------------------------------------------------------------------
+            [
                 'needle'   => 'http://sindla.com',
                 'domain'   => 'sindla.com',
                 'expected' => true,
@@ -158,7 +164,7 @@ class MatchTest extends KernelTestCase
         }
     }
 
-    public function testMatchDomains()
+    public function testMatchAtLeastOneDomain()
     {
         $Match = new Match();
 

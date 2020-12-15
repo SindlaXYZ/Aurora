@@ -230,7 +230,7 @@ class Client
         /** @var Match $Match */
         $Match = new Match();
 
-        return $Match->matchDomains($hostname, ['google.com', 'googlebot.com']);
+        return $Match->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com']);
     }
 
     /**
@@ -252,6 +252,6 @@ class Client
         /** @var Match $Match */
         $Match = new Match();
 
-        return $Match->matchDomains($hostname, ['msn.com', 'bing.com']);
+        return $Match->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com']);
     }
 }

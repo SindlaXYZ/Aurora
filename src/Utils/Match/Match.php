@@ -13,7 +13,7 @@ class Match
     {
         preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)'. preg_quote($domain) .'$/', $needle, $matches);
 
-        return (is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false;
+        return ((is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false);
     }
 
     /**
@@ -21,14 +21,16 @@ class Match
      * @param array  $domains
      * @return bool
      */
-    public function matchDomains(string $needle, array $domains): bool
+    public function matchAtLeastOneDomain(string $needle, array $domains): bool
     {
+        $matched = false;
+
         foreach ($domains as $domain) {
-            if(!$this->matchDomain($needle, $domain)) {
-                return false;
+            if($this->matchDomain($needle, $domain)) {
+                $matched = true;
             }
         }
 
-        return true;
+        return $matched;
     }
 }
