@@ -77,6 +77,8 @@ class ClientTest extends KernelTestCase
         $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
         $googJson = $this->client->getResponse()->getContent();
 
+        fwrite(STDERR, print_r($googJson, TRUE));
+
         if(empty($googJson)) {
             $googJson = file_get_contents('https://www.gstatic.com/ipranges/goog.json');
         } else {
