@@ -97,6 +97,9 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
+            -   name: "Test RequirementsTest"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
+
             -   name: "Test Utils/Chronos"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --debug --no-coverage
 
