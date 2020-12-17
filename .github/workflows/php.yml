@@ -25,7 +25,7 @@ jobs:
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
             -   name: "Create project symfony/website-skeleton"
-                run: composer create-project symfony/website-skeleton:5.* ${{env.working-directory}}/website-skeleton --no-dev --no-cache
+                run: composer create-project symfony/website-skeleton:5.* ${{env.working-directory}}/website-skeleton --no-cache
 
             -   name: "Move symfony/website-skeleton"
                 run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
@@ -69,7 +69,7 @@ jobs:
 
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer install --prefer-dist --no-progress --no-suggest --no-dev --no-cache
+                run: composer install --prefer-dist --no-progress --no-suggest --no-cache
                 working-directory: ${{env.working-directory}}
 
             -   name: "Install sindla/aurora"
