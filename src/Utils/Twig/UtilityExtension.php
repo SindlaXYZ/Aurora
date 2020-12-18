@@ -121,6 +121,7 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('pwa.unregister', [$this, 'pwaUnregister']),
 
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
+            new TwigFunction('linkRelPreload', [$this, 'linkRelPreload']),
 
             // {{ aurora.nonce() }}
             new TwigFunction('nonce', [$this, 'getNonce']),
@@ -177,7 +178,7 @@ class UtilityExtension extends AbstractExtension
         ]);
     }
 
-    public function dnsPrefetch()
+    public function dnsPrefetch(): string
     {
         $dnsPrefetches = $this->container->getParameter('aurora.dns_prefetch');
         $html          = '';
@@ -185,6 +186,23 @@ class UtilityExtension extends AbstractExtension
             $html .= "<link rel='dns-prefetch' href='//{$dnsPrefetch}' />";
         }
 
+        echo $html;
+    }
+
+    /**
+     * <link rel="preload" href="{{ asset('static/vendor/fontawesome/5.15.1/webfonts/fa-solid-900.woff2') }}" as="font" type="font/woff2" crossorigin/>
+     *
+     * Usage:
+     *      {{ aurora.linkRelPreload([{'asset' : asset('static/vendor/fontawesome/5.15.1/webfonts/fa-solid-900.woff2'), 'as':'font', 'type': 'font/woff2', 'crossorigin': true}]) }}
+     *
+     * @param mixed ...$assets
+     */
+    public function linkRelPreload(...$assets)
+    {
+        $html          = '';
+        foreach ($assets as $asset) {
+            $html .= "<link rel='preload' href='{$asset['asset']}' as='{$assets['as']}' type='{$assets['type']}' ". (isset($assets['crossorigin']) && $assets['crossorigin'] ? 'crossorigin' : '') ." />";
+        }
         echo $html;
     }
 
