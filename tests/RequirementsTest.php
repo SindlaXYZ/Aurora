@@ -7,7 +7,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests;
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
-class RequirementsTest extends WebTestCaseMiddleware
+class RequirementsTest extends WebTestCase
 {
     protected function setUp(): void
     {
