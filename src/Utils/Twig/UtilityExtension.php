@@ -3,6 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 // Symfony
+use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -206,9 +207,9 @@ class UtilityExtension extends AbstractExtension
      */
     public function linkRelPreload(array $assets)
     {
-        $html          = '';
+        $html = '';
         foreach ($assets as $asset) {
-            $html .= "<link rel='preload' href='{$asset['asset']}' as='{$asset['as']}' type='{$asset['type']}' ". (isset($asset['crossorigin']) && $asset['crossorigin'] ? 'crossorigin' : '') ." />";
+            $html .= "<link rel='preload' href='{$asset['asset']}' as='{$asset['as']}' type='{$asset['type']}' " . (isset($asset['crossorigin']) && $asset['crossorigin'] ? 'crossorigin' : '') . " />";
         }
         echo $html;
     }
@@ -271,106 +272,10 @@ class UtilityExtension extends AbstractExtension
      * @param       $Request
      * @param mixed ...$assets
      */
-    public function compressCssV1(Request $Request, $combine, $minify, ...$assets)
-    {
-        $serviceGit = $this->container->get('aurora.git');
-        $root       = $this->container->getParameter('root');
-
-        if (!$combine) {
-            foreach ($assets as $asset) {
-                $asset = trim($asset);
-                if (strlen($asset) > 3) {
-                    if (!preg_match('/http:|https:/', $asset)) {
-                        $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
-                    }
-                    //echo "\n\t" . '<link rel="preload" href="'. $asset .'" as="style" onload="this.onload=null;this.rel=\'stylesheet\'">';
-                    //<noscript><link rel="stylesheet" href="styles.css"></noscript>
-                    echo "\n\t" . '<link type="text/css" rel="stylesheet" href="' . $asset . '" />';
-                }
-            }
-
-            // Combine multiple assets into one single file
-        } else {
-            $root          = $this->container->getParameter('aurora.root');
-            $cacheFileName = sha1(json_encode($assets) . $serviceGit->getHash()) . '.css';
-            $cacheFilePath = "{$root}/web/static/compiled/{$cacheFileName}";
-
-            /**
-             * On dev, is we simulate the prod environment, remove the cached css on every request
-             */
-            if ('dev' === $this->container->getParameter('kernel.environment') && file_exists($cacheFilePath)) {
-                unlink($cacheFilePath);
-            }
-
-            // Remove comments
-            $regex = [
-                "`^([\t\s]+)`ism"                       => '',
-                "`^\/\*(.+?)\*\/`ism"                   => "",
-                "`(\A|[\n;]+)/\*.+?\*/`s"               => "$1",
-                "`(\A|[;\s]+)//.+\R`"                   => "$1\n",
-                "`(^[\r\n]*|[\r\n]+)[\s\t]*[\r\n]+`ism" => "\n"
-            ];
-
-            // If cache file does't exists
-            if (!file_exists($cacheFilePath)) {
-                $outputHeader = '';
-                $output       = '';
-                $minifier     = new Minify\CSS();
-                foreach ($assets as $asset) {
-                    $asset = trim($asset);
-                    if (strlen($asset) > 3) {
-                        $basename = basename($asset);
-                        $baseDir  = str_ireplace($basename, '', $asset);
-                        $css      = '';
-                        if (preg_match('/http:|https:/', $asset)) {
-                            $outputHeader .= ';@import url("' . $asset . '");';
-                        } else {
-                            $css = "/*! {$basename} ^ {$asset} ^ {$baseDir} */" . file_get_contents($root . '/public/' . $asset);
-
-                            preg_match_all("/url\((?!['\"]?(?:data|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
-                            foreach ($matches[0] as $urlToImport) {
-                                $urlToImport2 = str_ireplace('url(', "url({$baseDir}", $urlToImport);
-                                $css          = str_replace($urlToImport, $urlToImport2, $css);
-                            }
-                        }
-
-                        // Remove comments
-                        $css = preg_replace(array_keys($regex), $regex, $css);
-
-                        if ($minify) {
-                            $minifier->add($css);
-                        } else {
-                            $output .= $css;
-                        }
-                    }
-                }
-
-                $output = $outputHeader . $output;
-
-                //$baseurl = $Request->getScheme() . '://' . $Request->getHttpHost() . $Request->getBasePath();
-                //$output = str_replace('../webfonts/', "{$baseurl}/static/fontawesome-free/5.4.2/webfonts/", $output);
-
-                $cacheContent = ($minify ? $minifier->minify() : $output);
-
-                //$cacheContent = str_replace('url(/static/', 'url(' . $baseurl . '/static/', $cacheContent);
-                file_put_contents("{$root}/public/static/compiled/{$cacheFileName}", $cacheContent);
-            }
-
-            echo '<link type="text/css" rel="stylesheet" href="/static/compiled/' . $cacheFileName . '" />';
-        }
-    }
-
-    /**
-     * Minify the CSS into one single file
-     * Save (if not exists) the minified file using the last GIT branch hash tag
-     *
-     * https://github.com/matthiasmullie/minify
-     *
-     * @param       $Request
-     * @param mixed ...$assets
-     */
     public function compressCss(Request $Request, $combine, $minify, ...$assets)
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use compressCSSJS() instead.', E_USER_DEPRECATED);
+
         $serviceGit = $this->container->get('aurora.git');
 
         if (!$combine && !$minify) {
@@ -414,6 +319,8 @@ class UtilityExtension extends AbstractExtension
      */
     public function compressJs(Request $Request, $combine, $minify, ...$assets)
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use compressCSSJS() instead.', E_USER_DEPRECATED);
+
         // TODO: external JS files : preg_match('/http:|https:|ftp:/', $asset)
 
         $serviceGit = $this->container->get('aurora.git');
