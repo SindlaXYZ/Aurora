@@ -121,12 +121,12 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('pwa.unregister', [$this, 'pwaUnregister']),
 
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
+
+            new TwigFunction('linkRelDnsPrefetch', [$this, 'linkRelDnsPrefetch']),
             new TwigFunction('linkRelPreload', [$this, 'linkRelPreload']),
 
             // {{ aurora.nonce() }}
             new TwigFunction('nonce', [$this, 'getNonce']),
-
-
         ];
     }
 
@@ -179,6 +179,13 @@ class UtilityExtension extends AbstractExtension
     }
 
     public function dnsPrefetch(): string
+    {
+        // Since 2020-12-18
+        trigger_error('Method aurora.dnsPrefetch() is deprecated. Use aurora.linkRelDnsPrefetch() instead.', E_USER_DEPRECATED);
+        $this->linkRelDnsPrefetch();
+    }
+
+    public function linkRelDnsPrefetch(): string
     {
         $dnsPrefetches = $this->container->getParameter('aurora.dns_prefetch');
         $html          = '';
