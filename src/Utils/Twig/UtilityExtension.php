@@ -178,14 +178,14 @@ class UtilityExtension extends AbstractExtension
         ]);
     }
 
-    public function dnsPrefetch(): string
+    public function dnsPrefetch()
     {
         // Since 2020-12-18
         trigger_error('Method aurora.dnsPrefetch() is deprecated. Use aurora.linkRelDnsPrefetch() instead.', E_USER_DEPRECATED);
         $this->linkRelDnsPrefetch();
     }
 
-    public function linkRelDnsPrefetch(): string
+    public function linkRelDnsPrefetch()
     {
         $dnsPrefetches = $this->container->getParameter('aurora.dns_prefetch');
         $html          = '';
@@ -202,13 +202,13 @@ class UtilityExtension extends AbstractExtension
      * Usage:
      *      {{ aurora.linkRelPreload([{'asset' : asset('static/vendor/fontawesome/5.15.1/webfonts/fa-solid-900.woff2'), 'as':'font', 'type': 'font/woff2', 'crossorigin': true}]) }}
      *
-     * @param mixed ...$assets
+     * @param array $assets
      */
-    public function linkRelPreload(...$assets)
+    public function linkRelPreload(array $assets)
     {
         $html          = '';
         foreach ($assets as $asset) {
-            $html .= "<link rel='preload' href='{$asset['asset']}' as='{$assets['as']}' type='{$assets['type']}' ". (isset($assets['crossorigin']) && $assets['crossorigin'] ? 'crossorigin' : '') ." />";
+            $html .= "<link rel='preload' href='{$asset['asset']}' as='{$asset['as']}' type='{$asset['type']}' ". (isset($asset['crossorigin']) && $asset['crossorigin'] ? 'crossorigin' : '') ." />";
         }
         echo $html;
     }
