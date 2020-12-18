@@ -174,18 +174,18 @@ class MatchTest extends KernelTestCase
         ];
 
         foreach ($this->_matchDomain() as $assertion) {
-            if (true == $assertion['expected'] && key_exists($assertion['domain'], $domains['expectedTrue'])) {
+            if (true == $assertion['expected'] && !key_exists($assertion['domain'], $domains['expectedTrue'])) {
                 $domains['expectedTrue'][$assertion['domain']][] = $assertion['needle'];
             }
 
-            if (false == $assertion['expected'] && key_exists($assertion['domain'], $domains['expectedFalse'])) {
+            if (false == $assertion['expected'] && !key_exists($assertion['domain'], $domains['expectedFalse'])) {
                 $domains['expectedFalse'][$assertion['domain']][] = $assertion['needle'];
             }
         }
 
         foreach ($domains as $expected => $domainArray) {
             foreach ($domainArray as $domain => $needle) {
-                if ($expected) {
+                if ('expectedTrue' == $expected) {
                     $this->assertTrue($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
                 } else {
                     $this->assertFalse($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
