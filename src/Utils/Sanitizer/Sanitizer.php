@@ -2,6 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Sanitizer;
 
+use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -58,24 +59,51 @@ class Sanitizer
      */
     public function cssMinify(string $css, ?string $asset = null)
     {
-        $assetBasename = $asset ? basename($asset) : null;                              // main.css
+        $assetBasename = $asset ? basename($asset) : null;
         $assetBaseDir  = $asset ? str_ireplace($assetBasename, '', $asset) : null;
 
-        $css = $this->cssClearComments($css);
-        $minifier     = new Minify\CSS();
+        $css      = $this->cssClearComments($css);
+        $minifier = new Minify\CSS();
+        $Match    = new Match();
 
         // TODO: parse line by line
 
-        preg_match_all("/url\((?!['\"]?(?:data|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
-        foreach ($matches[0] as $urlToImport) {
-            $quote = '';
-            if (0 === strpos($urlToImport, "url('")) {
-                $quote = "'";
-            } else if (0 === strpos($urlToImport, 'url("')) {
-                $quote = '"';
+        if (false) {
+            /* Version 1 (Buggy) */
+            preg_match_all("/url\((?!['\"]?(?:data|https|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
+            foreach ($matches[0] as $urlToImport) {
+                $quote = '';
+                if (0 === strpos($urlToImport, "url('")) {
+                    $quote = "'";
+                } else if (0 === strpos($urlToImport, 'url("')) {
+                    $quote = '"';
+                }
+                $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
+                $css          = str_replace($urlToImport, $urlToImport2, $css);
             }
-            $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
-            $css = str_replace($urlToImport, $urlToImport2, $css);
+        } else {
+            /* Version 2 */
+            $cssLineByLine = '';
+            foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
+                $matches = $Match->matchCssUrls($line);
+
+                if (isset($matches[0]) & !empty($matches[0])) {
+                    foreach ($matches[0] as $urlToImport) {
+                        $quote = '';
+                        if (0 === strpos($urlToImport, "url('")) {
+                            $quote = "'";
+                        } else if (0 === strpos($urlToImport, 'url("')) {
+                            $quote = '"';
+                        }
+                        $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
+                        $line         = str_replace($urlToImport, $urlToImport2, $line);
+                    }
+                }
+
+                $cssLineByLine .= $line . "\n";
+            }
+
+            $css = $cssLineByLine;
         }
 
         $minifier->add($css);
