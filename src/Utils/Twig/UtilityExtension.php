@@ -439,6 +439,10 @@ class UtilityExtension extends AbstractExtension
                     }
                 }
 
+                /**
+                 * TODO: some files might have @import or @charset, move these on top of compiled css file
+                 */
+
                 if ($combineAndMinify && ($onDev || !file_exists($combineAndMinifyOutputAbsPath))) {
                     if (!preg_match('/http:|https:|ftp:/', $assetWebPath)) {
                         $combineAndMinifyOutputContent .= ('css' == $assetType
