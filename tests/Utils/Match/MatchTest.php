@@ -209,7 +209,7 @@ body {
         $Match   = new Match();
         $matches = $Match->matchCssUrls($css);
 
-        $this->assertEmpty([$matches[0]]);
-        $this->assertEmpty([$matches[1]]);
+        $this->assertEmpty($matches[0]);
+        $this->assertEmpty($matches[1]);
     }
 }
