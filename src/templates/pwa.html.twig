@@ -1,6 +1,5 @@
 {# The Service Worker is a background script that a browser can run even while a user isn't on your page. It's the thing that provides offline support, and wakes up when a notification is triggered. #}
+{# PWS works only on secured (HTTPS) connection #}
 {% if pwa %}
 <script src="{{ asset('/pwa-main.js') }}" service-worker="{{ asset('/pwa-sw.js') }}" service-worker-version="{{ build }}" service-worker-debug="{{ debug ? 1 : 0 }}" nonce="{{ aurora.nonce() }}"></script>
-{% else %}
-<!-- PWS works only on secured (HTTPS) connection! -->
 {% endif %}
