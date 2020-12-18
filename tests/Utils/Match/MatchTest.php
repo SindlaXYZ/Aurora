@@ -168,29 +168,13 @@ class MatchTest extends KernelTestCase
     {
         $Match = new Match();
 
-        $domains = [
-            'expectedTrue'  => [],
-            'expectedFalse' => []
-        ];
+        # true
+        $this->assertTrue($Match->matchAtLeastOneDomain('sindla.com', ['sindla.com', 'sindla.ro']));
+        $this->assertTrue($Match->matchAtLeastOneDomain('sindla.com', ['sindla.ro', 'sindla.com']));
+        $this->assertTrue($Match->matchAtLeastOneDomain('crawl-66-249-66-1.googlebot.com', ['google.ro', 'googlebot.com', 'google.com']));
 
-        foreach ($this->_matchDomain() as $assertion) {
-            if (true == $assertion['expected'] && !key_exists($assertion['domain'], $domains['expectedTrue'])) {
-                $domains['expectedTrue'][$assertion['domain']][] = $assertion['needle'];
-            }
-
-            if (false == $assertion['expected'] && !key_exists($assertion['domain'], $domains['expectedFalse'])) {
-                $domains['expectedFalse'][$assertion['domain']][] = $assertion['needle'];
-            }
-        }
-
-        foreach ($domains as $expected => $domainArray) {
-            foreach ($domainArray as $domain => $needle) {
-                if ('expectedTrue' == $expected) {
-                    $this->assertTrue($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
-                } else {
-                    $this->assertFalse($Match->matchDomain($needle, $domain), sprintf('%s & %s', $needle, $domain));
-                }
-            }
-        }
+        # false
+        $this->assertFalse($Match->matchAtLeastOneDomain('crawl-66-249-66-1.fakegooglebot.com', ['google.ro', 'googlebot.com', 'google.com']));
+        $this->assertFalse($Match->matchAtLeastOneDomain('crawl-66-249-66-1.googlebot.com.myfakedomain.com', ['google.ro', 'googlebot.com', 'google.com']));
     }
 }
