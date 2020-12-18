@@ -177,4 +177,39 @@ class MatchTest extends KernelTestCase
         $this->assertFalse($Match->matchAtLeastOneDomain('crawl-66-249-66-1.fakegooglebot.com', ['google.ro', 'googlebot.com', 'google.com']));
         $this->assertFalse($Match->matchAtLeastOneDomain('crawl-66-249-66-1.googlebot.com.myfakedomain.com', ['google.ro', 'googlebot.com', 'google.com']));
     }
+
+    public function testMatchCssUrl()
+    {
+        $css     = '@import url("https://fonts.googleapis.com/css?family=Roboto:300,300i,400,500,700,900&display=swap");
+/* line 1, _extend.scss */
+.flex-center-start {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: start;
+  -ms-flex-pack: start;
+  justify-content: start;
+}
+
+/* Normal desktop :1200px. */
+/* Normal desktop :992px. */
+/* Tablet desktop :768px. */
+/* small mobile :320px. */
+/* Large Mobile :480px. */
+/* 1. Theme default css */
+/* line 4, _reset.scss */
+body {
+  font-family: "Roboto", sans-serif;
+  font-weight: normal;
+  font-style: normal;
+}';
+        $Match   = new Match();
+        $matches = $Match->matchCssUrls($css);
+
+        $this->assertEmpty([$matches[0]]);
+        $this->assertEmpty([$matches[1]]);
+    }
 }

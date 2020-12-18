@@ -33,4 +33,11 @@ class Match
 
         return $matched;
     }
+
+    public function matchCssUrls(string $css, $relativeUrlOnly = true)
+    {
+        preg_match_all("/url\((?!['\"]?(?:data|https|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
+
+        return $matches;
+    }
 }
