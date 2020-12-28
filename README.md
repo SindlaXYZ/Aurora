@@ -127,6 +127,50 @@ Run `composer update` to update and install the rest of the dependencies.
 
 ---
 
+#### Inject ContainerAwareInterface into Doctrine Migrations
+
+1. `config/services.yaml`
+```yaml
+    ...
+    Doctrine\Migrations\Version\DbalMigrationFactory: ~
+    Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator:
+        decorates: Doctrine\Migrations\Version\DbalMigrationFactory
+        arguments: ['@Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container']
+    ...
+```
+
+2. `config/packages/doctrine_migrations.yaml`
+```yaml
+doctrine_migrations:
+    services:
+        'Doctrine\Migrations\Version\MigrationFactory': 'Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator'
+    ...
+```
+
+3. Create an empty migration and edit it
+```php
+// Symfony
+use Symfony\Component\DependencyInjection\ContainerAwareInterface;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+
+final class Version... extends AbstractMigration implements ContainerAwareInterface
+{
+    /** @var ContainerInterface */
+    protected $container;
+
+    public function setContainer(ContainerInterface $container = null)
+    {
+        /** @var ContainerAwareInterface container */
+        $this->container = $container;
+
+        /** @var EntityManager $em */
+        $em = $this->container->get('doctrine.orm.entity_manager');
+    }
+}
+```
+
+---
+
 #### How to enable HTML Minifier??
 
 * Edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`
