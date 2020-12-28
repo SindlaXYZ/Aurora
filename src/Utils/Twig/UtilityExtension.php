@@ -445,9 +445,18 @@ class UtilityExtension extends AbstractExtension
 
                 if ($combineAndMinify && ($onDev || !file_exists($combineAndMinifyOutputAbsPath))) {
                     if (!preg_match('/http:|https:|ftp:/', $assetWebPath)) {
+
+                        $assetContent = file_get_contents($assetAbsPath);
+                        if('js' == $assetType) {
+                            /**
+                             * HightChart bug: `/(NaN| {2}|^$)/` will be replaced with `/(NaN|{2}|^$)/`
+                             */
+                            $assetContent = str_replace('| {', '\n{', $assetContent);
+                        }
+
                         $combineAndMinifyOutputContent .= ('css' == $assetType
-                            ? $serviceSanitizer->cssMinify(file_get_contents($assetAbsPath), $assetWebPath)
-                            : \JShrink\Minifier::minify(file_get_contents($assetAbsPath), ['flaggedComments' => false]) . ';'
+                            ? $serviceSanitizer->cssMinify($assetContent, $assetWebPath)
+                            : \JShrink\Minifier::minify($assetContent, ['flaggedComments' => false]) . ';'
                         );
                     } else {
                         if ('css' == $assetType) {
