@@ -84,4 +84,16 @@ class WebTestCaseMiddleware extends WebTestCase
 
         $this->progressIndex = $this->progressIndex + 1;
     }
+
+    public function success($message)
+    {
+        // https://joshtronic.com/2013/09/02/how-to-use-colors-in-command-line-output/
+        return "\e[0;31;42m{$message}\e[0m\n";
+    }
+
+    public function error($message)
+    {
+        // https://joshtronic.com/2013/09/02/how-to-use-colors-in-command-line-output/
+        return $this->fail("\e[1;37;41m{$message}\e[0m\n");
+    }
 }
