@@ -115,6 +115,8 @@ class UtilityExtension extends AbstractExtension
             // {{ aurora.pwa(app.request, app.debug) }}
             new TwigFunction('pwa', [$this, 'pwa']),
 
+            new TwigFunction('pwa.version', [$this, 'pwaVersion']),
+
             // {{ aurora.pwa.delete(app.request, app.debug) }}
             new TwigFunction('pwa.delete', [$this, 'pwaDelete']),
 
@@ -155,27 +157,45 @@ class UtilityExtension extends AbstractExtension
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
+            'pwaVersion'  => $this->pwaVersion(),
             'debug'       => $debug
         ]);
+    }
+
+    public function pwaVersion()
+    {
+        $version       = $this->getBuild();
+        $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
+
+        if (0 === strpos($versionAppend, '!php/eval')) {
+            preg_match('/`(.*)`/', $versionAppend, $match);
+            if (isset($match[1]) && !empty($match[1])) {
+                $version .= '-' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
+            }
+        }
+
+        return $version;
     }
 
     public function pwaDelete(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.delete.html.twig', [
-            'host'  => $Request->getHost(),
-            'pwa'   => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
-            'build' => $this->getBuild(),
-            'debug' => $debug
+            'host'       => $Request->getHost(),
+            'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'build'      => $this->getBuild(),
+            'pwaVersion' => $this->pwaVersion(),
+            'debug'      => $debug
         ]);
     }
 
     public function pwaUnregister(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.unregister.html.twig', [
-            'host'  => $Request->getHost(),
-            'pwa'   => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
-            'build' => $this->getBuild(),
-            'debug' => $debug
+            'host'       => $Request->getHost(),
+            'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'build'      => $this->getBuild(),
+            'pwaVersion' => $this->pwaVersion(),
+            'debug'      => $debug
         ]);
     }
 
@@ -447,7 +467,7 @@ class UtilityExtension extends AbstractExtension
                     if (!preg_match('/http:|https:|ftp:/', $assetWebPath)) {
 
                         $assetContent = file_get_contents($assetAbsPath);
-                        if('js' == $assetType) {
+                        if ('js' == $assetType) {
                             /**
                              * HightChart bug: `/(NaN| {2}|^$)/` will be replaced with `/(NaN|{2}|^$)/`
                              */

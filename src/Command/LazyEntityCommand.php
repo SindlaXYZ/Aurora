@@ -233,7 +233,10 @@ class LazyEntityCommand extends CommandMiddleware
 
                 $function = ucfirst($prop->name);
 
-                //if (preg_match("/__toString/", $prop->getDocComment())) {
+                if (preg_match("/__toString/", $prop->getDocComment())) {
+                    echo "__toString is deprecated. Use @Aurora instead.";
+                }
+
                 if ($auroraAnnotation->toSting) {
                     $toString = "\n\n" . <<<EOT
     public function __toString() {
