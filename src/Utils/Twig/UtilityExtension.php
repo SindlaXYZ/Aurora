@@ -157,17 +157,17 @@ class UtilityExtension extends AbstractExtension
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
-            'pwaVersion'  => $this->pwaVersion(),
+            'pwaVersion'  => $this->pwaVersion($Request),
             'debug'       => $debug
         ]);
     }
 
-    public function pwaVersion()
+    public function pwaVersion(Request $Request)
     {
         /** @var PWA $PWA */
         $PWA = $this->container->get('aurora.pwa');
 
-        return $PWA->version();
+        return $PWA->version($Request);
     }
 
     public function pwaDelete(Request $Request, bool $debug)
@@ -176,7 +176,7 @@ class UtilityExtension extends AbstractExtension
             'host'       => $Request->getHost(),
             'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'build'      => $this->getBuild(),
-            'pwaVersion' => $this->pwaVersion(),
+            'pwaVersion' => $this->pwaVersion($Request),
             'debug'      => $debug
         ]);
     }
@@ -187,7 +187,7 @@ class UtilityExtension extends AbstractExtension
             'host'       => $Request->getHost(),
             'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'build'      => $this->getBuild(),
-            'pwaVersion' => $this->pwaVersion(),
+            'pwaVersion' => $this->pwaVersion($Request),
             'debug'      => $debug
         ]);
     }
