@@ -164,17 +164,10 @@ class UtilityExtension extends AbstractExtension
 
     public function pwaVersion()
     {
-        $version       = $this->getBuild();
-        $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
+        /** @var PWA $PWA */
+        $PWA = $this->container->get('aurora.pwa');
 
-        if (0 === strpos($versionAppend, '!php/eval')) {
-            preg_match('/`(.*)`/', $versionAppend, $match);
-            if (isset($match[1]) && !empty($match[1])) {
-                $version .= '-' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
-            }
-        }
-
-        return $version;
+        return $PWA->version();
     }
 
     public function pwaDelete(Request $Request, bool $debug)

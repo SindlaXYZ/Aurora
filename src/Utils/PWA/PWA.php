@@ -111,7 +111,7 @@ class PWA
     public function browserConfig(Request $Request)
     {
         $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__. __LINE__ . sha1($Request->getRequestUri())), function (ItemInterface $item) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function (ItemInterface $item) {
             $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? (60 * 60 * 24) : 0);
 
             $encoder       = new XmlEncoder();
@@ -144,6 +144,7 @@ class PWA
     {
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'build'                => $this->_build($Request),
+            'pwaVersion'           => $this->version(),
             'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
         ]);
 
@@ -181,6 +182,22 @@ class PWA
         $response->headers->set('Content-Type', 'text/javascript');
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;
+    }
+
+    public function version()
+    {
+        $serviceGit    = $this->container->get('aurora.git');
+        $version       = $serviceGit->getHash();
+        $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
+
+        if (0 === strpos($versionAppend, '!php/eval')) {
+            preg_match('/`(.*)`/', $versionAppend, $match);
+            if (isset($match[1]) && !empty($match[1])) {
+                $version .= '-' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
+            }
+        }
+
+        return $version;
     }
 
     /**
