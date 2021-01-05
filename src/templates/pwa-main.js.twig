@@ -4,12 +4,12 @@
 
 if ('serviceWorker' in navigator) {
     var serviceWorkerPath       = document.currentScript.getAttribute('service-worker');
-    var serviceWorkerVersion    = '{{ pwaVersion }}'; {# document.currentScript.getAttribute('service-worker-version')#};
+    var serviceWorkerVersion    = '{{ pwaVersion }}'; {# document.currentScript.getAttribute('service-worker-version')#}
     var serviceWorkerDebug      = document.currentScript.getAttribute('service-worker-debug');
     let deferredPrompt;
 
     {% if _debug %}
-    console.log('Load SW '+ serviceWorkerPath + ', version (build) ' + serviceWorkerVersion);
+    console.log('Load SW '+ serviceWorkerPath + ', version ' + serviceWorkerVersion);
     {% endif %}
 
     {# if false, then do not automatically show the "Install" prompt #}

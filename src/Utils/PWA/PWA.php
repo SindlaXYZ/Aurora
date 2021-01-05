@@ -143,7 +143,6 @@ class PWA
     public function mainJS(Request $Request)
     {
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
-            'build'                => $this->_build($Request),
             'pwaVersion'           => $this->version(),
             'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
         ]);
@@ -164,11 +163,11 @@ class PWA
     public function serviceWorkerJS(Request $Request)
     {
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
+            'pwaVersion'     => $this->version(),
             'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
             'external_cache' => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
-            'offline'        => $this->container->getParameter('aurora.pwa.offline'),
-            'build'          => $this->_build($Request)
+            'offline'        => $this->container->getParameter('aurora.pwa.offline')
         ]);
 
         // Minify if not DEV
@@ -184,16 +183,21 @@ class PWA
         return $response;
     }
 
-    public function version()
+    public function version(Request $Request)
     {
         $serviceGit    = $this->container->get('aurora.git');
         $version       = $serviceGit->getHash();
         $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
 
+
+        if ($Request->cookies->get('PHPSESSID')) {
+            $version .= '_' . $this->session->get('PHPSESSID');
+        }
+
         if (0 === strpos($versionAppend, '!php/eval')) {
             preg_match('/`(.*)`/', $versionAppend, $match);
             if (isset($match[1]) && !empty($match[1])) {
-                $version .= '-' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
+                $version .= '_' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
             }
         }
 
@@ -247,17 +251,5 @@ class PWA
         $Response->headers->set('Content-Length', filesize($iconPath));
         $Response->headers->set('X-Backend-Hit', true);
         return $Response;
-    }
-
-    /**
-     * PWA build version based on last git commit hash and PHPSESSID
-     *
-     * @param Request $Request
-     * @return string
-     */
-    private function _build(Request $Request)
-    {
-        $serviceGit = $this->container->get('aurora.git');
-        return sha1(($serviceGit->getHash() . ($Request->cookies->get('PHPSESSID') ?? $this->session->get('PHPSESSID'))));
     }
 }
