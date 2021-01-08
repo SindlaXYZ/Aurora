@@ -164,7 +164,7 @@ class Strink
             } else if ($cut == 'middle' || $cut == 'center') {
                 $this->string = mb_substr($this->string, 0, (round($limit / 2) - count($postText)), 'utf-8');
                 $this->string .= $postText;
-                $this->string .= mb_substr($this->string, count($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
+                $this->string .= mb_substr($this->string, strlen($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
             }
         }
 
