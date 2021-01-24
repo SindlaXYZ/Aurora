@@ -457,6 +457,7 @@ class UtilityExtension extends AbstractExtension
                  */
 
                 if ($combineAndMinify && ($onDev || !file_exists($combineAndMinifyOutputAbsPath))) {
+                    // Load local files
                     if (!preg_match('/http:|https:|ftp:/', $assetWebPath)) {
 
                         $assetContent = file_get_contents($assetAbsPath);
@@ -471,11 +472,13 @@ class UtilityExtension extends AbstractExtension
                             ? $serviceSanitizer->cssMinify($assetContent, $assetWebPath)
                             : \JShrink\Minifier::minify($assetContent, ['flaggedComments' => false]) . ';'
                         );
+                        // Load external files
                     } else {
                         if ('css' == $assetType) {
                             $combineAndMinifyOutputContentHead .= '@import url("' . $assetWebPath . '");';
                         } else {
-                            trigger_error('External JS files not supported.');
+                            $njs = 'newScript' . substr(mt_rand(0, 999) . sha1(microtime() . mt_rand(0, 999)), 0, 6);
+                            $combineAndMinifyOutputContent .= "var {$njs} = document.createElement('script'); {$njs}.type = 'text/javascript'; {$njs}.src = '{$assetWebPath}'; document.getElementsByTagName('head')[0].appendChild({$njs});";
                         }
                     }
                 }
