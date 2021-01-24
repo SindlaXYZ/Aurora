@@ -46,6 +46,7 @@ parameters:
         - '/login'
         - '/logout'
         - '/admin'
+        - '.*\/match-this\/.*'
     aurora.pwa.external_cache:
         - 'fonts.gstatic.com'
         - 'fonts.googleapis.com'
