@@ -24,29 +24,39 @@ class Cryptor
         return $this;
     }
 
-    public function setCipher($cipher = 'AES-128-CTR')
+    public function setCipher($cipher = 'AES-128-CTR'): Cryptor
     {
         $this->cipher = $cipher;
         return $this;
     }
 
-    public function setEncryptionKey($encryptionKey)
+    public function setEncryptionKey($encryptionKey): Cryptor
     {
         $this->encryptionKey = $encryptionKey;
         return $this;
     }
 
-    public function encrypt(string $data)
+    /**
+     * @param string $data
+     * @return string (base64 of "encrypted key::initialization vector"
+     */
+    public function encrypt(string $data): string
     {
         $encrypted           = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $this->randomInitializationVector);
         $this->encryptionKey = null;
-        return $encrypted;
+        return "{$encrypted}::{$this->randomInitializationVector}";
     }
 
-    public function decrypt(string $crypted)
+    /**
+     * @param string $encryptedBase64 (base64 of "encrypted key::initialization vector"
+     * @return string
+     */
+    public function decrypt(string $encryptedBase64): string
     {
-        $decrypted           = openssl_decrypt($crypted, $this->cipher, $this->encryptionKey, $this->options, $this->randomInitializationVector);
+        [$data, $vector] = explode('::', base64_decode($encryptedBase64));
+
+        $decrypted           = openssl_decrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
         $this->encryptionKey = null;
-        return $decrypted;
+        return (string)$decrypted;
     }
 }
