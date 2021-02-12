@@ -135,10 +135,16 @@ Run `composer update` to update and install the rest of the dependencies.
 1. `config/services.yaml`
 ```yaml
     ...
+
+    ###################################################################################################################
+    ### Doctrine Migration ############################################################################################
+    ### Inject Container into migrations; also, check doctrine_migrations.yaml > Doctrine\Migrations\Version\MigrationFactory
+
     Doctrine\Migrations\Version\DbalMigrationFactory: ~
     Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator:
         decorates: Doctrine\Migrations\Version\DbalMigrationFactory
         arguments: ['@Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container']
+
     ...
 ```
 
