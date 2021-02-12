@@ -20,9 +20,9 @@ class Calculus
     use Graph;
 
     /**
-     * Check if a nunmber is prime based on trial division
+     * Check if a number is prime based on trial division
      *
-     * @param   integer $number
+     * @param integer $number
      * @return  boolean
      * @docs    http://en.wikipedia.org/wiki/Prime_number
      * @docs    http://www.ideaflix.com/question/formula-to-calculate-distance-between-two-latitude-and-longitude-in-php/
@@ -41,5 +41,17 @@ class Calculus
             }
             return true;
         }
+    }
+
+    /**
+     * Return percentage between two number
+     *
+     * @param $newNumber
+     * @param $originalNumber
+     * @return float|int
+     */
+    public function percentageChange($newNumber, $originalNumber)
+    {
+        return ((($newNumber - $originalNumber) / $originalNumber) * 100);
     }
 }
