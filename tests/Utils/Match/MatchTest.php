@@ -67,6 +67,26 @@ class MatchTest extends KernelTestCase
                 'expected' => true,
             ],
             [
+                'needle'   => 'http://sub.domain.sindla.com/this/is/some/special/route',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'http://sub.domain.sindla.com?another=special-route',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'http://sub.domain.sindla.com?another=special-route&and=this',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'http://sub.domain.sindla.com#this-is-really-special-route',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
                 'needle'   => 'sindla.com',
                 'domain'   => 'sindla.com',
                 'expected' => true,

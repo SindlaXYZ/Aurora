@@ -11,6 +11,16 @@ class Match
      */
     public function matchDomain(string $needle, string $domain): bool
     {
+        $parsedNeedle = parse_url($needle);
+        if(array_key_exists('scheme', $parsedNeedle) && array_key_exists('host', $parsedNeedle)) {
+            $needle = $parsedNeedle['host'];
+        }
+
+        $parsedDomain = parse_url($domain);
+        if(array_key_exists('scheme', $parsedDomain) && array_key_exists('host', $parsedDomain)) {
+            $domain = $parsedNeedle['host'];
+        }
+
         preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)'. preg_quote($domain) .'$/', $needle, $matches);
 
         return ((is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false);
