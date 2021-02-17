@@ -84,6 +84,9 @@ jobs:
             #                    restore-keys: |
             #                        ${{ runner.os }}-php-
 
+            -   name: "Composer update"
+                run: composer update --lock
+
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer install --prefer-dist --no-progress --no-suggest --no-cache
