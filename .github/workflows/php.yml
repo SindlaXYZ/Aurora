@@ -85,7 +85,7 @@ jobs:
             #                        ${{ runner.os }}-php-
 
             -   name: "Composer update"
-                run: composer update --lock
+                run: composer update
 
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
