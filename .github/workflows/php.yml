@@ -42,7 +42,7 @@ jobs:
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
             -   name: "Create project symfony/website-skeleton"
-                run: composer create-project symfony/website-skeleton ${{env.working-directory}}/website-skeleton ^5.2 --no-cache --ignore-platform-reqs
+                run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
 
             -   name: "Move symfony/website-skeleton"
                 run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
@@ -84,8 +84,8 @@ jobs:
             #                    restore-keys: |
             #                        ${{ runner.os }}-php-
 
-            -   name: "Composer update"
-                run: composer update
+            #-   name: "Composer update"
+            #    run: composer update
 
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
