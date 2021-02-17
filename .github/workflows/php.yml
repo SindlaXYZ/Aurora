@@ -89,7 +89,7 @@ jobs:
 
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer install --prefer-dist --no-progress --no-suggest --no-cache
+                run: composer install --prefer-dist --no-progress --no-cache
                 working-directory: ${{env.working-directory}}
 
             -   name: "Install sindla/aurora"
