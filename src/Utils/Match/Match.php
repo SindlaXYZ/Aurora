@@ -51,6 +51,18 @@ class Match
         return $matches;
     }
 
+    /**
+     * Check a password strength
+     *
+     * @param mixed $password
+     * @param bool  $min1LowerCase
+     * @param bool  $min1UpperCase
+     * @param bool  $min1number
+     * @param false $min1Symbol
+     * @param int   $minLength
+     * @param int   $maxLength
+     * @return bool
+     */
     public function passwordStrength($password, $min1LowerCase = true, $min1UpperCase = true, $min1number = true, $min1Symbol = false, int $minLength = 1, int $maxLength = 999)
     {
         $match = '/^';
@@ -75,7 +87,7 @@ class Match
         $match .= '+$/';
 
         //return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d]).{8,}+$/', $password);
-        return preg_match($match, $password);
+        return (bool)preg_match($match, $password);
 
     }
 }
