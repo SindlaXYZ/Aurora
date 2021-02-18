@@ -232,4 +232,25 @@ body {
         $this->assertEmpty($matches[0]);
         $this->assertEmpty($matches[1]);
     }
+
+    public function  testPasswordStrength()
+    {
+        $Match = new Match();
+
+        $this->assertFalse($Match->passwordStrength(''));
+        $this->assertFalse($Match->passwordStrength(' '));
+        $this->assertTrue($Match->passwordStrength('a'));
+
+        $this->assertFalse($Match->passwordStrength('test', true, true, true));
+        $this->assertFalse($Match->passwordStrength('TEST', true, true, true));
+        $this->assertFalse($Match->passwordStrength('TEst', true, true, true));
+        $this->assertFalse($Match->passwordStrength('tes1', true, true, true));
+        $this->assertTrue($Match->passwordStrength('Tes1', true, true, true));
+
+        $this->assertFalse($Match->passwordStrength('Tes1', true, true, true, true));
+        $this->assertTrue($Match->passwordStrength('Te$1', true, true, true, true));
+
+        $this->assertFalse($Match->passwordStrength('Te$1', true, true, true, true, 6));
+        $this->assertTrue($Match->passwordStrength('Te$1123321', true, true, true, true, 6));
+    }
 }

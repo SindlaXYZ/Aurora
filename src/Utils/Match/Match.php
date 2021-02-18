@@ -50,4 +50,32 @@ class Match
 
         return $matches;
     }
+
+    public function passwordStrength($password, $min1LowerCase = true, $min1UpperCase = true, $min1number = true, $min1Symbol = false, int $minLength = 1, int $maxLength = 999)
+    {
+        $match = '/^';
+
+        if($min1LowerCase) {
+            $match .= '(?=.*[a-z])';
+        }
+
+        if($min1UpperCase) {
+            $match .= '(?=.*[A-Z])';
+        }
+
+        if($min1number) {
+            $match .= '(?=.*[\d])';
+        }
+
+        if($min1Symbol && ctype_alnum($password)) {
+            return false;
+        }
+
+        $match .= ".{{$minLength},{$maxLength}";
+        $match .= '+$/';
+
+        //return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d]).{8,}+$/', $password);
+        return preg_match($match, $password);
+
+    }
 }
