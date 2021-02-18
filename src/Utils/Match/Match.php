@@ -83,7 +83,7 @@ class Match
             return false;
         }
 
-        $match .= ".{{$minLength},{$maxLength}";
+        $match .= ".{{$minLength},{$maxLength}}";
         $match .= '+$/';
 
         //return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d]).{8,}+$/', $password);
