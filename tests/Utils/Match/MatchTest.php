@@ -239,7 +239,9 @@ body {
 
         $this->assertFalse($Match->passwordStrength(''));
         $this->assertFalse($Match->passwordStrength(' '));
-        $this->assertTrue($Match->passwordStrength('a'));
+        $this->assertFalse($Match->passwordStrength('a'));
+        $this->assertFalse($Match->passwordStrength('1'));
+        $this->assertFalse($Match->passwordStrength('$'));
 
         $this->assertFalse($Match->passwordStrength('test', true, true, true));
         $this->assertFalse($Match->passwordStrength('TEST', true, true, true));
