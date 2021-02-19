@@ -63,7 +63,7 @@ class Match
      * @param int   $maxLength
      * @return bool
      */
-    public function passwordStrength($password, $min1LowerCase = true, $min1UpperCase = true, $min1number = true, $min1Symbol = false, int $minLength = 1, int $maxLength = 999)
+    public function passwordStrength($password, $min1LowerCase = true, $min1UpperCase = true, $min1number = true, $min1Symbol = false, int $minLength = 1, int $maxLength = 999): bool
     {
         $match = '/^';
 
@@ -86,8 +86,6 @@ class Match
         $match .= ".{{$minLength},{$maxLength}}";
         $match .= '+$/';
 
-        //return preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[\d]).{8,}+$/', $password);
         return (bool)preg_match($match, $password);
-
     }
 }

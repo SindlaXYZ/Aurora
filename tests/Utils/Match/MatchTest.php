@@ -253,6 +253,9 @@ body {
         $this->assertTrue($Match->passwordStrength('Te$1', true, true, true, true));
 
         $this->assertFalse($Match->passwordStrength('Te$1', true, true, true, true, 6));
+        $this->assertFalse($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, true, 6));
+        $this->assertTrue($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, false, 6));
         $this->assertTrue($Match->passwordStrength('Te$1123321', true, true, true, true, 6));
+        $this->assertFalse($Match->passwordStrength('Te$11233212214', true, true, true, true, 6,9));
     }
 }
