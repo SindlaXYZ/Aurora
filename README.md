@@ -46,6 +46,7 @@ parameters:
         - '/login'
         - '/logout'
         - '/admin'
+        - '.*\.mp4' # mp4 files are large, some browsers will not be able to fully cache it, meaning the video will not be displayed
         - '.*\/match-this\/.*'
     aurora.pwa.external_cache:
         - 'fonts.gstatic.com'
