@@ -40,11 +40,11 @@ trait BaseRepository
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    protected ?array  $where       = [];
-    protected ?int    $limit       = null;
-    protected ?int    $limitOffset = null;
-    protected bool    $count       = false;
-    protected ?array  $orders      = [];
+    protected ?array $where       = [];
+    protected ?int   $limit       = null;
+    protected ?int   $limitOffset = null;
+    protected bool   $count       = false;
+    protected ?array $orders      = [];
 
     public function setWhere(array $where)
     {
@@ -115,16 +115,16 @@ trait BaseRepository
 
         $em = $this->getEntityManager();
 
-        /** @var QueryBuilder $qb */
-        $qb = $em->createQueryBuilder($tableName);
+        /** @var QueryBuilder $queryBuilder */
+        $queryBuilder = $em->createQueryBuilder($tableName);
 
         if ($count) {
-            $qb->select("count({$tableName}.id)");
+            $queryBuilder->select("count({$tableName}.id)");
         } else {
-            $qb->select($tableName);
+            $queryBuilder->select($tableName);
         }
 
-        $qb->from($reflect->name, $tableName);
+        $queryBuilder->from($reflect->name, $tableName);
 
         foreach ($this->where as $operation => $conditions) {
             if ($conditions) {
@@ -140,17 +140,21 @@ trait BaseRepository
                         // Bitwise
                         if (true == boolval($ann[1]->bitwise)) {
                             // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
-                            $qb->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                            $queryBuilder->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                        } // Json + LIKE
+                        else if (true == boolval($ann[1]->json) && 'LIKE' == $condition[1]) {
+                            $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
+                            $queryBuilder->setParameter($randomKey, $condition[2]);
 
                         } // Json
                         else if (true == boolval($ann[1]->json)) {
-                            $qb->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
-                            $qb->setParameter($randomKey, $condition[2]);
+                            $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
+                            $queryBuilder->setParameter($randomKey, $condition[2]);
                         }
 
                     } else {
-                        $qb->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
-                        $qb->setParameter($randomKey, $condition[2]);
+                        $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
+                        $queryBuilder->setParameter($randomKey, $condition[2]);
                     }
                 }
             }
@@ -159,32 +163,48 @@ trait BaseRepository
         // ORDER BY
         if (0 != count($this->orders)) {
             foreach ($this->orders as $raw => $direction) {
-                $qb->orderBy("{$tableName}.{$raw}", $direction);
+                $queryBuilder->orderBy("{$tableName}.{$raw}", $direction);
             }
         }
 
         // LIMIT
         if ($this->limit) {
-            $qb->setFirstResult($this->limitOffset);
-            $qb->setMaxResults($this->limit);
+            $queryBuilder->setFirstResult($this->limitOffset);
+            $queryBuilder->setMaxResults($this->limit);
         }
 
         // Debug
         if ($getDQL) {
-            echo $qb->getDQL();
+            $query = $queryBuilder->getQuery();
+
+            echo "\n--------------------------------------------------------------\n";
+
+            echo "\n[DQL]\n";
+            echo $queryBuilder->getDQL() . "\n\n";
+
+            echo "\n[SQL]\n";
+            echo $query->getSql() . "\n\n";
+
+            $queryParams = $query->getParameters();
+            if (!empty($queryParams)) {
+                echo "\n[PARAMS]\n";
+                print_r($queryParams);
+            }
+
+            echo "\n--------------------------------------------------------------\n";
 
             exit(0);
         }
 
         if ($count) {
-            return $qb->getQuery()->getSingleScalarResult();
+            return $queryBuilder->getQuery()->getSingleScalarResult();
         }
 
         if ($onlyOne) {
-            return $qb->getQuery()->getOneOrNullResult();
+            return $queryBuilder->getQuery()->getOneOrNullResult();
         }
 
-        return $qb->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

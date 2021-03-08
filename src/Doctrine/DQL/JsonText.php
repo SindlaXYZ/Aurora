@@ -6,18 +6,20 @@ use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;
 
 /**
- * Unaccent string using postgresql extension unaccent
- * http://www.postgresql.org/docs/current/static/unaccent.html
+ * Doctrine extension to support json_row::text
+ * https://www.postgresql.org/docs/current/functions-json.html
  *
- * Usage : StringFunction UNACCENT(string)
+ * Usage: JSON_TEXT(row) will produce row::text
+ * Eg:
+ *      ->andWhere("JSON_TEXT({$tableName}.{$row}) LIKE ...");
  */
-class Unaccent extends FunctionNode
+class JsonText extends FunctionNode
 {
     private $string;
 
     public function getSql(\Doctrine\ORM\Query\SqlWalker $sqlWalker)
     {
-        return 'UNACCENT(' . $this->string->dispatch($sqlWalker) . ")";
+        return $this->string->dispatch($sqlWalker) . "::text";
     }
 
     public function parse(\Doctrine\ORM\Query\Parser $parser)
