@@ -6,8 +6,11 @@ namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Trait IdentifiableTrait
+ * Trait IdentifiableNullableTrait
  *  + `id`
+ *
+ * Toward `IdentifiableTrait`, this trait allow `id` to be null
+ * A NON-null $id will generate an error in Doctrine:UnitOfWork when an EntityObject will be removed
  */
 trait IdentifiableNullableTrait
 {

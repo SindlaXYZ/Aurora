@@ -8,6 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * Trait IdentifiableTrait
  *  + `id`
+ *
+ * This will generate an error in Doctrine:UnitOfWork when an EntityObject will be ->remove(MyEntity)
+ * Use IdentifiableNullableTrait if needed
  */
 trait IdentifiableTrait
 {
