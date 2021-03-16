@@ -284,7 +284,11 @@ EOT;
                     $returnTypeGet = '\Doctrine\ORM\PersistentCollection';
                     $returnTypeSet = '\Doctrine\Common\Collections\ArrayCollection';
 
-                    // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
+                } else if (preg_match('/Collections\\\Collection/i', $prop->getDocComment())) {
+                    $returnTypeGet = '\Doctrine\Common\Collections\Collection';
+                    $returnTypeSet = '\Doctrine\Common\Collections\Collection';
+
+                // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
 
                 } else if (preg_match("/{$this->namespace}\\\Entity/i", $prop->getDocComment())) {
                     $returnTypeGet = "\\" . $returnType;
