@@ -7,7 +7,9 @@ namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 // Symfony
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ResponseEventResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 // Sindla
@@ -76,8 +78,14 @@ class OutputSubscriber implements EventSubscriberInterface
      */
     public function onKernelResponse(ResponseEvent $event)
     {
-        $pathInfo = $event->getRequest()->getPathInfo();
+        /** @var Request $request */
+        $request = $event->getRequest();
+
+        /** @var Response $response */
         $response = $event->getResponse();
+
+        $pathInfo  = $request->getPathInfo();
+        $routeName = $request->attributes->get('_route');
 
         if (
             '/admin/' != substr($pathInfo, 0, 7)
@@ -103,12 +111,17 @@ class OutputSubscriber implements EventSubscriberInterface
             }
         }
 
-        if (preg_match(self::PREG_DEV_PREFIX, $event->getRequest()->getHost()) || preg_match(self::PREG_DEV_SUFFIX, $event->getRequest()->getHost())) {
-            $response->headers->set('X-Robots-Tag', 'none');
+        // Protect against boots
+        if (
+            '/xhr' == substr($pathInfo, 0, 4)
+            || 'XHR' == substr($routeName, 0, 3)
+            || preg_match(self::PREG_DEV_PREFIX, $request->getHost())
+            || preg_match(self::PREG_DEV_SUFFIX, $request->getHost())
+        ) {
+            $response->headers->set('X-Robots-Tag', 'none'); // none - Equivalent to noindex, nofollow
         }
 
-        // TODO: can be 'text/html; charset=UTF-8
-        if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html'])) {
+        if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html', 'text/html; charset=UTF-8'])) {
             foreach ($this->headers['text/html'] as $header => $value) {
                 if ('Content-Security-Policy' == $header) {
                     // set CPS header on the response object
