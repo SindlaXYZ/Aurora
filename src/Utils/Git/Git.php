@@ -45,7 +45,7 @@ class Git
         });
     }
 
-    public function getHash(?string $branch)
+    public function getHash(?string $branch = null)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
@@ -76,7 +76,7 @@ class Git
         });
     }
 
-    public function getDate(?string $branch)
+    public function getDate(?string $branch = null)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
