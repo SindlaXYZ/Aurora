@@ -95,7 +95,6 @@ class UtilityExtension extends AbstractExtension
     public function getFunctions()
     {
         return [
-            new TwigFunction('gitBranch', [$this, 'getBranch']),
             new TwigFunction('build', [$this, 'getBuild']),
             new TwigFunction('buildDate', [$this, 'getBuildDate']),
 
@@ -226,12 +225,6 @@ class UtilityExtension extends AbstractExtension
             $html .= "<link rel='preload' href='{$asset['asset']}' as='{$asset['as']}' type='{$asset['type']}' " . (isset($asset['crossorigin']) && $asset['crossorigin'] ? 'crossorigin' : '') . " />";
         }
         echo $html;
-    }
-
-    public function getBranch()
-    {
-        $serviceGit = $this->container->get('aurora.git');
-        return $serviceGit->getBranch();
     }
 
     public function getBuild($limit = null)
