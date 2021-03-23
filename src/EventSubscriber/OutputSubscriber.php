@@ -114,7 +114,7 @@ class OutputSubscriber implements EventSubscriberInterface
         // Protect against boots
         if (
             '/xhr' == substr($pathInfo, 0, 4)
-            || 'XHR' == substr($routeName, 0, 3)
+            || ($routeName && 'XHR' == substr($routeName, 0, 3))
             || preg_match(self::PREG_DEV_PREFIX, $request->getHost())
             || preg_match(self::PREG_DEV_SUFFIX, $request->getHost())
         ) {
