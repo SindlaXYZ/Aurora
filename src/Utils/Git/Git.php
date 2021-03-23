@@ -45,11 +45,17 @@ class Git
         });
     }
 
-    public function getHash(string $branch = 'master')
+    public function getHash(?string $branch)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
             $item->expiresAfter(60 * 30);
+
+            if (!$branch) {
+                if (!$branch = $this->getBranch()) {
+                    $branch = 'master';
+                }
+            }
 
             $root = $this->container->getParameter('aurora.root');
 
@@ -70,13 +76,20 @@ class Git
         });
     }
 
-    public function getDate(string $branch = 'master')
+    public function getDate(?string $branch)
     {
         $cache = new FilesystemAdapter();
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
             $item->expiresAfter(60 * 30);
 
+            if (!$branch) {
+                if (!$branch = $this->getBranch()) {
+                    $branch = 'master';
+                }
+            }
+
             $root = $this->container->getParameter('aurora.root');
+
             if (is_dir($root . '/.git/')) {
                 if (file_exists($root . '/.git/logs/refs/heads/' . $branch)) {
                     $handle = fopen($root . '/.git/logs/refs/heads/' . $branch, 'r');
