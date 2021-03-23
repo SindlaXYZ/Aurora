@@ -9,7 +9,7 @@ class Strink
     /**
      * @return Strink
      */
-    public function string(string $string = NULL)
+    public function string(string $string = null)
     {
         $this->string = $string;
         return $this;
@@ -90,8 +90,8 @@ class Strink
     /**
      * Generate a random string
      *
-     * @param integer $length
-     * @param   multi-array  $keysToUse
+     * @param integer     $length
+     * @param multi-array $keysToUse
      *
      * @return Strink
      */
@@ -108,7 +108,7 @@ class Strink
 
         $password = '';
         $index    = 0;
-        while (TRUE) {
+        while (true) {
             if ($index > (count($keysToUse) - 1)) {
                 $index = 0;
             }
@@ -179,7 +179,7 @@ class Strink
      *
      * @return Strink
      */
-    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = FALSE): Strink
+    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): Strink
     {
         $this->string = strtolower($this->string);
 
@@ -201,7 +201,7 @@ class Strink
      *
      * @return Strink
      */
-    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = FALSE, bool $upperCaseAllLetter = FALSE): Strink
+    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = false, bool $upperCaseAllLetter = false): Strink
     {
         $this->string = strtolower($this->string);
 
@@ -361,7 +361,7 @@ class Strink
      * @return Strink
      * @docs    http://stackoverflow.com/questions/2955251/php-function-to-make-slug-url-string
      */
-    public function slugify(bool $keepUTF8Chars = FALSE): Strink
+    public function slugify(bool $keepUTF8Chars = false): Strink
     {
         /* Not used yet:
         preg_match_all('/[A-Z]/', $this->string, $match);
@@ -408,7 +408,7 @@ class Strink
     public function linesToArray(): array
     {
         $linesArray = [];
-        foreach(preg_split("/((\r?\n)|(\r\n?))/", $this->string) as $line) {
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", $this->string) as $line) {
             $linesArray[] = $line;
         }
 
