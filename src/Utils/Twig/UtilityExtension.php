@@ -466,6 +466,11 @@ class UtilityExtension extends AbstractExtension
                              * HightChart bug: `/(NaN| {2}|^$)/` will be replaced with `/(NaN|{2}|^$)/`
                              */
                             $assetContent = str_replace('| {', '\n{', $assetContent);
+
+                            /**
+                             * Unknown reason: a || b will be replaced with a|\nb (only if there are spaces around ||)
+                             */
+                            $assetContent = str_replace(' || ', '||', $assetContent);
                         }
 
                         $combineAndMinifyOutputContent .= ('css' == $assetType
