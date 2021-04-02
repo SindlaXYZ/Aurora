@@ -73,6 +73,20 @@ class ChronosTest extends KernelTestCase
                          'endDate'      => '2010-01-01 11:12:14',
                          'interval'     => 1,
                          'intervalUnit' => Chronos::TIME_UNIT_SECONDS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:12:14',
+                         'interval'     => 0,
+                         'intervalUnit' => Chronos::TIME_UNIT_SECONDS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:12:15',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_SECONDS,
                          'expected'     => true
                      ],
                      [
