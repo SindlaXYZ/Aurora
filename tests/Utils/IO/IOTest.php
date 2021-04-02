@@ -39,7 +39,7 @@ class IOTest extends KernelTestCase
         $IO = new IO();
 
         // Temporary file
-        $tmpFile = tempnam(sys_get_temp_dir());
+        $tmpFile = tempnam(sys_get_temp_dir(), 'aurora');
 
         $this->assertFalse($IO->fileIsOlderThan($tmpFile, 1, IO::TIME_UNIT_MINUTES));
         sleep(3);
