@@ -47,14 +47,12 @@ jobs:
                 run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache
 
             -   name: "Move symfony/website-skeleton"
+                run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
 #                run: |
-#                    mv -f ${{env.working-directory}}/website-skeleton/.[!.]\* ${{env.working-directory}}/
+#                    ls -a ${{env.working-directory}}/website-skeleton/
 #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-                run: |
-                    ls -a ${{env.working-directory}}/website-skeleton/
-                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
-                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
+#                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
+#                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
 
             #
             # Works, no longer need it
@@ -132,17 +130,23 @@ jobs:
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
 
-            -   name: "Test Utils/Chronos"
+            -   name: "Test /EventListener"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --debug --no-coverage
+
+            -   name: "Test /Utils/Chronos"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --debug --no-coverage
 
-            -   name: "Test Utils/Client"
+            -   name: "Test /Utils/Client"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --debug --no-coverage
 
-            -   name: "Test Utils/Match"
+            -   name: "Test /Utils/Match"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --debug --no-coverage
 
-            -   name: "Test Utils/Strink"
+            -   name: "Test /Utils/Strink"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --debug --no-coverage
+
+            -   name: "Test /Utils/Twig"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --debug --no-coverage
 
         #            -   name: "Run tests"
         #                #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
