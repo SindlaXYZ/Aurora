@@ -47,18 +47,16 @@ jobs:
                 run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache
 
             -   name: "Move symfony/website-skeleton"
-                run: mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
+                # Move * (including .dot files)
+                run: |
+                    ls -a ${{env.working-directory}}/website-skeleton/
+                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
+                # Move * and some .env files (if above command fails)
 #                run: |
 #                    ls -a ${{env.working-directory}}/website-skeleton/
 #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
 #                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
 #                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
-
-            #
-            # Works, no longer need it
-            #
-            #            -   name: "List"
-            #                run: ls -a ${{env.working-directory}}
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
