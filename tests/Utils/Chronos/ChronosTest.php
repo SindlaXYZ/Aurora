@@ -52,7 +52,7 @@ class ChronosTest extends KernelTestCase
                          'expected'  => -1
                      ],
                  ] as $test) {
-            $this->assertEquals($test['expected'], $Chronos->minutesBetweenTwoDates($test['startDate'], $test['endDate']));
+            $this->assertEquals($test['expected'], $Chronos->minutesBetweenTwoDates($test['startDate'], $test['endDate']), json_encode($test));
         }
     }
 
@@ -104,7 +104,7 @@ class ChronosTest extends KernelTestCase
                          'expected'     => true
                      ],
                  ] as $test) {
-            $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']));
+            $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']), json_encode($test));
         }
     }
 }
