@@ -15,7 +15,8 @@ env:
 
 jobs:
     build:
-        runs-on: ubuntu-latest
+        #runs-on: ubuntu-latest
+        runs-on: ubuntu-16.04
         strategy:
             fail-fast: false
             matrix:
@@ -37,6 +38,7 @@ jobs:
                 run: |
                     php --version
                     composer -V
+                    . /etc/os-release && echo $PRETTY_NAME
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
