@@ -51,7 +51,7 @@ jobs:
 #                run: |
 #                    shopt -s dotglob nullglob
 #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-            -   run: mv -f ${{env.working-directory}}/website-skeleton/*(DN) ${{env.working-directory}}/
+                run: mv -f ${{env.working-directory}}/website-skeleton/*(DN) ${{env.working-directory}}/
 
             #
             # Works, no longer need it
