@@ -50,6 +50,7 @@ jobs:
 #                    mv -f ${{env.working-directory}}/website-skeleton/.[!.]\* ${{env.working-directory}}/
 #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
                 run: |
+                    ls -a ${{env.working-directory}}/website-skeleton/
                     mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
                     mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
 
