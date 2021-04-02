@@ -55,4 +55,56 @@ class ChronosTest extends KernelTestCase
             $this->assertEquals($test['expected'], $Chronos->minutesBetweenTwoDates($test['startDate'], $test['endDate']));
         }
     }
+
+    public function testDiffIsHigherThan()
+    {
+        $Chronos = new Chronos();
+
+        foreach ([
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_SECONDS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:12:14',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_SECONDS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 12:12:13',
+                         'endDate'      => '2010-01-01 11:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_MINUTES,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_MINUTES,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:13:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_MINUTES,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 11:13:14',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_MINUTES,
+                         'expected'     => true
+                     ],
+                 ] as $test) {
+            $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']));
+        }
+    }
 }
