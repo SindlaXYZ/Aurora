@@ -46,13 +46,12 @@ jobs:
                 run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs --no-scripts
 
             -   name: "Move symfony/website-skeleton"
-                run: |
-                    mv -f ${{env.working-directory}}/website-skeleton/.[!.]\* ${{env.working-directory}}/
-                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
 #                run: |
-#                    shopt -s dotglob nullglob
+#                    mv -f ${{env.working-directory}}/website-skeleton/.[!.]\* ${{env.working-directory}}/
 #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-#                    mv -f ${{env.working-directory}}/website-skeleton/*.env ${{env.working-directory}}/
+                run: |
+                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
+                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
 
             #
             # Works, no longer need it
