@@ -117,6 +117,34 @@ class ChronosTest extends KernelTestCase
                          'intervalUnit' => Chronos::TIME_UNIT_MINUTES,
                          'expected'     => true
                      ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 12:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_HOURS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 12:12:14',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_HOURS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-07 11:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_WEEKS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-07 11:12:14',
+                         'interval'     => 1,
+                         'intervalUnit' => Chronos::TIME_UNIT_WEEKS,
+                         'expected'     => true
+                     ],
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']), json_encode($test));
         }
