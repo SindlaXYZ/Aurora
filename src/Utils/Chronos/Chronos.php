@@ -4,6 +4,14 @@ namespace Sindla\Bundle\AuroraBundle\Utils\Chronos;
 
 class Chronos
 {
+    const TIME_UNIT_SECONDS = 1;
+    const TIME_UNIT_MINUTES = 2;
+    const TIME_UNIT_HOURS   = 3;
+    const TIME_UNIT_DAYS    = 4;
+    const TIME_UNIT_WEEKS   = 5;
+    const TIME_UNIT_MONTHS  = 6;
+    const TIME_UNIT_YEARS   = 7;
+
     /**
      * Transform/parse a human date to machine date (Y-m-d)
      *    eg: 28.09.2013 (d.m.Y) => 2013-09-28
@@ -45,67 +53,219 @@ class Chronos
     }
 
     /**
+     * Return seconds number between two dates
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @return  integer
+     *
+     * @docs    https://stackoverflow.com/questions/1519228/get-interval-seconds-between-two-datetime-in-php
+     */
+    public function secondsBetweenTwoDates($startDate, $endDate): int
+    {
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
+        $interval = $startDate->diff($endDate);
+
+        // Timestamp limitations using dates before 1970 and beyond 2038
+        return ($interval->format('%r%a') * 24 * 60 * 60)
+            + $interval->h * 60 * 60
+            + $interval->i * 60
+            + $interval->s;
+    }
+
+    /**
+     * Check if difference between two dates is higher than ...
+     * 1 hours and 1 seconds is higher (return true) than 1 hours and 0 seconds
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @param int   $intervalUnit
+     * @param int   $timeUnit
+     * @return bool
+     */
+    public function diffIsHigherThan($startDate, $endDate, int $intervalUnit, int $timeUnit)
+    {
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
+        $interval = $startDate->diff($endDate);
+
+        // Seconds
+        if (self::TIME_UNIT_SECONDS == $timeUnit) {
+            return ($this->secondsBetweenTwoDates($startDate, $endDate) > $intervalUnit);
+        }
+
+        // Minutes
+        if (self::TIME_UNIT_MINUTES == $timeUnit) {
+            return (
+                $this->minutesBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                ||
+                ($this->minutesBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+
+        if (self::TIME_UNIT_HOURS == $timeUnit) {
+            return (
+                $this->hoursBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                ||
+                ($this->hoursBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+
+        if (self::TIME_UNIT_DAYS == $timeUnit) {
+            return (
+                $this->daysBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                ||
+                ($this->daysBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+
+        if (self::TIME_UNIT_WEEKS == $timeUnit) {
+            return (
+                ($this->daysBetweenTwoDates($startDate, $endDate) / 7) > $intervalUnit
+                ||
+                (($this->daysBetweenTwoDates($startDate, $endDate) / 7) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+
+        if (self::TIME_UNIT_MONTHS == $timeUnit) {
+            return (
+                $this->monthsBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                ||
+                ($this->monthsBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+
+        if (self::TIME_UNIT_YEARS == $timeUnit) {
+            return (
+                $this->yearsBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                ||
+                ($this->yearsBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+            );
+        }
+    }
+
+    /**
      * Return minutes number between two dates
      *
-     * @param date $startDate
-     * @param date $endDate
+     * @param mixed $startDate
+     * @param mixed $endDate
      * @return  integer
      *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
      */
     public function minutesBetweenTwoDates($startDate, $endDate): int
     {
-        $startDate = new \DateTime($startDate);
-        $endDate   = new \DateTime($endDate);
-        $interval  = $startDate->diff($endDate);
-        $hours     = $interval->format('%r%h');
-        $minutes   = $interval->format('%r%i');
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
+        $interval = $startDate->diff($endDate);
+        $hours    = $interval->format('%r%h');
+        $minutes  = $interval->format('%r%i');
 
         return (($hours * 60) + $minutes);
     }
 
     /**
+     * Return hours number between two dates
+     *
+     * @param mixed $startDate
+     * @param mixed $endDate
+     * @return  integer
+     *
+     * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
+     */
+    public function hoursBetweenTwoDates($startDate, $endDate): int
+    {
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
+        $interval = $startDate->diff($endDate);
+        return $interval->format('%r%h');
+    }
+
+    /**
      * Return days number between two dates
      *
-     * @param date $startDate
-     * @param date $endDate
+     * @param mixed $startDate
+     * @param mixed $endDate
      * @return  integer
      *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
      */
     public function daysBetweenTwoDates($startDate, $endDate): int
     {
-        $startDate = new \DateTime($startDate);
-        $endDate   = new \DateTime($endDate);
-        $interval  = $startDate->diff($endDate);
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
+        $interval = $startDate->diff($endDate);
         return $interval->format("%r%a");
     }
 
     /**
      * Return months number between two dates
      *
-     * @param date $startDate
-     * @param date $endDate
+     * @param mixed $startDate
+     * @param mixed $endDate
      * @return  integer
      */
     public function monthsBetweenTwoDates($startDate, $endDate): int
     {
-        $startDate = new \DateTime($startDate);
-        $endDate   = new \DateTime($endDate);
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
         return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
     }
 
     /**
      * Return years number between two dates
      *
-     * @param date $startDate
-     * @param date $endDate
+     * @param mixed $startDate
+     * @param mixed $endDate
      * @return  integer
      */
     public function yearsBetweenTwoDates($startDate, $endDate): int
     {
-        $startDate = new \DateTime($startDate);
-        $endDate   = new \DateTime($endDate);
+        if (!($startDate instanceof \DateTime)) {
+            $startDate = new \DateTime($startDate);
+        }
+
+        if (!($endDate instanceof \DateTime)) {
+            $endDate = new \DateTime($endDate);
+        }
+
         return $startDate->diff($endDate)->y;
     }
 
@@ -124,7 +284,7 @@ class Chronos
         $h = str_pad($h, 2, '0', STR_PAD_LEFT);
         $s = str_pad($s, 2, '0', STR_PAD_LEFT);
 
-        if('00' == $h && $cutHourIfZero) {
+        if ('00' == $h && $cutHourIfZero) {
             return $m . ':' . $s;
         } else {
             return $h . ':' . $m . ':' . $s;
