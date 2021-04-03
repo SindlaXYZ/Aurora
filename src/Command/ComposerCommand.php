@@ -262,7 +262,7 @@ class ComposerCommand extends Command
         $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
         $auroraTmpDir  = $this->container->getParameter('aurora.tmp'); // %kernel.project_dir%/var/tmp
 
-        // Can be: /tmp/domain.tld/var/cache/dev/aurora/
+        // Can be: /tmp/domain.tld/public/static/compiled/ or /srv/domain.tld/public/static/compiled/
         $auroraCacheDirs = [
             preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')),
             preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'))
@@ -276,6 +276,7 @@ class ComposerCommand extends Command
                 $IOService = $this->container->get('aurora.io');
 
                 foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
+                    // TODO: delete only files older than 1 month
                     $IOService->recursiveDelete($directory, FALSE);
                 }
             }
