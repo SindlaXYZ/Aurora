@@ -67,7 +67,7 @@ class WebTestCaseMiddleware extends WebTestCase
 
     public function progressAdvance()
     {
-        if(1 == $this->progressIndex) {
+        if (1 == $this->progressIndex) {
             fwrite(STDERR, "\nRun {$this->getName()}() tests ...\n");
         }
 
@@ -85,15 +85,54 @@ class WebTestCaseMiddleware extends WebTestCase
         $this->progressIndex = $this->progressIndex + 1;
     }
 
+    /**
+     * Command-line PHP Output colors
+     *
+     * https://joshtronic.com/2013/09/02/how-to-use-colors-in-command-line-output/
+     *
+     * Dev: php -r 'echo "\e[0;30;43mThis is a test message\e[0m\n";'
+     *
+     * ==Foreground Colors==
+     * Black            0;30
+     * Dark Grey        1;30
+     * Red              0;31
+     * Light Red        1;31
+     * Green            0;32
+     * Light Green      1;32
+     * Brown            0;33
+     * Yellow           1;33
+     * Blue             0;34
+     * Light Blue       1;34
+     * Magenta          0;35
+     * Light Magenta    1;35
+     * Cyan             0;36
+     * Light Cyan       1;36
+     * Light Grey       0;37
+     * White            1;37
+     *
+     * ==Background Colors==
+     * Black        40
+     * Red          41
+     * Green        42
+     * Yellow       43
+     * Blue         44
+     * Magenta      45
+     * Cyan         46
+     * Light Grey   47
+     */
+
     public function success($message)
     {
-        // https://joshtronic.com/2013/09/02/how-to-use-colors-in-command-line-output/
-        return "\e[0;31;42m{$message}\e[0m\n";
+        return "\e[0;30;42m{$message}\e[0m\n"; // black in green bg
     }
 
-    public function error($message)
+    public function warning($message)
     {
-        // https://joshtronic.com/2013/09/02/how-to-use-colors-in-command-line-output/
-        return $this->fail("\e[1;37;41m{$message}\e[0m\n");
+        return "\e[0;30;43m{$message}\e[0m\n"; // black in yellow bg
+    }
+
+    public function error($message, $fail = false)
+    {
+        return (($fail) ? $this->fail("\e[1;37;41m{$message}\e[0m\n") : "\e[1;37;41m{$message}\e[0m\n"); // white on red bg
     }
 }
