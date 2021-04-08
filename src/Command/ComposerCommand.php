@@ -10,8 +10,8 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
 // Custom
@@ -259,25 +259,41 @@ class ComposerCommand extends Command
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Static compiled JS & CSS files
 
-        $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
-        $auroraTmpDir  = $this->container->getParameter('aurora.tmp'); // %kernel.project_dir%/var/tmp
+        if(false) {
+            $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
+            $auroraTmpDir  = $this->container->getParameter('aurora.tmp');  // %kernel.project_dir%/var/tmp
 
-        // Can be: /tmp/domain.tld/public/static/compiled/ or /srv/domain.tld/public/static/compiled/
-        $auroraCacheDirs = [
-            preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')),
-            preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'))
-        ];
+            // Can be: /tmp/domain.tld/public/static/compiled/ or /srv/domain.tld/public/static/compiled/
+            $auroraCacheDirs = [
+                preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')),
+                preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'))
+            ];
 
-        foreach ($auroraCacheDirs as $auroraCacheDir) {
-            if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, TRUE)) {
-                throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
-            } else {
-                /** @var IO $IOService */
-                $IOService = $this->container->get('aurora.io');
+            foreach ($auroraCacheDirs as $auroraCacheDir) {
+                if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, true)) {
+                    throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
+                } else {
+                    /** @var IO $IOService */
+                    $IOService = $this->container->get('aurora.io');
 
-                foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
-                    // TODO: delete only files older than 1 month
-                    $IOService->recursiveDelete($directory, FALSE);
+                    foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
+                        $IOService->recursiveDelete($directory, false);
+                    }
+                }
+            }
+        }
+
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Static compiled JS & CSS files (v2)
+
+        $compiledDir = $this->container->getParameter('aurora.root') . '/public/static/compiled';
+
+        if ($files = glob("{$compiledDir}/*.{css,js}", GLOB_BRACE)) {
+            /** @var IO $IOService */
+            $IOService = $this->container->get('aurora.io');
+            foreach ($files as $file) {
+                if ($IOService->fileIsOlderThan($file, 30, IO::TIME_UNIT_DAYS)) {
+                    unlink($file);
                 }
             }
         }
