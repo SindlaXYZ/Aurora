@@ -7,7 +7,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 // Vendor
-use Sindla\Bundle\AuroraBundle\Utils\Match\AuroraMatch;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use MatthiasMullie\Minify;
 
 /**
