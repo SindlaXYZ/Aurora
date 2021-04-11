@@ -120,7 +120,7 @@ class Client
      */
     public function isSSL(): bool
     {
-        if (preg_AuroraMatch('/https/i', $this->protocol())) {
+        if (preg_match('/https/i', $this->protocol())) {
             return true;
         } else {
             return false;
