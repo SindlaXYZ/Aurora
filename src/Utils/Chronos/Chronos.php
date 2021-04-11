@@ -44,12 +44,16 @@ class Chronos
      * Transform/parse a machine date to human date
      *    eg: 01.09.2013 => 2013-09-01
      *
-     * @param type $datetime
+     * @param mixed $datetime
      */
-    public function dateToHuman($datetime = null, $humanFormat)
+    public function dateToHuman($date, $humanFormat)
     {
-        $parsedDate = date_parse_from_format($humanFormat, $datetime);
-        return date($humanFormat, strtotime($datetime));
+        if (!($date instanceof \DateTime)) {
+            $date = new \DateTime($date);
+        }
+
+        $parsedDate = date_parse_from_format($humanFormat, $date->format('Y-m-d H:i:s'));
+        return date($humanFormat, $date->getTimestamp());
     }
 
     /**
