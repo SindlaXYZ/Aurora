@@ -149,4 +149,29 @@ class ChronosTest extends KernelTestCase
             $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']), json_encode($test));
         }
     }
+
+    public function testDateToHuman()
+    {
+        $Chronos = new Chronos();
+
+        foreach ([
+                     [
+                         'date'        => '2010-01-01 11:12:13',
+                         'humanFormat' => 'Y-m-d',
+                         'expected'    => '2010-01-01'
+                     ],
+                     [
+                         'date'        => '2010-12-01 11:12:13',
+                         'humanFormat' => 'd/m/Y',
+                         'expected'    => '01/12/2010'
+                     ],
+                     [
+                         'date'        => '2010-12-01 11:12:13',
+                         'humanFormat' => 'd/m/Y H:i',
+                         'expected'    => '01/12/2010 11:12'
+                     ],
+                 ] as $test) {
+            $this->assertEquals($test['expected'], $Chronos->dateToHuman($test['date'], $test['humanFormat']), json_encode($test));
+        }
+    }
 }
