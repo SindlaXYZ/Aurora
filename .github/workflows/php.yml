@@ -21,15 +21,15 @@ jobs:
             matrix:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04]
                 operating-system: [ubuntu-16.04]
-                php-versions: ['7.4']
+                php-versions: ['7.3', '7.4', '8.0']
+        name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
             -   uses: actions/checkout@v2
 
             -   name: "Install PHP with extensions"
                 uses: shivammathur/setup-php@v2
                 with:
-                    #php-version: ${{ matrix.php-version }}
-                    php-version: '7.4'
+                    php-version: ${{ matrix.php-versions }}
                     coverage: "none"
                     extensions: intl
 
