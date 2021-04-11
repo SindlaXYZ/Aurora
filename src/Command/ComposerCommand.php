@@ -15,7 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
 // Custom
-use Sindla\Bundle\AuroraBundle\Service\IO\IO;
+use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
 class ComposerCommand extends Command
 {
