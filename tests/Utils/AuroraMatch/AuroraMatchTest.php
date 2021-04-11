@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Match;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraMatch;
 
 // PHPUnit
 use PHPUnit\Framework\TestCase;

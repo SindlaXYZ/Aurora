@@ -128,7 +128,7 @@ services:
         public: true
 
     aurora.match:
-        class: Sindla\Bundle\AuroraBundle\Utils\Match\Match
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
         autowire: true
         autoconfigure: true
         public: true
