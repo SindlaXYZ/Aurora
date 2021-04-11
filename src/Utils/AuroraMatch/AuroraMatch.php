@@ -1,17 +1,9 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Match;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraMatch;
 
-/**
- * @deprecated Match is a reserved key in PHP 8. Use AuroraMatch instead.
- */
-class Match
+class AuroraMatch
 {
-    public function __construct()
-    {
-        trigger_error('Match is a reserved key in PHP 8. Use AuroraMatch instead.', E_USER_DEPRECATED);
-    }
-
     /**
      * @param string $needle
      * @param string $domain

@@ -6,10 +6,14 @@ aurora.controller.test:
 
 aurora.controller.blackhole:
     controller: 'aurora.controller.blackhole::blackHole'
+    requirements:
+        anything: '.+'
     path:
+        - '/wordpress/{anything}'
+        - '/wp/{anything}'
         - '/.info.php'
+        - '/xmlrp.php'
         - '/js/cms/panel/panel.js'
-        - '/wordpress/'
         - '/(wp|wordpress|blog)/wp-login.php'
         - '/(test|wordpress|blog)/wp-admin/'
         - '/wp-content/plugins/mm-plugin/inc/vendors/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'

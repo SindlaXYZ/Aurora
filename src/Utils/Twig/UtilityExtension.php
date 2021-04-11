@@ -3,7 +3,6 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 // Symfony
-use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;

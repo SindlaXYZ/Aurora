@@ -9,12 +9,12 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // Sindla
-use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
  */
-class MatchTest extends KernelTestCase
+class AuroraMatchTest extends KernelTestCase
 {
     private $kernelTest;
     private $containerTest;
@@ -173,7 +173,7 @@ class MatchTest extends KernelTestCase
 
     public function testMatchDomain()
     {
-        $Match = new Match();
+        $Match = new AuroraMatch();
 
         foreach ($this->_matchDomain() as $assertion) {
             if ($assertion['expected']) {
@@ -186,7 +186,7 @@ class MatchTest extends KernelTestCase
 
     public function testMatchAtLeastOneDomain()
     {
-        $Match = new Match();
+        $Match = new AuroraMatch();
 
         # true
         $this->assertTrue($Match->matchAtLeastOneDomain('sindla.com', ['sindla.com', 'sindla.ro']));
@@ -226,7 +226,7 @@ body {
   font-weight: normal;
   font-style: normal;
 }';
-        $Match   = new Match();
+        $Match   = new AuroraMatch();
         $matches = $Match->matchCssUrls($css);
 
         $this->assertEmpty($matches[0]);
@@ -235,7 +235,7 @@ body {
 
     public function  testPasswordStrength()
     {
-        $Match = new Match();
+        $Match = new AuroraMatch();
 
         $this->assertFalse($Match->passwordStrength(''));
         $this->assertFalse($Match->passwordStrength(' '));

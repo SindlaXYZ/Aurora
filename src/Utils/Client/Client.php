@@ -10,7 +10,7 @@ use Symfony\Component\HttpFoundation\Request;
 use GeoIp2\Database\Reader;
 
 // Sindla
-use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
  * Class Client
@@ -120,7 +120,7 @@ class Client
      */
     public function isSSL(): bool
     {
-        if (preg_match('/https/i', $this->protocol())) {
+        if (preg_AuroraMatch('/https/i', $this->protocol())) {
             return true;
         } else {
             return false;
@@ -227,10 +227,10 @@ class Client
 
         $hostname = gethostbyaddr(trim($IP));
 
-        /** @var Match $Match */
-        $Match = new Match();
+        /** @var AuroraMatch $AuroraMatch */
+        $AuroraMatch = new AuroraMatch();
 
-        return $Match->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com']);
+        return $AuroraMatch->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com']);
     }
 
     /**
@@ -249,9 +249,9 @@ class Client
 
         $hostname = gethostbyaddr(trim($IP));
 
-        /** @var Match $Match */
-        $Match = new Match();
+        /** @var AuroraMatch $AuroraMatch */
+        $AuroraMatch = new AuroraMatch();
 
-        return $Match->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com']);
+        return $AuroraMatch->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com']);
     }
 }

@@ -2,11 +2,12 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Sanitizer;
 
-use Sindla\Bundle\AuroraBundle\Utils\Match\Match;
+// Symfony
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-// Minify
+// Vendor
+use Sindla\Bundle\AuroraBundle\Utils\Match\AuroraMatch;
 use MatthiasMullie\Minify;
 
 /**
@@ -64,7 +65,7 @@ class Sanitizer
 
         $css      = $this->cssClearComments($css);
         $minifier = new Minify\CSS();
-        $Match    = new Match();
+        $AuroraMatch    = new AuroraMatch();
 
         // TODO: parse line by line
 
@@ -85,7 +86,7 @@ class Sanitizer
             /* Version 2 */
             $cssLineByLine = '';
             foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
-                $matches = $Match->matchCssUrls($line);
+                $matches = $AuroraMatch->matchCssUrls($line);
 
                 if (isset($matches[0]) & !empty($matches[0])) {
                     foreach ($matches[0] as $urlToImport) {
