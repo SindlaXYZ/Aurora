@@ -239,11 +239,10 @@ trait BaseRepository
     }
 
     /**
-     * @param array     $filters
-     * @param Container $container
+     * @param array $filters
      * @return QueryBuilder
      */
-    public function findAllQueryBuilder(array $filters = [], Container $container)
+    public function findAllQueryBuilder(array $filters = [])
     {
         if (count($filters) == 0) {
             $queryBuilder = $this->createQueryBuilder('alias');
