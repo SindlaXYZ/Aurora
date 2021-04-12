@@ -13,9 +13,9 @@ use Symfony\Component\HttpFoundation\Response;
 use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Controller/BlackholeControllerTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --no-coverage
  */
-class BlackholeControllerTest extends WebTestCaseMiddleware
+class BlackHoleControllerTest extends WebTestCaseMiddleware
 {
     protected function setUp(): void
     {

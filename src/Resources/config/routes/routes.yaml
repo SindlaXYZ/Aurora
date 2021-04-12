@@ -9,6 +9,7 @@ aurora.controller.blackhole:
     requirements:
         anything: '.+'
     path:
+        # Wordpress
         - '/wordpress/{anything}'
         - '/wp/{anything}'
         - '/wp-login.php'
@@ -21,18 +22,26 @@ aurora.controller.blackhole:
         - '/{anything}/wp-register.php'
         - '/wp-info.php'
         - '/{anything}/wp-info.php'
+        # eval-stdin.php
         - '/eval-stdin.php'
         - '/{anything}/eval-stdin.php'
+        # upload.php & uploadify.php
         - '/upload.php'
         - '/{anything}/upload.php'
-        - '/.info.php'
-        - '/xmlrp.php'
-        - '/js/cms/panel/panel.js'
+        - '/uploadify.php'
+        - '/{anything}/uploadify.php'
+        # xmlrpc.php & xmlrp.php
         - '/xmlrpc.php'
-        - '/web/xmlrpc.php'
-        - '/vendor/phpunit/phpunit/phpunit.xsd'
-        - '/lib/phpunit/'
-        - '/phpunit/'
+        - '/{anything}/xmlrpc.php'
+        - '/xmlrp.php'
+        - '/{anything}/xmlrp.php'
+        # PHPUnit
+        - '/phpunit/{anything}'
+        - '/{anything}/phpunit/'
+        - '/{anything}/phpunit/{anything}'
+        # Others
+        - '/.info.php'
+        - '/js/cms/panel/panel.js'
         - '/(admin|administrator|root)/index.php'
         - '/admin/ckfinder/'
         - '/FCKeditor/fckconfig.js'
@@ -54,7 +63,6 @@ aurora.controller.blackhole:
         - '/mysql/'
         - '/(phpMyAdmin|myadmin|pma)/'
         - '/(data/admin|data|admin)/allowurl.txt'
-        - '/(assets|files)/uploadify/uploadify.php'
         - '/config/database.yml'
         - '/rss'
         - '/feed'
