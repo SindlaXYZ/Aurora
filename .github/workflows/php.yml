@@ -104,7 +104,9 @@ jobs:
                 working-directory: ${{env.working-directory}}
 
             -   name: "Overwrite sindla/aurora"
-                run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
+                run: |
+                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
+                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
 
             #
             # Works, no longer need it
