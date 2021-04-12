@@ -9,36 +9,36 @@ aurora.controller.blackhole:
     requirements:
         anything: '.+'
     path:
+        # Wordpress
         - '/wordpress/{anything}'
         - '/wp/{anything}'
+        - '/wp-login.php'
+        - '/{anything}/wp-login.php'
+        - '/wp-admin/{anything}'
+        - '/{anything}/wp-admin/'
+        - '/wp-content/{anything}'
+        - '/wp-includes/{anything}'
+        - '/wp-register.php'
+        - '/{anything}/wp-register.php'
+        - '/wp-info.php'
+        - '/{anything}/wp-info.php'
+
+        - '/eval-stdin.php'
+        - '/{anything}/eval-stdin.php'
+
+        - '/upload.php'
+        - '/{anything}/upload.php'
+
         - '/.info.php'
         - '/xmlrp.php'
         - '/js/cms/panel/panel.js'
-        - '/(wp|wordpress|blog)/wp-login.php'
-        - '/(test|wordpress|blog)/wp-admin/'
-        - '/wp-content/plugins/mm-plugin/inc/vendors/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/wp-content/plugins/jekyll-exporter/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/wp-content/plugins/theme-configurator/mini.php'
-        - '/sites/all/libraries/mailchimp/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/laravel/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/modules/ps_facetedsearch/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/api/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/modules/autoupgrade/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/vendor/phpunit/phpunit/src/Util/PHP/eval-stdin.php'
-        - '/wp-login.php'
-        - '/wp-admin/admin-ajax.php'
-        - '/wp-register.php'
-        - '/wp-info.php'
-        - '/wp-content/themes/404.php'
-        - '/wp-content/plugins/estatik/readme.txt'
-        - '/fckeditor/editor/filemanager/connectors/php/upload.php'
-        - '/(js/kcfinder|admin/js/kcfinder|assets/plugin/kcfinder|vendor/kcfinder|ckeditor/plugins/kcfinder|admin/editor/kcfinder|admin/kcfinder|assets/kcfinder)/upload.php'
+
+
         - '/xmlrpc.php'
         - '/web/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
         - '/lib/phpunit/'
         - '/phpunit/'
-        - '/wp-includes/wlwmanifest.xml'
         - '/(admin|administrator|root)/index.php'
         - '/admin/ckfinder/'
         - '/FCKeditor/fckconfig.js'
@@ -60,9 +60,11 @@ aurora.controller.blackhole:
         - '/mysql/'
         - '/(phpMyAdmin|myadmin|pma)/'
         - '/(data/admin|data|admin)/allowurl.txt'
-        - '/infusions/mp3player_panel/upload.php'
         - '/(assets|files)/uploadify/uploadify.php'
         - '/config/database.yml'
+        - '/rss'
+        - '/feed'
+        - '/feeds'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa::progressiveWebApplication'
@@ -85,6 +87,7 @@ aurora.controller.pwa.favicon:
         - '/IEconfig.xml'
         - '/pwa-main.js'
         - '/pwa-sw.js'
+        - '/sw.js'
 
 aurora.controller.pwa.offline:
     controller: 'aurora.controller.pwa::offline'

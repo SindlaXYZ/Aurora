@@ -42,7 +42,7 @@ class PWAController extends AbstractController
                 return $PWA->mainJS($Request);
 
             } // Service Worker JS
-            else if (in_array($Request->getRequestUri(), ['pwa-sw.js', '/pwa-sw.js'])) {
+            else if (in_array($Request->getRequestUri(), ['sw.js', '/sw.js', 'pwa-sw.js', '/pwa-sw.js'])) {
                 $item->expiresAfter(0);
                 return $PWA->serviceWorkerJS($Request);
 
