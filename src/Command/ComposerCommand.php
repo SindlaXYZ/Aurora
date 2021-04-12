@@ -14,7 +14,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
 
-// Custom
+// Vendor
 use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
 class ComposerCommand extends Command
