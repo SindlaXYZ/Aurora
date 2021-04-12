@@ -38,7 +38,6 @@ aurora.controller.blackhole:
         # PHPUnit
         - '/phpunit/{anything}'
         - '/{anything}/phpunit/'
-        - '/{anything}/phpunit/'
         # Others
         - '/.info.php'
         - '/js/cms/panel/panel.js'
