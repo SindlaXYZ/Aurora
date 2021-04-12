@@ -9,7 +9,6 @@ aurora.controller.blackhole:
     requirements:
         anything: '.+'
     path:
-        # Wordpress
         - '/wordpress/{anything}'
         - '/wp/{anything}'
         - '/wp-login.php'
@@ -22,18 +21,13 @@ aurora.controller.blackhole:
         - '/{anything}/wp-register.php'
         - '/wp-info.php'
         - '/{anything}/wp-info.php'
-
         - '/eval-stdin.php'
         - '/{anything}/eval-stdin.php'
-
         - '/upload.php'
         - '/{anything}/upload.php'
-
         - '/.info.php'
         - '/xmlrp.php'
         - '/js/cms/panel/panel.js'
-
-
         - '/xmlrpc.php'
         - '/web/xmlrpc.php'
         - '/vendor/phpunit/phpunit/phpunit.xsd'
