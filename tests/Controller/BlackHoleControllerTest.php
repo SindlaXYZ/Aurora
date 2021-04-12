@@ -30,7 +30,7 @@ class BlackHoleControllerTest extends WebTestCaseMiddleware
 
     public function testBlackholeRoutes()
     {
-        $this->client->request('GET', '/wordpress/');
+        $this->client->request('GET', '/.env');
         $this->assertEquals(Response::HTTP_PERMANENTLY_REDIRECT, $this->client->getResponse()->getStatusCode());
     }
 }
