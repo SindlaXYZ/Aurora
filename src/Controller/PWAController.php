@@ -4,15 +4,15 @@ namespace Sindla\Bundle\AuroraBundle\Controller;
 
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 // Sindla
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use Symfony\Contracts\Cache\ItemInterface;
 
 class PWAController extends AbstractController
 {
@@ -23,7 +23,8 @@ class PWAController extends AbstractController
     {
         //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
 
-        $cache = new FilesystemAdapter();
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
             /** @var PWA $PWA */
             $PWA = $this->get('aurora.pwa');

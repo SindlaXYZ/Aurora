@@ -2,9 +2,9 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Git;
 
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\DependencyInjection\Container;
 
 /**
  * Debug: php bin/console debug:container aurora.git
@@ -24,10 +24,9 @@ class Git
 
     public function getBranch()
     {
-        $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) {
-            $item->expiresAfter(60 * 30);
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
 
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
             $root = $this->container->getParameter('aurora.root');
             $this->container->getParameter('aurora.root');
 
@@ -47,10 +46,9 @@ class Git
 
     public function getHash(?string $branch = null)
     {
-        $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
-            $item->expiresAfter(60 * 30);
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
 
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
             if (!$branch) {
                 if (!$branch = $this->getBranch()) {
                     $branch = 'master';
@@ -78,9 +76,9 @@ class Git
 
     public function getDate(?string $branch = null)
     {
-        $cache = new FilesystemAdapter();
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__), function (ItemInterface $item) use ($branch) {
-            $item->expiresAfter(60 * 30);
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
 
             if (!$branch) {
                 if (!$branch = $this->getBranch()) {
