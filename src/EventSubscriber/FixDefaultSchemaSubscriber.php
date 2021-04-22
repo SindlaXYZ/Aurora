@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
 // Symfony
-use Doctrine\Common\EventSubscriber;
 
 // Doctrine
+use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
