@@ -41,7 +41,7 @@ class LocaleSubscriber implements EventSubscriberInterface
         /** @var Container Container */
         $this->container = $container;
 
-        $this->twig      = $twig;
+        $this->twig = $twig;
     }
 
     public static function getSubscribedEvents(): array
@@ -85,11 +85,34 @@ class LocaleSubscriber implements EventSubscriberInterface
         $request = $event->getRequest();
 
         $domainParts = explode(".", $request->getHost());
-        $domainTLD   = '.'. end($domainParts);  // .tld
+        $domainTLD   = '.' . end($domainParts);  // .tld
 
         $set = false;
         foreach ($tldMaps as $TLD => $locale) {
             if (strtolower($domainTLD) == strtolower($TLD)) {
+                $this->setLocale($locale, $request);
+                $set = true;
+            }
+        }
+
+        if (!$set) {
+            $this->setLocale($this->container->getParameter('aurora.locale'), $request);
+        }
+    }
+
+    /**
+     * setLocaleByMatch($event, ['/\.com$/i' => 'en', '/\.com\.localhost$/i' => 'en', '/\.ro/i' => 'ro']);
+     *
+     * @param RequestEvent $event
+     * @param array        $tldMatches
+     */
+    protected function setLocaleByMatch(RequestEvent $event, array $tldMatches)
+    {
+        $request = $event->getRequest();
+
+        $set = false;
+        foreach ($tldMatches as $match => $locale) {
+            if(preg_match($match, $request->getHost())) {
                 $this->setLocale($locale, $request);
                 $set = true;
             }
