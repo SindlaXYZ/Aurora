@@ -20,7 +20,6 @@
         "ext-json": "*",
         "ext-mbstring": "*",
         "ext-openssl": "*",
-        "ext-pdo_pgsql": "*",
         "ext-pcre": "*",
         "ext-session": "*",
         "ext-simplexml": "*",
