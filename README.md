@@ -1,10 +1,12 @@
-[![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2)
-[![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases)
+| Versoion | Unit testing | Latest Version |
+| --- | --- | --- |
+| 5.2 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-blue)](https://github.com/SindlaXYZ/Aurora/tree/5.2) |
+| 5.3 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases) |
 
 # Install
 
 #### Composer
-`composer require sindla/aurora:5.2.*`
+`composer require sindla/aurora:5.3.*`
 
 
 #### `config/packages/aurora.yaml`:
