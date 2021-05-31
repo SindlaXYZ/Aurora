@@ -3,14 +3,14 @@ name: PHPUnit
 
 on:
     push:
-        branches: ["5.3"]
+        branches: ["5.2"]
     pull_request:
-        branches: ["5.3"]
+        branches: ["5.2"]
 
 env:
     fail-fast: true
     PHPUNIT_FLAGS: "--verbose --debug"
-    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1
+    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.3"
     working-directory: /home/runner/work/aurora
@@ -47,8 +47,8 @@ jobs:
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
             -   name: "Create project symfony/website-skeleton"
-                #                run: composer create-project symfony/website-skeleton:5.3.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
-                run: composer create-project symfony/website-skeleton:5.3.* ${{env.working-directory}}/website-skeleton --no-cache
+                #                run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
+                run: composer create-project symfony/website-skeleton:5.2.* ${{env.working-directory}}/website-skeleton --no-cache
 
             # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
             -   name: "Move symfony/website-skeleton"
