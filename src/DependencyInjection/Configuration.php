@@ -16,10 +16,10 @@ class Configuration implements ConfigurationInterface
 {
     public function getConfigTreeBuilder()
     {
-        /*
         $treeBuilder = new TreeBuilder('aurora');
-        $rootNode    = $treeBuilder->getRootNode();
 
+        /*
+        $rootNode    = $treeBuilder->getRootNode();
         $rootNode
             ->children()
                 ->scalarNode('bundle')->isRequired()->cannotBeEmpty()->defaultValue('App')->end()
@@ -43,8 +43,8 @@ class Configuration implements ConfigurationInterface
                     ->end()
                 ->end()
             ->end();
+        */
 
         return $treeBuilder;
-        */
     }
 }
