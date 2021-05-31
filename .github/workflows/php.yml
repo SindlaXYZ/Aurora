@@ -9,7 +9,7 @@ on:
 
 env:
     fail-fast: true
-    PHPUNIT_FLAGS: "-v"
+    PHPUNIT_FLAGS: "--verbose --debug"
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.3"
