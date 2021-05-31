@@ -127,6 +127,11 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
+            -   name: "PHPUnit check 1/2"
+                run: |
+                    echo ::set-env name=SED_STRICT_TYPES::$(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit)
+                    echo "${{ env.SED_STRICT_TYPES }}"
+
             -   name: "PHPUnit"
                 run: |
                     cat ${{env.working-directory}}/bin/phpunit
