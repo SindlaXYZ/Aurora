@@ -46,7 +46,7 @@ jobs:
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
             -   name: "Create project symfony/website-skeleton"
-#                run: composer create-project symfony/website-skeleton:5.3.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
+                #                run: composer create-project symfony/website-skeleton:5.3.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
                 run: composer create-project symfony/website-skeleton:5.3.* ${{env.working-directory}}/website-skeleton --no-cache
 
             # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
@@ -56,11 +56,11 @@ jobs:
                     ls -a ${{env.working-directory}}/website-skeleton/
                     mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
                 # Move * and some .env files (if above command fails)
-#                run: |
-#                    ls -a ${{env.working-directory}}/website-skeleton/
-#                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-#                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
-#                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
+            #                run: |
+            #                    ls -a ${{env.working-directory}}/website-skeleton/
+            #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
+            #                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
+            #                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
@@ -93,8 +93,8 @@ jobs:
             #                    restore-keys: |
             #                        ${{ runner.os }}-php-
 
-#            -   name: "Composer update"s
-#                run: composer update
+            #            -   name: "Composer update"s
+            #                run: composer update
 
             -   name: "Install dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
@@ -129,17 +129,17 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
-#            -   name: "PHPUnit check 1/2"
-#                run: |
-#                    echo ::set-env name=SED_STRICT_TYPES::$(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit)
-#                    echo "${{ env.FOO }}"
-#
-#            -   name: "PHPUnit check 2/2"
-#                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit
-#                if: ${{ env.SED_STRICT_TYPES }}
-#
-#            -   name: "PHPUnit check 2/2"
-#                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
+            #            -   name: "PHPUnit check 1/2"
+            #                run: |
+            #                    echo ::set-env name=SED_STRICT_TYPES::$(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit)
+            #                    echo "${{ env.FOO }}"
+            #
+            #            -   name: "PHPUnit check 2/2"
+            #                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit
+            #                if: ${{ env.SED_STRICT_TYPES }}
+            #
+            #            -   name: "PHPUnit check 2/2"
+            #                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
 
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
@@ -147,8 +147,8 @@ jobs:
             -   name: "Test /Command"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --debug --no-coverage
 
-#            -   name: "Test /Controller/Blackhole"
-#                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
+            #            -   name: "Test /Controller/Blackhole"
+            #                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
 
             -   name: "Test /EventListener"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --debug --no-coverage
