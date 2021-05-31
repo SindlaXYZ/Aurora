@@ -140,8 +140,11 @@ jobs:
                     echo "${{ env.SED_STRICT_TYPES_FOUND }}"
 
             -   name: "PHPUnit check 2/2"
-                if: ${{ env.SED_STRICT_TYPES_FOUND == '0' || env.SED_STRICT_TYPES_FOUND == 0 }}
-                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
+                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+
+            -   name: "PHPUnit"
+                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
 
             -   name: "PHPUnit"
                 run: |
