@@ -131,7 +131,7 @@ jobs:
 
             -   name: "PHPUnit"
                 run: |
-                    if ! grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit; then sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit; fi;
+                    if ! grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit; then sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit; fi
                     /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
 
             -   name: "Test RequirementsTest"
