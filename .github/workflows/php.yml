@@ -127,6 +127,9 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
+            -   name: "test 1"
+                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+
             -   name: "PHPUnit check 1/2"
                 run: |
                     echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
