@@ -129,7 +129,9 @@ jobs:
 
             -   name: "PHPUnit check 1/2"
                 run: |
-                    echo ::set-env name=SED_STRICT_TYPES::$(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit)
+                    echo 'SED_STRICT_TYPES<<EOF' >> $GITHUB_ENV
+                    $(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit) >> $GITHUB_ENV
+                    echo 'EOF' >> $GITHUB_ENV
                     echo "${{ env.SED_STRICT_TYPES }}"
 
             -   name: "PHPUnit"
