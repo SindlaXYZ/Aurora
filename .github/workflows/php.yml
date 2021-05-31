@@ -1,3 +1,4 @@
+
 name: PHPUnit
 
 on:
@@ -26,7 +27,6 @@ jobs:
                 php-versions: ['7.4', '8.0']
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
-            -   name: "Pull the code"
             -   uses: actions/checkout@v2
 
             -   name: "Install PHP with extensions"
@@ -41,7 +41,6 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/website-skeleton
 
@@ -111,7 +110,6 @@ jobs:
                     cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
                     mkdir -p ${{env.working-directory}}/app/config/
                     cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
-
             #
             # Works, no longer need it
             #
@@ -129,18 +127,10 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
-            #            -   name: "PHPUnit check 1/2"
-            #                run: |
-            #                    echo ::set-env name=SED_STRICT_TYPES::$(grep --quiet "strict_types" ${{env.working-directory}}/bin/phpunit)
-            #                    echo "${{ env.FOO }}"
-            #
-            #            -   name: "PHPUnit check 2/2"
-            #                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit
-            #                if: ${{ env.SED_STRICT_TYPES }}
-            #
-            #            -   name: "PHPUnit check 2/2"
-            #                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
-
+            -   name: "PHPUnit"
+                run: |
+                    cat ${{env.working-directory}}/bin/phpunit
+                    /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
 
