@@ -136,7 +136,7 @@ jobs:
 
             -   name: "PHPUnit check 2/2"
                 run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/bin/phpunit
-                if: ${{ env.SED_STRICT_TYPES }}
+#                if: ${{ env.SED_STRICT_TYPES }}
 
             -   name: "PHPUnit check 2/2"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
