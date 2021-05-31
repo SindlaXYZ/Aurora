@@ -10,6 +10,7 @@ on:
 env:
     fail-fast: true
     PHPUNIT_FLAGS: "-v"
+    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.3"
     working-directory: /home/runner/work/aurora
@@ -17,7 +18,7 @@ env:
 jobs:
     build:
         #runs-on: ubuntu-16.04 #ubuntu-latest
-        runs-on: ubuntu-20.04 #ubuntu-latest
+        runs-on: ubuntu-20.04
         strategy:
             fail-fast: true
             matrix:
@@ -35,6 +36,7 @@ jobs:
                     php-version: ${{ matrix.php-versions }}
                     coverage: "none"
                     extensions: intl
+                    ini-values: ${{ env.PHP_INI_VALUES }}
 
             -   name: "Check versions"
                 run: |
@@ -127,8 +129,8 @@ jobs:
             #            -   name: "List vendor"
             #                run: ls -a ${{env.working-directory}}/vendor/
 
-            -   name: "test 1"
-                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+            #            -   name: "test 1"
+            #                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
             -   name: "PHPUnit check 1/2"
                 run: |
@@ -138,8 +140,8 @@ jobs:
                     echo "${{ env.SED_STRICT_TYPES_FOUND }}"
 
             -   name: "PHPUnit check 2/2"
-                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '0' || env.SED_STRICT_TYPES_FOUND == 0 }}
+                run: sed -i -e "s/<?php/<?php declare(strict_types=1);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
             -   name: "PHPUnit"
                 run: |
