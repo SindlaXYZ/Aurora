@@ -14,7 +14,7 @@ class RequirementsTest extends WebTestCase
         parent::setUp();
     }
 
-    public function testEnvironments()
+    public function testEnvironments(): void
     {
         $this->assertEquals('test', $_ENV['APP_ENV']);
     }

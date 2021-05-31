@@ -25,7 +25,7 @@ class ComposerCommandTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    public function testFake()
+    public function testFake(): void
     {
         $this->assertTrue(true);
         $this->assertFalse(false);

@@ -22,13 +22,13 @@ class BlackHoleControllerTest extends WebTestCaseMiddleware
         parent::setUp();
     }
 
-    public function testFake()
+    public function testFake(): void
     {
         $this->assertTrue(true);
         $this->assertFalse(false);
     }
 
-    public function testBlackholeRoutes()
+    public function testBlackholeRoutes(): void
     {
         $this->client->request('GET', '/.env');
         $this->assertEquals(Response::HTTP_PERMANENTLY_REDIRECT, $this->client->getResponse()->getStatusCode());

@@ -25,7 +25,7 @@ class AuroraMatchTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    public function testFake()
+    public function testFake(): void
     {
         $this->assertTrue(true);
         $this->assertFalse(false);
@@ -171,7 +171,7 @@ class AuroraMatchTest extends KernelTestCase
         ];
     }
 
-    public function testMatchDomain()
+    public function testMatchDomain(): void
     {
         $Match = new AuroraMatch();
 
@@ -184,7 +184,7 @@ class AuroraMatchTest extends KernelTestCase
         }
     }
 
-    public function testMatchAtLeastOneDomain()
+    public function testMatchAtLeastOneDomain(): void
     {
         $Match = new AuroraMatch();
 

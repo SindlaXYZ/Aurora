@@ -31,7 +31,7 @@ class ClientTest extends KernelTestCase
         $this->client        = $this->containerTest->get('test.client');
     }
 
-    public function testFake()
+    public function testFake(): void
     {
         $this->assertTrue(true);
         $this->assertFalse(false);
