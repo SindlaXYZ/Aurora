@@ -155,7 +155,8 @@ jobs:
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
             -   name: "PHPUnit"
-                run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
+                #run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
+                run: /usr/bin/php ${{env.SYMFONY_PHPUNIT_DIR}}/phpunit/phpunit --version
 
             -   name: "PHPUnit"
                 run: |
