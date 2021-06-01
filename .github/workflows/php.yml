@@ -143,6 +143,16 @@ jobs:
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
+            -   name: "php-actions/phpunit@v2"
+                uses: php-actions/phpunit@v2
+            #                env:
+            #                    TEST_NAME: Scarlett
+                with:
+                    bootstrap: vendor/autoload.php
+                    configuration: phpunit.xml
+                    args: --coverage-text
+                    version: 9.4.4
+
             -   name: "PHPUnit"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
 
