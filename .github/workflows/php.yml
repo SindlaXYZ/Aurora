@@ -139,7 +139,7 @@ jobs:
                 #                    TEST_NAME: Scarlett
                 with:
                     bootstrap: ${{env.working-directory}}/vendor/autoload.php
-                    configuration: phpunit.xml
+                    configuration: ${{env.working-directory}}/phpunit.xml
                     args: --coverage-text
                     version: 9.4.4
 
