@@ -3,9 +3,9 @@ name: PHPUnit
 
 on:
     push:
-        branches: ["5.2"]
+        branches: ["5.3"]
     pull_request:
-        branches: ["5.2"]
+        branches: ["5.3"]
 
 env:
     fail-fast: true
