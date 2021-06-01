@@ -25,7 +25,8 @@ jobs:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04]
                 #operating-system: [ubuntu-16.04]
                 operating-system: [ubuntu-20.04]
-                php-versions: ['7.4', '8.0']
+                #php-versions: ['7.4', '8.0']
+                php-versions: ['7.4']
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
             -   uses: actions/checkout@v2
@@ -132,6 +133,16 @@ jobs:
             #            -   name: "test 1"
             #                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
+            -   name: "php-actions/phpunit@v2"
+                uses: php-actions/phpunit@v2
+                #                env:
+                #                    TEST_NAME: Scarlett
+                with:
+                    bootstrap: vendor/autoload.php
+                    configuration: phpunit.xml
+                    args: --coverage-text
+                    version: 9.4.4
+
             -   name: "PHPUnit check 1/2"
                 run: |
                     echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
@@ -142,16 +153,6 @@ jobs:
             -   name: "PHPUnit check 2/2"
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
-
-            -   name: "php-actions/phpunit@v2"
-                uses: php-actions/phpunit@v2
-            #                env:
-            #                    TEST_NAME: Scarlett
-                with:
-                    bootstrap: vendor/autoload.php
-                    configuration: phpunit.xml
-                    args: --coverage-text
-                    version: 9.4.4
 
             -   name: "PHPUnit"
                 run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
