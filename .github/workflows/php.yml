@@ -11,6 +11,7 @@ env:
     fail-fast: true
     PHPUNIT_FLAGS: "--verbose --debug"
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
+    # $HOME = /home/runner
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.3"
     working-directory: /home/runner/work/aurora
@@ -155,8 +156,11 @@ jobs:
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
             -   name: "PHPUnit"
-                #run: /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
-                run: /usr/bin/php ${{env.SYMFONY_PHPUNIT_DIR}}/phpunit/phpunit --version
+                run: |
+                    ls -al ${{env.working-directory}}/bin
+                    ls -al ${{env.working-directory}}/bin/phpunit
+                    /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
+                #run: /usr/bin/php ${{env.SYMFONY_PHPUNIT_DIR}}/phpunit/phpunit --version
 
             -   name: "PHPUnit"
                 run: |
