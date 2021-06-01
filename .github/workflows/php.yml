@@ -133,15 +133,15 @@ jobs:
             #            -   name: "test 1"
             #                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
 
-            -   name: "php-actions/phpunit@v2"
-                uses: php-actions/phpunit@v2
-                #                env:
-                #                    TEST_NAME: Scarlett
-                with:
-                    bootstrap: ${{env.working-directory}}/tests/bootstrap.php
-                    configuration: ${{env.working-directory}}/phpunit.xml
-                    args: --coverage-text
-                    version: 9.4.4
+            #            -   name: "php-actions/phpunit@v2"
+            #                uses: php-actions/phpunit@v2
+            #                #                env:
+            #                #                    TEST_NAME: Scarlett
+            #                with:
+            #                    bootstrap: ${{env.working-directory}}/tests/bootstrap.php
+            #                    configuration: ${{env.working-directory}}/phpunit.xml
+            #                    args: --coverage-text
+            #                    version: 9.4.4
 
             -   name: "PHPUnit check 1/2"
                 run: |
