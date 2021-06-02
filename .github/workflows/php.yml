@@ -10,7 +10,7 @@ on:
 env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
-    PHPUNIT: ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit # ${{env.working-directory}}/bin/phpunit
+    PHPUNIT: /home/runner/work/aurora/vendor/phpunit/phpunit/phpunit # ${{env.working-directory}}/bin/phpunit
     PHPUNIT_FLAGS: "--verbose --debug"
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # $HOME = /home/runner
