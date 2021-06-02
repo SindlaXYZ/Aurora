@@ -157,8 +157,8 @@ jobs:
 
             -   name: "PHPUnit"
                 run: |
-                    ls -al ${{env.working-directory}}/bin/phpunit
-                    /usr/bin/php ${{env.working-directory}}/bin/phpunit --version
+                    cat ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+                    /usr/bin/php ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit --version
                 #run: /usr/bin/php ${{env.SYMFONY_PHPUNIT_DIR}}/phpunit/phpunit --version
 
             -   name: "PHPUnit"
