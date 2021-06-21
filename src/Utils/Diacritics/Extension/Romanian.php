@@ -4,7 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\Diacritics\Extension;
 
 class Romanian
 {
-    public static function sets()
+    public static function sets(): array
     {
         return [
             // A
@@ -87,6 +87,7 @@ class Romanian
             '(R|r)esapar(e|ea|ile)'              => '$1eșapar$2',
 
             // S
+            ' si '                               => ' și ',
             '(S|s)uportilor'                     => '$1uporților',
             '(S|s)emint(e|elor)'                 => '$1eminț$2',
             '(S|s)crisa'                         => '$1crisă',
