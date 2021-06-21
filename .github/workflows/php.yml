@@ -178,6 +178,9 @@ jobs:
             -   name: "Test /Utils/Client"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --debug --no-coverage
 
+            -   name: "Test /Utils/Diacritics"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --debug --no-coverage
+
             -   name: "Test /Utils/IO"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php --debug --no-coverage
 
