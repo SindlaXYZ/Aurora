@@ -2,18 +2,18 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
+// Symfony
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-
-#use Symfony\Component\DependencyInjection\Container;
-use Symfony\Contracts\Cache\ItemInterface;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Contracts\Cache\ItemInterface;
 
 // Twig
 use Twig\Extension\AbstractExtension;
@@ -39,10 +39,10 @@ class PWA
 
     private $twig;
 
-    public function __construct(ContainerInterface $container, Session $session, Environment $twig)
+    public function __construct(ContainerInterface $container, RequestStack $requestStack, Environment $twig)
     {
         $this->container     = $container;
-        $this->session       = $session;
+        $this->session       = $requestStack->getSession();
         $this->twig          = $twig;
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
