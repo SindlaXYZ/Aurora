@@ -66,11 +66,12 @@ class Romanian
             // L
 
             // M
-            '(M|m)asi(na|nile|nii|nilor)'        => '$1ași$2',
+            '(M|m)asi(na|ni|nile|nii|nilor)'     => '$1ași$2',
             '(M|m)uniti(a|e|ei|ilor)'            => '$1uniți$2',
 
             // N
-            '(N|n)avigat(ie|iei|iilor)'          => '$1avigaț$2',
+            '(N|n)avigat(ii|ie|iei|iilor)'       => '$1avigaț$2',
+            '(N|n)avigheaza'                     => '$1avighează',
 
             // O
             '(O|o)btin(ut|ute)'                  => '$1bțin$2',
@@ -88,6 +89,7 @@ class Romanian
 
             // S
             ' si '                               => ' și ',
+            'Si '                                => 'Și ',
             '(S|s)uportilor'                     => '$1uporților',
             '(S|s)emint(e|elor)'                 => '$1eminț$2',
             '(S|s)crisa'                         => '$1crisă',
