@@ -64,4 +64,12 @@ class BaseUserWithSalt implements UserInterface, \Serializable
         ]
             = unserialize($serialized);
     }
+
+    /**
+     * @return string
+     */
+    public function getUserIdentifier(): string
+    {
+        return $this->getUsername();
+    }
 }
