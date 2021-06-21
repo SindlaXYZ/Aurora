@@ -44,7 +44,7 @@ class DiacriticsTest extends KernelTestCase
                      'Extractia gazelor naturale'                                                                                                   => 'Extracția gazelor naturale',
                      '0620 - Extractia gazelor naturale'                                                                                            => '0620 - Extracția gazelor naturale',
                      'Extractia pietrei ornamentale si a pietrei pentru constructii, extractia pietrei calcaroase, ghipsului, cretei si a ardeziei' => 'Extracția pietrei ornamentale și a pietrei pentru construcții, extracția pietrei calcaroase, ghipsului, cretei și a ardeziei',
-                     'Instalarea mașinilor si echipamentelor industriale'                                                                           => 'Instalarea mașinilor și echipamentelor industrialea',
+                     'Instalarea mașinilor si echipamentelor industriale'                                                                           => 'Instalarea mașinilor și echipamentelor industriale',
                      'Intermedieri in comertul cu masini, echipamente industriale, nave si avioane'                                                 => 'Intermedieri in comerțul cu mașini, echipamente industriale, nave și avioane' // 'in' not captured
                  ] as $given => $expected) {
             $this->assertEquals($expected, $Diacritics->modify($given));
