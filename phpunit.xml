@@ -11,6 +11,9 @@
         <include>
             <directory suffix=".php">src</directory>
         </include>
+        <exclude>
+            <directory suffix=".php">src/Command</directory>
+        </exclude>
         <report>
             <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
         </report>
