@@ -4,6 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 
 // Core
 use DateTimeInterface;
+use DateTimeImmutable;
 
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
