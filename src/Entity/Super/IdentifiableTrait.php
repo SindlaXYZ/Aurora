@@ -37,14 +37,14 @@ trait IdentifiableTrait
     protected int $id = 0;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getId(): int
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(int $id)
+    public function setId(?int $id): self
     {
         $this->id = $id;
         return $this;

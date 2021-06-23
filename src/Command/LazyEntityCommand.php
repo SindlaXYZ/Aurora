@@ -16,6 +16,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 // Doctrine
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\ClassMetadata;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 
 // Sindla
@@ -23,9 +25,13 @@ use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
 
 class LazyEntityCommand extends CommandMiddleware
 {
+    // V1
     private $entity;
     private $namespace;
     private $sonataAdmin;
+
+    // V2
+    private $entityQualifiedName;
 
     /**
      * The name of the command (the part after "bin/console")
@@ -35,9 +41,11 @@ class LazyEntityCommand extends CommandMiddleware
      *      clear; php bin/console aurora:lazy.entity --verbose --namespace=App --sonataAdmin=false --entity=Brand
      *      clear; php bin/console aurora:lazy.entity --verbose --namespace=App --sonataAdmin=true  --entity=Brand
      *
+     *      clear; php bin/console aurora:lazy.entity --verbose --sonataAdmin=false --entityFile=./src/Core/Entity/Product.php
+     *
      * @var string
      */
-    protected static $defaultName = 'aurora:lazy.entity';
+    protected static string $defaultName = 'aurora:lazy.entity';
 
     /**
      * {@inheritDoc}
@@ -50,7 +58,9 @@ class LazyEntityCommand extends CommandMiddleware
             ->addOption('namespace', null, InputOption::VALUE_REQUIRED)
             ->addOption('sonataAdmin', null, InputOption::VALUE_REQUIRED)
             ->addOption('entity', null, InputOption::VALUE_REQUIRED)
-            ->setHelp('This command allows you to autogenerate files and methods for an entity...');;
+            ->addOption('entityQualifiedName', null, InputOption::VALUE_REQUIRED)
+            ->addOption('eqn', null, InputOption::VALUE_REQUIRED)
+            ->setHelp('This command allows you to autogenerate files and methods for an entity...');
     }
 
     public function __construct(ContainerInterface $container)
@@ -79,18 +89,146 @@ class LazyEntityCommand extends CommandMiddleware
         $this->namespace   = $this->input->getOption('namespace');
         $this->sonataAdmin = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
         $this->entity      = $this->input->getOption('entity');
+        $this->entityQualifiedName = $this->input->getOption('entityQualifiedName') ?? $this->input->getOption('eqn');
 
-        if (null == $this->namespace) {
+        if (null == $this->entityQualifiedName && null == $this->namespace) {
             throw new \Exception('Option --namespace is not set.');
         }
 
-        if (null == $this->entity) {
-            throw new \Exception('Option --entity is not set.');
+        if (null == $this->entityQualifiedName && null == $this->entity) {
+            throw new \Exception('Option --entityQualifiedName (--eqn) or --file is not set.');
         }
 
-        $this->generateSettersGetters();
+        if ($this->entityQualifiedName) {
+            $this->generateSettersGettersFile();
+        } else {
+            $this->generateSettersGetters();
+        }
 
         return Command::SUCCESS;
+    }
+
+    private function generateSettersGettersFile()
+    {
+        try {
+            $reflect = new \ReflectionClass($this->entityQualifiedName);
+        } catch (\Exception $exception) {
+            throw new \Exception($exception->getMessage());
+        }
+
+        $reader           = new AnnotationReader();
+        $classAnnotations = $reader->getClassAnnotations($reflect);
+
+        if(!is_array($classAnnotations) || (is_array($classAnnotations) && empty($classAnnotations))) {
+            throw new \Exception("Invalid entity: no class annotations found.");
+        }
+
+        foreach ($classAnnotations as $annotationsType) {
+            if($annotationsType instanceof Table) {
+
+            } else if($annotationsType instanceof Entity) {
+
+            }
+        }
+
+        $filePath = $reflect->getFileName();
+
+        print_r($classAnnotations);
+
+        $this->entityQualifiedName = trim($this->entityQualifiedName, './');
+
+        //$filePath = $this->kernelRootDir . '/' . $this->entityQualifiedName;
+
+        if (!file_exists($filePath)) {
+            throw new \Exception("Entity file {$filePath}() DOESN'T exists.");
+        }
+
+        $fileContent = file_get_contents($filePath);
+
+        $constructBody = false;
+        preg_match('/__construct(.*?)}/is', $fileContent, $matches);
+        if (!empty($matches)) {
+            $func          = new \ReflectionMethod($className, '__construct');
+            $filename      = $func->getFileName();
+            $start_line    = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
+            $end_line      = $func->getEndLine();
+            $length        = $end_line - $start_line;
+            $source        = file($filename);
+            $body          = implode("", array_slice($source, $start_line, $length));
+            $constructBody = $body;
+        }
+
+        require_once $filePath;
+
+        preg_match_all('~((?:\\{1,2}\w+|\w+\\{1,2})(?:\w+\\{0,2})+)~i', $fileContent, $matches);
+        //preg_match_all('/^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)/mi', $fileContent, $matches);
+        print_r($matches);
+        die;
+
+        $map    = [];
+        $tokens = token_get_all($fileContent);
+        //print_r(token_get_all($fileContent));die;
+        $namespaceFound = false;
+        $namespace      = '';
+        foreach ($tokens as $token) {
+            if (is_array($token)) {
+                [$id, $text, $line] = $token;
+                //echo $line. " : ".token_name($id) . "\n";
+
+                if ($line == 3) {
+                    echo $text . "\n";
+                }
+
+                if ($id == T_NAMESPACE) {
+                    $namespaceFound = true;
+                }
+
+                // PHP 8.0
+                if (0 && defined('T_NAME_QUALIFIED')) {
+                    if ($id == T_NAME_QUALIFIED) {
+                        $namespace = $text;
+                    }
+                } else {
+                    preg_match_all('~((?:\\{1,2}\w+|\w+\\{1,2})(?:\w+\\{0,2})+)~i', $fileContent, $matches);
+                    //preg_match_all('/^\s*((?:namespace)\s+(\w+);)?\s*(?:abstract\s+|final\s+)?(?:class|interface)\s+(\w+)/mi', $fileContent, $matches);
+                    print_r($matches);
+                    die;
+
+                    if ($namespaceFound && ($id == T_STRING || $id == T_NS_SEPARATOR)) {
+                        //$map[$namespace] =  $map[$namespace] . $text;
+                        $namespace .= $text;
+                    }
+
+                    //
+                    if (!empty($namespace) && in_array($id, [T_WHITESPACE, T_COMMENT, T_USE])) {
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        echo "\n{$namespace}\n";
+        die;
+        print_r($map);
+
+        $namespace = preg_match('/^namespace\s+[.*];/i', $fileContent, $matches);
+        print_r($matches);
+        die;
+
+        $Class = new $className();
+
+        $reflect = new \ReflectionClass($Class);
+
+        $reader           = new AnnotationReader();
+        $classAnnotations = $reader->getClassAnnotations($reflect);
+
+        // Get class [public|protected|private $vars = ..]
+        $props = $reflect->getProperties(\ReflectionProperty::IS_PUBLIC | \ReflectionProperty::IS_PROTECTED | \ReflectionProperty::IS_PRIVATE);
+
+        // Get class [const X_Y = ..]
+        $constants = $reflect->getConstants();
+
     }
 
     private function generateSettersGetters()
@@ -268,7 +406,9 @@ EOT;
                     }
                 }
 
-                if (in_array($returnType, ['DateTime'])) {
+                if (in_array($returnType, ['DateTime', '\DateTime'])) {
+                    $returnType = trim($returnType, '\\');
+
                     $returnTypeGet = "\\{$returnType}";
                     $returnTypeSet = "\\{$returnType}";
 
@@ -310,7 +450,7 @@ EOT;
                 $returnThis2 = "return \$this;";
 
                 $getDoc = "\n\n\t/**";
-                $getDoc .= "\n\t * @return " . ($canBeNull ? "?" . $returnTypeGet : $returnTypeGet);
+                $getDoc .= "\n\t * @return " . $returnTypeGet . ($canBeNull ? "|null" : '');
                 $getDoc .= "\n\t */";
 
                 $setDoc = "\n\n\t/**";
@@ -318,7 +458,7 @@ EOT;
                     $setDoc .= "\n\t * @param " . ($canBeNull ? '?' : '') . "{$manyToMany['reflection']->getShortName()} \${$manyToMany['reflection']->getShortName()}";
                     $setDoc .= "\n\t * @return boolean|{$reflect->getShortName()}";
                 } else {
-                    $setDoc .= "\n\t * @param " . ($canBeNull ? '?' : '') . "{$returnTypeSet} \${$prop->name}";
+                    $setDoc .= "\n\t * @param " . $returnTypeSet . ($canBeNull ? '|null' : '') . " \${$prop->name}";
                     $setDoc .= "\n\t * @return {$reflect->getShortName()}";
                 }
                 $setDoc .= "\n\t */";

@@ -2,9 +2,14 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 
-use Symfony\Component\Security\Core\User\UserInterface;
+// Core
+use Serializable;
 
-class BaseUserWithSalt implements UserInterface, \Serializable
+// Symfony
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
+class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
 {
     /**
      * @return string
@@ -38,12 +43,12 @@ class BaseUserWithSalt implements UserInterface, \Serializable
         return $this->role;
     }
 
-    public function eraseCredentials()
+    public function eraseCredentials(): void
     {
     }
 
     /** @see \Serializable::serialize() */
-    public function serialize()
+    public function serialize(): ?string
     {
         return serialize([
             $this->id,

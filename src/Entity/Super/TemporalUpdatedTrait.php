@@ -2,6 +2,9 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 
+// Core
+use DateTimeInterface;
+
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,31 +15,32 @@ use Doctrine\ORM\Mapping as ORM;
 trait TemporalUpdatedTrait
 {
     /**
+     * @var DateTimeInterface|null
+     *
      * @ORM\Column(type="datetime", name="updated_at", nullable=true)
-     * @var ?\DateTime
      */
-    protected ?\DateTime $updatedAt = null;
+    protected ?DateTimeInterface $updatedAt = null;
 
     /** @ORM\PreUpdate */
     public function preUpdateHook()
     {
-        $this->setUpdatedAt(new \DateTime());
+        $this->setUpdatedAt(new DateTimeImmutable());
     }
 
     /**
-     * @param ?\DateTime $updatedAt
+     * @param DateTimeInterface|null $createdAt
      * @return $this
      */
-    public function setUpdatedAt(?\DateTime $updatedAt)
+    public function setUpdatedAt(?DateTimeInterface $updatedAt): self
     {
         $this->updatedAt = $updatedAt;
         return $this;
     }
 
     /**
-     * @return mixed
+     * @return DateTimeImmutable|null
      */
-    public function getUpdatedAt()
+    public function getUpdatedAt(): DateTimeImmutable
     {
         return $this->updatedAt;
     }

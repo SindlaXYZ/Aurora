@@ -8,6 +8,9 @@ use Symfony\Component\BrowserKit\Tests\TestClient;
 use Symfony\Component\BrowserKit\Cookie;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 // Doctrine
 use Doctrine\ORM\EntityManager;
@@ -49,6 +52,34 @@ class WebTestCaseMiddleware extends WebTestCase
             /** @var EntityManager $em */
             $this->em = self::$container->get('doctrine.orm.entity_manager');
         }
+    }
+
+    /**
+     * Login a user with raw password
+     *
+     * @param UserInterface $user
+     * @param string        $rawPassword
+     */
+    protected function loginWithRawPassword(UserInterface $user, string $rawPassword)
+    {
+        /** @var EncoderFactory $encoderFactory */
+        $encoderFactory = self::$container->get('security.encoder_factory');
+        $encoder = $encoderFactory->getEncoder($user);
+
+        if($encoder->isPasswordValid($user->getPassword(), $rawPassword, $user->getSalt())) {
+            $this->loginWithoutValidation($user);
+        }
+    }
+
+    /**
+     * Login a user without any validation (just for tests)
+     *
+     * @param UserInterface $user
+     */
+    protected function loginWithoutValidation(UserInterface $user): void
+    {
+        $token = new UsernamePasswordToken($user, $user->getPassword(), "database", $user->getRoles());
+        self::$container->get("security.token_storage")->setToken($token);
     }
 
     /**

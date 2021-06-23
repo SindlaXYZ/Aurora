@@ -2,6 +2,9 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 
+// Core
+use DateTimeInterface;
+
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,25 +15,26 @@ use Doctrine\ORM\Mapping as ORM;
 trait TemporalCrondTrait
 {
     /**
+     * @var DateTimeInterface|null
+     *
      * @ORM\Column(type="datetime", name="crond_at", nullable=true)
-     * @var ?\DateTime
      */
-    protected ?\DateTime $crondAt = null;
+    protected ?DateTimeInterface $crondAt = null;
 
     /**
-     * @param ?\DateTime $crondAt
+     * @param DateTimeInterface|null $createdAt
      * @return $this
      */
-    public function setCrondAt(?\DateTime $crondAt)
+    public function setCrondAt(?DateTimeInterface $crondAt): self
     {
         $this->crondAt = $crondAt;
         return $this;
     }
 
     /**
-     * @return ?\DateTime
+     * @return DateTimeImmutable|null
      */
-    public function getCrondAt(): ?\DateTime
+    public function getCrondAt(): DateTimeImmutable
     {
         return $this->crondAt;
     }

@@ -28,16 +28,16 @@ class ComposerCommand extends Command
      *
      * @var string
      */
-    protected static $defaultName = 'aurora:composer';
+    protected static string $defaultName = 'aurora:composer';
 
     /** @var InputInterface input */
-    protected $input;
+    protected InputInterface $input;
 
     /** @var OutputInterface output */
-    protected $output;
+    protected OutputInterface $output;
 
     /** @var SymfonyStyle io */
-    protected $io;
+    protected SymfonyStyle $io;
 
     /**
      * {@inheritDoc}
@@ -49,7 +49,7 @@ class ComposerCommand extends Command
             ->setDescription('Composer commands')
             ->setHelp('Composer update command')
             // Mandatory
-            ->addOption('action', NULL, InputOption::VALUE_REQUIRED);
+            ->addOption('action', null, InputOption::VALUE_REQUIRED);
     }
 
     public function __construct(ContainerInterface $container)
@@ -59,7 +59,7 @@ class ComposerCommand extends Command
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
-    private function p()
+    private function p(): string
     {
         return '[AURORA]';
     }
@@ -132,7 +132,7 @@ class ComposerCommand extends Command
 
         $this->_cleanUpAndChecks(__FUNCTION__);
 
-        if (FALSE) {
+        if (false) {
             // Copy /Static/js
             $this->io->newLine();
             $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/aurora/</info>', $this->p()));
@@ -186,7 +186,7 @@ class ComposerCommand extends Command
 
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
-        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(TRUE);
+        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
@@ -197,13 +197,13 @@ class ComposerCommand extends Command
             return;
         }
 
-        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, TRUE)) {
+        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
             throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
         }
 
         if (!is_dir($maxmindDir)) {
             try {
-                mkdir($maxmindDir, 0777, TRUE);
+                mkdir($maxmindDir, 0777, true);
             } catch (\Exception $e) {
                 return $this->io->error("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
             }
@@ -226,16 +226,17 @@ class ComposerCommand extends Command
         }
 
         // Decompress from gz
-        $pharError = FALSE;
+        $pharError = false;
         try {
             $PharData = new \PharData("{$tempDir}/GeoLite2-{$type}.tar.gz");
         } catch (\UnexpectedValueException $e) {
-            $pharError = TRUE;
+            $pharError = true;
             throw new \Exception('[AURORA] Could not read .tar.gz file.');
         } catch (\BadMethodCallException $e) {
-            $pharError = TRUE;
+            $pharError = true;
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
-        } finally {
+        }
+        finally {
             if ($pharError) {
                 return $this->_updateGeoIP2($type);
             }
@@ -259,7 +260,7 @@ class ComposerCommand extends Command
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Static compiled JS & CSS files
 
-        if(false) {
+        if (false) {
             $auroraRootDir = $this->container->getParameter('aurora.root'); // %kernel.project_dir%
             $auroraTmpDir  = $this->container->getParameter('aurora.tmp');  // %kernel.project_dir%/var/tmp
 
@@ -308,7 +309,7 @@ class ComposerCommand extends Command
             /** @var IO $IOService */
             $IOService = $this->container->get('aurora.io');
             foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
-                $IOService->recursiveDelete($directory, FALSE);
+                $IOService->recursiveDelete($directory, false);
             }
 
             $this->io->comment(sprintf('%s ... done;', $this->p()));

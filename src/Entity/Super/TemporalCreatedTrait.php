@@ -2,6 +2,9 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 
+// Core
+use DateTimeInterface;
+
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
@@ -12,35 +15,36 @@ use Doctrine\ORM\Mapping as ORM;
 trait TemporalCreatedTrait
 {
     /**
+     * @var DateTimeInterface|null
+     *
      * @ORM\Column(type="datetime", name="created_at", nullable=true)
-     * @var ?\DateTime
      */
-    protected ?\DateTime $createdAt = null;
+    protected ?DateTimeInterface $createdAt = null;
 
     /** @ORM\PrePersist */
     public function prePersistHook()
     {
-        $this->setCreatedAt(new \DateTime());
+        $this->setCreatedAt(new DateTimeImmutable());
 
         if (method_exists($this, 'setUpdatedAt')) {
-            $this->setUpdatedAt(new \DateTime());
+            $this->setUpdatedAt(new DateTimeImmutable());
         }
     }
 
     /**
-     * @param ?\DateTime $createdAt
+     * @param DateTimeInterface|null $createdAt
      * @return $this
      */
-    public function setCreatedAt(?\DateTime $createdAt)
+    public function setCreatedAt(?DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
     }
 
     /**
-     * @return ?\DateTime
+     * @return DateTimeImmutable|null
      */
-    public function getCreatedAt(): ?\DateTime
+    public function getCreatedAt(): ?DateTimeImmutable
     {
         return $this->createdAt;
     }

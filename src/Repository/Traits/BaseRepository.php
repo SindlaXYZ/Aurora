@@ -26,13 +26,13 @@ trait BaseRepository
     /** @var QueryBuilder $queryBuilder */
     protected QueryBuilder $queryBuilder;
 
-    public function setContainer(Container $container)
+    public function setContainer(Container $container): self
     {
         $this->container = $container;
         return $this;
     }
 
-    public function setRequest(Request $request)
+    public function setRequest(Request $request): self
     {
         $this->request = $request;
         return $this;
@@ -46,19 +46,19 @@ trait BaseRepository
     protected bool   $count       = false;
     protected ?array $orders      = [];
 
-    public function setWhere(array $where)
+    public function setWhere(array $where): self
     {
         $this->where = $where;
         return $this;
     }
 
-    public function setOrder(array $orders)
+    public function setOrder(array $orders): self
     {
         $this->orders = $orders;
         return $this;
     }
 
-    public function setLimit(int $limit = 1, int $offset = 1)
+    public function setLimit(int $limit = 1, int $offset = 1): self
     {
         $this->limit       = $limit;
         $this->limitOffset = $offset;

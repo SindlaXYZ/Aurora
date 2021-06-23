@@ -34,7 +34,7 @@ trait IdentifiableNullableTrait
      *      MSSQL => IDENTITY
      *      PostgreSQL => SERIAL
      */
-    protected ?int $id = 0;
+    protected ?int $id = null;
 
     /**
      * @return int
@@ -44,7 +44,7 @@ trait IdentifiableNullableTrait
         return $this->id;
     }
 
-    public function setId(?int $id)
+    public function setId(?int $id): self
     {
         $this->id = $id;
         return $this;

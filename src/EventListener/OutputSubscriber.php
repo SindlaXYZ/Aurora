@@ -2,11 +2,13 @@
 
 namespace Sindla\Bundle\AuroraBundle\EventListener;
 
+// Symfony
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 
 /**
@@ -14,16 +16,14 @@ use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
  */
 class OutputSubscriber implements EventSubscriberInterface
 {
-    /**
-     * @var Container
-     */
-    private $container;
+    /** @var Container */
+    private Container $container;
 
     /** @var UtilityExtension */
-    private $UtilityExtension;
+    private UtilityExtension $UtilityExtension;
 
-    /** @var array */
-    private $headers;
+    /** @var array|null */
+    private ?array $headers;
 
     const PREG_DEV_PREFIX = '/^(stg|staging|dev|develop|test)\./i';
     const PREG_DEV_SUFFIX = '/\.(localhost|local)$/i';
@@ -40,7 +40,7 @@ class OutputSubscriber implements EventSubscriberInterface
         $this->headers = $headers;
     }
 
-    public static function getSubscribedEvents()
+    public static function getSubscribedEvents(): array
     {
         return [
             // must be registered before (i.e. with a higher priority than) the default Locale listener

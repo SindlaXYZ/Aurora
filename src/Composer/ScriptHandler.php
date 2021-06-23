@@ -23,7 +23,7 @@ class ScriptHandler
             'symfony-cache-warmup'   => false,
         ];
 
-    protected static function getOptions(Event $event)
+    protected static function getOptions(Event $event): array
     {
         $options = array_merge(static::$options, $event->getComposer()->getPackage()->getExtra());
 
@@ -119,7 +119,7 @@ class ScriptHandler
         }
     }
 
-    private static function removeDecoration($string)
+    private static function removeDecoration($string): string
     {
         return preg_replace("/\033\[[^m]*m/", '', $string);
     }

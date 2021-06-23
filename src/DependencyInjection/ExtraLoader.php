@@ -2,23 +2,22 @@
 
 namespace Sindla\Bundle\AuroraBundle\DependencyInjection;
 
-use Psr\Container\ContainerInterface;
 use Symfony\Component\Config\Loader\Loader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Extension\Extension;
 use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
 use Symfony\Component\Routing\RouteCollection;
-
 use Symfony\Component\Routing\Route;
+use Psr\Container\ContainerInterface;
 
 // https://symfony.com/doc/current/routing/custom_route_loader.html#creating-a-custom-loader
 
 class ExtraLoader extends Loader
 {
-    private $isLoaded = false;
+    private bool $isLoaded = false;
 
-    public function load($resource, string $type = null)
+    public function load($resource, string $type = null): RouteCollection
     {
         if (true === $this->isLoaded) {
             throw new \RuntimeException('Do not add the "extra" loader twice');
@@ -65,7 +64,7 @@ class ExtraLoader extends Loader
         return $routes;
     }
 
-    public function supports($resource, string $type = null)
+    public function supports($resource, string $type = null): bool
     {
         return 'extra' === $type;
     }

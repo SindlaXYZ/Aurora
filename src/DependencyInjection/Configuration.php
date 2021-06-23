@@ -6,15 +6,13 @@ use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 
 /**
- * Class Configuration
- *
  * @doc https://symfony.com/doc/current/bundles/configuration.html
  *
  * @package Sindla\Bundle\AuroraBundle\DependencyInjection
  */
 class Configuration implements ConfigurationInterface
 {
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('aurora');
 

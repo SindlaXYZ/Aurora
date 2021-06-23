@@ -10,7 +10,7 @@ use Sindla\Bundle\AuroraBundle\DependencyInjection\AuroraExtension;
 
 class AuroraBundle extends Bundle
 {
-    public function getContainerExtension()
+    public function getContainerExtension(): AuroraExtension
     {
         return new AuroraExtension();
     }
