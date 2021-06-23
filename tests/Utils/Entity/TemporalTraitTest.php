@@ -40,28 +40,22 @@ class TemporalTraitTest extends KernelTestCase
 
     public function testTemporalCreatedTrait()
     {
-        /** @var TemporalCreatedTrait $mock */
-        $mock = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
+        /** @var TemporalCreatedTrait $TemporalCreatedTrait */
+        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
 
         $someDateTime = new \DateTimeImmutable('2021-01-12 01:02:03');
         $dateFormat   = 'Y-m-d H:i:s';
-        $mock->setCreatedAt($someDateTime);
-        $this->assertTrue($someDateTime->format($dateFormat) == $mock->getCreatedAt()->format($dateFormat));
-
-//        $mock->expects($this->any())
-//            ->method('setCreatedAt')
-//            ->will($this->returnValue(TRUE));
+        $TemporalCreatedTrait->setCreatedAt($someDateTime);
+        $this->assertTrue($someDateTime->format($dateFormat) == $TemporalCreatedTrait->getCreatedAt()->format($dateFormat));
     }
 
     public function testTemporalCreatedTraitException()
     {
-        /** @var TemporalCreatedTrait $mock */
-        $mock = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
+        /** @var TemporalCreatedTrait $TemporalCreatedTrait */
+        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
 
         $this->expectException(TypeError::class);
-
-        $someDateTime = new DateTime('2021-01-12 01:02:03');
-        $mock->setCreatedAt(new DateTime());
-        $mock->getCreatedAt();
+        $TemporalCreatedTrait->setCreatedAt(new DateTime());
+        $TemporalCreatedTrait->getCreatedAt();
     }
 }
