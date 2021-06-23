@@ -26,9 +26,9 @@ class ComposerCommand extends Command
      * Usage:
      *      clear; php bin/console aurora:composer
      *
-     * @var string
+     * @var string|null
      */
-    protected static $defaultName = 'aurora:composer';
+    protected static ?string $defaultName = 'aurora:composer';
 
     /** @var InputInterface input */
     protected InputInterface $input;
