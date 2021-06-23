@@ -39,7 +39,11 @@ class TemporalTraitTest extends KernelTestCase
         /** @var TemporalCreatedTrait $mock */
         $mock = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
 
-        $this->assertTrue($mock->setCreatedAt(new \DateTime()) instanceof TemporalCreatedTrait);
+        $someDateTime = new \DateTime('2021-01-12 01:02:03');
+        $dateFormat   = 'Y-m-d H:i:s';
+        $mock->setCreatedAt($someDateTime);
+
+        $this->assertTrue($someDateTime->format($dateFormat) == $mock->getCreatedAt()->format($dateFormat));
 
 //        $mock->expects($this->any())
 //            ->method('setCreatedAt')
