@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Entity;
 
 // Core
 use DateTime;
-use InvalidArgumentException;
+use TypeError;
 
 // PHPUnit
 use PHPUnit\Framework\TestCase;
@@ -58,7 +58,7 @@ class TemporalTraitTest extends KernelTestCase
         /** @var TemporalCreatedTrait $mock */
         $mock = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
 
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
 
         $someDateTime = new DateTime('2021-01-12 01:02:03');
         $mock->setCreatedAt(new DateTime());
