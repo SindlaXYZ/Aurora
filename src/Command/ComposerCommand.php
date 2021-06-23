@@ -28,7 +28,7 @@ class ComposerCommand extends Command
      *
      * @var string
      */
-    protected static string $defaultName = 'aurora:composer';
+    protected static $defaultName = 'aurora:composer';
 
     /** @var InputInterface input */
     protected InputInterface $input;

@@ -18,7 +18,7 @@ class TestCommand extends Command
      *
      * @var string
      */
-    protected static string $defaultName = 'aurora:test';
+    protected static $defaultName = 'aurora:test';
 
     /**
      * {@inheritDoc}

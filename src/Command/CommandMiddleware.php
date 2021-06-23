@@ -20,23 +20,23 @@ use Doctrine\ORM\EntityManager;
 class CommandMiddleware extends Command
 {
     /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
     /** @var InputInterface */
-    protected $input;
+    protected InputInterface $input;
 
     /** @var OutputInterface */
-    protected $output;
+    protected OutputInterface $output;
 
     /** @var SymfonyStyle */
-    protected $io;
+    protected SymfonyStyle $io;
 
     protected $kernelRootDir;
 
     /**
      * @var EntityManager
      */
-    protected $em;
+    protected EntityManager $em;
 
     /**
      * CommandMiddleware constructor.
@@ -78,7 +78,7 @@ class CommandMiddleware extends Command
 
     protected function outputWithTime($message, $appendTab = false)
     {
-        $this->output->writeln( (($appendTab) ? "\n" : '') . "[" . date('H:i:s') . "] " . preg_replace('/[\r\n]+/', '', strip_tags($message)));
+        $this->output->writeln((($appendTab) ? "\n" : '') . "[" . date('H:i:s') . "] " . preg_replace('/[\r\n]+/', '', strip_tags($message)));
     }
 
     /**

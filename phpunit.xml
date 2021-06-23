@@ -6,6 +6,7 @@
          backupGlobals="false"
          colors="true"
          bootstrap="tests/bootstrap.php"
+         convertDeprecationsToExceptions="false"
 >
     <coverage processUncoveredFiles="true">
         <include>
@@ -15,30 +16,34 @@
             <directory suffix=".php">src/Command</directory>
         </exclude>
         <report>
-            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
+            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70" />
         </report>
     </coverage>
+
     <!--
     <logging>
         <log type="coverage-html" target="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
     </logging>
     -->
+
     <php>
-        <ini name="error_reporting" value="-1"/>
-        <server name="APP_ENV" value="test" force="true"/>
-        <server name="SHELL_VERBOSITY" value="-1"/>
-        <server name="SYMFONY_PHPUNIT_REMOVE" value=""/>
-        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5"/>
-        <server name="KERNEL_CLASS" value="App\Kernel"/>
-        <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/>
-        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled"/><!-- values: disabled > weak > all -->
-        <env name="APP_ENV" value="test" force="true"/>
+        <ini name="error_reporting" value="-1" />
+        <server name="APP_ENV" value="test" force="true" />
+        <server name="SHELL_VERBOSITY" value="-1" />
+        <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
+        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5" />
+        <server name="KERNEL_CLASS" value="App\Kernel" />
+        <server name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" />
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="disabled" /><!-- values: disabled > weak > all -->
+        <env name="APP_ENV" value="test" force="true" />
     </php>
+
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
         </testsuite>
     </testsuites>
+
     <!-- Element 'filter': This element is not expected.
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
@@ -46,8 +51,9 @@
         </whitelist>
     </filter>
     -->
+
     <listeners>
-        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener"/>
+        <listener class="Symfony\Bridge\PhpUnit\SymfonyTestsListener" />
         <!--
         <listener class="App\Tests\EventListener\ClearLogAndCacheTestListener"/>
         -->

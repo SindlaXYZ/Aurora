@@ -45,7 +45,7 @@ class LazyEntityCommand extends CommandMiddleware
      *
      * @var string
      */
-    protected static string $defaultName = 'aurora:lazy.entity';
+    protected static $defaultName = 'aurora:lazy.entity';
 
     /**
      * {@inheritDoc}
