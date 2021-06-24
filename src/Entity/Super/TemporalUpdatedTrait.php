@@ -18,7 +18,7 @@ trait TemporalUpdatedTrait
     /**
      * @var DateTimeInterface|null
      *
-     * @ORM\Column(type="datetime", name="updated_at", nullable=true)
+     * @ORM\Column(type="datetime_immutable", name="updated_at", nullable=true)
      */
     protected ?DateTimeInterface $updatedAt = null;
 

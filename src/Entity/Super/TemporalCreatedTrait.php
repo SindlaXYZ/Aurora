@@ -18,7 +18,7 @@ trait TemporalCreatedTrait
     /**
      * @var DateTimeInterface|null
      *
-     * @ORM\Column(type="datetime", name="created_at", nullable=true)
+     * @ORM\Column(type="datetime_immutable", name="created_at", nullable=true)
      */
     protected ?DateTimeInterface $createdAt = null;
 

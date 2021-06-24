@@ -18,7 +18,7 @@ trait TemporalCrondTrait
     /**
      * @var DateTimeInterface|null
      *
-     * @ORM\Column(type="datetime", name="crond_at", nullable=true)
+     * @ORM\Column(type="datetime_immutable", name="crond_at", nullable=true)
      */
     protected ?DateTimeInterface $crondAt = null;
 
