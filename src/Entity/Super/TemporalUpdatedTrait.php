@@ -41,7 +41,7 @@ trait TemporalUpdatedTrait
     /**
      * @return DateTimeImmutable|null
      */
-    public function getUpdatedAt(): DateTimeImmutable
+    public function getUpdatedAt(): ?DateTimeImmutable
     {
         return $this->updatedAt;
     }

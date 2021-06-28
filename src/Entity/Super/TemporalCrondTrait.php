@@ -35,7 +35,7 @@ trait TemporalCrondTrait
     /**
      * @return DateTimeImmutable|null
      */
-    public function getCrondAt(): DateTimeImmutable
+    public function getCrondAt(): ?DateTimeImmutable
     {
         return $this->crondAt;
     }
