@@ -48,9 +48,9 @@ class WebTestCaseMiddleware extends WebTestCase
 
         $this->router = $this->client->getContainer()->get('router');
 
-        if (!$this->em && self::$container) {
+        if (!$this->em && static::getContainer()) {
             /** @var EntityManager $em */
-            $this->em = self::$container->get('doctrine.orm.entity_manager');
+            $this->em = static::getContainer()->get('doctrine.orm.entity_manager');
         }
     }
 
@@ -63,7 +63,7 @@ class WebTestCaseMiddleware extends WebTestCase
     protected function loginWithRawPassword(UserInterface $user, string $rawPassword)
     {
         /** @var EncoderFactory $encoderFactory */
-        $encoderFactory = self::$container->get('security.encoder_factory');
+        $encoderFactory = static::getContainer()->get('security.encoder_factory');
         $encoder = $encoderFactory->getEncoder($user);
 
         if($encoder->isPasswordValid($user->getPassword(), $rawPassword, $user->getSalt())) {
@@ -79,7 +79,7 @@ class WebTestCaseMiddleware extends WebTestCase
     protected function loginWithoutValidation(UserInterface $user): void
     {
         $token = new UsernamePasswordToken($user, $user->getPassword(), "database", $user->getRoles());
-        self::$container->get("security.token_storage")->setToken($token);
+        static::getContainer()->get("security.token_storage")->setToken($token);
     }
 
     /**
@@ -91,7 +91,7 @@ class WebTestCaseMiddleware extends WebTestCase
         $this->assertFalse(false);
     }
 
-    public function progressStart(int $count)
+    public function progressStart(int $count): void
     {
         $this->progressTotal = $count;
     }
@@ -152,17 +152,17 @@ class WebTestCaseMiddleware extends WebTestCase
      * Light Grey   47
      */
 
-    public function success($message)
+    public function success($message): string
     {
         return "\e[0;30;42m{$message}\e[0m\n"; // black in green bg
     }
 
-    public function warning($message)
+    public function warning($message): string
     {
         return "\e[0;30;43m{$message}\e[0m\n"; // black in yellow bg
     }
 
-    public function error($message, $fail = false)
+    public function error($message, $fail = false): string
     {
         return (($fail) ? $this->fail("\e[1;37;41m{$message}\e[0m\n") : "\e[1;37;41m{$message}\e[0m\n"); // white on red bg
     }

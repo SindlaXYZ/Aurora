@@ -44,9 +44,9 @@ self.addEventListener('fetch', event => {
     {# ['/ajax-requests', '/q'] #}
     var startsWith = [{{ prevent_cache|raw }}];
 
-    for (i = 0; i < startsWith.length; i++) {
+    for (var i = 0; i < startsWith.length; i++) {
         if(event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
-            {# console.log('Prevent caching the'+ startsWith[i]); #}
+            {% if _debug %}console.log('Prevent caching the'+ startsWith[i]);{% endif %}
             return false;
         }
     }
