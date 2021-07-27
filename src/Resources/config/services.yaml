@@ -52,7 +52,7 @@ services:
         tags: [ routing.loader ]
 
     ###################################################################################################################
-    ###  Aurora Commands ##############################################################################################
+    ###  Aurora Commands  #############################################################################################
 
     # Register TestCommand (see class file for the command name)
     aurora.command.test:
@@ -75,7 +75,16 @@ services:
             - { name: console.command }
 
     ###################################################################################################################
-    ###  Aurora Twig ##################################################################################################
+    ###  Aurora Console  ##############################################################################################
+
+    Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory: ~
+
+    # Usage: public function __construct(SymfonyStyle $symfonyStyle)
+    Symfony\Component\Console\Style\SymfonyStyle:
+        factory: ['@Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory', 'create']
+
+    ###################################################################################################################
+    ###  Aurora Twig  #################################################################################################
 
     aurora.twig.utility:
         class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
@@ -87,7 +96,7 @@ services:
         public: true
 
     ###################################################################################################################
-    ###  Aurora Services / Utils ######################################################################################
+    ###  Aurora Services / Utils  #####################################################################################
 
     aurora.calculus:
         class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus

@@ -9,7 +9,6 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // Sindla
-use Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
