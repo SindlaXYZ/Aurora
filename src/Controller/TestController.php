@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 
 class TestController extends AbstractController

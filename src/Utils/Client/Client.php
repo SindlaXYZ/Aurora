@@ -9,7 +9,7 @@ use Symfony\Component\HttpFoundation\Request;
 // GeoIp2
 use GeoIp2\Database\Reader;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**

@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Entity\Super;
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait;
 use Sindla\Bundle\AuroraBundle\Entity\Super\TemporalUpdatedTrait;
 

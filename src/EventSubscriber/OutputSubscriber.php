@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 
 /**

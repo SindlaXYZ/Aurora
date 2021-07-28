@@ -12,7 +12,7 @@ use Doctrine\Common\Annotations\AnnotationReader;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\Container;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 
 trait BaseRepository

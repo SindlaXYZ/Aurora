@@ -20,7 +20,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
 
 class LazyEntityCommand extends CommandMiddleware

@@ -17,7 +17,7 @@ use Twig\Environment;
 // Minify
 use MatthiasMullie\Minify;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
