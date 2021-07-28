@@ -79,7 +79,6 @@ services:
 
     Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory: ~
 
-    # Usage: public function __construct(SymfonyStyle $symfonyStyle)
     Symfony\Component\Console\Style\SymfonyStyle:
         factory: ['@Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory', 'create']
 

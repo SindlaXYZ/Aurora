@@ -166,6 +166,9 @@ jobs:
             -   name: "Test /Command"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --debug --no-coverage
 
+            -   name: "Test /Console"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactory.php --debug --no-coverage
+
             #            -   name: "Test /Controller/Blackhole"
             #                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
 
