@@ -36,8 +36,8 @@ class SymfonyStyleFactoryTest extends KernelTestCase
     public function testSymfonyStyle(): void
     {
         $symfonyStyleFactory = new SymfonyStyleFactory();
-        $this->symfonyStyle  = $symfonyStyleFactory->create();
+        $symfonyStyle        = $symfonyStyleFactory->create();
 
-        $this->assertTrue($this->symfonyStyle instanceof SymfonyStyle);
+        $this->assertTrue($symfonyStyle instanceof SymfonyStyle);
     }
 }
