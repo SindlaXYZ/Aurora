@@ -114,7 +114,8 @@ jobs:
                     mkdir -p ${{env.working-directory}}/app/config/
                     cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
 
-            -   name: "Composer update the autoloader"
+            # After sindla/aurora is overwrited, reload autoloader: because the sindla/aurora is not always in sync with the `main` branch
+            -   name: "Update/reload the composer autoloader"
                 run: |
                     composer clear-cache
                     composer dump-autoload
