@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics;
 
 /**

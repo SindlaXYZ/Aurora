@@ -10,7 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory;
 
 /**

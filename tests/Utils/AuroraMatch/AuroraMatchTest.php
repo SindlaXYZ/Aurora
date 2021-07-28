@@ -8,7 +8,7 @@ use PHPUnit\Framework\TestCase;
 // Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
-// Sindla
+// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
