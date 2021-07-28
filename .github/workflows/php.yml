@@ -113,6 +113,11 @@ jobs:
                     cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
                     mkdir -p ${{env.working-directory}}/app/config/
                     cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
+
+            -   name: "Composer update the autoloader"
+                run: |
+                    composer clear-cache
+                    composer dump-autoload
             #
             # Works, no longer need it
             #
