@@ -3,24 +3,25 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 // Symfony
-use Symfony\Component\HttpFoundation\Request;
+use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
+use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
+use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
+use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Yaml\Yaml;
-
-// Twig
+use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-use Twig\Environment;
+
+// Twig
 
 // Minify
-use MatthiasMullie\Minify;
 
 // Aurora
-use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
-use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
-use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 
 class UtilityExtension extends AbstractExtension
 {
@@ -413,6 +414,8 @@ class UtilityExtension extends AbstractExtension
         /** @var Git $serviceGit */
         $serviceGit = $this->container->get('aurora.git');
 
+        $Strink = new Strink();
+
         // Can be: %kernel.project_dir%/var/tmp/compiled
         # $auroraTmpDir  = $this->container->getParameter('aurora.tmp');  // %kernel.project_dir%/var/tmp
         # $staticServerDir = (0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled')));
@@ -431,10 +434,10 @@ class UtilityExtension extends AbstractExtension
         foreach ($assets as $index => $assetWebPath) {
             if (strlen($assetWebPath) > 3) {
 
-                $assetWebPath  = trim($assetWebPath);                             // relative to domain root, eg: static/css/main.css or external file
-                $assetAbsPath  = "{$auroraRootDir}/public/{$assetWebPath}";       // relative to server dirs, eg: /srv/domain.tld/public/static/css/main.css
-                $assetBasename = basename($assetWebPath);                         // main.css
-                $assetBaseDir  = str_ireplace($assetBasename, '', $assetWebPath); // static/css/
+                $assetWebPath  = trim($assetWebPath);                                                       // relative to domain root, eg: static/css/main.css or external file
+                $assetAbsPath  = "{$auroraRootDir}/public/{$assetWebPath}";                                 // relative to server dirs, eg: /srv/domain.tld/public/static/css/main.css
+                $assetBasename = $Strink->compressSlashes(basename($assetWebPath));                         // main.css
+                $assetBaseDir  = str_ireplace($assetBasename, '', $assetWebPath);                           // static/css/
 
                 // No combine in one single file, and do not minify
                 if (!$combineAndMinify) {
@@ -481,7 +484,7 @@ class UtilityExtension extends AbstractExtension
                         if ('css' == $assetType) {
                             $combineAndMinifyOutputContentHead .= '@import url("' . $assetWebPath . '");';
                         } else {
-                            $njs = 'newScript' . substr(mt_rand(0, 999) . sha1(microtime() . mt_rand(0, 999)), 0, 6);
+                            $njs                           = 'newScript' . substr(mt_rand(0, 999) . sha1(microtime() . mt_rand(0, 999)), 0, 6);
                             $combineAndMinifyOutputContent .= "var {$njs} = document.createElement('script'); {$njs}.type = 'text/javascript'; {$njs}.src = '{$assetWebPath}'; document.getElementsByTagName('head')[0].appendChild({$njs});";
                         }
                     }
