@@ -1,18 +1,17 @@
 {
     "name": "sindla/aurora",
     "type": "symfony-bundle",
-    "description": "Aurora - Symfony 5.3 bundle",
+    "description": "Aurora - Symfony 6.1 bundle",
     "keywords": [
     ],
     "homepage": "https://sindla.com",
     "license": "MIT",
-    "authors": [
-        {
+    "authors": [{
             "name": "Sindla XYZ S.R.L."
         }
     ],
     "require": {
-        "php": ">=7.4",
+        "php": ">=8.1",
         "ext-curl": "*",
         "ext-ctype": "*",
         "ext-iconv": "*",
@@ -25,13 +24,13 @@
         "ext-simplexml": "*",
         "ext-tokenizer": "*",
         "ext-zend-opcache": "*",
-        "geoip2/geoip2": "^2.11",
+        "geoip2/geoip2": "^2.12",
         "matthiasmullie/minify": "1.3.*",
-        "scienta/doctrine-json-functions": "4.3.*",
+        "scienta/doctrine-json-functions": "5.0.*",
         "tedivm/jshrink": "1.4.*"
     },
     "require-dev": {
-        "symfony/phpunit-bridge": "5.*"
+        "symfony/phpunit-bridge": "6.1.*"
     },
     "autoload": {
         "psr-4": {

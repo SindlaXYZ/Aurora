@@ -36,7 +36,7 @@ class IO
      * @param boolean $removeGivenDir
      * @return  boolean
      */
-    public function recursiveDelete(string $str, bool $removeGivenDir = true)
+    public function recursiveDelete(string $str, bool $removeGivenDir = true): bool
     {
         if (is_file($str)) {
             return @unlink($str);
@@ -55,6 +55,8 @@ class IO
             } else {
                 return true;
             }
+        } else {
+            return false;
         }
     }
 

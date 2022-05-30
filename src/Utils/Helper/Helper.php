@@ -2,9 +2,9 @@
 
 namespace Sindla\Bundle\auroraBundle\Utils\Helper;
 
+use GeoIp2\Database\Reader;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
-use GeoIp2\Database\Reader;
 
 /**
  * Debug: php bin/console debug:container aurora.helper
@@ -59,5 +59,28 @@ class Helper
         }
 
         return $results;
+    }
+
+    /**
+     * Recursive ksort
+     *
+     * @param array $array
+     * @return array
+     */
+    public function ksortRecursive(array $array): array
+    {
+        // call_user_func to avoid passed by reference issue with singleton instances
+        $array = call_user_func(function (array $a) {
+            ksort($a);
+            return $a;
+        }, $array);
+        
+        foreach ($array as $k => $v) {
+            if (is_array($v)) {
+                $array[$k] = $this->ksortRecursive($v);
+            }
+        }
+
+        return $array;
     }
 }

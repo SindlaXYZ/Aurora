@@ -15,7 +15,7 @@ class ScriptHandler
      * a composer.json and set new options, making them immediately available
      * to forthcoming listeners.
      */
-    protected static $options
+    protected static array $options
         = [
             'symfony-app-dir'        => 'app',
             'symfony-web-dir'        => 'web',

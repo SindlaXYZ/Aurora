@@ -4,14 +4,13 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 
 // Symfony
 # use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
-// Doctrine
-use Doctrine\ORM\EntityManager;
 
 /**
  * Class CommandMiddleware
@@ -27,6 +26,9 @@ class CommandMiddleware extends Command
 
     /** @var OutputInterface */
     protected OutputInterface $output;
+
+    /** @var BufferedOutput */
+    protected BufferedOutput $bufferedOutput;
 
     /** @var SymfonyStyle */
     protected SymfonyStyle $io;
@@ -64,6 +66,11 @@ class CommandMiddleware extends Command
     protected function setOutput(OutputInterface $output)
     {
         $this->output = $output;
+    }
+
+    protected function setBufferOutput(BufferedOutput $bufferedOutput)
+    {
+        $this->bufferedOutput = $bufferedOutput;
     }
 
     protected function setIo(SymfonyStyle $io)

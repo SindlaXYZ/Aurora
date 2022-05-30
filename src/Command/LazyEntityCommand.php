@@ -735,6 +735,11 @@ class {$entity}Repository extends ServiceEntityRepository
     {
         parent::__construct(\$registry, {$entity}::class);
     }
+
+    public function isPersisted({$entity} \$object): bool
+    {
+        return \Doctrine\ORM\UnitOfWork::STATE_MANAGED === \$this->_em->getUnitOfWork()->getEntityState(\$object);
+    }
 }
 EOT;
                 if (\file_put_contents($entityRepositoryFile, $entityRepositoryFileContent)) {

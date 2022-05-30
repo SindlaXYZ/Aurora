@@ -187,7 +187,6 @@ class PWA
         $version       = $serviceGit->getHash();
         $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
 
-
         if ($Request->cookies->get('PHPSESSID')) {
             $version .= '_' . $this->session->get('PHPSESSID');
         }

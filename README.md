@@ -1,13 +1,14 @@
-| Version | Unit testing | Latest Version | Latest Version |
-| --- | --- | --- | --- |
-| 5.2 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-blue)](https://github.com/SindlaXYZ/Aurora/tree/5.2) | >=7.4 |
-| 5.3 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases) | >=7.4 & >= 8.0 |
-| 5.4 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.4) | [![Latest Version](https://img.shields.io/badge/tag-v5.4%20dev-grey)](https://github.com/SindlaXYZ/Aurora/tree/5.4) | >= 8.0 |
+| Version | Unit testing                                                                                                                                             | Latest Version                                                                                                            | Latest Version |
+|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------------|----------------|
+| 5.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-blue)](https://github.com/SindlaXYZ/Aurora/tree/5.2)          | >=7.4          |
+| 5.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases) | >=7.4 & >= 8.0 |
+| 5.4     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.4) | [![Latest Version](https://img.shields.io/badge/tag-v5.4%20dev-grey)](https://github.com/SindlaXYZ/Aurora/tree/5.4)       | >= 8.0         |
+| 6.1     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1) | [![Latest Version](https://img.shields.io/badge/tag-v6.1-blue)](https://github.com/SindlaXYZ/Aurora/tree/6.1)             | >= 8.1         |
 
 # Install
 
 #### Composer
-`composer require sindla/aurora:5.3.*`
+`composer require sindla/aurora:6.1.*`
 
 
 #### `config/packages/aurora.yaml`:
@@ -169,7 +170,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 final class Version... extends AbstractMigration implements ContainerAwareInterface
 {
     /** @var ContainerInterface */
-    protected $container;
+    protected ContainerInterface $container;
 
     public function setContainer(ContainerInterface $container = null)
     {
