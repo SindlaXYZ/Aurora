@@ -28,7 +28,7 @@ class IdentifiableUUIDTest extends KernelTestCase
     public function testIdentifiableUUID()
     {
         $Mock = new Mock();
-        $this->assertInternalType('string', $Mock->getId()->toBinary());
+        $this->assertIsString($Mock->getId()->toBinary());
     }
 }
 
