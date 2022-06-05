@@ -29,4 +29,10 @@ trait IdentifiableUUID
     {
         return $this->id;
     }
+
+    public function generateId(): self
+    {
+        $this->id = Uuid::v6();
+        return $this;
+    }
 }
