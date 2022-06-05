@@ -178,6 +178,9 @@ jobs:
             #            -   name: "Test /Controller/Blackhole"
             #                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
 
+            -   name: "Test /Entity"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/Super/IdentifiableUUIDTest.php --debug --no-coverage
+
             -   name: "Test /EventListener"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --debug --no-coverage
 
