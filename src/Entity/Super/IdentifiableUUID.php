@@ -20,10 +20,10 @@ trait IdentifiableUUID
      *
      * @link https://symfony.com/doc/current/components/uid.html
      */
-    protected string $id;
+    protected $id;
 
     /**
-     * @return ?Uuid
+     * @return Uuid|null
      */
     public function getId(): ?Uuid
     {
