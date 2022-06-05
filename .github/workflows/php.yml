@@ -26,7 +26,7 @@ jobs:
             fail-fast: true
             matrix:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04]
-                operating-system: [ubuntu-20.04, debian-10]
+                operating-system: [ubuntu-20.04, debian-10, debian-11]
                 php-versions: ['8.1']
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
