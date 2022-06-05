@@ -32,12 +32,12 @@ use MatthiasMullie\Minify;
 class PWA
 {
     /** @var ContainerInterface */
-    private $container;
+    private ContainerInterface $container;
 
     /** @var Session */
-    private $session;
+    private Session $session;
 
-    private $twig;
+    private Environment $twig;
 
     public function __construct(ContainerInterface $container, RequestStack $requestStack, Environment $twig)
     {
@@ -52,7 +52,7 @@ class PWA
      *
      * @return JsonResponse
      */
-    public function manifestJSON(Request $Request)
+    public function manifestJSON(Request $Request): JsonResponse
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
 
@@ -107,7 +107,7 @@ class PWA
      *
      * @return XML
      */
-    public function browserConfig(Request $Request)
+    public function browserConfig(Request $Request): Response
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
 
@@ -138,7 +138,7 @@ class PWA
         });
     }
 
-    public function mainJS(Request $Request)
+    public function mainJS(Request $Request): Response
     {
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'pwaVersion'           => $this->version($Request),
@@ -152,13 +152,13 @@ class PWA
             $rendered = $minifier->minify();
         }
 
-        $response = new \Symfony\Component\HttpFoundation\Response($rendered);
+        $response = new Response($rendered);
         $response->headers->set('Content-Type', 'text/javascript');
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;
     }
 
-    public function serviceWorkerJS(Request $Request)
+    public function serviceWorkerJS(Request $Request): Response
     {
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
             'pwaVersion'     => $this->version($Request),
@@ -175,13 +175,13 @@ class PWA
             $rendered = $minifier->minify();
         }
 
-        $response = new \Symfony\Component\HttpFoundation\Response($rendered);
+        $response = new Response($rendered);
         $response->headers->set('Content-Type', 'text/javascript');
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;
     }
 
-    public function version(Request $Request)
+    public function version(Request $Request): string
     {
         $serviceGit    = $this->container->get('aurora.git');
         $version       = $serviceGit->getHash();
@@ -242,7 +242,7 @@ class PWA
         });
     }
 
-    private function _icon(string $iconPath)
+    private function _icon(string $iconPath): BinaryFileResponse
     {
         $Response = new BinaryFileResponse($iconPath);
         $Response->headers->set('Content-Length', filesize($iconPath));

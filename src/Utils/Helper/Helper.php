@@ -11,7 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class Helper
 {
-    private $container;
+    private Container $container;
 
     public function __construct(Container $Container)
     {
@@ -74,7 +74,7 @@ class Helper
             ksort($a);
             return $a;
         }, $array);
-        
+
         foreach ($array as $k => $v) {
             if (is_array($v)) {
                 $array[$k] = $this->ksortRecursive($v);

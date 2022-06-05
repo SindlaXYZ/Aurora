@@ -39,7 +39,7 @@ class ScriptHandler
     /**
      * @param Event $event
      */
-    public static function postInstall(Event $event)
+    public static function postInstall(Event $event): void
     {
         $options          = static::getOptions($event);
 
@@ -59,7 +59,7 @@ class ScriptHandler
      *
      * @param Event $event
      */
-    public static function postUpdate(Event $event)
+    public static function postUpdate(Event $event): void
     {
         $options          = static::getOptions($event);
 
@@ -77,7 +77,7 @@ class ScriptHandler
         return $phpPath;
     }
 
-    protected static function getPhpArguments()
+    protected static function getPhpArguments(): string
     {
         $ini       = null;
         $arguments = [];
