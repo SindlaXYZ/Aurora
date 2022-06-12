@@ -67,7 +67,7 @@ class ScriptHandler
         static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
     }
 
-    protected static function getPhp($includeArgs = true)
+    protected static function getPhp($includeArgs = true): PhpExecutableFinder
     {
         $phpFinder = new PhpExecutableFinder();
         if (!$phpPath = $phpFinder->find($includeArgs)) {
@@ -77,7 +77,7 @@ class ScriptHandler
         return $phpPath;
     }
 
-    protected static function getPhpArguments(): string
+    protected static function getPhpArguments(): array
     {
         $ini       = null;
         $arguments = [];
