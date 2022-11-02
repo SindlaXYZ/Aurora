@@ -103,11 +103,7 @@ class ScriptHandler
 
     protected static function executeCommand(Event $event, $consoleDir, $cmd, array $commandArguments = [], $timeout = 300)
     {
-        $php     = static::getPhp(false);
-        $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
-        $console = $consoleDir . '/console';
-
-        $processCommand[] = $php;
+        $processCommand[] = static::getPhp(false);
         foreach (static::getPhpArguments() as $phpArgument) {
             $processCommand[] = $phpArgument;
         }
@@ -120,9 +116,7 @@ class ScriptHandler
             $processCommand[] = '--ansi';
         }
 
-        //$process = new Process([$php, ($phpArgs ?? ''), $console, $cmd, trim(implode(' ', array_map('trim', $commandArguments))), '--ansi'], null, null, null, $timeout);
         $process = new Process($processCommand, null, null, null, $timeout);
-
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
         });
@@ -130,7 +124,7 @@ class ScriptHandler
             throw new \RuntimeException(sprintf(
                 "An error occurred when executing the \"%s\" command.\n%s\nError:\n\n%s\n\n%s",
                 $cmd,
-                $php . ' ' . ($phpArgs ?? '') . ' ' . $console . ' ' . $cmd,
+                trim(implode(' ', array_map('trim', $processCommand))),
                 self::removeDecoration($process->getOutput()),
                 self::removeDecoration($process->getErrorOutput())
             ));
