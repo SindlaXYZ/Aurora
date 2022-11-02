@@ -106,7 +106,8 @@ class ScriptHandler
         $php     = static::getPhp(false);
         $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
         $console = $consoleDir . '/console';
-        if ($event->getIO()->isDecorated()) {
+
+        if (FALSE && $event->getIO()->isDecorated()) {
             $cmd .= ' --ansi';
         }
 
