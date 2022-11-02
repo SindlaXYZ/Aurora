@@ -101,7 +101,7 @@ class ScriptHandler
         return $arguments;
     }
 
-    protected static function executeCommand(Event $event, $consoleDir, $cmd, array $commandArgments, $timeout = 300)
+    protected static function executeCommand(Event $event, $consoleDir, $cmd, array $commandArgments = [], $timeout = 300)
     {
         $php     = static::getPhp(false);
         $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
@@ -117,7 +117,7 @@ class ScriptHandler
         echo $cmd . "\n";
         print_r($commandArgments) ."\n";
 
-        $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd], null, null, null, $timeout);
+        $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd, trim(implode(' ', array_map('trim', $commandArgments)))], null, null, null, $timeout);
 
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
