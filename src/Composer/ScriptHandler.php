@@ -104,11 +104,14 @@ class ScriptHandler
     protected static function executeCommand(Event $event, $consoleDir, $cmd, $timeout = 300)
     {
         $php     = static::getPhp(false);
-        $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
+        $phpArgs = implode(' ', array_map('trim', array_merge(static::getPhpArguments(), $event->getIO()->isDecorated() ? ' --ansi' : '')));
         $console = $consoleDir . '/console';
+
+        /*
         if ($event->getIO()->isDecorated()) {
-            $console .= ' --ansi';
+            $phpArgs .= ' --ansi';
         }
+        */
 
         echo $php . "\n";
         echo ($phpArgs ?? '') . "\n";
@@ -121,7 +124,13 @@ class ScriptHandler
             $event->getIO()->write($buffer, false);
         });
         if (!$process->isSuccessful()) {
-            throw new \RuntimeException(sprintf("An error occurred when executing the \"%s\" command:\n\n%s\n\n%s", $cmd, self::removeDecoration($process->getOutput()), self::removeDecoration($process->getErrorOutput())));
+            throw new \RuntimeException(sprintf(
+                "An error occurred when executing the \"%s\" command.\n%s\nError:\n\n%s\n\n%s",
+                $cmd,
+                $php . ' ' . ($phpArgs ?? '') . ' ' . $console . ' ' . $cmd,
+                self::removeDecoration($process->getOutput()),
+                self::removeDecoration($process->getErrorOutput())
+            ));
         }
     }
 
