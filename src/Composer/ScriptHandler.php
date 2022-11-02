@@ -111,7 +111,7 @@ class ScriptHandler
             $commandArguments[] = '--ansi';
         }
 
-        $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd, trim(implode(' ', array_map('trim', $commandArguments)))], null, null, null, $timeout);
+        $process = new Process([$php, ($phpArgs ?? ''), '--ansi', $console, $cmd, trim(implode(' ', array_map('trim', $commandArguments)))], null, null, null, $timeout);
 
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
