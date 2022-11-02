@@ -27,7 +27,7 @@ class PWAController extends AbstractController
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
             /** @var PWA $PWA */
-            $PWA = $this->get('aurora.pwa');
+            $PWA = $this->container->get('aurora.pwa');
 
             // Manifest
             if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
