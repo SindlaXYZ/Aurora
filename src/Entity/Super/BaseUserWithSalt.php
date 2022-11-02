@@ -11,6 +11,9 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
 {
+    public function __serialize(): array {}
+    public function __unserialize(array $data): void {}
+
     /**
      * @return string
      */
