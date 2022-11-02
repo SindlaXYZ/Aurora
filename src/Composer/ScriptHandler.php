@@ -107,7 +107,7 @@ class ScriptHandler
         $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
         $console = $consoleDir . '/console';
 
-        if ($event->getIO()->isDecorated()) {
+        if (false && $event->getIO()->isDecorated()) {
             $commandArguments[] = '--ansi';
         }
 
