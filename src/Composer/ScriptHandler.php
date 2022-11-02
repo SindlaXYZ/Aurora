@@ -44,7 +44,7 @@ class ScriptHandler
         $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'aurora:composer --action=postInstall', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer', ['--action=postInstall'], $options['process-timeout']);
     }
 
     /**
@@ -64,7 +64,7 @@ class ScriptHandler
         $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer', ['--action=postUpdate'], $options['process-timeout']);
     }
 
     protected static function getPhp($includeArgs = true): string|false
@@ -101,7 +101,7 @@ class ScriptHandler
         return $arguments;
     }
 
-    protected static function executeCommand(Event $event, $consoleDir, $cmd, $timeout = 300)
+    protected static function executeCommand(Event $event, $consoleDir, $cmd, array $commandArgments, $timeout = 300)
     {
         $php     = static::getPhp(false);
         $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
@@ -115,6 +115,7 @@ class ScriptHandler
         echo ($phpArgs ?? '') . "\n";
         echo $console . "\n";
         echo $cmd . "\n";
+        print_r($commandArgments) ."\n";
 
         $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd], null, null, null, $timeout);
 
