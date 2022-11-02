@@ -41,7 +41,7 @@ class ScriptHandler
      */
     public static function postInstall(Event $event): void
     {
-        $options          = static::getOptions($event);
+        $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
         static::executeCommand($event, 'bin', 'aurora:composer --action=postInstall', $options['process-timeout']);
@@ -61,7 +61,7 @@ class ScriptHandler
      */
     public static function postUpdate(Event $event): void
     {
-        $options          = static::getOptions($event);
+        $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
         static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
@@ -103,17 +103,17 @@ class ScriptHandler
 
     protected static function executeCommand(Event $event, $consoleDir, $cmd, $timeout = 300)
     {
-        $php     = escapeshellarg(static::getPhp(false));
-        $phpArgs = implode(' ', array_map('escapeshellarg', static::getPhpArguments()));
-        $console = escapeshellarg($consoleDir . '/console');
+        $php     = static::getPhp(false);
+        $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
+        $console = $consoleDir . '/console';
         if ($event->getIO()->isDecorated()) {
             $console .= ' --ansi';
         }
 
-        echo $php ."\n";
-        echo ($phpArgs ?? '') ."\n";
-        echo $console ."\n";
-        echo $cmd ."\n";
+        echo $php . "\n";
+        echo ($phpArgs ?? '') . "\n";
+        echo $console . "\n";
+        echo $cmd . "\n";
 
         $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd], null, null, null, $timeout);
 
@@ -121,7 +121,7 @@ class ScriptHandler
             $event->getIO()->write($buffer, false);
         });
         if (!$process->isSuccessful()) {
-            throw new \RuntimeException(sprintf("An error occurred when executing the \"%s\" command:\n\n%s\n\n%s", escapeshellarg($cmd), self::removeDecoration($process->getOutput()), self::removeDecoration($process->getErrorOutput())));
+            throw new \RuntimeException(sprintf("An error occurred when executing the \"%s\" command:\n\n%s\n\n%s", $cmd, self::removeDecoration($process->getOutput()), self::removeDecoration($process->getErrorOutput())));
         }
     }
 
