@@ -104,7 +104,7 @@ class ScriptHandler
     protected static function executeCommand(Event $event, $consoleDir, $cmd, $timeout = 300)
     {
         $php     = static::getPhp(false);
-        $phpArgs = implode(' ', array_map('trim', array_merge(static::getPhpArguments(), $event->getIO()->isDecorated() ? ' --ansi' : '')));
+        $phpArgs = implode(' ', array_map('trim', array_merge(static::getPhpArguments(), [$event->getIO()->isDecorated() ? '--ansi' : ''])));
         $console = $consoleDir . '/console';
 
         /*
