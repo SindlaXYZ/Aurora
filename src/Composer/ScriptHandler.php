@@ -107,11 +107,21 @@ class ScriptHandler
         $phpArgs = implode(' ', array_map('trim', static::getPhpArguments()));
         $console = $consoleDir . '/console';
 
-        if (false && $event->getIO()->isDecorated()) {
-            $commandArguments[] = '--ansi';
+        $processCommand[] = $php;
+        foreach (static::getPhpArguments() as $phpArgument) {
+            $processCommand[] = $phpArgument;
+        }
+        $processCommand[] = $consoleDir . '/console';
+        $processCommand[] = $cmd;
+        foreach ($commandArguments as $commandArgument) {
+            $processCommand[] = $commandArgument;
+        }
+        if ($event->getIO()->isDecorated()) {
+            $processCommand[] = '--ansi';
         }
 
-        $process = new Process([$php, ($phpArgs ?? ''), $console, $cmd, trim(implode(' ', array_map('trim', $commandArguments))), '--ansi'], null, null, null, $timeout);
+        //$process = new Process([$php, ($phpArgs ?? ''), $console, $cmd, trim(implode(' ', array_map('trim', $commandArguments))), '--ansi'], null, null, null, $timeout);
+        $process = new Process($processCommand, null, null, null, $timeout);
 
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
