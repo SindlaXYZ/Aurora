@@ -5,11 +5,12 @@
 | 5.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-yellow)](https://github.com/SindlaXYZ/Aurora/tree/5.2)        | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.2)](https://github.com/SindlaXYZ/Aurora/tree/5.2) | >=7.4          |
 | 5.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/badge/tag-v5.3.9-blue)](https://github.com/SindlaXYZ/Aurora/tree/5.3)           | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.3)](https://github.com/SindlaXYZ/Aurora/tree/5.3) | >=7.4 & >= 8.0 |
 | 6.1     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1         |
+| 6.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.1         |
 
 # Install
 
 #### Composer
-`composer require sindla/aurora:6.1.*`
+`composer require sindla/aurora:6.2.*` | `composer require sindla/aurora:6.2.x-dev`
 
 
 #### `config/packages/aurora.yaml`:
