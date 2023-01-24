@@ -1,48 +1,48 @@
-| Version | Unit testing                                                                                                                                             | Latest Version                                                                                                                                 | Last Commit                                                                                                                    | Required PHP    |
-|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|-----------------|
-| 3.4     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=3.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A3.4) | [![Latest Version](https://img.shields.io/badge/tag-v3.4.3-yellow)](https://github.com/SindlaXYZ/Aurora/releases?q=v3.4&expanded=true)         | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/4.4)](https://github.com/SindlaXYZ/Aurora/tree/3.4) | >=7.2           |
-| 4.4     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=4.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A4.4) | [![Latest Version](https://img.shields.io/badge/tag-v4.4.1-yellow)](https://github.com/SindlaXYZ/Aurora/releases?q=v4.4&expanded=true)         | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/4.4)](https://github.com/SindlaXYZ/Aurora/tree/4.4) | >=7.3           |
-| 5.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-yellow)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.2&expanded=true)        | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.2)](https://github.com/SindlaXYZ/Aurora/tree/5.2) | >=7.4           |
-| 5.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/badge/tag-v5.3.9-blue)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.3&expanded=true)           | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.3)](https://github.com/SindlaXYZ/Aurora/tree/5.3) | >=7.4 & >= 8.0  |
-| 6.1     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.1&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1          |
-| 6.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases)                      | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.1 & >= 8.2 |
+| Version | Unit testing                                                                                                                                             | Latest Version                                                                                                                         | Last Commit                                                                                                                    | Required PHP    |
+|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|-----------------|
+| 3.4     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=3.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A3.4) | [![Latest Version](https://img.shields.io/badge/tag-v3.4.3-yellow)](https://github.com/SindlaXYZ/Aurora/releases?q=v3.4&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/4.4)](https://github.com/SindlaXYZ/Aurora/tree/3.4) | >=7.2           |
+| 4.4     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=4.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A4.4) | [![Latest Version](https://img.shields.io/badge/tag-v4.4.1-yellow)](https://github.com/SindlaXYZ/Aurora/releases?q=v4.4&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/4.4)](https://github.com/SindlaXYZ/Aurora/tree/4.4) | >=7.3           |
+| 5.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.2) | [![Latest Version](https://img.shields.io/badge/tag-v5.2.51-green)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.2&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.2)](https://github.com/SindlaXYZ/Aurora/tree/5.2) | >=7.4           |
+| 5.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=5.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.3) | [![Latest Version](https://img.shields.io/badge/tag-v5.3.9-blue)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.3&expanded=true)   | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.3)](https://github.com/SindlaXYZ/Aurora/tree/5.3) | >=7.4 & >= 8.0  |
+| 6.1     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1) | [![Latest Version](https://img.shields.io/badge/tag-N/A-red)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.1&expanded=true)       | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1          |
+| 6.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases)              | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.1 & >= 8.2 |
 
 # Install
 
 #### Composer
-`composer require sindla/aurora:6.2.*` | `composer require sindla/aurora:6.2.x-dev`
 
+`composer require sindla/aurora:6.2.*` | `composer require sindla/aurora:6.2.x-dev`
 
 #### `config/packages/aurora.yaml`:
 
 ```yaml
 parameters:
-    aurora.bundle:     'App'
-    aurora.root:       '%kernel.project_dir%'
-    aurora.tmp:        '%kernel.project_dir%/var/tmp'
-    aurora.resources:  '%kernel.project_dir%/var/resources'
-    aurora.static:     '%kernel.project_dir%/public/static'
-    aurora.locales:    ['en', 'ro']
-    aurora.locale:     'ro'
+    aurora.bundle: 'App'
+    aurora.root: '%kernel.project_dir%'
+    aurora.tmp: '%kernel.project_dir%/var/tmp'
+    aurora.resources: '%kernel.project_dir%/var/resources'
+    aurora.static: '%kernel.project_dir%/public/static'
+    aurora.locales: [ 'en', 'ro' ]
+    aurora.locale: 'ro'
     # maxmind.com license key
     aurora.maxmind.license_key: '%env(default::MAXMIND_LICENSE_KEY)%'
     # Minify output
-    aurora.minify.output:                     false
-    aurora.minify.output.ignore.extensions:   ['.pdf', '.jpg', '.png', '.gif', '.doc']
-    aurora.minify.output.ignore.content.type: ['text/plain']
+    aurora.minify.output: false
+    aurora.minify.output.ignore.extensions: [ '.pdf', '.jpg', '.png', '.gif', '.doc' ]
+    aurora.minify.output.ignore.content.type: [ 'text/plain' ]
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
-    aurora.pwa.version_append:        "!php/eval `App\Utils::pwaVersioAppend()`"
-    aurora.pwa.automatically_prompt:  false
-    aurora.pwa.app_name:              ''
-    aurora.pwa.app_short_name:        ''
-    aurora.pwa.app_description:       ''
-    aurora.pwa.start_url:             '/?pwa'
-    aurora.pwa.display:               'fullscreen'   # fullscreen | standalone | minimal-ui
-    aurora.pwa.icons:                 '%kernel.project_dir%/public/static/img/favicon'
-    aurora.pwa.theme_color:           '#2C3E50' # Sets the color of the tool bar, and may be reflected in the app's preview in task switchers
-    aurora.pwa.background_color:      '#2C3E50' # Should be the same color as the load page, to provide a smooth transition from the splash screen to your app
-    aurora.pwa.offline:               '/aurora/pwa-offline'
+    aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersioAppend()`"
+    aurora.pwa.automatically_prompt: false
+    aurora.pwa.app_name: ''
+    aurora.pwa.app_short_name: ''
+    aurora.pwa.app_description: ''
+    aurora.pwa.start_url: '/?pwa'
+    aurora.pwa.display: 'fullscreen'   # fullscreen | standalone | minimal-ui
+    aurora.pwa.icons: '%kernel.project_dir%/public/static/img/favicon'
+    aurora.pwa.theme_color: '#2C3E50' # Sets the color of the tool bar, and may be reflected in the app's preview in task switchers
+    aurora.pwa.background_color: '#2C3E50' # Should be the same color as the load page, to provide a smooth transition from the splash screen to your app
+    aurora.pwa.offline: '/aurora/pwa-offline'
     aurora.pwa.precache:
         - '/'
     aurora.pwa.prevent_cache:
@@ -95,18 +95,19 @@ parameters:
     aurora.minify.output: false
 ```
 
-
 * Edit `composer.json` and add
+
 ```json
     "post-install-cmd": [
-        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
-    ],
-    "post-update-cmd": [
-        "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
-    ]
+"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
+],
+"post-update-cmd": [
+"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
+]
 ```
 
 * Edit `config/packages/twig.yaml` and add
+
 ```yaml
 twig:
     default_path: '%kernel.project_dir%/templates'
@@ -121,6 +122,7 @@ twig:
 
 * Enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
 * Edit `config/routes.yaml` and prepend
+
 ```yaml
 aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
@@ -131,6 +133,7 @@ Run `composer update` to update and install the rest of the dependencies.
 ---
 
 **[PWA]** Inside your twig template, in HTML `head` tag add:
+
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
@@ -140,6 +143,7 @@ Run `composer update` to update and install the rest of the dependencies.
 #### Inject ContainerAwareInterface into Doctrine Migrations
 
 1. `config/services.yaml`
+
 ```yaml
     ...
 
@@ -150,12 +154,13 @@ Run `composer update` to update and install the rest of the dependencies.
     Doctrine\Migrations\Version\DbalMigrationFactory: ~
     Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator:
         decorates: Doctrine\Migrations\Version\DbalMigrationFactory
-        arguments: ['@Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container']
+        arguments: [ '@Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator.inner', '@service_container' ]
 
-    ...
+        ...
 ```
 
 2. `config/packages/doctrine_migrations.yaml`
+
 ```yaml
 doctrine_migrations:
     services:
@@ -164,6 +169,7 @@ doctrine_migrations:
 ```
 
 3. Create an empty migration and edit it
+
 ```php
 // Symfony
 use Symfony\Component\DependencyInjection\ContainerAwareInterface;
@@ -191,19 +197,20 @@ final class Version... extends AbstractMigration implements ContainerAwareInterf
 
 * Edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`
 * Edit `config/services.yaml`
+
 ```yaml
     Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
         arguments:
             $container: '@service_container'
             $utilityExtension: '@aurora.twig.utility'
-            #$headers:
-                #text/html:
-                    #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
-                    #Content-Security-Policy: "default-src 'self'"
-                    # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
-                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
-                    #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
-                    #Referrer-Policy: "no-referrer-when-downgrade"
+              #$headers:
+              #text/html:
+              #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+              #Content-Security-Policy: "default-src 'self'"
+              # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
+              #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
+            #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+            #Referrer-Policy: "no-referrer-when-downgrade"
         tags:
             - { name: kernel.event_listener, event: kernel.response }
 ```
