@@ -30,14 +30,13 @@ class StrinkTest extends KernelTestCase
     public function testFixDiacritics(): void
     {
         $Strink = new Strink();
-
         foreach ([
                      'București'           => ['Bucureºti', 'Bucureşti'],
                      'Dumbrăvii'           => ['Dumbrãvii'],
                      'P-ța Rhedey Claudia' => ['P-þa Rhedey Claudia']
-                 ] as $expected => $toFix) {
-            foreach ($toFix as $actual) {
-                $this->assertEquals($expected, $Strink->string($actual)->fixDiacritics('ro'));
+                 ] as $expected => $givents) {
+            foreach ($givents as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->fixDiacritics('ro'));
             }
         }
     }
@@ -50,6 +49,29 @@ class StrinkTest extends KernelTestCase
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
                 $this->assertEquals($expected, $Strink->string($given)->camelCaseToSnakeCase());
+            }
+        }
+    }
+
+    public function testSnakeCaseToCamelCase(): void
+    {
+        $Strink = new Strink();
+
+        // Upper first letter
+        foreach ([
+                     'ExternalRequestRepository' => ['external_request_repository', 'external_Request_repository', 'External_request_repository']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(true));
+            }
+        }
+
+        // Lower first letter
+        foreach ([
+                     'externalRequestRepository' => ['external_request_repository', 'external_Request_repository', 'External_request_repository']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(false));
             }
         }
     }

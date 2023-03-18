@@ -181,15 +181,7 @@ class Strink
      */
     public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): Strink
     {
-        $this->string = strtolower($this->string);
-
-        if (strpos($this->string, '_')) {
-            $function     = function ($c) {
-                return strtoupper($c[1]);
-            };
-            $this->string = preg_replace_callback('/_([a-z])/', $function, $this->string);
-        }
-
+        $this->string = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
         $this->string = ($upperCaseFirsLetter ? ucfirst($this->string) : $this->string);
         return $this;
     }
@@ -221,12 +213,7 @@ class Strink
      */
     public function camelCaseToSnakeCase(): Strink
     {
-        $this->string[0] = strtolower($this->string[0]);
-        $function        = function ($c) {
-            return strtolower($c[1]);
-        };
-        $this->string    = preg_replace_callback('/([A-Z])/', $function, $this->string);
-        return $this;
+        strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
     }
 
     /**
