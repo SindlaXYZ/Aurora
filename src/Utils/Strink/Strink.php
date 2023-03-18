@@ -184,7 +184,9 @@ class Strink
         $this->string = strtolower($this->string);
 
         if (strpos($this->string, '_')) {
-            $function     = create_function('$c', 'return strtoupper($c[1]);');
+            $function     = function ($c) {
+                return strtoupper($c[1]);
+            };
             $this->string = preg_replace_callback('/_([a-z])/', $function, $this->string);
         }
 
@@ -220,7 +222,9 @@ class Strink
     public function camelCaseToSnakeCase(): Strink
     {
         $this->string[0] = strtolower($this->string[0]);
-        $function        = create_function('$c', 'return "_" . strtolower($c[1]);');
+        $function        = function ($c) {
+            return strtolower($c[1]);
+        };
         $this->string    = preg_replace_callback('/([A-Z])/', $function, $this->string);
         return $this;
     }

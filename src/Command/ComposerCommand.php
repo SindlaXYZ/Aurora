@@ -167,7 +167,7 @@ class ComposerCommand extends Command
         try {
             file_put_contents($phpUnitFile, $phar);
         } catch (\Exception $e) {
-            throw new \RuntimeException("[AURORA] Cannot write phpunit.phar file on disk.");
+            throw new \RuntimeException(sprintf('[AURORA] Cannot write %s file on disk.', $phpUnitFile));
         }
 
         $this->io->comment(sprintf('%s ... done;', $this->p()));
@@ -221,14 +221,16 @@ class ComposerCommand extends Command
             return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
-        if (!file_put_contents("{$tempDir}/GeoLite2-{$type}.tar.gz", $tarGz)) {
-            return $this->io->error("[AURORA] Cannot write .tar.gz file on disk.");
+        $tmpTarGz = "{$tempDir}/GeoLite2-{$type}.tar.gz";
+
+        if (!file_put_contents($tmpTarGz, $tarGz)) {
+            return $this->io->error(sprintf('[AURORA] Cannot write .tar.gz file on disk.', ));
         }
 
         // Decompress from gz
         $pharError = false;
         try {
-            $PharData = new \PharData("{$tempDir}/GeoLite2-{$type}.tar.gz");
+            $PharData = new \PharData($tmpTarGz);
         } catch (\UnexpectedValueException $e) {
             $pharError = true;
             throw new \Exception('[AURORA] Could not read .tar.gz file.');
