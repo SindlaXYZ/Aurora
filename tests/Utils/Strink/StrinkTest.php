@@ -1,14 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Strink;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
-// Sindla
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 
 /**
@@ -31,7 +27,7 @@ class StrinkTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function testFixDiacritics()
+    public function testFixDiacritics(): void
     {
         $Strink = new Strink();
 
@@ -42,6 +38,18 @@ class StrinkTest extends KernelTestCase
                  ] as $expected => $toFix) {
             foreach ($toFix as $actual) {
                 $this->assertEquals($expected, $Strink->string($actual)->fixDiacritics('ro'));
+            }
+        }
+    }
+
+    public function testCamelCaseToSnakeCase(): void
+    {
+        $Strink = new Strink();
+        foreach ([
+                     'external_request_repository' => ['ExternalRequestRepository', 'externalRequestRepository']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->camelCaseToSnakeCase());
             }
         }
     }
