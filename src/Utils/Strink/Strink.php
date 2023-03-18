@@ -149,7 +149,7 @@ class Strink
      *
      * @param integer $limit
      * @param string  $postText
-     *
+     * @param string  $cut
      * @return Strink
      */
     public function limitedString(int $limit = 10, string $postText = '...', string $cut = 'right'): Strink
@@ -181,8 +181,8 @@ class Strink
      */
     public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): Strink
     {
-        $this->string = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
-        $this->string = ($upperCaseFirsLetter ? ucfirst($this->string) : $this->string);
+        $this->string = str_replace('_', '', ucwords('external_request_repository', '_'));
+        $this->string = (!$upperCaseFirsLetter ? lcfirst($this->string) : $this->string);
         return $this;
     }
 
