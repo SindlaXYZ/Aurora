@@ -1,25 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Entity;
+namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAnnotation;
 
-// Core
 use DateTime;
 use TypeError;
-
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-
-// Aurora
-use Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\TemporalCreatedTrait;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Entity/TemporalTraitTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php --no-coverage
  */
 class TemporalTraitTest extends KernelTestCase
 {
@@ -41,7 +34,7 @@ class TemporalTraitTest extends KernelTestCase
     public function testTemporalCreatedTrait()
     {
         /** @var TemporalCreatedTrait $TemporalCreatedTrait */
-        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
+        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\TemporalCreatedTrait');
 
         $someDateTime = new \DateTimeImmutable('2021-01-12 01:02:03');
         $dateFormat   = 'Y-m-d H:i:s';
@@ -52,7 +45,7 @@ class TemporalTraitTest extends KernelTestCase
     public function testTemporalCreatedTraitException()
     {
         /** @var TemporalCreatedTrait $TemporalCreatedTrait */
-        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait');
+        $TemporalCreatedTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\TemporalCreatedTrait');
 
         $this->expectException(TypeError::class);
         $TemporalCreatedTrait->setCreatedAt(new DateTime());

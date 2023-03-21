@@ -1,19 +1,15 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Entity\Super;
+namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAnnotation;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
-
-// Aurora
-use Sindla\Bundle\AuroraBundle\Entity\Super\IdentifiableUUID;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\IdentifiableUUID;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/Entity/IdentifiableUUIDTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php --no-coverage
  */
 class IdentifiableUUIDTest extends KernelTestCase
 {

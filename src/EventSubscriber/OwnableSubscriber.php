@@ -13,7 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 // Aurora
-use Sindla\Bundle\AuroraBundle\Entity\Super;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
 /**
  * Updates owner_id, created_by and updated_by when creating or updating a resource, only if the resource uses Ownable trait

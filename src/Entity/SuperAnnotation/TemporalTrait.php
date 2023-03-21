@@ -1,13 +1,13 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\Super;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
 // Aurora
-use Sindla\Bundle\AuroraBundle\Entity\Super\TemporalCreatedTrait;
-use Sindla\Bundle\AuroraBundle\Entity\Super\TemporalUpdatedTrait;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\TemporalCreatedTrait;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation\TemporalUpdatedTrait;
 
 /**
  * Trait TemporalTrait

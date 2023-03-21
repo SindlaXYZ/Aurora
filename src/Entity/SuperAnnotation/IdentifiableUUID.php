@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\Super;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;

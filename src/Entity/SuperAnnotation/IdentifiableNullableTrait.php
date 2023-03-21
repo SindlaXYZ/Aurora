@@ -1,21 +1,21 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\Super;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
 // Doctrine
 use Doctrine\ORM\Mapping as ORM;
 
 /**
- * Trait IdentifiableTrait
+ * Trait IdentifiableNullableTrait
  *  + `id`
  *
- * This will generate an error in Doctrine:UnitOfWork when an EntityObject will be ->remove(MyEntity)
- * Use IdentifiableNullableTrait if needed
+ * Toward `IdentifiableTrait`, this trait allow `id` to be null
+ * A NON-null $id will generate an error in Doctrine:UnitOfWork when an EntityObject will be removed
  */
-trait IdentifiableTrait
+trait IdentifiableNullableTrait
 {
     /**
-     * @var int
+     * @var ?int
      *
      * @ORM\Id
      * @ORM\Column(type="integer")
@@ -34,12 +34,12 @@ trait IdentifiableTrait
      *      MSSQL => IDENTITY
      *      PostgreSQL => SERIAL
      */
-    protected int $id = 0;
+    protected ?int $id = null;
 
     /**
-     * @return int|null
+     * @return int
      */
-    public function getId(): ?int
+    public function getId(): int
     {
         return $this->id;
     }

@@ -178,8 +178,10 @@ jobs:
             #            -   name: "Test /Controller/Blackhole"
             #                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
 
-            -   name: "Test /Entity"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/Super/IdentifiableUUIDTest.php --debug --no-coverage
+            -   name: "Test /Entity/SuperAnnotation"
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php --debug --no-coverage
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php --debug --no-coverage
 
             -   name: "Test /EventListener"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --debug --no-coverage
@@ -192,9 +194,6 @@ jobs:
 
             -   name: "Test /Utils/Diacritics"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --debug --no-coverage
-
-            -   name: "Test /Utils/Entity"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Entity/TemporalTraitTest.php --debug --no-coverage
 
             -   name: "Test /Utils/Helper"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php --debug --no-coverage

@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\Super;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
 // Core
 use Serializable;
@@ -9,7 +9,7 @@ use Serializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
-class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
+class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
 {
     public function __serialize(): array {}
     public function __unserialize(array $data): void {}
@@ -30,13 +30,17 @@ class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface, Ser
         return $this->password;
     }
 
+    /**
+     * @return string
+     */
     public function getSalt(): ?string
     {
-        // you *may* need a real salt depending on your encoder
-        // see section on salt below
-        return null;
+        return $this->salt;
     }
 
+    /**
+     * @return array
+     */
     public function getRoles(): array
     {
         return $this->role;
@@ -53,8 +57,7 @@ class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface, Ser
             $this->id,
             $this->username,
             $this->password,
-            // see section on salt below
-            // $this->salt,
+            $this->salt
         ]);
     }
 
@@ -65,8 +68,7 @@ class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface, Ser
             $this->id,
             $this->username,
             $this->password,
-            // see section on salt below
-            // $this->salt
+            $this->salt
         ]
             = unserialize($serialized);
     }
