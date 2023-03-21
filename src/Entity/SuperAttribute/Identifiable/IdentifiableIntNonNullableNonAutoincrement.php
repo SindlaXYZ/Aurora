@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Identifiable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-trait IntNonNullableNonAutoincrement
+trait IdentifiableIntNonNullableNonAutoincrement
 {
     #[ORM\Id]
     #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['`unsigned`' => true])]

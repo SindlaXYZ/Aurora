@@ -7,7 +7,7 @@ use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-trait Created
+trait TimestampableCreated
 {
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?DateTimeInterface $createdAt = null;

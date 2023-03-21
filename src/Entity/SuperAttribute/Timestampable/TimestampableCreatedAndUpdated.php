@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
-trait CreatedAndUpdated
+trait TimestampableCreatedAndUpdated
 {
     use Created;
     use Updated;

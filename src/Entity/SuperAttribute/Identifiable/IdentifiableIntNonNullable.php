@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Identifiable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-trait IntNonNullable
+trait IdentifiableIntNonNullable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]

@@ -7,7 +7,7 @@ use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
-trait Updated
+trait TimestampableUpdated
 {
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?DateTimeInterface $updatedAt = null;
