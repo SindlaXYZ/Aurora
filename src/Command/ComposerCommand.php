@@ -187,7 +187,7 @@ class ComposerCommand extends Command
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
         if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'])) {
-            $this->io->warning('[AURORA] SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are defined in .env[.local]');
+            $this->io->warning('[AURORA] ... skip becaus SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are defined in .env[.local]');
             return;
         } else if ('Country' == $type && false === filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false');
