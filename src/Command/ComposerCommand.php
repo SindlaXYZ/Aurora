@@ -186,7 +186,8 @@ class ComposerCommand extends Command
 
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
-        $tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
+        //$tempDir           = $this->container->getParameter('aurora.tmp') . '/' . microtime(true);
+        $tempDir           = sys_get_temp_dir();
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
