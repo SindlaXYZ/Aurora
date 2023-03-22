@@ -184,18 +184,18 @@ class ComposerCommand extends Command
             return;
         }
 
+        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
+
         if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'])) {
             $this->io->warning('[AURORA] SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are defined in .env[.local]');
             return;
         } else if ('Country' == $type && false === filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('[AURORA] SINDLA_AURORA_GEO_LITE2_COUNTRY=false');
+            $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false');
             return;
         } else if ('City' == $type && false === filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'], FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('[AURORA] SINDLA_AURORA_GEO_LITE2_CITY=false');
+            $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false');
             return;
         }
-
-        $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
         $tempDir           = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp') . '/' . microtime(true));
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
