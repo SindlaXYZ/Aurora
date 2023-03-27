@@ -36,7 +36,7 @@ class TestCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->input->comment('It works!');
+        $input->comment('It works!');
 
         return Command::SUCCESS;
     }
