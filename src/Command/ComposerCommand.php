@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-// Symfony
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,6 +17,11 @@ use Symfony\Component\Yaml\Yaml;
 // Vendor
 use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
+#[AsCommand(
+    name: 'aurora:composer',
+    description: 'Composer update command',
+    aliases: ['aurora:composer']
+)]
 class ComposerCommand extends Command
 {
     /**
@@ -28,8 +33,6 @@ class ComposerCommand extends Command
      *
      * @var string|null
      */
-    protected static $defaultName = 'aurora:composer';
-
     /** @var InputInterface input */
     protected InputInterface $input;
 
@@ -40,16 +43,31 @@ class ComposerCommand extends Command
     protected SymfonyStyle $io;
 
     /**
-     * {@inheritDoc}
+     * {@inheritdoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setName()
-            ->setDescription('Composer commands')
-            ->setHelp('Composer update command')
-            // Mandatory
-            ->addOption('action', null, InputOption::VALUE_REQUIRED);
+            ->setHelp(<<<'HELP'
+                The <info>%command.name%</info> command lists all the users registered in the application:
+                  <info>php %command.full_name%</info>
+                By default the command only displays the 50 most recent users. Set the number of
+                results to display with the <comment>--max-results</comment> option:
+                  <info>php %command.full_name%</info> <comment>--max-results=2000</comment>
+                In addition to displaying the user list, you can also send this information to
+                the email address specified in the <comment>--send-to</comment> option:
+                  <info>php %command.full_name%</info> <comment>--send-to=fabien@symfony.com</comment>
+                HELP
+            )
+            // commands can optionally define arguments and/or options (mandatory and optional)
+            // see https://symfony.com/doc/current/components/console/console_arguments.html
+            ->addOption(
+                'action',                              // this is the name that users must type to pass this option (e.g. --action=doSomething)
+                null,                                  // this is the optional shortcut of the option name, which usually is just a letter (e.g. `i`, so users pass it as `-i`); use it for commonly used options or options with long names
+                InputOption::VALUE_OPTIONAL,           // this is the type of option (e.g. requires a value, can be passed more than once, etc. InputOption::VALUE_OPTIONAL | InputOption::VALUE_REQUIRED)
+                'Composer update command',   // the option description displayed when showing the command help
+                null                                   // the default value of the option (for those which allow to pass values)
+            );
     }
 
     public function __construct(ContainerInterface $container)

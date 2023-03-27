@@ -2,11 +2,16 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-// Symfony
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
+#[AsCommand(
+    name: 'aurora:test',
+    description: 'Aurora test command',
+    aliases: ['aurora:test']
+)]
 class TestCommand extends Command
 {
     /**
@@ -20,23 +25,18 @@ class TestCommand extends Command
      */
     protected static $defaultName = 'aurora:test';
 
-    /**
-     * {@inheritDoc}
-     */
-    protected function configure()
+    protected function configure(): void
     {
         $this
-            ->setName(self::$defaultName)
-            ->setDescription('Test command')
             ->setHelp('This command allows you to test Aurora Command service');
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io->comment('It works!');
+        $this->input->comment('It works!');
 
         return Command::SUCCESS;
     }
