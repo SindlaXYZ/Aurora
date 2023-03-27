@@ -6,6 +6,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(
     name: 'aurora:test',
@@ -14,29 +15,23 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class TestCommand extends Command
 {
-    /**
-     * The name of the command (the part after "bin/console")
-     * The command must be registered in src/Resources/config/services.yaml
-     *
-     * Usage:
-     *      clear; php bin/console aurora:test
-     *
-     * @var string
-     */
-    protected static $defaultName = 'aurora:test';
+    protected SymfonyStyle $io;
 
     protected function configure(): void
     {
-        $this
-            ->setHelp('This command allows you to test Aurora Command service');
+        $this->setHelp('This command allows you to test Aurora Command service');
     }
 
     /**
      * {@inheritdoc}
+     *
+     * Usage: clear; php bin/console aurora:test
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $input->comment('It works!');
+        /** @var SymfonyStyle io */
+        $this->io = new SymfonyStyle($this->input, $this->output);
+        $this->io->success('It works!');
 
         return Command::SUCCESS;
     }
