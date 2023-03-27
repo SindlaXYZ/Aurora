@@ -30,7 +30,7 @@ class TestCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var SymfonyStyle io */
-        $this->io = new SymfonyStyle($this->input, $this->output);
+        $this->io = new SymfonyStyle($input, $output);
         $this->io->success('It works!');
 
         return Command::SUCCESS;
