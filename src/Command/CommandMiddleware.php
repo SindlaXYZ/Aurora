@@ -45,9 +45,9 @@ class CommandMiddleware extends Command
      *
      * @param string $defaultName
      */
-    public function __construct(string $defaultName)
+    public function __construct()
     {
-        parent::__construct($defaultName);
+        parent::__construct();
     }
 
     /**

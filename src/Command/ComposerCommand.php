@@ -45,7 +45,7 @@ class ComposerCommand extends Command
     protected function configure()
     {
         $this
-            ->setName(self::$defaultName)
+            ->setName()
             ->setDescription('Composer commands')
             ->setHelp('Composer update command')
             // Mandatory
