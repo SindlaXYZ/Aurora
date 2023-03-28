@@ -22,7 +22,7 @@ use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
     description: 'Composer update command',
     aliases: ['aurora:composer']
 )]
-class ComposerCommand extends Command
+final class ComposerCommand extends Command
 {
     /**
      * The name of the command (the part after "bin/console")

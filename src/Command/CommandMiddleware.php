@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-// Symfony
 # use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Doctrine\ORM\EntityManager;
 use Symfony\Component\Console\Command\Command;
@@ -14,7 +13,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Class CommandMiddleware
- * Utilities for all command diles
+ * Utilities for all command files
  */
 class CommandMiddleware extends Command
 {

@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-// Symfony
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -12,15 +11,11 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-
-// Doctrine
 use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
 
 class LazyEntityCommand extends CommandMiddleware
