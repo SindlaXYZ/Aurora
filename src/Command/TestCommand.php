@@ -13,7 +13,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     description: 'Aurora test command',
     aliases: ['aurora:test']
 )]
-class TestCommand extends Command
+final class TestCommand extends Command
 {
     protected SymfonyStyle $io;
 
