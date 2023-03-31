@@ -17,7 +17,7 @@ trait TimestampableUpdated
     {
         $this->setUpdatedAt(new DateTimeImmutable());
 
-        if (null === $this->getCreatedAt()) {
+        if (method_exists($this, 'getCreatedAt') && null === $this->getCreatedAt()) {
             $this->setCreatedAt($this->getUpdatedAt());
         }
     }
