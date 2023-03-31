@@ -16,6 +16,10 @@ trait TimestampableUpdated
     public function preUpdateHook(): void
     {
         $this->setUpdatedAt(new DateTimeImmutable());
+
+        if (null === $this->getCreatedAt()) {
+            $this->setCreatedAt($this->getUpdatedAt());
+        }
     }
 
     public function getUpdatedAt(): ?DateTimeInterface
