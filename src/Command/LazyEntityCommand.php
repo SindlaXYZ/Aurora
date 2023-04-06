@@ -2,6 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
+use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -18,6 +19,11 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
 
+#[AsCommand(
+    name: 'aurora:lazy.entity',
+    description: 'Aurora entity generator',
+    aliases: ['aurora:composer']
+)]
 class LazyEntityCommand extends CommandMiddleware
 {
     // V1
@@ -40,7 +46,6 @@ class LazyEntityCommand extends CommandMiddleware
      *
      * @var string
      */
-    protected static $defaultName = 'aurora:lazy.entity';
 
     /**
      * {@inheritDoc}
@@ -48,8 +53,6 @@ class LazyEntityCommand extends CommandMiddleware
     protected function configure()
     {
         $this
-            ->setName(self::$defaultName)
-            ->setDescription('Generate setters and getter for an entity')
             ->addOption('namespace', null, InputOption::VALUE_REQUIRED)
             ->addOption('sonataAdmin', null, InputOption::VALUE_REQUIRED)
             ->addOption('entity', null, InputOption::VALUE_REQUIRED)
@@ -60,8 +63,8 @@ class LazyEntityCommand extends CommandMiddleware
 
     public function __construct(ContainerInterface $container)
     {
-        parent::__construct(self::$defaultName);
-        $this->container     = $container;
+        parent::__construct();
+        $this->container = $container;
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
@@ -81,9 +84,9 @@ class LazyEntityCommand extends CommandMiddleware
 
         $this->em = $this->container->get('doctrine')->getManager();
 
-        $this->namespace   = $this->input->getOption('namespace');
+        $this->namespace = $this->input->getOption('namespace');
         $this->sonataAdmin = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
-        $this->entity      = $this->input->getOption('entity');
+        $this->entity = $this->input->getOption('entity');
         $this->entityQualifiedName = $this->input->getOption('entityQualifiedName') ?? $this->input->getOption('eqn');
 
         if (null == $this->entityQualifiedName && null == $this->namespace) {
@@ -111,17 +114,17 @@ class LazyEntityCommand extends CommandMiddleware
             throw new \Exception($exception->getMessage());
         }
 
-        $reader           = new AnnotationReader();
+        $reader = new AnnotationReader();
         $classAnnotations = $reader->getClassAnnotations($reflect);
 
-        if(!is_array($classAnnotations) || (is_array($classAnnotations) && empty($classAnnotations))) {
+        if (!is_array($classAnnotations) || (is_array($classAnnotations) && empty($classAnnotations))) {
             throw new \Exception("Invalid entity: no class annotations found.");
         }
 
         foreach ($classAnnotations as $annotationsType) {
-            if($annotationsType instanceof Table) {
+            if ($annotationsType instanceof Table) {
 
-            } else if($annotationsType instanceof Entity) {
+            } else if ($annotationsType instanceof Entity) {
 
             }
         }
@@ -143,13 +146,13 @@ class LazyEntityCommand extends CommandMiddleware
         $constructBody = false;
         preg_match('/__construct(.*?)}/is', $fileContent, $matches);
         if (!empty($matches)) {
-            $func          = new \ReflectionMethod($className, '__construct');
-            $filename      = $func->getFileName();
-            $start_line    = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
-            $end_line      = $func->getEndLine();
-            $length        = $end_line - $start_line;
-            $source        = file($filename);
-            $body          = implode("", array_slice($source, $start_line, $length));
+            $func = new \ReflectionMethod($className, '__construct');
+            $filename = $func->getFileName();
+            $start_line = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
+            $end_line = $func->getEndLine();
+            $length = $end_line - $start_line;
+            $source = file($filename);
+            $body = implode("", array_slice($source, $start_line, $length));
             $constructBody = $body;
         }
 
@@ -160,11 +163,11 @@ class LazyEntityCommand extends CommandMiddleware
         print_r($matches);
         die;
 
-        $map    = [];
+        $map = [];
         $tokens = token_get_all($fileContent);
         //print_r(token_get_all($fileContent));die;
         $namespaceFound = false;
-        $namespace      = '';
+        $namespace = '';
         foreach ($tokens as $token) {
             if (is_array($token)) {
                 [$id, $text, $line] = $token;
@@ -215,7 +218,7 @@ class LazyEntityCommand extends CommandMiddleware
 
         $reflect = new \ReflectionClass($Class);
 
-        $reader           = new AnnotationReader();
+        $reader = new AnnotationReader();
         $classAnnotations = $reader->getClassAnnotations($reflect);
 
         // Get class [public|protected|private $vars = ..]
@@ -233,12 +236,12 @@ class LazyEntityCommand extends CommandMiddleware
         $eDir = $this->kernelRootDir . "/src/Entity/";
 
         $directory = new \RecursiveDirectoryIterator($eDir, \RecursiveDirectoryIterator::SKIP_DOTS);
-        $iterator  = new \RecursiveIteratorIterator($directory);
+        $iterator = new \RecursiveIteratorIterator($directory);
         foreach ($iterator as $fileName => $info) {
 
-            $entity       = preg_replace('/\\.[^.\\s]{3,4}$/', '', $info->getFilename());
-            $entityLower  = strtolower($entity);
-            $entityDir    = '';
+            $entity = preg_replace('/\\.[^.\\s]{3,4}$/', '', $info->getFilename());
+            $entityLower = strtolower($entity);
+            $entityDir = '';
             $namespaceDir = '';
 
             if ($this->input->getOption('entity') && $this->input->getOption('entity') != $entity) {
@@ -269,14 +272,14 @@ class LazyEntityCommand extends CommandMiddleware
             $constructBody = false;
             preg_match('/__construct(.*?)}/is', $fileContent, $matches);
             if (!empty($matches)) {
-                $func           = new \ReflectionMethod($className, '__construct');
-                $filename       = $func->getFileName();
-                $start_line     = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
-                $end_line       = $func->getEndLine();
-                $length         = $end_line - $start_line;
-                $source         = file($filename);
-                $body           = implode("", array_slice($source, $start_line, $length));
-                $constructBody  = $body;
+                $func = new \ReflectionMethod($className, '__construct');
+                $filename = $func->getFileName();
+                $start_line = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
+                $end_line = $func->getEndLine();
+                $length = $end_line - $start_line;
+                $source = file($filename);
+                $body = implode("", array_slice($source, $start_line, $length));
+                $constructBody = $body;
             }
 
             require_once $file;
@@ -285,7 +288,7 @@ class LazyEntityCommand extends CommandMiddleware
 
             $reflect = new \ReflectionClass($Class);
 
-            $reader           = new AnnotationReader();
+            $reader = new AnnotationReader();
             $classAnnotations = $reader->getClassAnnotations($reflect);
 
             // Get class [public|protected|private $vars = ..]
@@ -295,11 +298,11 @@ class LazyEntityCommand extends CommandMiddleware
             $constants = $reflect->getConstants();
 
             $toString = '';
-            $xml      = '';
+            $xml = '';
 
             if ($constructBody) {
                 //$xml .= "\n\n" . '    public function ' . $constructBody;
-                $xml .= "\n\n". $constructBody;
+                $xml .= "\n\n" . $constructBody;
             }
 
             foreach ($props as $prop) {
@@ -314,8 +317,8 @@ class LazyEntityCommand extends CommandMiddleware
 
                 //print_r($classAnnotations);die;
 
-                $auroraAnnotation  = new Aurora();
-                $reflectionMethod  = $reflect->getProperty($prop->name);
+                $auroraAnnotation = new Aurora();
+                $reflectionMethod = $reflect->getProperty($prop->name);
                 $methodAnnotations = $reader->getPropertyAnnotations($reflectionMethod);
 
                 //die(print_r($methodAnnotations));
@@ -323,7 +326,7 @@ class LazyEntityCommand extends CommandMiddleware
                 foreach ($methodAnnotations as $annotation) {
                     if ($annotation instanceof \Doctrine\ORM\Mapping\ManyToMany) {
                         $manyToMany = [
-                            'orm'        => $annotation,
+                            'orm' => $annotation,
                             'reflection' => new \ReflectionClass($annotation->targetEntity)
                         ];
                     } else if ($annotation instanceof Column) {
@@ -423,7 +426,7 @@ EOT;
                     $returnTypeGet = '\Doctrine\Common\Collections\Collection';
                     $returnTypeSet = '\Doctrine\Common\Collections\Collection';
 
-                // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
+                    // } elseif(preg_match('/ArrayCollection/i', $prop->getDocComment()) && preg_match('/PersistentCollection/i', $prop->getDocComment()) && preg_match('/ManyToMany/', $prop->getDocComment())) {
 
                 } else if (preg_match("/{$this->namespace}\\\Entity/i", $prop->getDocComment())) {
                     $returnTypeGet = "\\" . $returnType;
@@ -441,7 +444,7 @@ EOT;
                 }
                 */
 
-                $returnThis  = "\n" . \str_repeat(' ', 8) . "return \$this;";
+                $returnThis = "\n" . \str_repeat(' ', 8) . "return \$this;";
                 $returnThis2 = "return \$this;";
 
                 $getDoc = "\n\n\t/**";
@@ -562,9 +565,9 @@ EOT;
                         // If constant name start with annotation value
                         if (strpos($constantName, $auroraAnnotation->bitwiseConst) === 0) {
 
-                            $annotationConstat    = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($auroraAnnotation->bitwiseConst)))); // STATUS_ => Status
-                            $constantNameShort    = preg_replace("/^{$auroraAnnotation->bitwiseConst}/", '', $constantName);
-                            $constantNameShort    = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantNameShort))));
+                            $annotationConstat = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($auroraAnnotation->bitwiseConst)))); // STATUS_ => Status
+                            $constantNameShort = preg_replace("/^{$auroraAnnotation->bitwiseConst}/", '', $constantName);
+                            $constantNameShort = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantNameShort))));
                             $constantNameFunction = str_replace(' ', '', ucwords(str_replace('_', ' ', strtolower($constantName)))); // dash to CamelCase
 
                             if (true || $bitwiseConstIndex > 0) {
@@ -669,7 +672,7 @@ EOT;
 
                 $newContent = '';
                 if ($matches[0]) {
-                    $x         = end($matches[0]);
+                    $x = end($matches[0]);
                     $fileLines = \file($file);
 
                     foreach ($fileLines as $fileLine) {
