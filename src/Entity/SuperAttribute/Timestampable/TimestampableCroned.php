@@ -11,7 +11,7 @@ trait TimestampableCroned
 {
     #[ORM\Column(name: 'croned_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     protected ?DateTimeInterface $cronedAt = null;
-    
+
     /**
      * @return DateTimeInterface|null
      */
