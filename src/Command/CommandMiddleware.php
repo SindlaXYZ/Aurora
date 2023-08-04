@@ -17,8 +17,8 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  */
 class CommandMiddleware extends Command
 {
-    /** @var ContainerInterface */
-    protected ContainerInterface $container;
+    /** @var ContainerInterface|null */
+    protected ?ContainerInterface $container = null;
 
     /** @var InputInterface */
     protected InputInterface $input;
@@ -132,7 +132,7 @@ class CommandMiddleware extends Command
         } else {
             preg_match('/@ORM(.*?)targetEntity="(.*?)"/i', $docComment, $matches);
             if (isset($matches[2])) {
-                $parts      = explode('\\', $matches[2]);
+                $parts = explode('\\', $matches[2]);
                 $matches[2] = end($parts);
             }
         }
