@@ -3,7 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Command;
 
 # use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
@@ -35,9 +35,9 @@ class CommandMiddleware extends Command
     protected $kernelRootDir;
 
     /**
-     * @var EntityManager
+     * @var EntityManagerInterface
      */
-    protected EntityManager $em;
+    protected EntityManagerInterface $em;
 
     /**
      * CommandMiddleware constructor.
