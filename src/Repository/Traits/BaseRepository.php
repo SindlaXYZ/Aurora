@@ -2,7 +2,6 @@
 
 namespace App\Repository\Supers;
 
-use Doctrine\Common\Annotations\AnnotationReader;
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Table;
@@ -101,8 +100,6 @@ trait BaseRepository
         $Strink    = new Strink();
         $className = $this->getClassName();
         $reflect   = new \ReflectionClass(new $className());
-
-        $AnnotationReader = new AnnotationReader();
 
         $tableName = null;
         foreach ($reflect->getAttributes() as $attribute) {
