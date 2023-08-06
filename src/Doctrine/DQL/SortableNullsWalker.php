@@ -28,6 +28,9 @@ use Doctrine\ORM\Query\QueryException;
  * @see https://github.com/beberlei/DoctrineExtensions/blob/235b092e42697dcb3b2ebea3a85b79265d148a06/tests/Query/MysqlWalkerTest.php
  * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/current/reference/query-builder.html#order-by-clause - is not working
  * @see http://www.doctrine-project.org/jira/browse/DDC-490
+ *
+ * @support: MySQL
+ * @support: PostgreSQL
  */
 class SortableNullsWalker extends Query\SqlWalker
 {
