@@ -11,8 +11,13 @@ use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
 class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
 {
-    public function __serialize(): array {}
-    public function __unserialize(array $data): void {}
+    public function __serialize(): array
+    {
+    }
+
+    public function __unserialize(array $data): void
+    {
+    }
 
     /**
      * @return string
@@ -48,6 +53,7 @@ class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterf
 
     public function eraseCredentials(): void
     {
+        $this->password = null;
     }
 
     /** @see \Serializable::serialize() */
