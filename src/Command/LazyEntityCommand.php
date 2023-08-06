@@ -50,7 +50,7 @@ class LazyEntityCommand extends CommandMiddleware
     /**
      * {@inheritDoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this
             ->addOption('namespace', null, InputOption::VALUE_REQUIRED)
