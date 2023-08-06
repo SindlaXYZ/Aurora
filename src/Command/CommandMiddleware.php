@@ -52,27 +52,27 @@ class CommandMiddleware extends Command
     /**
      * {@inheritDoc}
      */
-    protected function configure()
+    protected function configure(): void
     {
         $this->setName('null');
     }
 
-    protected function setInput(InputInterface $input)
+    protected function setInput(InputInterface $input): void
     {
         $this->input = $input;
     }
 
-    protected function setOutput(OutputInterface $output)
+    protected function setOutput(OutputInterface $output): void
     {
         $this->output = $output;
     }
 
-    protected function setBufferOutput(BufferedOutput $bufferedOutput)
+    protected function setBufferOutput(BufferedOutput $bufferedOutput): void
     {
         $this->bufferedOutput = $bufferedOutput;
     }
 
-    protected function setIo(SymfonyStyle $io)
+    protected function setIo(SymfonyStyle $io): void
     {
         $this->io = $io;
     }
@@ -144,7 +144,7 @@ class CommandMiddleware extends Command
         return null;
     }
 
-    public function canBeNull(string $docComment)
+    public function canBeNull(string $docComment): bool
     {
         // @ORM\Column(name="supplier_sent_at", type="datetime", nullable=true)
         preg_match('/@ORM(.*?)nullable=(true|false)/i', $docComment, $matches);
