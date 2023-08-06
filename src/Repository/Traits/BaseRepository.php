@@ -104,9 +104,6 @@ trait BaseRepository
     {
         $Strink         = new Strink();
         $reflect        = new \ReflectionClass($this->getClassName());
-        $namespaceParts = explode('\\', $reflect->getNamespaceName());
-
-        $classMetaData = $this->_em->getClassMetadata("{$namespaceParts[0]}:{$reflect->getShortName()}");
 
         $AnnotationReader = new AnnotationReader();
         $classAnnotations = $AnnotationReader->getClassAnnotations($reflect);
