@@ -1,19 +1,15 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Repository\Traits;
+namespace App\Repository\Supers;
 
-// Doctrine
-use Doctrine\DBAL\ConnectionException;
-use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\QueryBuilder;
 use Doctrine\Common\Annotations\AnnotationReader;
-
-//  Symfony
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\DependencyInjection\Container;
-
-// Aurora
+use Doctrine\DBAL\ConnectionException;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Table;
+use Doctrine\ORM\QueryBuilder;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Request;
 
 trait BaseRepository
 {
@@ -102,18 +98,33 @@ trait BaseRepository
 
     private function extract($count = false, $onlyOne = null, bool $getDQL = false)
     {
-        $Strink         = new Strink();
-        $reflect        = new \ReflectionClass($this->getClassName());
+        $Strink    = new Strink();
+        $className = $this->getClassName();
+        $reflect   = new \ReflectionClass(new $className());
 
         $AnnotationReader = new AnnotationReader();
-        $classAnnotations = $AnnotationReader->getClassAnnotations($reflect);
 
-        $tableName = str_replace('`', '', $classAnnotations[0]->name);
+        $tableName = null;
+        foreach ($reflect->getAttributes() as $attribute) {
+            if (false) {
+                var_dump($attribute->getName());
+                var_dump($attribute->getArguments());
+                var_dump($attribute->newInstance());
+                echo "\n\n\n\n";
+            }
+            if ($attribute->getName() == Table::class) {
+                $tableName = str_replace('`', '', $attribute->getArguments()['name']);
+            }
+        }
+
+        if (!$tableName) {
+            throw new \Exception('$tableName is not set!');
+        }
 
         $em = $this->getEntityManager();
 
         /** @var QueryBuilder $queryBuilder */
-        $queryBuilder = $em->createQueryBuilder($tableName);
+        $queryBuilder = $em->createQueryBuilder();
 
         if ($count) {
             $queryBuilder->select("count({$tableName}.id)");
@@ -128,30 +139,64 @@ trait BaseRepository
                 foreach ($conditions as $condition) {
                     [$column, $operator, $value] = $condition;
 
-                    $ReflectionProperty = new \ReflectionProperty($this->getClassName(), $column);
-                    $ann                = $AnnotationReader->getPropertyAnnotations($ReflectionProperty);
-                    $randomKey          = $Strink->randomString(6, ['ABCDEFGHIJKLMNOPQRSTUWXYZ']);
+                    $ReflectionProperty = new \ReflectionProperty(new $className(), $column);
 
-                    // Aurora column
-                    if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora) {
+                    if (false) {
+                        $ann = $AnnotationReader->getPropertyAnnotations($ReflectionProperty);
+
+                        // Aurora column
+                        if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora) {
+                            // Bitwise
+                            if (true == boolval($ann[1]->bitwise)) {
+                                // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
+                                $queryBuilder->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
+                            } // Json + LIKE
+                            else if (true == boolval($ann[1]->json) && 'LIKE' == $condition[1]) {
+                                $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
+                                $queryBuilder->setParameter($randomKey, $condition[2]);
+
+                            } // Json
+                            else if (true == boolval($ann[1]->json)) {
+                                $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
+                                $queryBuilder->setParameter($randomKey, $condition[2]);
+                            }
+
+                        } else {
+                            $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
+                            $queryBuilder->setParameter($randomKey, $condition[2]);
+                        }
+                    }
+
+                    foreach ($ReflectionProperty->getAttributes() as $attribute) {
+                        if (0) {
+                            var_dump($attribute->getName());
+                            var_dump($attribute->getArguments());
+                            var_dump($attribute->newInstance());
+                            echo "\n\n\n\n";
+                        }
+
+                        $randomKey = $Strink->randomString(6, ['ABCDEFGHIJKLMNOPQRSTUWXYZ']);
+
+                        /* TODO: fix this
                         // Bitwise
                         if (true == boolval($ann[1]->bitwise)) {
                             // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
                             $queryBuilder->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
-                        } // Json + LIKE
-                        else if (true == boolval($ann[1]->json) && 'LIKE' == $condition[1]) {
-                            $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
-                            $queryBuilder->setParameter($randomKey, $condition[2]);
+                        }
+                        */
 
-                        } // Json
-                        else if (true == boolval($ann[1]->json)) {
-                            $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
+                        if (Column::class == $attribute->getName() && 'json' == $attribute->getArguments()['type']) {
+                            if ('LIKE' == $condition[1]) {
+                                $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
+                                $queryBuilder->setParameter($randomKey, $condition[2]);
+                            } else {
+                                $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
+                                $queryBuilder->setParameter($randomKey, $condition[2]);
+                            }
+                        } else {
+                            $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
                             $queryBuilder->setParameter($randomKey, $condition[2]);
                         }
-
-                    } else {
-                        $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
-                        $queryBuilder->setParameter($randomKey, $condition[2]);
                     }
                 }
             }

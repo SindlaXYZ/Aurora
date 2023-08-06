@@ -9,6 +9,8 @@ use Doctrine\ORM\Query\Lexer;
  * Doctrine extension to support json_row::text
  * https://www.postgresql.org/docs/current/functions-json.html
  *
+ * Install: Inside doctrine.yaml > doctrine > orm > dql > string_functions
+ *
  * Usage: JSON_TEXT(row) will produce row::text
  * Eg:
  *      ->andWhere("JSON_TEXT({$tableName}.{$row}) LIKE ...");
