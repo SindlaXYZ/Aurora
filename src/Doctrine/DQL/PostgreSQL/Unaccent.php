@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Doctrine\DQL;
+namespace Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
 use Doctrine\ORM\Query\Lexer;
@@ -8,22 +8,18 @@ use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 
 /**
- * Doctrine extension to support json_row::text
- * https://www.postgresql.org/docs/current/functions-json.html
+ * Unaccent string using postgresql extension unaccent
+ * http://www.postgresql.org/docs/current/static/unaccent.html
  *
- * Install: Inside doctrine.yaml > doctrine > orm > dql > string_functions
- *
- * Usage: JSON_TEXT(row) will produce row::text
- * Eg:
- *      ->andWhere("JSON_TEXT({$tableName}.{$row}) LIKE ...");
+ * Usage : StringFunction UNACCENT(string)
  */
-class JsonText extends FunctionNode
+class Unaccent extends FunctionNode
 {
     private $string;
 
     public function getSql(SqlWalker $sqlWalker)
     {
-        return $this->string->dispatch($sqlWalker) . "::text";
+        return 'UNACCENT(' . $this->string->dispatch($sqlWalker) . ")";
     }
 
     public function parse(Parser $parser)
