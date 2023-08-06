@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Repository\Supers;
+namespace Sindla\Bundle\AuroraBundle\Repository\Traits;
 
 use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\Mapping\Column;
