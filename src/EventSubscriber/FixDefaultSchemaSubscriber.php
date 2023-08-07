@@ -9,6 +9,7 @@ use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
 use Doctrine\ORM\Tools\ToolEvents;
+use Doctrine\ORM\Events;
 
 /**
  * doctrine:migrations:diff fix
@@ -22,7 +23,7 @@ use Doctrine\ORM\Tools\ToolEvents;
  *
  * @package Sindla\Bundle\AuroraBundle\EventSubscriber
  */
-#[AsDoctrineListener]
+#[AsDoctrineListener(event: ToolEvents::postGenerateSchema)]
 class FixDefaultSchemaSubscriber implements EventSubscriber
 {
     /**
