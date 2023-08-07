@@ -4,9 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-// Symfony
-
-// Doctrine
+use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\Common\EventSubscriber;
 use Doctrine\DBAL\Schema\PostgreSqlSchemaManager;
 use Doctrine\ORM\Tools\Event\GenerateSchemaEventArgs;
@@ -24,6 +22,7 @@ use Doctrine\ORM\Tools\ToolEvents;
  *
  * @package Sindla\Bundle\AuroraBundle\EventSubscriber
  */
+#[AsDoctrineListener]
 class FixDefaultSchemaSubscriber implements EventSubscriber
 {
     /**
