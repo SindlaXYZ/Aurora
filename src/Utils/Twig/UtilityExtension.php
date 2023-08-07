@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
-// Symfony
 use MatthiasMullie\Minify;
 use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
@@ -16,12 +15,6 @@ use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
-
-// Twig
-
-// Minify
-
-// Aurora
 
 class UtilityExtension extends AbstractExtension
 {
@@ -57,7 +50,7 @@ class UtilityExtension extends AbstractExtension
     /**
      * Twig filters
      */
-    public function getFilters()
+    public function getFilters(): array
     {
         return [
             /** {{ '1987-12-20'|aurora.age }} */
@@ -69,9 +62,8 @@ class UtilityExtension extends AbstractExtension
 
     /**
      * @param \DateTime $date
-     * @return int
      */
-    public function filterAge(\DateTime $date)
+    public function filterAge(\DateTime $date): int
     {
         $referenceDate           = date('01-01-Y');
         $referenceDateTimeObject = new \DateTime($referenceDate);
@@ -92,7 +84,7 @@ class UtilityExtension extends AbstractExtension
     /**
      * Twig functions
      */
-    public function getFunctions()
+    public function getFunctions(): array
     {
         return [
             new TwigFunction('build', [$this, 'getBuild']),

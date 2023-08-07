@@ -71,7 +71,7 @@ class LazyEntityCommand extends CommandMiddleware
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var InputInterface */
         $this->input = $input;

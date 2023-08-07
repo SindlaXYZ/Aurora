@@ -85,7 +85,7 @@ final class ComposerCommand extends Command
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         /** @var InputInterface input */
         $this->input = $input;
