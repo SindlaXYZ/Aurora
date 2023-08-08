@@ -3,7 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Monolog;
 
 use Monolog\Formatter\NormalizerFormatter;
-use Monolog\Logger;
+use Symfony\Bridge\Monolog\Logger;
 
 /**
  * Formats incoming records into an HTML table
