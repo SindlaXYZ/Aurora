@@ -13,9 +13,6 @@ class Aurora
     /** @var boolean */
     public bool $toSting = false; // eg: @Aurora(toSting=true)
 
-    /** @var boolean */
-    public bool $bitwise = false;
-
     /** @var string */
     public string $bitwiseConst = ''; // eg: @Aurora(bitwiseConst="STATUS_")
 

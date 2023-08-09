@@ -53,7 +53,7 @@ trait BaseRepository
         return $this;
     }
 
-    public function setLimit(int $limit = 1, int $offset = 1): self
+    public function setLimit(int $limit = 1, int $offset = 0): self
     {
         $this->limit       = $limit;
         $this->limitOffset = $offset;
@@ -65,6 +65,7 @@ trait BaseRepository
      *
      * @param bool $debug
      * @return
+     * @throws \Exception
      */
     public function getResult(bool $debug = false)
     {
@@ -76,6 +77,7 @@ trait BaseRepository
      *
      * @param bool $debug
      * @return
+     * @throws \Exception
      */
     public function getResults(bool $debug = false)
     {
@@ -87,6 +89,7 @@ trait BaseRepository
      *
      * @param bool $debug
      * @return
+     * @throws \Exception
      */
     public function getResultsNumber(bool $debug = false)
     {
@@ -104,9 +107,12 @@ trait BaseRepository
         $tableName = null;
         foreach ($reflect->getAttributes() as $attribute) {
             if (false) {
-                var_dump($attribute->getName());
-                var_dump($attribute->getArguments());
-                var_dump($attribute->newInstance());
+                echo "\n\n\n\n";
+                print_r($attribute->getName());
+                echo "\n\n";
+                print_r($attribute->getArguments());
+                echo "\n\n";
+                print_r($attribute->newInstance());
                 echo "\n\n\n\n";
             }
             if ($attribute->getName() == Table::class) {
@@ -120,7 +126,6 @@ trait BaseRepository
 
         $em = $this->getEntityManager();
 
-        /** @var QueryBuilder $queryBuilder */
         $queryBuilder = $em->createQueryBuilder();
 
         if ($count) {
@@ -131,68 +136,49 @@ trait BaseRepository
 
         $queryBuilder->from($reflect->name, $tableName);
 
+        /**
+         * $operation - AND | OR
+         */
         foreach ($this->where as $operation => $conditions) {
             if ($conditions) {
                 foreach ($conditions as $condition) {
                     [$column, $operator, $value] = $condition;
 
-                    $ReflectionProperty = new \ReflectionProperty(new $className(), $column);
-
-                    if (false) {
-                        $ann = $AnnotationReader->getPropertyAnnotations($ReflectionProperty);
-
-                        // Aurora column
-                        if (isset($ann[1]) && $ann[1] instanceof \Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora) {
-                            // Bitwise
-                            if (true == boolval($ann[1]->bitwise)) {
-                                // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
-                                $queryBuilder->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
-                            } // Json + LIKE
-                            else if (true == boolval($ann[1]->json) && 'LIKE' == $condition[1]) {
-                                $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
-                                $queryBuilder->setParameter($randomKey, $condition[2]);
-
-                            } // Json
-                            else if (true == boolval($ann[1]->json)) {
-                                $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
-                                $queryBuilder->setParameter($randomKey, $condition[2]);
-                            }
-
-                        } else {
-                            $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
-                            $queryBuilder->setParameter($randomKey, $condition[2]);
-                        }
+                    $jsonKey = null;
+                    if (str_contains($column, '.')) {
+                        [$column, $jsonKey] = explode('.', $column);
                     }
 
-                    foreach ($ReflectionProperty->getAttributes() as $attribute) {
-                        if (0) {
-                            var_dump($attribute->getName());
-                            var_dump($attribute->getArguments());
-                            var_dump($attribute->newInstance());
-                            echo "\n\n\n\n";
-                        }
+                    $ReflectionProperty = new \ReflectionProperty(new $className(), $column);
 
+                    foreach ($ReflectionProperty->getAttributes() as $attribute) {
                         $randomKey = $Strink->randomString(6, ['ABCDEFGHIJKLMNOPQRSTUWXYZ']);
 
-                        /* TODO: fix this
-                        // Bitwise
-                        if (true == boolval($ann[1]->bitwise)) {
-                            // ->andWhere('BIT_AND(t.my_column, 2|4|8|16..) > 0')
-                            $queryBuilder->andWhere("(BIT_AND({$tableName}.{$column}, {$value}) {$operator} " . $value . ")");
-                        }
-                        */
-
                         if (Column::class == $attribute->getName() && 'json' == $attribute->getArguments()['type']) {
-                            if ('LIKE' == $condition[1]) {
-                                $queryBuilder->andWhere("JSON_TEXT({$tableName}.{$condition[0]}) {$condition[1]} :{$randomKey}");
-                                $queryBuilder->setParameter($randomKey, $condition[2]);
+                            if ('LIKE' == $operator) {
+                                /**
+                                 * Convert JSON to text and do a simple search LIKE; translates to SQL (eg):
+                                 *  SELECT ... AND user.roles::text LIKE '%ROLE_SUPER_ADMIN%'
+                                 */
+                                $queryBuilder
+                                    ->andWhere("JSON_TEXT({$tableName}.{$column}) {$operator} :{$randomKey}")
+                                    ->setParameter($randomKey, $value);
                             } else {
-                                $queryBuilder->andWhere("JSON_GET_TEXT({$tableName}.{$condition[0]}, '') {$condition[1]} :{$randomKey}");
-                                $queryBuilder->setParameter($randomKey, $condition[2]);
+                                /**
+                                 * Search in JSON by the value of a specific key; for this example, the user.extraData = {"test":"abc"}; translates to SQL (eg):
+                                 *  SELECT ... AND user.extraData ->> 'test' = 'abc'
+                                 */
+                                if (empty($jsonKey)) {
+                                    throw new \Exception(sprintf('Invalid $column parameter: WHERE ... %1$s ->> \'\' %2$s \'%3$s\' ; This parameter should be like this: %1$s.jsonKey', $column, $operator, $value));
+                                }
+                                $queryBuilder
+                                    ->andWhere("JSON_GET_TEXT({$tableName}.{$column}, '{$jsonKey}') {$operator} :{$randomKey}")
+                                    ->setParameter($randomKey, $value);
                             }
                         } else {
-                            $queryBuilder->andWhere("{$tableName}.{$condition[0]} {$condition[1]} :{$randomKey}");
-                            $queryBuilder->setParameter($randomKey, $condition[2]);
+                            $queryBuilder
+                                ->andWhere("{$tableName}.{$column} {$operator} :{$randomKey}")
+                                ->setParameter($randomKey, $value);
                         }
                     }
                 }
@@ -248,7 +234,7 @@ trait BaseRepository
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-    public function truncate()
+    public function truncate(): bool
     {
         $reflect        = new \ReflectionClass($this->getClassName());
         $namespaceParts = explode('\\', $reflect->getNamespaceName());
@@ -275,13 +261,15 @@ trait BaseRepository
 
             $connection->rollback();
         }
+
+        return true;
     }
 
     /**
      * @param array $filters
      * @return QueryBuilder
      */
-    public function findAllQueryBuilder(array $filters = [])
+    public function findAllQueryBuilder(array $filters = []): QueryBuilder
     {
         if (count($filters) == 0) {
             $queryBuilder = $this->createQueryBuilder('alias');
@@ -297,7 +285,7 @@ trait BaseRepository
      * @param              $operations
      * @return QueryBuilder
      */
-    protected function applyFilters(QueryBuilder $queryBuilder, $operations)
+    protected function applyFilters(QueryBuilder $queryBuilder, $operations): QueryBuilder
     {
         foreach ($operations as $operation) {
 
