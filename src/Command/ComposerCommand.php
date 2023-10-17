@@ -253,7 +253,12 @@ final class ComposerCommand extends Command
             return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
         }
 
-        $tmpTarGz = "{$tempDir}/GeoLite2-{$type}.tar.gz";
+        $tmpTar   = "{$tempDir}/GeoLite2-{$type}.tar";
+        $tmpTarGz = "{$tmpTar}.gz";
+
+        if (file_exists($tmpTar)) {
+            unlink($tmpTar);
+        }
 
         if (file_exists($tmpTarGz)) {
             unlink($tmpTarGz);
