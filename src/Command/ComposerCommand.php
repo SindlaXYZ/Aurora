@@ -255,6 +255,10 @@ final class ComposerCommand extends Command
 
         $tmpTarGz = "{$tempDir}/GeoLite2-{$type}.tar.gz";
 
+        if (file_exists($tmpTarGz)) {
+            unlink($tmpTarGz);
+        }
+
         if (!file_put_contents($tmpTarGz, $tarGz)) {
             return $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
         }
