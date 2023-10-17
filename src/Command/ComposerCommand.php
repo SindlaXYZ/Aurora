@@ -218,7 +218,7 @@ final class ComposerCommand extends Command
             return;
         }
 
-        $tempDir           = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp') . '/' . microtime(true));
+        $tempDir           = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp')) . '/' . date('Y-m-d Hi') . '_' . microtime(true);
         $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
