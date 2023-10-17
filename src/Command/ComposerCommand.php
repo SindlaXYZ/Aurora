@@ -42,6 +42,9 @@ final class ComposerCommand extends Command
     /** @var SymfonyStyle io */
     protected SymfonyStyle $io;
 
+    private const  GEOIP2_COUNTRY = 'Country';
+    private const  GEOIP2_CITY    = 'City';
+
     /**
      * {@inheritdoc}
      */
@@ -65,7 +68,7 @@ final class ComposerCommand extends Command
                 'action',                              // this is the name that users must type to pass this option (e.g. --action=doSomething)
                 null,                                  // this is the optional shortcut of the option name, which usually is just a letter (e.g. `i`, so users pass it as `-i`); use it for commonly used options or options with long names
                 InputOption::VALUE_OPTIONAL,           // this is the type of option (e.g. requires a value, can be passed more than once, etc. InputOption::VALUE_OPTIONAL | InputOption::VALUE_REQUIRED)
-                'Composer update command',   // the option description displayed when showing the command help
+                'Composer update command',             // the option description displayed when showing the command help
                 null                                   // the default value of the option (for those which allow to pass values)
             );
     }
@@ -126,10 +129,10 @@ final class ComposerCommand extends Command
     private function postInstall()
     {
         // GeoIP2Country
-        $this->_updateGeoIP2('Country');
+        $this->_updateGeoIP2(self::GEOIP2_COUNTRY);
 
         // GeoIP2City
-        $this->_updateGeoIP2('City');
+        $this->_updateGeoIP2(self::GEOIP2_CITY);
 
         $this->_cleanUpAndChecks(__FUNCTION__);
     }
@@ -143,10 +146,10 @@ final class ComposerCommand extends Command
         $this->_updatePHPUnit();
 
         // GeoIP2Country
-        $this->_updateGeoIP2('Country');
+        $this->_updateGeoIP2(self::GEOIP2_COUNTRY);
 
         // GeoIP2City
-        $this->_updateGeoIP2('City');
+        $this->_updateGeoIP2(self::GEOIP2_CITY);
 
         $this->_cleanUpAndChecks(__FUNCTION__);
 
@@ -197,7 +200,7 @@ final class ComposerCommand extends Command
      */
     private function _updateGeoIP2(string $type)
     {
-        if (!in_array($type, ['Country', 'City'])) {
+        if (!in_array($type, [self::GEOIP2_COUNTRY, self::GEOIP2_CITY])) {
             $this->io->error(sprintf('[AURORA] _updateGeoIP2(%s) invalid type!', $type));
             return;
         }
@@ -205,12 +208,12 @@ final class ComposerCommand extends Command
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
         if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'])) {
-            $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are defined in .env[.local]');
+            $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are not defined in .env[.local]');
             return;
-        } else if ('Country' == $type && false === filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
+        } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false');
             return;
-        } else if ('City' == $type && false === filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'], FILTER_VALIDATE_BOOLEAN)) {
+        } else if (self::GEOIP2_CITY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'], FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false');
             return;
         }
@@ -266,8 +269,7 @@ final class ComposerCommand extends Command
         } catch (\BadMethodCallException $e) {
             $pharError = true;
             throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
-        }
-        finally {
+        } finally {
             if ($pharError) {
                 return $this->_updateGeoIP2($type);
             }
