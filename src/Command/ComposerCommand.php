@@ -211,10 +211,10 @@ final class ComposerCommand extends Command
             $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are not defined in .env[.local]');
             return;
         } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false');
+            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false</warning>');
             return;
         } else if (self::GEOIP2_CITY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'], FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false');
+            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false</warning>');
             return;
         }
 
