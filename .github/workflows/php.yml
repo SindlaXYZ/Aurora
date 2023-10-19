@@ -75,6 +75,7 @@ jobs:
                 # Move * (including .dot files)
                 run: |
                     ls -a ${{env.working-directory}}/webapp-pack/
+                    ls -a ${{env.working-directory}}/webapp-pack/vendor/
                     mv -f ${{env.working-directory}}/webapp-pack/* ${{env.working-directory}}/webapp-pack/.[!.]* ${{env.working-directory}}/
 
             -   name: "mkdir"
