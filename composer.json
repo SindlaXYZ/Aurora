@@ -1,7 +1,7 @@
 {
     "name": "sindla/aurora",
     "type": "symfony-bundle",
-    "description": "Aurora - Symfony 6.3 bundle",
+    "description": "Aurora - Symfony 7.0 bundle",
     "keywords": [
     ],
     "homepage": "https://sindla.com",
