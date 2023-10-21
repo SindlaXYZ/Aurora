@@ -25,7 +25,7 @@ jobs:
             matrix:
                 operating-system: [ubuntu-22.04, debian-11] # [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, debian-10, debian-11]
                 php-versions: ['8.2']
-        name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
+        name: "PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}"
         steps:
             -   name: "Checkout code"
                 uses: actions/checkout@v3
@@ -34,13 +34,14 @@ jobs:
                 run: |
                     composer diagnose
 
-            -   name: "Install PHP with extensions"
+            -   name: "Install PHP ${{ matrix.php-versions }} with extensions"
                 uses: shivammathur/setup-php@v2
                 with:
                     php-version: ${{ matrix.php-versions }}
                     coverage: "none"
                     extensions: intl
                     ini-values: ${{ env.PHP_INI_VALUES }}
+                    tools: composer:v2
 
             -   name: "Check versions"
                 run: |
