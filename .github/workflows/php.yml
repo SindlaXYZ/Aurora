@@ -32,7 +32,9 @@ jobs:
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
             -   name: "TEST"
-                run: composer diagnose
+                run: |
+                    curl -vvv https://packagist.org/packages.json
+                    composer diagnose
 
             -   uses: actions/checkout@v3
 
