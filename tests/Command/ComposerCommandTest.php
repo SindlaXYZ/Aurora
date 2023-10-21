@@ -1,14 +1,10 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Command;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
-// Sindla
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
