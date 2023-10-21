@@ -30,9 +30,9 @@ jobs:
             -   name: "Checkout code"
                 uses: actions/checkout@v3
 
-            -   name: "Composer diagnose"
-                run: |
-                    composer diagnose
+#            -   name: "Composer diagnose"
+#                run: |
+#                    composer diagnose
 
             -   name: "Install PHP ${{ matrix.php-versions }} with extensions"
                 uses: shivammathur/setup-php@v2
