@@ -31,9 +31,8 @@ jobs:
                 php-versions: ['8.2']
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
-            -   name: "TEST"
+            -   name: "Composer diagnose"
                 run: |
-                    curl -vvv https://packagist.org/packages.json
                     composer diagnose
 
             -   uses: actions/checkout@v3
