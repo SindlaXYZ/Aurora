@@ -53,17 +53,10 @@ jobs:
                     composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{env.working-directory}}/skeleton --no-cache
 
             # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
+            # Move * (including .dot files)
             -   name: "Move symfony/skeleton"
-                # Move * (including .dot files)
                 run: |
-                    ls -a ${{env.working-directory}}/skeleton/
                     mv -f ${{env.working-directory}}/skeleton/* ${{env.working-directory}}/skeleton/.[!.]* ${{env.working-directory}}/
-                # Move * and some .env files (if above command fails)
-            #                run: |
-            #                    ls -a ${{env.working-directory}}/skeleton/
-            #                    mv -f ${{env.working-directory}}/skeleton/* ${{env.working-directory}}/
-            #                    mv -f ${{env.working-directory}}/skeleton/.env ${{env.working-directory}}/.env
-            #                    mv -f ${{env.working-directory}}/skeleton/.env.test ${{env.working-directory}}/.env.test
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
@@ -105,7 +98,9 @@ jobs:
 
             -   name: "Install composer dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer update && composer install --prefer-dist --no-progress --no-suggest --no-cache --no-scripts
+                run: |
+                    composer update
+                    composer install --prefer-dist --no-progress --no-cache --no-scripts
                 working-directory: ${{env.working-directory}}
 
             -   name: "Install sindla/aurora"
