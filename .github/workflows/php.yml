@@ -99,6 +99,8 @@ jobs:
             -   name: "Install composer dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: |
+                    composer config --no-plugins allow-plugins.symfony/flex true
+                    composer update
                     composer install --prefer-dist --no-progress --no-cache --no-scripts
                 working-directory: ${{env.working-directory}}
 
