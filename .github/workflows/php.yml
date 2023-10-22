@@ -56,11 +56,8 @@ jobs:
                     ls -a ${{ github.workspace }}/vendor
             -   name: "2"
                 run: |
-                    mkdir -p ${{ github.workspace }}/~sindla
-            -   name: "3"
-                run: |
-                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress ${{ github.workspace }}/~sindla
-                    ls -a ${{ github.workspace }}/~sindla
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress ${{ env.working-directory }}
+                    ls -a ${{ env.working-directory }}
                     exit 1
 
 
