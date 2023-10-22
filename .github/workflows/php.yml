@@ -47,14 +47,17 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-
                     ls -a ${{ github.workspace }}
+                    echo ${{ github.workspace }}
+                    exit 1
 
             -   name: "1"
                 run: |
                     composer install
                     ls -a ${{ github.workspace }}/vendor
                     mkdir -p ${{env.working-directory}}
+
+
             -   name: "2"
                 working-directory: ${{ env.working-directory }}
                 run: |
