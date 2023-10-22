@@ -55,9 +55,11 @@ jobs:
                     composer install
                     ls -a ${{ github.workspace }}/vendor
             -   name: "2"
-                working-directory: ${{ github.workspace }}/~sindla
                 run: |
-                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress .
+                    mkdir -p ${{ github.workspace }}/~sindla
+            -   name: "3"
+                run: |
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress ${{ github.workspace }}/~sindla
                     ls -a ${{ github.workspace }}/~sindla
                     exit 1
 
@@ -138,15 +140,15 @@ jobs:
                     composer install --prefer-dist --no-progress --no-cache --no-scripts
                 working-directory: ${{env.working-directory}}
 
-#            -   name: "Install sindla/aurora"
-#                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
-#                working-directory: ${{env.working-directory}}
-#
-#            -   name: "Overwrite sindla/aurora"
-#                run: |
-#                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
-#                    mkdir -p ${{env.working-directory}}/app/config/
-#                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
+            #            -   name: "Install sindla/aurora"
+            #                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+            #                working-directory: ${{env.working-directory}}
+            #
+            #            -   name: "Overwrite sindla/aurora"
+            #                run: |
+            #                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
+            #                    mkdir -p ${{env.working-directory}}/app/config/
+            #                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
 
             # After sindla/aurora is overwrited, reload autoloader: because the sindla/aurora is not always in sync with the `main` branch
             -   name: "Update/reload the composer autoloader"
@@ -201,16 +203,16 @@ jobs:
                     /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
 
             -   name: "X1"
-                run:  ls -a ${{env.working-directory}}/vendor/
+                run: ls -a ${{env.working-directory}}/vendor/
 
             -   name: "X2"
-                run:  ls -a ${{env.working-directory}}/vendor/sindla/
+                run: ls -a ${{env.working-directory}}/vendor/sindla/
 
             -   name: "X3"
-                run:  ls -a ${{env.working-directory}}/vendor/sindla/aurora/
+                run: ls -a ${{env.working-directory}}/vendor/sindla/aurora/
 
             -   name: "X4"
-                run:  ls -a ${{env.working-directory}}/vendor/sindla/aurora/tests/
+                run: ls -a ${{env.working-directory}}/vendor/sindla/aurora/tests/
 
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
