@@ -106,7 +106,7 @@ jobs:
 
             -   name: "Install sindla/aurora"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer config minimum-stability dev && composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress --dev
+                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                 working-directory: ${{env.working-directory}}
 
             -   name: "Overwrite sindla/aurora"
