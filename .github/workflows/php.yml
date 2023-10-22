@@ -184,7 +184,7 @@ jobs:
 
             -   name: "TEST"
                 run: |
-                    ll ${{env.working-directory}}
+                    ls -a ${{env.working-directory}}
                     cat ${{env.working-directory}}/.env.test
                     cat ${{env.working-directory}}/phpunit.xml.dist
 
