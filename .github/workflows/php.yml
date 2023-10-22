@@ -58,6 +58,23 @@ jobs:
                 run: |
                     mv -f ${{env.working-directory}}/skeleton/* ${{env.working-directory}}/skeleton/.[!.]* ${{env.working-directory}}/
 
+
+
+
+            -   name: "Install sindla/aurora"
+                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                working-directory: ${{env.working-directory}}
+
+            -   name: "Overwrite sindla/aurora"
+                run: |
+                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
+                    mkdir -p ${{env.working-directory}}/app/config/
+                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
+
+
+
+
+
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
 
@@ -80,24 +97,7 @@ jobs:
             -   name: "Copy bootstrap.php"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/tests/bootstrap.php ${{env.working-directory}}/tests/bootstrap.php
 
-            #            -   name: "Validate composer.json and composer.lock"
-            #                run: composer validate
-            #                working-directory: ${{env.working-directory}}
-
-            #            -   name: "Cache Composer packages"
-            #                id: composer-cache
-            #                uses: actions/cache@v2
-            #                with:
-            #                    path: vendor
-            #                    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-            #                    restore-keys: |
-            #                        ${{ runner.os }}-php-
-
-            #            -   name: "Composer update"s
-            #                run: composer update
-
             -   name: "Install composer dependencies"
-                # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: |
                     composer config --no-plugins allow-plugins.symfony/flex true
                     composer config --no-plugins allow-plugins.symfony/runtime true
@@ -105,16 +105,15 @@ jobs:
                     composer install --prefer-dist --no-progress --no-cache --no-scripts
                 working-directory: ${{env.working-directory}}
 
-            -   name: "Install sindla/aurora"
-                # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
-                working-directory: ${{env.working-directory}}
-
-            -   name: "Overwrite sindla/aurora"
-                run: |
-                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
-                    mkdir -p ${{env.working-directory}}/app/config/
-                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
+#            -   name: "Install sindla/aurora"
+#                run: if [[ -f "composer.json" ]]; then composer config minimum-stability dev; fi; composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+#                working-directory: ${{env.working-directory}}
+#
+#            -   name: "Overwrite sindla/aurora"
+#                run: |
+#                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
+#                    mkdir -p ${{env.working-directory}}/app/config/
+#                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
 
             # After sindla/aurora is overwrited, reload autoloader: because the sindla/aurora is not always in sync with the `main` branch
             -   name: "Update/reload the composer autoloader"
