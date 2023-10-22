@@ -47,9 +47,9 @@ jobs:
                     echo "PHP version:" && php --version
                     echo "Composer version:" && composer -V
                     echo "OS:" && . /etc/os-release && echo $PRETTY_NAME
-                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
+
                     ls -a ${{ github.workspace }}
-                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
+
                     gh run cancel ${{ github.run_id }}
                     gh run watch ${{ github.run_id }}
 
