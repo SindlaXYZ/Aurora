@@ -56,7 +56,7 @@ jobs:
                     ls -a ${{ github.workspace }}/vendor
                     mkdir -p ${{ github.workspace }}/~sindla
                     cd ${{ github.workspace }}/~sindla
-                    composer install sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress .
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress .
                     cd ../
                     ls -a ${{ github.workspace }}/~sindla
                     exit 1
