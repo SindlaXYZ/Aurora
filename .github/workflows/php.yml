@@ -85,7 +85,10 @@ jobs:
             -   name: "Move symfony/webapp-pack 2/2"
                 # Move * (including .dot files)
                 run: |
-                    mv -f ${{env.working-directory}}/webapp-pack/* ${{env.working-directory}}/webapp-pack/.[!.]* ${{env.working-directory}}/
+                    ls -a ${{env.working-directory}}/webapp-pack/
+                    mv -f ${{env.working-directory}}/webapp-pack/* ${{env.working-directory}}/
+                    ls -a ${{env.working-directory}}/webapp-pack/
+                    mv -f ${{env.working-directory}}/webapp-pack/.[!.]* ${{env.working-directory}}/
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
