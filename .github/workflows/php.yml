@@ -47,6 +47,15 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
+                    ls -a ${{env.working-directory}}
+                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
+                    ls -a /home/runner/work/
+                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
+                    ls -a /home/runner/work/Aurora
+                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
+                    ls -a /home/runner/work/Aurora/Aurora
+                    gh run cancel ${{ github.run_id }}
+                    gh run watch ${{ github.run_id }}
 
             -   name: "Create project symfony/skeleton"
                 run: |
