@@ -2,9 +2,9 @@ name: PHPUnit
 
 on:
     push:
-        branches: ["6.3"]
+        branches: [ "6.3" ]
     pull_request:
-        branches: ["6.3"]
+        branches: [ "6.3" ]
 
 env:
     fail-fast: true
@@ -26,9 +26,9 @@ jobs:
             matrix:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, debian-10, debian-11]
                 #operating-system: [ubuntu-22.04, debian-11]
-                operating-system: [ubuntu-22.04]
+                operating-system: [ ubuntu-22.04 ]
                 #php-versions: ['8.1', '8.2']
-                php-versions: ['8.2']
+                php-versions: [ '8.2' ]
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
             -   uses: actions/checkout@v3
@@ -73,6 +73,10 @@ jobs:
 
             #            -   name: "Copy composer.json"
             #                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
+
+            -   name: "X"
+                run: |
+                    cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
 
             -   name: "Copy phpunit.xml"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/phpunit.xml ${{env.working-directory}}/phpunit.xml

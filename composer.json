@@ -54,18 +54,6 @@
     "extra": {
         "branch-alias": {
             "dev-master": "0.x-dev"
-        },
-        "merge-plugin": {
-            "include": [
-                "vendor/sindla/aurora/composer.json"
-            ],
-            "recurse": true,
-            "replace": false,
-            "ignore-duplicates": false,
-            "merge-dev": true,
-            "merge-extra": false,
-            "merge-extra-deep": false,
-            "merge-scripts": false
         }
     },
     "config": {
