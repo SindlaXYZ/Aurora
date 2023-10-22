@@ -167,8 +167,7 @@ jobs:
                     cat ${{env.PHPUNIT}}
                     /usr/bin/php ${{env.PHPUNIT}} --version
                     /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
-                    ls -a ${{env.working-directory}}
-                    ls -a ${{env.working-directory}}/vendor
+                    ls -a ${{env.working-directory}}/vendor/sindla/aurora/tests/
 
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
