@@ -75,17 +75,11 @@ jobs:
                     composer create-project symfony/webapp-pack:1.2.0 ${{env.working-directory}}/webapp-pack --no-cache
 
             # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
-#            -   name: "Move symfony/webapp-pack 1/2"
-#                # Move * (including .dot files)
-#                run: |
-#                    ls -a ${{env.working-directory}}/webapp-pack/
-#                    mv -f ${{env.working-directory}}/webapp-pack/* ${{env.working-directory}}/
-
-            -   name: "Move symfony/webapp-pack 2/2"
+            -   name: "Move symfony/webapp-pack 1/2"
                 # Move * (including .dot files)
                 run: |
+                    ls -a ${{env.working-directory}}/webapp-pack/
                     mv -f ${{env.working-directory}}/webapp-pack/* ${{env.working-directory}}/
-#                    mv -f ${{env.working-directory}}/webapp-pack/.[!.]* ${{env.working-directory}}/
 
             -   name: "mkdir"
                 run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
