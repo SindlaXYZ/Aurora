@@ -46,11 +46,11 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-            -   name: "mkdir"
-                run: mkdir -p ${{env.working-directory}}/skeleton
 
             -   name: "Create project symfony/skeleton"
-                run: composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{env.working-directory}}/skeleton --no-cache
+                run: |
+                    mkdir -p ${{env.working-directory}}/skeleton
+                    composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{env.working-directory}}/skeleton --no-cache
 
             # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
             -   name: "Move symfony/skeleton"
@@ -77,7 +77,7 @@ jobs:
             -   name: "Copy phpunit.xml"
                 run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/phpunit.xml ${{env.working-directory}}/phpunit.xml
 
-            -   name: "mkdir"
+            -   name: "Create /tests directory"
                 run: mkdir -p ${{env.working-directory}}/tests/
 
             -   name: "Copy bootstrap.php"
@@ -99,7 +99,7 @@ jobs:
             #            -   name: "Composer update"s
             #                run: composer update
 
-            -   name: "Install dependencies"
+            -   name: "Install composer dependencies"
                 # if: steps.composer-cache.outputs.cache-hit != 'true'
                 run: composer update && composer install --prefer-dist --no-progress --no-suggest --no-cache --no-scripts
                 working-directory: ${{env.working-directory}}
