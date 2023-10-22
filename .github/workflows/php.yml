@@ -54,6 +54,7 @@ jobs:
                 run: |
                     composer install
                     ls -a ${{ github.workspace }}/vendor
+                    mkdir -p ${{env.working-directory}}
             -   name: "2"
                 run: |
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
