@@ -44,14 +44,36 @@ jobs:
 
             -   name: "Check versions"
                 run: |
-                    echo "PHP version:" && php --version
-                    echo "Composer version:" && composer -V
-                    echo "OS:" && . /etc/os-release && echo $PRETTY_NAME
+                    php --version
+                    composer -V
+                    . /etc/os-release && echo $PRETTY_NAME
 
                     ls -a ${{ github.workspace }}
 
-                    gh run cancel ${{ github.run_id }}
-                    gh run watch ${{ github.run_id }}
+            -   name: "1"
+                run: |
+                    composer install
+                    ls -a ${{ github.workspace }}/vendor
+                    exit 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
             -   name: "Create project symfony/skeleton"
                 run: |
