@@ -182,6 +182,12 @@ jobs:
                     /usr/bin/php ${{env.PHPUNIT}} --version
                     /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
 
+            -   name: "TEST"
+                run: |
+                    ll ${{env.working-directory}}
+                    cat ${{env.working-directory}}/.env.test
+                    cat ${{env.working-directory}}/phpunit.xml.dist
+
             -   name: "Test RequirementsTest"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
 

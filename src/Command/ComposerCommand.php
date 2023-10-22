@@ -13,8 +13,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
-
-// Vendor
 use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
 #[AsCommand(
