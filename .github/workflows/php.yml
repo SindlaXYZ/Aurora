@@ -44,16 +44,12 @@ jobs:
 
             -   name: "Check versions"
                 run: |
-                    php --version
-                    composer -V
-                    . /etc/os-release && echo $PRETTY_NAME
-                    ls -a ${{env.working-directory}}
+                    echo "PHP version:" && php --version
+                    echo "Composer version:" && composer -V
+                    echo "OS:" && . /etc/os-release && echo $PRETTY_NAME
                     printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
-                    ls -a /home/runner/work/
+                    ls -a ${{ github.workspace }}
                     printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
-                    ls -a /home/runner/work/Aurora
-                    printf "\e[1;4m%*s\e[0m\n" "$(tput cols)"
-                    ls -a /home/runner/work/Aurora/Aurora
                     gh run cancel ${{ github.run_id }}
                     gh run watch ${{ github.run_id }}
 
