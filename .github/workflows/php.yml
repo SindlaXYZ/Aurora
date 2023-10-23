@@ -60,7 +60,7 @@ jobs:
                     echo "Run id: ${{ github.run_id }}"
                     echo "Run attempt: ${{ github.run_attempt }}"
 
-            -   name: "000"
+            -   name: "Create a Symfony skeleton project and install dependencies."
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.* . --no-cache
@@ -70,7 +70,7 @@ jobs:
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
 
-            -   name: "001"
+            -   name: "Composer clear & autoloader dump"
                 run: |
                     composer clear-cache
                     composer dump-autoload
@@ -78,13 +78,13 @@ jobs:
             -   name: "PHPUnit check 1/2"
                 run: |
                     echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
-                    echo $(grep -c "strict_types" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
+                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
                     echo 'EOF' >> $GITHUB_ENV
                     echo "${{ env.SED_STRICT_TYPES_FOUND }}"
 
             -   name: "PHPUnit check 2/2"
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
-                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Test RequirementsTest"
                 run: |
