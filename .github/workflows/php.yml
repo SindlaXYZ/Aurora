@@ -64,9 +64,30 @@ jobs:
             -   name: "000"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
+                    composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev . --no-cache
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                    composer require phpunit/phpunit
+                    composer require symfony/phpunit-bridge:${{env.AURORA_VERSION}}
+                    ls -a .
+                    ls -a ./vendor
+                    exit 1
+
+
+
+
+
+
+
+
+
+            -   name: "000"
+                working-directory: ${{ env.BUILD_DIR }}
+                run: |
+                    cp ${{ github.workspace }}/composer.json ${{ env.BUILD_DIR }}/composer.json
+                    composer install --prefer-dist --no-progress --no-cache --no-scripts
                     mkdir -p ${{ env.BUILD_DIR }}
                     mkdir -p ${{ env.TMP_DIR }}/skeleton
-                    composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{ env.TMP_DIR }}/skeleton --no-cache
+                    composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev . --no-cache
                     mv -f ${{ env.TMP_DIR }}/skeleton/* ${{ env.TMP_DIR }}/skeleton/.[!.]* ${{ env.BUILD_DIR }}/
                     ls -a ./vendor
                     /usr/bin/php bin/console about
