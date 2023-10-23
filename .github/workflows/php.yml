@@ -64,9 +64,10 @@ jobs:
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev . --no-cache
-                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
-                    composer require phpunit/phpunit:^9.6
                     composer require symfony/phpunit-bridge:${{env.AURORA_VERSION}}
+                    composer require symfony/webapp-pack:${{env.AURORA_VERSION}}
+                    composer require phpunit/phpunit:^9.6
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
 
             -   name: "001"
