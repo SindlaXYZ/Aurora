@@ -6,9 +6,6 @@ on:
     pull_request:
         branches: [ "6.3" ]
 
-# Variables:
-#   $HOME                       = /home/runner
-#   ${{ github.workspace }}     = /home/runner/work/Aurora/Aurora
 env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
@@ -22,15 +19,12 @@ env:
 
 jobs:
     build:
-        #runs-on: ubuntu-16.04 #ubuntu-latest
         runs-on: ubuntu-22.04
         strategy:
             fail-fast: true
             matrix:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, debian-10, debian-11]
-                #operating-system: [ubuntu-22.04, debian-11]
-                operating-system: [ ubuntu-22.04 ]
-                #php-versions: ['8.1', '8.2']
+                operating-system: [ ubuntu-22.04, debian-11 ]
                 php-versions: [ '8.2' ]
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
