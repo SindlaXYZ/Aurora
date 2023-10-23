@@ -61,6 +61,33 @@ jobs:
                     echo "Run attempt: ${{ github.run_attempt }}"
 
 
+            -   name: "000"
+                working-directory: ${{ env.BUILD_DIR }}
+                run: |
+                    mkdir -p ${{ env.BUILD_DIR }}
+                    mkdir -p ${{ env.TMP_DIR }}/skeleton
+                    composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{ env.TMP_DIR }}/skeleton --no-cache
+                    mv -f ${{ env.TMP_DIR }}/skeleton/* ${{ env.TMP_DIR }}/skeleton/.[!.]* ${{ env.BUILD_DIR }}/
+                    ls -a ./vendor
+                    /usr/bin/php bin/console about
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                    ls -a ./vendor
+                    exit 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             -   name: "Run `composer install` inside default project directory"
                 working-directory: ${{ github.workspace }}
                 run: |
