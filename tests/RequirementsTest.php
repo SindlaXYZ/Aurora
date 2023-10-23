@@ -2,9 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Tests;
 
-// PHPUnit
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
 class RequirementsTest extends WebTestCase
