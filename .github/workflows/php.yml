@@ -65,14 +65,15 @@ jobs:
                 run: |
                     composer install --prefer-dist --no-progress --no-cache --no-scripts
                     ls -a ${{ github.workspace }}/vendor
-                    exit 1
 
 
-            -   name: "0"
+            -   name: "Install sindla/aurora in a temporary directory"
                 working-directory: ${{ env.TMP_DIR }}
                 run: |
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                     ls -a ${{ env.TMP_DIR }}
+                    ls -a ${{ github.workspace }}/vendor
+                    exit 1
 
             -   name: "1"
                 run: |
