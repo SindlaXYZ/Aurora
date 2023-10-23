@@ -68,6 +68,8 @@ jobs:
                     composer require symfony/phpunit-bridge:${{env.AURORA_VERSION}}.*
                     composer require phpunit/phpunit:^9.6
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                    cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
+                    cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
 
             -   name: "Composer clear & autoloader dump"
@@ -95,6 +97,9 @@ jobs:
 
             -   name: "Test /Console"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php --no-coverage
+
+            -   name: "Test /Controller"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --no-coverage
 
             -   name: "Test /Entity/SuperAnnotation"
                 run: |
