@@ -2,20 +2,20 @@ name: PHPUnit
 
 on:
     push:
-        branches: [ "6.3" ]
+        branches: [ "7.0" ]
     pull_request:
-        branches: [ "6.3" ]
+        branches: [ "7.0" ]
 
 env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
     BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
     TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
-    AURORA_VERSION: 6.3
+    AURORA_VERSION: 7.0
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
-    SYMFONY_REQUIRE: ">=6.3"
+    SYMFONY_REQUIRE: ">=7.0"
 
 jobs:
     build:
