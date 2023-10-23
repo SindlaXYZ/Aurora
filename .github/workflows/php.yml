@@ -68,8 +68,8 @@ jobs:
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                     composer require phpunit/phpunit
                     composer require symfony/phpunit-bridge:${{env.AURORA_VERSION}}
-                    ls -a .
-                    ls -a ./vendor
+                    cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
+                    /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
                     exit 1
 
 
@@ -93,6 +93,8 @@ jobs:
                     /usr/bin/php bin/console about
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
                     ls -a ./vendor
+                    cp
+                    /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
                     exit 1
 
 
