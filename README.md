@@ -12,7 +12,7 @@
 
 #### Composer
 
-`composer require sindla/aurora:6.3.*` | `composer require sindla/aurora:6.3.x-dev`
+`composer require sindla/aurora:7.0.*` | `composer require sindla/aurora:7.0.x-dev`
 
 #### `config/packages/aurora.yaml`:
 
