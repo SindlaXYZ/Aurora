@@ -60,7 +60,7 @@ jobs:
                     echo "Run id: ${{ github.run_id }}"
                     echo "Run attempt: ${{ github.run_attempt }}"
 
-            -   name: "Create a Symfony skeleton project and install dependencies."
+            -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.* . --no-cache

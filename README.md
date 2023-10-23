@@ -7,13 +7,12 @@
 | 6.1     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1) | [![Latest Version](https://img.shields.io/badge/tag-N/A-red)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.1&expanded=true)             | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1         |
 | 6.2     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2) | [![Latest Version](https://img.shields.io/badge/tag-v6.2.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.2&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.2         |
 | 6.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.3) | [![Latest Version](https://img.shields.io/badge/tag-v6.3.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.3&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.3)](https://github.com/SindlaXYZ/Aurora/tree/6.3) | >= 8.2         |
-| 7.0     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/github/tag/SindlaXYZ/Aurora.svg)](https://github.com/SindlaXYZ/Aurora/releases)                    | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
 
 # Install
 
 #### Composer
 
-`composer require sindla/aurora:7.0.*` | `composer require sindla/aurora:7.0.x-dev`
+`composer require sindla/aurora:6.3.*` | `composer require sindla/aurora:6.3.x-dev`
 
 #### `config/packages/aurora.yaml`:
 
@@ -201,7 +200,7 @@ final class Version... extends AbstractMigration implements ContainerAwareInterf
 * Edit `config/services.yaml`
 
 ```yaml
-    Sindla\Bundle\AuroraBundle\EventListener\OutputSubscriber:
+    Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
         arguments:
             $container: '@service_container'
             $utilityExtension: '@aurora.twig.utility'

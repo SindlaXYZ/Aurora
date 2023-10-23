@@ -1,15 +1,11 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Controller;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\HttpFoundation\Response;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
 
 /**
