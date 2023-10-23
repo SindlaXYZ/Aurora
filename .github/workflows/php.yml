@@ -69,9 +69,16 @@ jobs:
                     composer require phpunit/phpunit
                     composer require symfony/phpunit-bridge:${{env.AURORA_VERSION}}
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
+
+            -   name: "001"
+                run: |
+                    composer clear-cache
+                    composer dump-autoload
+
+            -   name: "002"
+                run: |
                     /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
                     exit 1
-
 
 
 
