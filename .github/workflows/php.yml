@@ -49,7 +49,6 @@ jobs:
                     . /etc/os-release && echo $PRETTY_NAME
                     ls -a ${{ github.workspace }}
                     echo ${{ github.workspace }}
-                    exit 1
 
             -   name: "1"
                 run: |
