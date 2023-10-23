@@ -72,7 +72,7 @@ jobs:
                 run: |
                     mkdir -p ${{ env.TMP_DIR }}/skeleton
                     composer create-project symfony/skeleton:${{env.AURORA_VERSION}}.x-dev ${{ env.TMP_DIR }}/skeleton --no-cache
-                    mv -f ${{ env.TMP_DIR }}/skeleton/* ${{ github.workspace }}/skeleton/.[!.]* ${{ github.workspace }}/
+                    mv -f ${{ env.TMP_DIR }}/skeleton/* ${{ env.TMP_DIR }}/skeleton/.[!.]* ${{ github.workspace }}/
                     /usr/bin/php bin/console about
 
 
