@@ -57,8 +57,26 @@ jobs:
                     ls -a ${{ github.workspace }}/vendor
                     mkdir -p ${{env.working-directory}}
 
-
             -   name: "2"
+                run: |
+                    rm -f ${{ github.workspace }}/composer.*
+
+            -   name: "3"
+                run: |
+                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                    cat composer.json
+                    composer config minimum-stability dev
+                    composer update
+                    cat composer.json
+                    ls -a ${{ github.workspace }}
+                    ls -a ${{ github.workspace }}/vendor
+                    ls -a ${{ github.workspace }}/vendor/sindla
+                    exit 1
+
+
+
+
+            -   name: "4"
                 working-directory: ${{ env.working-directory }}
                 run: |
                     composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
