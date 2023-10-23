@@ -15,7 +15,7 @@ env:
     BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
     TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
     AURORA_VERSION: 6.3
-    PHPUNIT: /home/runner/work/aurora/vendor/phpunit/phpunit/phpunit # ${{env.working-directory}}/bin/phpunit
+    PHPUNIT: "${{ env.BUILD_DIR }}/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # $HOME = /home/runner
@@ -74,10 +74,83 @@ jobs:
                     composer clear-cache
                     composer dump-autoload
 
-            -   name: "002"
+            -   name: "PHPUnit check 1/2"
+                run: |
+                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
+                    echo $(grep -c "strict_types" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
+                    echo 'EOF' >> $GITHUB_ENV
+                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
+
+            -   name: "PHPUnit check 2/2"
+                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
+                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
+
+            -   name: "Test RequirementsTest"
                 run: |
                     /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
-                    exit 1
+                    exit 0
+
+            -   name: "Test /Command"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
+
+            -   name: "Test /Console"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php --no-coverage
+
+            -   name: "Test /Entity/SuperAnnotation"
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php --no-coverage
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php --no-coverage
+
+            -   name: "Test /EventListener"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
+
+            -   name: "Test /Utils/Chronos"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --no-coverage
+
+            -   name: "Test /Utils/Client"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --no-coverage
+
+            -   name: "Test /Utils/Diacritics"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --no-coverage
+
+            -   name: "Test /Utils/Helper"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php --no-coverage
+
+            -   name: "Test /Utils/IO"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php --no-coverage
+
+            -   name: "Test /Utils/AuroraMatch"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
+
+            -   name: "Test /Utils/Strink"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
+
+            -   name: "Test /Utils/Twig"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --no-coverage
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
