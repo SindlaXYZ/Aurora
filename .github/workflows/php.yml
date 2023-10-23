@@ -13,7 +13,7 @@ env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
     BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
-    TMP_DIR: "${{ github.workspace }}/tmp"
+    TMP_DIR: "${{ github.workspace }}/${{ github.run_attempt }}"
     AURORA_VERSION: 6.3
     PHPUNIT: /home/runner/work/aurora/vendor/phpunit/phpunit/phpunit # ${{env.working-directory}}/bin/phpunit
     PHPUNIT_FLAGS: ""
@@ -55,11 +55,10 @@ jobs:
                     mkdir -p ${{ env.BUILD_DIR }}
                     mkdir -p ${{ env.TMP_DIR }}
                     echo ${{ github.workspace }}
-                    echo ${{ env.working-directory }}
                     echo ${{ env.BUILD_DIR }}
                     echo ${{ env.TMP_DIR }}
-                    echo "Run id: ${{ github.run_id }}}"
-                    echo "Run attempt: ${{ github.run_attempt }}}
+                    echo "Run id: ${{ github.run_id }}"
+                    echo "Run attempt: ${{ github.run_attempt }}"
 
             -   name: "0"
                 working-directory: ${{ env.TMP_DIR }}
