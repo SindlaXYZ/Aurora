@@ -18,8 +18,6 @@ env:
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
-    # $HOME = /home/runner
-    SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=6.3"
 
 jobs:
