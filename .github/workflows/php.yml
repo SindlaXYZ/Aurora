@@ -11,8 +11,8 @@ env:
     working-directory: /home/runner/work/aurora
     BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
     TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
-    AURORA_VERSION: 7.0
-    SYMFONY_VERSION: 7.0.x-dev # 7.0.* / 7.0.x-dev
+    AURORA_VERSION: "7.0"
+    SYMFONY_VERSION: "7.0.x-dev" # 7.0.* / 7.0.x-dev
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
@@ -56,11 +56,11 @@ jobs:
             -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
-                    composer create-project symfony/skeleton:${{env.SYMFONY_VERSION}} . --no-cache
+                    composer create-project symfony/skeleton:${{ env.SYMFONY_VERSION }} . --no-cache
                     composer require symfony/webapp-pack
-                    composer require symfony/phpunit-bridge:${{env.SYMFONY_VERSION}}
+                    composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
                     composer require phpunit/phpunit:^9.6
-                    composer require sindla/aurora:${{env.AURORA_VERSION}}.x-dev --no-progress
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-progress
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
