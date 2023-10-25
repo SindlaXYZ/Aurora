@@ -98,19 +98,20 @@ parameters:
 ```
 </details>
 
-
-
-
-
-
-#### `config/packages/dev/aurora.yaml`:
+<details>
+        <summary><h4>🗂️ config/packages/dev/aurora.yaml</h4> (must be created manually)</summary>
 
 ```yaml
 parameters:
     aurora.minify.output: false
 ```
+</details>
 
-* Edit `composer.json` and add
+
+<details>
+        <summary><h4>🗂️ composer.json</h4></summary>
+
+Edit `composer.json` and add
 
 ```json
     "post-install-cmd": [
@@ -120,8 +121,13 @@ parameters:
 "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
 ]
 ```
+</details>
 
-* Edit `config/packages/twig.yaml` and add
+
+<details>
+        <summary><h4>🗂️ config/packages/twig.yaml</h4></summary>
+
+Edit `config/packages/twig.yaml` and add
 
 ```yaml
 twig:
@@ -134,14 +140,20 @@ twig:
     globals:
         aurora: '@aurora.twig.utility'
 ```
+</details>
 
-* Enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
-* Edit `config/routes.yaml` and prepend
+<details>
+        <summary><h4>🗂️ config/routes.yaml</h4></summary>
+
+Will enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
+Edit `config/routes.yaml` and prepend
 
 ```yaml
 aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
 ```
+</details>
+
 
 Run `composer update` to update and install the rest of the dependencies.
 
