@@ -7,24 +7,29 @@
 | 6.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/php.yml/badge.svg?branch=6.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.3) | [![Latest Version](https://img.shields.io/badge/tag-v6.3.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.3&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.3)](https://github.com/SindlaXYZ/Aurora/tree/6.3) | >= 8.2         |
 | 7.0     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/php.yml/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/badge/tag-v7.0.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.0&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
 
-
 ## Installation
+
 The Aurora package is Packagist ready, and Composer can be used to install it.
+
 ```bash
 composer require sindla/aurora:7.0.*
 ```
+
 The x-dev flag can be used to install the development version:
+
 ```bash
 composer require sindla/aurora:7.0.x-dev
 ```
 
 ## Configuration
+
 Even if Aurora is Packagist-ready and is a Symfony bundle, no recipe will be installed automatically.
 
 <details>
         <summary><h4>🗂️ config/packages/aurora.yaml</h4></summary>
 
 * Create the file `config/packages/aurora.yaml` and add the following content:
+
 ```yaml
 parameters:
     aurora.bundle: 'App'
@@ -97,16 +102,19 @@ parameters:
         - 'agkn.com'
         - 'casalemedia.com'
 ```
+
 </details>
 
 <details>
         <summary><h4>🗂️ config/packages/dev/aurora.yaml</h4></summary>
 
 * Create the file `config/packages/dev/aurora.yaml` and add the following content:
+
 ```yaml
 parameters:
     aurora.minify.output: false
 ```
+
 </details>
 
 
@@ -114,14 +122,16 @@ parameters:
         <summary><h4>🗂️ composer.json</h4></summary>
 
 * Edit `composer.json` and add the following content:
+
 ```json
     "post-install-cmd": [
-      "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
-    ],
-    "post-update-cmd": [
-      "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
-    ]
+"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
+],
+"post-update-cmd": [
+"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
+]
 ```
+
 </details>
 
 
@@ -129,6 +139,7 @@ parameters:
         <summary><h4>🗂️ config/packages/twig.yaml</h4></summary>
 
 * Edit `config/packages/twig.yaml` and add the following content:
+
 ```yaml
 twig:
     default_path: '%kernel.project_dir%/templates'
@@ -140,6 +151,7 @@ twig:
     globals:
         aurora: '@aurora.twig.utility'
 ```
+
 </details>
 
 <details>
@@ -147,10 +159,12 @@ twig:
 
 * Will enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
 * Edit `config/routes.yaml` and add the following content:
+
 ```yaml
 aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
 ```
+
 </details>
 
 
@@ -161,9 +175,11 @@ Then run `composer update` to update and install the rest of the dependencies.
         <summary><h4>⚙️ Progressive Web Apps</h4></summary>
 
 * To use Progressive Web Apps (PWA), edit your Twig template and between `<head>` and `</head>` add the following content:
+
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
+
 </details>
 
 
@@ -171,6 +187,7 @@ Then run `composer update` to update and install the rest of the dependencies.
         <summary><h4>⚙️ HTML Minifier</h4></summary>
 
 * To enable HTML Minifier edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`, then edit `config/services.yaml` add the following content:
+
 ```yaml
     Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
         arguments:
@@ -179,7 +196,7 @@ Then run `composer update` to update and install the rest of the dependencies.
               #$headers:
               #text/html:
               #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
-              #Content-Security-Policy: "default-src 'self'"
+            #Content-Security-Policy: "default-src 'self'"
             # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
             #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
             #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
@@ -187,6 +204,7 @@ Then run `composer update` to update and install the rest of the dependencies.
         tags:
             - { name: kernel.event_listener, event: kernel.response }
 ```
+
 </details>
 
 
@@ -195,6 +213,7 @@ Then run `composer update` to update and install the rest of the dependencies.
 
 * When `composer install` and/or `composer update` are used, Aurora will try to automatically download the MaxMind GeoLite2Country & GeoLite2City
 * To enable this, edit your `.env.local` and add the following content (you will need a MaxMind licence key):
+
 ```.env
 MAXMIND_LICENSE_KEY=_CHANGE_THIS_WITH_YOUR_PRIVATE_LICENTE_KEY_
 SINDLA_AURORA_GEO_LITE2_COUNTRY=true
@@ -202,6 +221,7 @@ SINDLA_AURORA_GEO_LITE2_CITY=true
 ```
 
 * Edit `config/services.yaml` and add/append the following content:
+
 ```yaml
 services:
     _defaults:
@@ -209,7 +229,8 @@ services:
             $auroraClient: '@aurora.client'
 ```
 
-* Or edit `config/services.yaml` and add the following content to inject the auroraClient only where is needed:
+* Or edit `config/services.yaml` and add the following code to inject the `@aurora.client` only where it is needed:
+
 ```yaml
 services:
     App\Controller\TestController:
@@ -218,6 +239,7 @@ services:
 ```
 
 * Edit your controller and add/append the following code:
+
 ```php
 <?php
 
@@ -239,7 +261,7 @@ class TestController extends AbstractController
     {
     }
 
-    #[Route(path: '/client-ip-2-country', name: 'XHR:Test', methods: ['OPTIONS', 'GET'])]
+    #[Route(path: '/client-ip-2-country', name: 'TestController:clientIp2Country', methods: ['OPTIONS', 'GET'])]
     public function clientIp2Country(): JsonResponse
     {
         return new JsonResponse([
@@ -248,6 +270,7 @@ class TestController extends AbstractController
     }
 }
 ```
+
 </details>
 
 ---
