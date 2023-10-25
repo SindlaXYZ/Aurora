@@ -157,6 +157,7 @@ aurora:
 ```
 </details>
 
+
 Then run `composer update` to update and install the rest of the dependencies.
 
 
@@ -167,6 +168,30 @@ To enable Progressive Web Apps (PWA), edit your twig template, and between `<hea
 
 ```twig
 {{ aurora.pwa(app.request) }}
+```
+</details>
+
+
+<details>
+        <summary><h4>⚙️ HTML Minifier</h4></summary>
+
+* To enable HTML Minifier edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`, then edit `config/services.yaml` add the following content:
+
+```yaml
+    Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
+        arguments:
+            $container: '@service_container'
+            $utilityExtension: '@aurora.twig.utility'
+              #$headers:
+              #text/html:
+              #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+              #Content-Security-Policy: "default-src 'self'"
+            # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
+            #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
+            #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+            #Referrer-Policy: "no-referrer-when-downgrade"
+        tags:
+            - { name: kernel.event_listener, event: kernel.response }
 ```
 </details>
 
@@ -200,32 +225,6 @@ doctrine_migrations:
         'Doctrine\Migrations\Version\MigrationFactory': 'Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator'
     ...
 ```
-
----
-
-#### How to enable HTML Minifier??
-
-* Edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`
-* Edit `config/services.yaml`
-
-```yaml
-    Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
-        arguments:
-            $container: '@service_container'
-            $utilityExtension: '@aurora.twig.utility'
-              #$headers:
-              #text/html:
-              #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
-              #Content-Security-Policy: "default-src 'self'"
-            # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
-            #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
-            #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
-            #Referrer-Policy: "no-referrer-when-downgrade"
-        tags:
-            - { name: kernel.event_listener, event: kernel.response }
-```
-
----
 
 #### How to access a service from a controller (DI)?
 
