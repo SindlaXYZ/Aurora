@@ -22,7 +22,9 @@ composer require sindla/aurora:7.0.x-dev
 Even if Aurora is Packagist-ready and is a Symfony bundle, no recipe will be installed automatically.
 
 <details>
-        <summary><h4>🗂️ /config/packages/aurora.yaml</h4> (must be created manually)</summary>
+        <summary><h4>🗂️ config/packages/aurora.yaml</h4></summary>
+
+Create the file `config/packages/aurora.yaml` and add the following content:
 
 ```yaml
 parameters:
@@ -99,8 +101,9 @@ parameters:
 </details>
 
 <details>
-        <summary><h4>🗂️ config/packages/dev/aurora.yaml</h4> (must be created manually)</summary>
+        <summary><h4>🗂️ config/packages/dev/aurora.yaml</h4></summary>
 
+Create the file `config/packages/dev/aurora.yaml` and add the following content:
 ```yaml
 parameters:
     aurora.minify.output: false
@@ -111,15 +114,15 @@ parameters:
 <details>
         <summary><h4>🗂️ composer.json</h4></summary>
 
-Edit `composer.json` and add
+Edit `composer.json` and add the following content:
 
 ```json
     "post-install-cmd": [
-"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
-],
-"post-update-cmd": [
-"Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
-]
+      "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
+    ],
+    "post-update-cmd": [
+      "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postUpdate"
+    ]
 ```
 </details>
 
@@ -127,7 +130,7 @@ Edit `composer.json` and add
 <details>
         <summary><h4>🗂️ config/packages/twig.yaml</h4></summary>
 
-Edit `config/packages/twig.yaml` and add
+Edit `config/packages/twig.yaml` and add the following content:
 
 ```yaml
 twig:
@@ -146,7 +149,7 @@ twig:
         <summary><h4>🗂️ config/routes.yaml</h4></summary>
 
 Will enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
-Edit `config/routes.yaml` and prepend
+Edit `config/routes.yaml` and add the following content:
 
 ```yaml
 aurora:
