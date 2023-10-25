@@ -194,12 +194,34 @@ Then run `composer update` to update and install the rest of the dependencies.
         <summary><h4>⚙️ MaxMind GeoLite2Country & GeoLite2City</h4></summary>
 
 * When `composer install` and/or `composer update` are used, Aurora will try to automatically download the MaxMind GeoLite2Country & GeoLite2City
-* To enable this, edit your `.env.local` add the following content (you will need a MaxMind licence key):
+* To enable this, edit your `.env.local` and add the following content (you will need a MaxMind licence key):
 ```.env
-MAXMIND_LICENSE_KEY=_CHANGE_THIS__WITH_YOUR_PRIVATE_LICENTE_KEY_
+MAXMIND_LICENSE_KEY=_CHANGE_THIS_WITH_YOUR_PRIVATE_LICENTE_KEY_
 SINDLA_AURORA_GEO_LITE2_COUNTRY=true
 SINDLA_AURORA_GEO_LITE2_CITY=true
 ```
+
+* Edit `config/services.yaml` and add/append the following content:
+```yaml
+services:
+    _defaults:
+        bind:
+            $auroraClient: '@aurora.client'
+```
+
+* Edit your controller constructor and add/append the following content:
+```php
+#[Route('/test-controller')]
+class TestController extends AbstractController
+{
+    public function __construct(
+        protected Client $auroraClient
+    )
+    {
+    }
+}
+```
+
 * Then, the following code can be used together with the MaxMind database:
 ```php
 
@@ -240,27 +262,6 @@ doctrine_migrations:
 ```
 
 #### How to access a service from a controller (DI)?
-
-**[1/2]** Example for src/Controller/StaticController.php
-
-```php
-use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
-
-class StaticController {
-    private $AuroraClient;
-
-    public function __construct(AuroraClient $AuroraClient)
-    {
-        /** @var AuroraClient */
-        $this->AuroraClient = $AuroraClient;
-    }
-
-    public function () ...
-    {
-        $this->AuroraClient->ip2CountryCode($this->AuroraClient->ip($Request));
-    }
-}
-```
 
 **[2/2]** config/services.yaml
 
