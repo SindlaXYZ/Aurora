@@ -160,7 +160,7 @@ Then run `composer update` to update and install the rest of the dependencies.
 <details>
         <summary><h4>⚙️ Progressive Web Apps</h4></summary>
 
-* To enable Progressive Web Apps (PWA), edit your twig template, and between `<head>` and `</head>` add the following content:
+* To use Progressive Web Apps (PWA), edit your Twig template and between `<head>` and `</head>` add the following content:
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
