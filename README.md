@@ -249,11 +249,12 @@ use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\Cache;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 
 #[Route('/test-controller')]
-class TestController extends AbstractController
+final class TestController extends AbstractController
 {
     public function __construct(
         protected Client $auroraClient
@@ -262,6 +263,7 @@ class TestController extends AbstractController
     }
 
     #[Route(path: '/client-ip-2-country', name: 'TestController:clientIp2Country', methods: ['OPTIONS', 'GET'])]
+    #[Cache(maxage: 60, smaxage: 120, public: true, mustRevalidate: true)]
     public function clientIp2Country(): JsonResponse
     {
         return new JsonResponse([
@@ -305,10 +307,5 @@ doctrine_migrations:
 
 ---
 
-#### How to access a service from a controller (direct call)?
-
-```php
-$Strink = new Strink();
-```
 
 * For favicons, can use https://www.favicon-generator.org/
