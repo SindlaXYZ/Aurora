@@ -190,6 +190,25 @@ Then run `composer update` to update and install the rest of the dependencies.
 </details>
 
 
+<details>
+        <summary><h4>⚙️ MaxMind GeoLite2Country & GeoLite2City</h4></summary>
+
+* When `composer install` and/or `composer update` are used, Aurora will try to automatically download the MaxMind GeoLite2Country & GeoLite2City
+* To enable this, edit your `.env.local` add the following content (you will need a MaxMind licence key):
+```.env
+MAXMIND_LICENSE_KEY=_CHANGE_THIS__WITH_YOUR_PRIVATE_LICENTE_KEY_
+SINDLA_AURORA_GEO_LITE2_COUNTRY=true
+SINDLA_AURORA_GEO_LITE2_CITY=true
+```
+* Then, the following code can be used together with the MaxMind database:
+```php
+
+/** @var Sindla\Bundle\AuroraBundle\Utils\Client\Client $this->auroraClient */
+/** @var Symfony\Component\HttpFoundation\Request $request */
+$this->auroraClient->ip2CountryCode($this->auroraClient->ip($request))
+```
+</details>
+
 ---
 
 #### Inject ContainerAwareInterface into Doctrine Migrations
