@@ -209,8 +209,27 @@ services:
             $auroraClient: '@aurora.client'
 ```
 
-* Edit your controller constructor and add/append the following content:
+* Or edit `config/services.yaml` and add the following content to inject the auroraClient only where is needed:
+```yaml
+services:
+    App\Controller\TestController:
+        arguments:
+            $auroraClient: '@aurora.client'
+```
+
+* Edit your controller and add/append the following code:
 ```php
+<?php
+
+namespace App\Controller;
+
+use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 #[Route('/test-controller')]
 class TestController extends AbstractController
 {
@@ -219,15 +238,15 @@ class TestController extends AbstractController
     )
     {
     }
+
+    #[Route(path: '/client-ip-2-country', name: 'XHR:Test', methods: ['OPTIONS', 'GET'])]
+    public function clientIp2Country(): JsonResponse
+    {
+        return new JsonResponse([
+            'countryCode' => $this->auroraClient->ip2CountryCode($this->auroraClient->ip($request));
+        ]);
+    }
 }
-```
-
-* Then, the following code can be used together with the MaxMind database:
-```php
-
-/** @var Sindla\Bundle\AuroraBundle\Utils\Client\Client $this->auroraClient */
-/** @var Symfony\Component\HttpFoundation\Request $request */
-$this->auroraClient->ip2CountryCode($this->auroraClient->ip($request))
 ```
 </details>
 
@@ -259,17 +278,6 @@ doctrine_migrations:
     services:
         'Doctrine\Migrations\Version\MigrationFactory': 'Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator'
     ...
-```
-
-#### How to access a service from a controller (DI)?
-
-**[2/2]** config/services.yaml
-
-```yaml
-services:
-    App\Controller\StaticController:
-        arguments:
-            $AuroraClient: '@aurora.client'
 ```
 
 ---
