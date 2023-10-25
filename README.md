@@ -157,16 +157,19 @@ aurora:
 ```
 </details>
 
+Then run `composer update` to update and install the rest of the dependencies.
 
-Run `composer update` to update and install the rest of the dependencies.
 
----
+<details>
+        <summary><h4>⚙️ Progressive Web Apps</h4></summary>
 
-**[PWA]** Inside your twig template, in HTML `head` tag add:
+To enable Progressive Web Apps (PWA), edit your twig template, and between `<head>` and `</head>` add the following content:
 
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
+</details>
+
 
 ---
 
@@ -196,29 +199,6 @@ doctrine_migrations:
     services:
         'Doctrine\Migrations\Version\MigrationFactory': 'Sindla\Bundle\AuroraBundle\Doctrine\Migrations\Factory\MigrationFactoryDecorator'
     ...
-```
-
-3. Create an empty migration and edit it
-
-```php
-// Symfony
-use Symfony\Component\DependencyInjection\ContainerAwareInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-
-final class Version... extends AbstractMigration implements ContainerAwareInterface
-{
-    /** @var ContainerInterface */
-    protected ContainerInterface $container;
-
-    public function setContainer(ContainerInterface $container = null)
-    {
-        /** @var ContainerAwareInterface container */
-        $this->container = $container;
-
-        /** @var EntityManager $em */
-        $em = $this->container->get('doctrine.orm.entity_manager');
-    }
-}
 ```
 
 ---
