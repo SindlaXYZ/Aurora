@@ -264,10 +264,10 @@ final class TestController extends AbstractController
 
     #[Route(path: '/client-ip-2-country', name: 'TestController:clientIp2Country', methods: ['OPTIONS', 'GET'])]
     #[Cache(maxage: 60, smaxage: 120, public: true, mustRevalidate: true)]
-    public function clientIp2Country(): JsonResponse
+    public function clientIp2Country(Request $request): JsonResponse
     {
         return new JsonResponse([
-            'countryCode' => $this->auroraClient->ip2CountryCode($this->auroraClient->ip($request));
+            'countryCode' => $this->auroraClient->ip2CountryCode($this->auroraClient->ip($request))
         ]);
     }
 }
