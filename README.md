@@ -7,13 +7,22 @@
 | 6.3     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/php.yml/badge.svg?branch=6.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.3) | [![Latest Version](https://img.shields.io/badge/tag-v6.3.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.3&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.3)](https://github.com/SindlaXYZ/Aurora/tree/6.3) | >= 8.2         |
 | 7.0     | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/php.yml/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/badge/tag-v7.0.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.0&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
 
-# Install
 
-#### Composer
+## Installation
+The Aurora package is Packagist ready, and Composer can be used to install it.
+```bash
+composer require sindla/aurora:7.0.*
+```
+The x-dev flag can be used to install the development version:
+```bash
+composer require sindla/aurora:7.0.x-dev
+```
 
-`composer require sindla/aurora:7.0.*` | `composer require sindla/aurora:7.0.x-dev`
+## Configuration
+Even if Aurora is Packagist-ready and is a Symfony bundle, no recipe will be installed automatically.
 
-#### `config/packages/aurora.yaml`:
+<details>
+        <summary><h4>🗂️ /config/packages/aurora.yaml</h4> (must be created manually)</summary>
 
 ```yaml
 parameters:
@@ -87,6 +96,12 @@ parameters:
         - 'agkn.com'
         - 'casalemedia.com'
 ```
+</details>
+
+
+
+
+
 
 #### `config/packages/dev/aurora.yaml`:
 
