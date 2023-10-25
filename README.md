@@ -24,8 +24,7 @@ Even if Aurora is Packagist-ready and is a Symfony bundle, no recipe will be ins
 <details>
         <summary><h4>🗂️ config/packages/aurora.yaml</h4></summary>
 
-Create the file `config/packages/aurora.yaml` and add the following content:
-
+* Create the file `config/packages/aurora.yaml` and add the following content:
 ```yaml
 parameters:
     aurora.bundle: 'App'
@@ -103,7 +102,7 @@ parameters:
 <details>
         <summary><h4>🗂️ config/packages/dev/aurora.yaml</h4></summary>
 
-Create the file `config/packages/dev/aurora.yaml` and add the following content:
+* Create the file `config/packages/dev/aurora.yaml` and add the following content:
 ```yaml
 parameters:
     aurora.minify.output: false
@@ -114,8 +113,7 @@ parameters:
 <details>
         <summary><h4>🗂️ composer.json</h4></summary>
 
-Edit `composer.json` and add the following content:
-
+* Edit `composer.json` and add the following content:
 ```json
     "post-install-cmd": [
       "Sindla\\Bundle\\AuroraBundle\\Composer\\ScriptHandler::postInstall"
@@ -130,8 +128,7 @@ Edit `composer.json` and add the following content:
 <details>
         <summary><h4>🗂️ config/packages/twig.yaml</h4></summary>
 
-Edit `config/packages/twig.yaml` and add the following content:
-
+* Edit `config/packages/twig.yaml` and add the following content:
 ```yaml
 twig:
     default_path: '%kernel.project_dir%/templates'
@@ -148,9 +145,8 @@ twig:
 <details>
         <summary><h4>🗂️ config/routes.yaml</h4></summary>
 
-Will enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
-Edit `config/routes.yaml` and add the following content:
-
+* Will enable Aurora Black Hole, Favicons, Manifest & PWA (Progressive Web Application) controllers
+* Edit `config/routes.yaml` and add the following content:
 ```yaml
 aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
@@ -164,8 +160,7 @@ Then run `composer update` to update and install the rest of the dependencies.
 <details>
         <summary><h4>⚙️ Progressive Web Apps</h4></summary>
 
-To enable Progressive Web Apps (PWA), edit your twig template, and between `<head>` and `</head>` add the following content:
-
+* To enable Progressive Web Apps (PWA), edit your twig template, and between `<head>` and `</head>` add the following content:
 ```twig
 {{ aurora.pwa(app.request) }}
 ```
@@ -176,7 +171,6 @@ To enable Progressive Web Apps (PWA), edit your twig template, and between `<hea
         <summary><h4>⚙️ HTML Minifier</h4></summary>
 
 * To enable HTML Minifier edit `config/packages/aurora.yaml` and change `aurora.minify.output` to `true`, then edit `config/services.yaml` add the following content:
-
 ```yaml
     Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
         arguments:
