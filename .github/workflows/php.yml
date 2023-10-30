@@ -12,7 +12,7 @@ env:
     BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
     TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
     AURORA_VERSION: "5.4"
-    SYMFONY_VERSION: "5.4.x-dev" # 5.4.* / 5.4.x-dev
+    SYMFONY_VERSION: "5.4.*" # 5.4.* / 5.4.x-dev
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
