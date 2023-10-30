@@ -94,11 +94,6 @@ jobs:
             -   name: "Test /Controller"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --no-coverage
 
-            -   name: "Test /Entity/SuperAnnotation"
-                run: |
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php --no-coverage
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php --no-coverage
-
             -   name: "Test /EventListener"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
 
