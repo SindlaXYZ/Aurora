@@ -16,7 +16,7 @@ env:
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
-    SYMFONY_REQUIRE: "7.0" #">=7.0"
+    SYMFONY_REQUIRE: "7.0.x-dev" #">=7.0"
 
 jobs:
     build:
