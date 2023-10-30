@@ -1,0 +1,2 @@
+aurora:
+    resource: "@AuroraBundle/Resources/config/routes/routes.yaml"

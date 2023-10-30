@@ -1,35 +1,35 @@
-
 name: PHPUnit
 
 on:
     push:
-        branches: ["5.4"]
+        branches: [ "5.4" ]
     pull_request:
-        branches: ["5.4"]
+        branches: [ "5.4" ]
 
 env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
-    PHPUNIT: /home/runner/work/aurora/vendor/phpunit/phpunit/phpunit # ${{env.working-directory}}/bin/phpunit
-    PHPUNIT_FLAGS: "--verbose --debug"
+    BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
+    TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
+    AURORA_VERSION: "5.4"
+    SYMFONY_VERSION: "5.4.x-dev" # 5.4.* / 5.4.x-dev
+    PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
+    PHPUNIT_FLAGS: ""
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
-    # $HOME = /home/runner
-    SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_REQUIRE: ">=5.4"
 
 jobs:
     build:
-        #runs-on: ubuntu-16.04 #ubuntu-latest
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-22.04
         strategy:
             fail-fast: true
             matrix:
-                #operating-system: [ubuntu-16.04, ubuntu-18.04]
-                operating-system: [ubuntu-20.04, debian-10]
-                php-versions: ['7.4', '8.0']
+                #operating-system: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, debian-10, debian-11]
+                operating-system: [ ubuntu-22.04, debian-10 ]
+                php-versions: [ '7.4', '8.0' ]
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
-            -   uses: actions/checkout@v2
+            -   uses: actions/checkout@v3
 
             -   name: "Install PHP with extensions"
                 uses: shivammathur/setup-php@v2
@@ -44,177 +44,84 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-            -   name: "mkdir"
-                run: mkdir -p ${{env.working-directory}}/website-skeleton
+                    ls -a ${{ github.workspace }}
+                    mkdir -p ${{ env.BUILD_DIR }}
+                    mkdir -p ${{ env.TMP_DIR }}
+                    echo "\$github.workspace: ${{ github.workspace }}"
+                    echo "\$env.BUILD_DIR: ${{ env.BUILD_DIR }}"
+                    echo "\${{ env.TMP_DIR }} : ${{ env.TMP_DIR }}"
+                    echo "Run id: ${{ github.run_id }}"
+                    echo "Run attempt: ${{ github.run_attempt }}"
 
-            -   name: "Create project symfony/website-skeleton"
-                #                run: composer create-project symfony/website-skeleton:5.4.* ${{env.working-directory}}/website-skeleton --no-cache --ignore-platform-reqs
-                run: composer create-project symfony/website-skeleton:5.4.* ${{env.working-directory}}/website-skeleton --no-cache
-
-            # https://unix.stackexchange.com/questions/6393/how-do-you-move-all-files-including-hidden-from-one-directory-to-another
-            -   name: "Move symfony/website-skeleton"
-                # Move * (including .dot files)
+            -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
+                working-directory: ${{ env.BUILD_DIR }}
                 run: |
-                    ls -a ${{env.working-directory}}/website-skeleton/
-                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/website-skeleton/.[!.]* ${{env.working-directory}}/
-                # Move * and some .env files (if above command fails)
-            #                run: |
-            #                    ls -a ${{env.working-directory}}/website-skeleton/
-            #                    mv -f ${{env.working-directory}}/website-skeleton/* ${{env.working-directory}}/
-            #                    mv -f ${{env.working-directory}}/website-skeleton/.env ${{env.working-directory}}/.env
-            #                    mv -f ${{env.working-directory}}/website-skeleton/.env.test ${{env.working-directory}}/.env.test
+                    composer create-project symfony/skeleton:${{ env.SYMFONY_VERSION }} . --no-cache
+                    composer require symfony/webapp-pack
+                    composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
+                    composer require phpunit/phpunit:^8.0
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-progress
+                    cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
+                    cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
+                    cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
 
-            -   name: "mkdir"
-                run: mkdir -p ${{env.working-directory}}/vendor/sindla/aurora/
-
-            -   name: "Copy A"
-                run: cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
-
-            #            -   name: "Copy composer.json"
-            #                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/composer.json ${{env.working-directory}}/composer.json
-
-            -   name: "Copy phpunit.xml"
-                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/phpunit.xml ${{env.working-directory}}/phpunit.xml
-
-            -   name: "mkdir"
-                run: mkdir -p ${{env.working-directory}}/tests/
-
-            -   name: "Copy bootstrap.php"
-                run: cp -Rf ${{env.working-directory}}/vendor/sindla/aurora/tests/bootstrap.php ${{env.working-directory}}/tests/bootstrap.php
-
-            #            -   name: "Validate composer.json and composer.lock"
-            #                run: composer validate
-            #                working-directory: ${{env.working-directory}}
-
-            #            -   name: "Cache Composer packages"
-            #                id: composer-cache
-            #                uses: actions/cache@v2
-            #                with:
-            #                    path: vendor
-            #                    key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-            #                    restore-keys: |
-            #                        ${{ runner.os }}-php-
-
-            #            -   name: "Composer update"s
-            #                run: composer update
-
-            -   name: "Install dependencies"
-                # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer update && composer install --prefer-dist --no-progress --no-suggest --no-cache --no-scripts
-                working-directory: ${{env.working-directory}}
-
-            -   name: "Install sindla/aurora"
-                # if: steps.composer-cache.outputs.cache-hit != 'true'
-                run: composer require sindla/aurora --no-progress
-                working-directory: ${{env.working-directory}}
-
-            -   name: "Overwrite sindla/aurora"
-                run: |
-                    cp -Rf /home/runner/work/Aurora/Aurora/* ${{env.working-directory}}/vendor/sindla/aurora/
-                    mkdir -p ${{env.working-directory}}/app/config/
-                    cp -f /home/runner/work/Aurora/Aurora/.github/app/config/routes.yaml ${{env.working-directory}}/app/config/routes.yaml
-
-            # After sindla/aurora is overwrited, reload autoloader: because the sindla/aurora is not always in sync with the `main` branch
-            -   name: "Update/reload the composer autoloader"
+            -   name: "Composer clear & autoloader dump"
                 run: |
                     composer clear-cache
                     composer dump-autoload
-            #
-            # Works, no longer need it
-            #
-            #            -   name: "Install Simple PHPUnit"
-            #                run: vendor/bin/simple-phpunit install
-            #                working-directory: ${{env.working-directory}}
-            #
-            #            -   name: "Simple PHPUnit version"
-            #                run: vendor/bin/simple-phpunit --version
-            #                working-directory: ${{env.working-directory}}
-            #
-            #            -   name: "List"
-            #                run: ls -a ${{env.working-directory}}
-            #
-            #            -   name: "List vendor"
-            #                run: ls -a ${{env.working-directory}}/vendor/
-
-            #            -   name: "test 1"
-            #                run: sed -i -e "s|#!/usr/bin/env php||g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
-
-            #            -   name: "php-actions/phpunit@v2"
-            #                uses: php-actions/phpunit@v2
-            #                #                env:
-            #                #                    TEST_NAME: Scarlett
-            #                with:
-            #                    bootstrap: ${{env.working-directory}}/tests/bootstrap.php
-            #                    configuration: ${{env.working-directory}}/phpunit.xml
-            #                    args: --coverage-text
-            #                    version: 9.4.4
 
             -   name: "PHPUnit check 1/2"
                 run: |
                     echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
-                    echo $(grep -c "strict_types" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
+                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
                     echo 'EOF' >> $GITHUB_ENV
                     echo "${{ env.SED_STRICT_TYPES_FOUND }}"
 
             -   name: "PHPUnit check 2/2"
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
-                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{env.working-directory}}/vendor/phpunit/phpunit/phpunit
-
-            -   name: "PHPUnit"
-                run: |
-                    cat ${{env.PHPUNIT}}
-                    /usr/bin/php ${{env.PHPUNIT}} --version
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml --help
+                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Test RequirementsTest"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/RequirementsTest.php --debug --no-coverage
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
 
             -   name: "Test /Command"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
 
             -   name: "Test /Console"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php --no-coverage
 
-            #            -   name: "Test /Controller/Blackhole"
-            #                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --debug --no-coverage
+            -   name: "Test /Controller"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --no-coverage
+
+            -   name: "Test /Entity/SuperAnnotation"
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php --no-coverage
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php --no-coverage
 
             -   name: "Test /EventListener"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
 
             -   name: "Test /Utils/Chronos"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --no-coverage
 
             -   name: "Test /Utils/Client"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --no-coverage
 
             -   name: "Test /Utils/Diacritics"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --debug --no-coverage
-
-            -   name: "Test /Utils/Entity"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Entity/TemporalTraitTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --no-coverage
 
             -   name: "Test /Utils/Helper"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php --no-coverage
 
             -   name: "Test /Utils/IO"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php --no-coverage
 
             -   name: "Test /Utils/AuroraMatch"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
 
             -   name: "Test /Utils/Strink"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --debug --no-coverage
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
 
             -   name: "Test /Utils/Twig"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{env.working-directory}}/phpunit.xml ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --debug --no-coverage
-
-        #            -   name: "Run tests"
-        #                #run: vendor/bin/simple-phpunit ${{ env.PHPUNIT_FLAGS }} vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
-        #                run: ${{env.working-directory}}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} ${{env.working-directory}}/vendor/sindla/aurora/tests/Utils/Match/MatchTest.php --no-coverage
-        #                working-directory: ${{env.working-directory}}
-
-        # Add a test script to composer.json, for instance: "test": "vendor/bin/phpunit"
-        # Docs: https://getcomposer.org/doc/articles/scripts.md
-
-        # - name: Run test suite
-        #   run: composer run-script test
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --no-coverage
