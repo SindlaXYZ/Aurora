@@ -16,8 +16,8 @@
 parameters:
     aurora.bundle:     'App'
     aurora.root:       '%kernel.project_dir%'
-    aurora.tmp:        '%kernel.project_dir%/var/tmp'
-    aurora.resources:  '%kernel.project_dir%/var/resources'
+    aurora.tmp:        '%kernel.project_dir%/vendor/sindla/aurora/var/tmp'
+    aurora.resources:  '%kernel.project_dir%/vendor/sindla/aurora/var/resources'
     aurora.static:     '%kernel.project_dir%/public/static'
     aurora.locales:    ['en', 'ro']
     aurora.locale:     'ro'
