@@ -7,21 +7,18 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\QueryBuilder;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
 trait BaseRepository
 {
-    /** @var Container */
-    protected Container $container;
+    protected ContainerInterface $container;
 
-    /** @var Request */
     protected Request $request;
 
-    /** @var QueryBuilder $queryBuilder */
     protected QueryBuilder $queryBuilder;
 
-    public function setContainer(Container $container): self
+    public function setContainer(ContainerInterface $container): self
     {
         $this->container = $container;
         return $this;
