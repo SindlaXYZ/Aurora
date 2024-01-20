@@ -71,10 +71,11 @@ final class ComposerCommand extends Command
             );
     }
 
-    public function __construct(ContainerInterface $container)
+    public function __construct(
+        protected ContainerInterface    $container
+    )
     {
         parent::__construct();
-        $this->container     = $container;
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
