@@ -110,7 +110,7 @@ services:
         public: true
 
     aurora.client:
-        class: Sindla\Bundle\AuroraBundle\Utils\Client\Client
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
         arguments: [ '@service_container' ]
         autowire: true
         autoconfigure: true
