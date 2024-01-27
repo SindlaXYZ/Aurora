@@ -39,7 +39,7 @@ class AuroraClientTest extends KernelTestCase
 
     public function __SKIP__testIP2CountryCode()
     {
-        $Client = new Client($this->containerTest);
+        $Client = new AuroraClient($this->containerTest);
 
         foreach ([
                      [
@@ -75,7 +75,7 @@ class AuroraClientTest extends KernelTestCase
 
     public function testIpIsGoogleBot()
     {
-        $Client = new Client($this->containerTest);
+        $Client = new AuroraClient($this->containerTest);
 
         $this->assertTrue($Client->ipIsGoogleBot('66.249.66.1'), sprintf('IP: %s / Host: %s', '66.249.66.1', gethostbyaddr('66.249.66.1')));
         $this->assertTrue($Client->ipIsGoogleBot('66.249.90.77'), sprintf('IP: %s / Host: %s', '66.249.90.77', gethostbyaddr('66.249.90.77')));
