@@ -14,9 +14,9 @@ use Symfony\Component\HttpClient\HttpClient;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Client/AuroraClientTest.php --no-coverage
  */
-class ClientTest extends KernelTestCase
+class AuroraClientTest extends KernelTestCase
 {
     private $kernelTest;
     private $containerTest;
