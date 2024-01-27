@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Client;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraClient;
 
 // PHPUnit
 use PHPUnit\Framework\TestCase;
@@ -11,7 +11,7 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
 
 // Aurora
-use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --no-coverage
@@ -21,7 +21,7 @@ class ClientTest extends KernelTestCase
     private $kernelTest;
     private $containerTest;
 
-    /** @var Client */
+    /** @var AuroraClient */
     protected $client;
 
     protected function setUp(): void

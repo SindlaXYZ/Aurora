@@ -11,5 +11,5 @@ curl -H 'Cache-Control: no-cache, no-store' https://raw.githubusercontent.com/Si
 composer clear-cache ;\
 composer dump-autoload ;\
 php bin/phpunit -c phpunit.xml ./vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage ;\
-php bin/phpunit -c phpunit.xml ./vendor/sindla/aurora/tests/Utils/Client/ClientTest.php --no-coverage ;\
+php bin/phpunit -c phpunit.xml ./vendor/sindla/aurora/tests/Utils/Client/AuroraClientTest.php --no-coverage ;\
 php bin/phpunit -c phpunit.xml ./vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php --no-coverage

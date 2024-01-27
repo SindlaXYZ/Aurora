@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Client;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
 // Symfony
 use Symfony\Component\DependencyInjection\Container;
@@ -17,7 +17,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
  *
  * @package AuroraBundle\Utils
  */
-class Client
+class AuroraClient
 {
     private $container;
 

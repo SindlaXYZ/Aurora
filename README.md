@@ -246,7 +246,7 @@ services:
 
 namespace App\Controller;
 
-use Sindla\Bundle\AuroraBundle\Utils\Client\Client;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\Client;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
