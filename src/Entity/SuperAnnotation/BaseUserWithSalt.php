@@ -2,10 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 
-// Core
 use Serializable;
-
-// Symfony
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
@@ -13,39 +10,28 @@ class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterf
 {
     public function __serialize(): array
     {
+        return [];
     }
 
     public function __unserialize(array $data): void
     {
     }
 
-    /**
-     * @return string
-     */
     public function getUsername(): string
     {
         return $this->username;
     }
 
-    /**
-     * @return string|null
-     */
     public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    /**
-     * @return string
-     */
     public function getSalt(): ?string
     {
         return $this->salt;
     }
 
-    /**
-     * @return array
-     */
     public function getRoles(): array
     {
         return $this->role;
@@ -79,9 +65,6 @@ class BaseUserWithSalt implements UserInterface, PasswordAuthenticatedUserInterf
             = unserialize($serialized);
     }
 
-    /**
-     * @return string
-     */
     public function getUserIdentifier(): string
     {
         return $this->getUsername();
