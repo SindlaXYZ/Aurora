@@ -9,6 +9,8 @@ use Serializable;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 
+trigger_error('BaseUserWithSalt is deprecated.', E_USER_DEPRECATED);
+
 class BaseUser implements UserInterface, PasswordAuthenticatedUserInterface, Serializable
 {
     public function __serialize(): array {}
