@@ -68,6 +68,11 @@ class PWAController extends AbstractController
         if ($this->container->has('profiler')) {
             $this->container->get('profiler')->disable();
         }
-        return $this->twig->render('@Aurora/offline.html.twig');
+
+        $rendered = $this->twig->render('@Aurora/offline.html.twig');
+        $response = new Response($rendered);
+        $response->headers->set('Content-Type', 'text/html');
+        $response->headers->set('X-Do-Not-Minify', 'true');
+        return $response;
     }
 }
