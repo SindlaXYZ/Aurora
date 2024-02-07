@@ -11,21 +11,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 trait TimestampableDeleted
 {
-    #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
-    protected ?DateTimeInterface $deletedAt = null;
+    private string $defaultDeletedAt = '2222-02-22 22:22:22.222222';
 
-    #[ORM\PrePersist]
-    public function prePersistHook(): void
-    {
-        if (!isset($this->deletedAt)) {
-            $this->setDeletedAt(new DateTimeImmutable());
-        }
-
-        if (method_exists($this, 'setUpdatedAt') && !isset($this->updatedAt)) {
-            $this->setUpdatedAt(new DateTimeImmutable());
-        }
-    }
+    /**
+     * @var DateTime|null
+     */
+    #[ORM\Column(type: Types::DATE_IMMUTABLE, nullable: true, options: ["default" => "2222-02-22 22:22:22.222222"])]
+    private ?DateTime $deletedAt = null;
 
     public function getDeletedAt(): ?DateTimeInterface
     {
