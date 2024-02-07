@@ -6,10 +6,13 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 trait TimestampableUpdated
 {
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
+    #[Groups([AuroraConstants::GROUP_READ])]
     protected ?DateTimeInterface $updatedAt = null;
 
     #[ORM\PreUpdate]
@@ -36,33 +39,25 @@ trait TimestampableUpdated
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    /**
-     * @return int
-     */
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsSeconds(): int
     {
         return $this->updatedAt ? (new \DateTime())->getTimestamp() - $this->updatedAt->getTimestamp() : 0;
     }
 
-    /**
-     * @return int
-     */
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsMinutes(): int
     {
         return round($this->getUpdatedAtLifespanAsSeconds() / 60);
     }
 
-    /**
-     * @return int
-     */
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsHours(): int
     {
         return round($this->getUpdatedAtLifespanAsMinutes() / 60);
     }
 
-    /**
-     * @return int
-     */
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsDays(): int
     {
         return round($this->getUpdatedAtLifespanAsHours() / 24);
