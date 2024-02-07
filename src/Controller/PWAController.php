@@ -10,12 +10,17 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Twig\Environment;
 
 // Aurora
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 
 class PWAController extends AbstractController
 {
+    public function __construct(private Environment $twig)
+    {
+    }
+
     /**
      * See src/Resources/config/routes/routes.yaml
      */
@@ -63,6 +68,6 @@ class PWAController extends AbstractController
         if ($this->container->has('profiler')) {
             $this->container->get('profiler')->disable();
         }
-        return $this->render('@Aurora/offline.html.twig');
+        return $this->twig->render('@Aurora/offline.html.twig');
     }
 }
