@@ -10,6 +10,12 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 trait TimestampableDeleted
 {
+    /**
+     * Should have a default value (a date in the future), so that it can be used in a composed uniq key
+     * If this is null and is used in a composed uniq key, then it will not work as expected
+     * I.e.: two identical records can exist if the deleted_at is null, and the rest of the composer keys are the same
+     * I.e.: two identical records CANNOT exist if the deleted_at is a date in the future, and the rest of the composer keys are the same
+     */
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
     private ?DateTimeInterface $deletedAt = null;
 
