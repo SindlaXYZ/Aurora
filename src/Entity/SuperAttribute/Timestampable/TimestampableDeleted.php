@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -11,9 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 trait TimestampableDeleted
 {
-    private string $defaultDeletedAt = '2222-02-22 22:22:22.222222';
-
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => '2222-02-22 22:22:22.222222'])]
+    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
     private ?DateTimeInterface $deletedAt = null;
 
     public function getDeletedAt(): ?DateTimeInterface

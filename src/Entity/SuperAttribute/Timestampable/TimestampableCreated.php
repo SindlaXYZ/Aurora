@@ -25,6 +25,10 @@ trait TimestampableCreated
         if (method_exists($this, 'setUpdatedAt') && !isset($this->updatedAt)) {
             $this->setUpdatedAt(new DateTimeImmutable());
         }
+
+        if (method_exists($this, 'setDeletedAt') && !isset($this->deletedAt)) {
+            $this->setDeletedAt(new DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
+        }
     }
 
     public function getCreatedAt(): ?DateTimeInterface
