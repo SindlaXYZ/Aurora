@@ -14,7 +14,7 @@ trait TimestampableDeleted
     private string $defaultDeletedAt = '2222-02-22 22:22:22.222222';
 
     #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => '2222-02-22 22:22:22.222222'])]
-    private ?DateTime $deletedAt = null;
+    private ?DateTimeInterface $deletedAt = null;
 
     public function getDeletedAt(): ?DateTimeInterface
     {
