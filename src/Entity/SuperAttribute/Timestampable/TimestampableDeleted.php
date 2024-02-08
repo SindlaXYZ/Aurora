@@ -16,7 +16,7 @@ trait TimestampableDeleted
      * I.e.: two identical records can exist if the deleted_at is null, and the rest of the composer keys are the same
      * I.e.: two identical records CANNOT exist if the deleted_at is a date in the future, and the rest of the composer keys are the same
      */
-    #[ORM\Column(type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
+    #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
     private ?DateTimeInterface $deletedAt = null;
 
     public function getDeletedAt(): ?DateTimeInterface
