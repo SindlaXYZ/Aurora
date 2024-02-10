@@ -33,26 +33,26 @@ trait TimestampableSuspended
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function getUpdatedAtLifespanAsSeconds(): int
+    public function getSuspendedAtLifespanAsSeconds(): int
     {
         return $this->suspendedAt ? (new \DateTime())->getTimestamp() - $this->suspendedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function getUpdatedAtLifespanAsMinutes(): int
+    public function getSuspendedAtLifespanAsMinutes(): int
     {
-        return round($this->getUpdatedAtLifespanAsSeconds() / 60);
+        return round($this->getSuspendedAtLifespanAsSeconds() / 60);
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function getUpdatedAtLifespanAsHours(): int
+    public function getSuspendedAtLifespanAsHours(): int
     {
-        return round($this->getUpdatedAtLifespanAsMinutes() / 60);
+        return round($this->getSuspendedAtLifespanAsMinutes() / 60);
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function getUpdatedAtLifespanAsDays(): int
+    public function getSuspendedAtLifespanAsDays(): int
     {
-        return round($this->getUpdatedAtLifespanAsHours() / 24);
+        return round($this->getSuspendedAtLifespanAsHours() / 24);
     }
 }
