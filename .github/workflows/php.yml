@@ -69,7 +69,7 @@ jobs:
                     composer require phpunit/phpunit:^9.6
 
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
-                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-cache --no-progress
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-cache --no-progress --ignore-platform-req=scienta/doctrine-json-functions
 
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
