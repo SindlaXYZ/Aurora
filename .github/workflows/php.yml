@@ -56,11 +56,14 @@ jobs:
             -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
+                    echo -e "\033[4mcomposer create-project symfony/skeleton\033[0m"
                     composer create-project symfony/skeleton:${{ env.SYMFONY_VERSION }} . --no-cache
+                    echo -e "\033[0;35mrequire symfony/webapp-pack\033[0m"
                     composer require symfony/webapp-pack
+                    echo -e "\033[0;36mcomposer require symfony/phpunit-bridge\033[0m"
                     composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
                     composer require phpunit/phpunit:^9.6
-                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev  --no-cache --no-progress --with-all-dependencies
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-cache --no-progress --with-all-dependencies
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
