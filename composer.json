@@ -52,6 +52,9 @@
             "Sindla\\Bundle\\AuroraBundle\\": "src/"
         }
     },
+    "suggest": {
+        "scienta/doctrine-json-functions": "Is not working with doctrine/orm:3.0"
+    },
     "minimum-stability": "dev",
     "prefer-stable": true,
     "extra": {
