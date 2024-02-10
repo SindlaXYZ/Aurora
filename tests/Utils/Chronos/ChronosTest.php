@@ -184,32 +184,32 @@ class ChronosTest extends KernelTestCase
                      [
                          'given'    =>
                              [
-                                 'start' => '2010-01-01 11:12:13',
-                                 'end'   => '2010-01-01 11:12:13'
+                                 'start' => new \DateTimeImmutable('2010-01-01 11:12:13'),
+                                 'end'   => new \DateTimeImmutable('2010-01-01 11:12:13')
                              ],
                          'expected' => 0
                      ],
                      [
                          'given'    =>
                              [
-                                 'start' => '2010-01-01 11:12:13',
-                                 'end'   => '2010-01-01 11:12:14'
+                                 'start' => new \DateTimeImmutable('2010-01-01 11:12:13'),
+                                 'end'   => new \DateTimeImmutable('2010-01-01 11:12:14')
                              ],
                          'expected' => 1
                      ],
                      [
                          'given'    =>
                              [
-                                 'start' => '2010-01-01 11:12:13',
-                                 'end'   => '2010-01-01 11:13:13'
+                                 'start' => new \DateTimeImmutable('2010-01-01 11:12:13'),
+                                 'end'   => new \DateTimeImmutable('2010-01-01 11:13:13')
                              ],
                          'expected' => 60
                      ],
                      [
                          'given'    =>
                              [
-                                 'start' => '2010-01-01 11:12:13',
-                                 'end'   => '2010-01-01 11:13:14'
+                                 'start' => new \DateTimeImmutable('2010-01-01 11:12:13'),
+                                 'end'   => new \DateTimeImmutable('2010-01-01 11:13:14')
                              ],
                          'expected' => 61
                      ]
