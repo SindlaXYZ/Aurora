@@ -68,6 +68,9 @@ jobs:
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
                     composer require phpunit/phpunit:^9.6
 
+                    /usr/bin/cat ${{ env.BUILD_DIR }}/composer.json
+                    /usr/bin/cat ${{ github.workspace }}/composer.json
+
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-progress
 
