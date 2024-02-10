@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
-use DateTimeImmutable;
 use DateTimeInterface;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
@@ -28,7 +27,6 @@ trait TimestampableCroned
 
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
-
 
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getCronedAtLifespanAsSeconds(): int

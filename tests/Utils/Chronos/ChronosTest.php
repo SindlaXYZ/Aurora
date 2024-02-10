@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Chronos;
 
@@ -172,6 +173,48 @@ class ChronosTest extends KernelTestCase
                      ],
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->dateToHuman($test['date'], $test['humanFormat']), json_encode($test));
+        }
+    }
+
+    public function testSecondsBetweenTwoDates()
+    {
+        $Chronos = new Chronos();
+
+        foreach ([
+                     [
+                         'given'    =>
+                             [
+                                 'start' => '2010-01-01 11:12:13',
+                                 'end'   => '2010-01-01 11:12:13'
+                             ],
+                         'expected' => 0
+                     ],
+                     [
+                         'given'    =>
+                             [
+                                 'start' => '2010-01-01 11:12:13',
+                                 'end'   => '2010-01-01 11:12:14'
+                             ],
+                         'expected' => 1
+                     ],
+                     [
+                         'given'    =>
+                             [
+                                 'start' => '2010-01-01 11:12:13',
+                                 'end'   => '2010-01-01 11:13:13'
+                             ],
+                         'expected' => 60
+                     ],
+                     [
+                         'given'    =>
+                             [
+                                 'start' => '2010-01-01 11:12:13',
+                                 'end'   => '2010-01-01 11:13:14'
+                             ],
+                         'expected' => 61
+                     ]
+                 ] as $test) {
+            $this->assertEquals($test['expected'], $Chronos->secondsBetweenTwoDates($test['given']['start'], $test['given']['end']), json_encode($test));
         }
     }
 }

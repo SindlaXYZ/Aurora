@@ -57,31 +57,13 @@ class Chronos
     }
 
     /**
-     * Return seconds number between two dates
+     * Return full number of seconds between two dates
      *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
-     *
-     * @docs    https://stackoverflow.com/questions/1519228/get-interval-seconds-between-two-datetime-in-php
+     * @docs    https://stackoverflow.com/a/1519236/6429754
      */
-    public function secondsBetweenTwoDates($startDate, $endDate): int
+    public function secondsBetweenTwoDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
-        }
-
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
-        }
-
-        $interval = $startDate->diff($endDate);
-
-        // Timestamp limitations using dates before 1970 and beyond 2038
-        return ($interval->format('%r%a') * 24 * 60 * 60)
-            + $interval->h * 60 * 60
-            + $interval->i * 60
-            + $interval->s;
+        return $endDate->getTimestamp() - $startDate->getTimestamp();
     }
 
     /**
