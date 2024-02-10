@@ -60,7 +60,7 @@ jobs:
                     composer require symfony/webapp-pack
                     composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
                     composer require phpunit/phpunit:^9.6
-                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-progress --with-all-dependencies
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev  --no-cache --no-progress --with-all-dependencies
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
