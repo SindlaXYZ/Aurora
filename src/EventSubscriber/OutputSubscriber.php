@@ -20,20 +20,20 @@ use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
  *
  * services.yaml:
  *
-    Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
-        arguments:
-            $container: '@service_container'
-            $utilityExtension: '@aurora.twig.utility'
-            $headers:
-                text/html:
-                    Strict-Transport-Security: "max-age=1536000; includeSubDomains"
-                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
-                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
-                    Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
-                    #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: 'self';default-src 'self';"
-                    Referrer-Policy: "no-referrer-when-downgrade"
-        tags:
-            - { name: kernel.event_listener, event: kernel.response }
+ * Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber:
+ * arguments:
+ * $container: '@service_container'
+ * $utilityExtension: '@aurora.twig.utility'
+ * $headers:
+ * text/html:
+ * Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+ * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
+ * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+ * Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
+ * #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: 'self';default-src 'self';"
+ * Referrer-Policy: "no-referrer-when-downgrade"
+ * tags:
+ * - { name: kernel.event_listener, event: kernel.response }
  */
 class OutputSubscriber implements EventSubscriberInterface
 {
@@ -87,13 +87,21 @@ class OutputSubscriber implements EventSubscriberInterface
         $pathInfo  = $request->getPathInfo();
         $routeName = $request->attributes->get('_route');
 
-        if (filter_var($this->container->getParameter('aurora.minify.replace'), FILTER_VALIDATE_BOOLEAN)) {
-            $response->setContent(
-                strtr(
-                    $response->getContent(),
-                    $this->container->getParameter('aurora.minify.replace.mapper')
-                )
-            );
+
+        if (
+            !$response->headers->get('X-Do-Not-Minify')
+            && !$response->headers->get('x-do-not-minify')
+            && !method_exists($response, 'getFile')
+            && !in_array($response->headers->get('content-type'), $this->container->getParameter('aurora.minify.output.ignore.content.type'))
+        ) {
+            if (filter_var($this->container->getParameter('aurora.minify.replace'), FILTER_VALIDATE_BOOLEAN)) {
+                $response->setContent(
+                    strtr(
+                        $response->getContent(),
+                        $this->container->getParameter('aurora.minify.replace.mapper')
+                    )
+                );
+            }
         }
 
         if (
