@@ -87,6 +87,15 @@ class OutputSubscriber implements EventSubscriberInterface
         $pathInfo  = $request->getPathInfo();
         $routeName = $request->attributes->get('_route');
 
+        if (filter_var($this->container->getParameter('aurora.minify.replace'), FILTER_VALIDATE_BOOLEAN)) {
+            $response->setContent(
+                strtr(
+                    $response->getContent(),
+                    $this->container->getParameter('aurora.minify.replace.mapper')
+                )
+            );
+        }
+
         if (
             '/admin/' != substr($pathInfo, 0, 7)
             && !strpos($pathInfo, '_profiler')

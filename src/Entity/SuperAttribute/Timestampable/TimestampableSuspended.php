@@ -13,6 +13,7 @@ trait TimestampableSuspended
     #[ORM\Column(name: 'suspended_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups([AuroraConstants::GROUP_READ])]
     protected ?DateTimeInterface $suspendedAt = null;
+
     public function getSuspendedAt(): ?DateTimeInterface
     {
         return $this->suspendedAt;
