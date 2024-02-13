@@ -39,6 +39,11 @@ trait TimestampableUpdated
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    public function isUpdated(): bool
+    {
+        return boolval($this->updatedAt);
+    }
+
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsSeconds(): int
     {

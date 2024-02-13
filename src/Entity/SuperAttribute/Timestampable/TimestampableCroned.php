@@ -28,6 +28,11 @@ trait TimestampableCroned
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    public function isCroned(): bool
+    {
+        return boolval($this->cronedAt);
+    }
+
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getCronedAtLifespanAsSeconds(): int
     {

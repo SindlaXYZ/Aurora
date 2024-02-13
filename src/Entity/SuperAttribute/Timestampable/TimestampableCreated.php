@@ -46,6 +46,12 @@ trait TimestampableCreated
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
     #[Groups([AuroraConstants::GROUP_READ])]
+    public function isPersisted(): bool
+    {
+        return (bool)$this->createdAt;
+    }
+
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getCreatedAtLifespanAsSeconds(): int
     {
         return $this->createdAt ? (new \DateTime())->getTimestamp() - $this->createdAt->getTimestamp() : 0;

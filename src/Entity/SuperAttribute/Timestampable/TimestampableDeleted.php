@@ -33,6 +33,11 @@ trait TimestampableDeleted
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    public function isDeleted(): bool
+    {
+        return !(null == $this->deletedAt || $this->deletedAt == AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT);
+    }
+
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getDeletedAtLifespanAsSeconds(): int
     {

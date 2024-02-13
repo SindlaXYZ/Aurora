@@ -28,6 +28,11 @@ trait TimestampableSuspended
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    public function isSuspended(): bool
+    {
+        return boolval($this->suspendedAt);
+    }
+
     public function getSuspendedInTheFuture(): bool
     {
         return $this->suspendedAt && $this->suspendedAt->getTimestamp() > (new \DateTime())->getTimestamp();
