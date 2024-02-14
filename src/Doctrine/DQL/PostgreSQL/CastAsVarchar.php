@@ -8,7 +8,9 @@ use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 
 /**
- * Usage : StringFunction CAST(string)
+ * CASTASVARCHAR: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\CastAsVarchar
+ *
+ * Usage : CASTASVARCHAR(row.column)
  */
 class CastAsVarchar extends FunctionNode
 {
