@@ -9,7 +9,7 @@ on:
 env:
     fail-fast: true
     working-directory: /home/runner/work/aurora
-    BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/Aurora/Aurora/build
+    BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/adminer.ro/adminer.ro/build
     TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
     AURORA_VERSION: "7.0"
     SYMFONY_VERSION: "7.0.x-dev" # 7.0.* / 7.0.x-dev
@@ -29,7 +29,7 @@ jobs:
                 php-versions: [ '8.3' ]
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
-            -   uses: actions/checkout@v3
+            -   uses: actions/checkout@v4
 
             -   name: "Install PHP with extensions"
                 uses: shivammathur/setup-php@v2
