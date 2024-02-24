@@ -203,12 +203,16 @@ class Chronos
      */
     public function daysBetweenTwoDates($startDate, $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
+        if (!($startDate instanceof \DateTimeInterface)) {
+            if (!($startDate instanceof \DateTime)) {
+                $startDate = new \DateTime($startDate);
+            }
         }
 
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
+        if (!($endDate instanceof \DateTimeInterface)) {
+            if (!($endDate instanceof \DateTime)) {
+                $endDate = new \DateTime($endDate);
+            }
         }
 
         $interval = $startDate->diff($endDate);
