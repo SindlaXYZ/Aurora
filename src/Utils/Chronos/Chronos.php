@@ -154,17 +154,21 @@ class Chronos
      */
     public function minutesBetweenTwoDates($startDate, $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
+        if (!($startDate instanceof \DateTimeInterface)) {
+            if (!($startDate instanceof \DateTime)) {
+                $startDate = new \DateTime($startDate);
+            }
         }
 
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
+        if (!($endDate instanceof \DateTimeInterface)) {
+            if (!($endDate instanceof \DateTime)) {
+                $endDate = new \DateTime($endDate);
+            }
         }
 
         $interval = $startDate->diff($endDate);
-        $hours    = $interval->format('%r%h');
-        $minutes  = $interval->format('%r%i');
+        $hours    = (int)$interval->format('%r%h');
+        $minutes  = (int)$interval->format('%r%i');
 
         return (($hours * 60) + $minutes);
     }
@@ -180,12 +184,16 @@ class Chronos
      */
     public function hoursBetweenTwoDates($startDate, $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
+        if (!($startDate instanceof \DateTimeInterface)) {
+            if (!($startDate instanceof \DateTime)) {
+                $startDate = new \DateTime($startDate);
+            }
         }
 
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
+        if (!($endDate instanceof \DateTimeInterface)) {
+            if (!($endDate instanceof \DateTime)) {
+                $endDate = new \DateTime($endDate);
+            }
         }
 
         $interval = $startDate->diff($endDate);
@@ -228,12 +236,16 @@ class Chronos
      */
     public function monthsBetweenTwoDates($startDate, $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
+        if (!($startDate instanceof \DateTimeInterface)) {
+            if (!($startDate instanceof \DateTime)) {
+                $startDate = new \DateTime($startDate);
+            }
         }
 
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
+        if (!($endDate instanceof \DateTimeInterface)) {
+            if (!($endDate instanceof \DateTime)) {
+                $endDate = new \DateTime($endDate);
+            }
         }
 
         return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
@@ -248,12 +260,16 @@ class Chronos
      */
     public function yearsBetweenTwoDates($startDate, $endDate): int
     {
-        if (!($startDate instanceof \DateTime)) {
-            $startDate = new \DateTime($startDate);
+        if (!($startDate instanceof \DateTimeInterface)) {
+            if (!($startDate instanceof \DateTime)) {
+                $startDate = new \DateTime($startDate);
+            }
         }
 
-        if (!($endDate instanceof \DateTime)) {
-            $endDate = new \DateTime($endDate);
+        if (!($endDate instanceof \DateTimeInterface)) {
+            if (!($endDate instanceof \DateTime)) {
+                $endDate = new \DateTime($endDate);
+            }
         }
 
         return $startDate->diff($endDate)->y;
