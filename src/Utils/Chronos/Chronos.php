@@ -166,11 +166,7 @@ class Chronos
             }
         }
 
-        $interval = $startDate->diff($endDate);
-        $hours    = (int)$interval->format('%r%h');
-        $minutes  = (int)$interval->format('%r%i');
-
-        return (($hours * 60) + $minutes);
+        return ((int)(($endDate->getTimestamp() - $startDate->getTimestamp()) / 60));
     }
 
     /**

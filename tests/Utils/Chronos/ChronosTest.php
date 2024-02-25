@@ -52,6 +52,11 @@ class ChronosTest extends KernelTestCase
                          'endDate'   => '2010-01-01 11:12:13',
                          'expected'  => -1
                      ],
+                     [
+                         'startDate' => '2010-01-01 00:00:00',
+                         'endDate'   => '2010-01-02 23:59:59',
+                         'expected'  => 2879
+                     ]
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->minutesBetweenTwoDates($test['startDate'], $test['endDate']), json_encode($test));
         }
