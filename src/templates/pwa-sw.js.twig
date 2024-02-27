@@ -1,7 +1,7 @@
 var PRECACHE = 'precache-{{ pwaVersion }}';
 var RUNTIME = 'runtime-{{ pwaVersion }}';
 
-{% set _debug = app.debug %}
+{% set _debug = app.debug or pwaDebug %}
 
 {% if _debug %}
 console.log(self.registration);
@@ -44,14 +44,24 @@ self.addEventListener('fetch', event => {
     {# ['/ajax-requests', '/q'] #}
     var startsWith = [{{ prevent_cache|raw }}];
 
+    if (event.request.headers.get('X-pwa-prevent-cache')) {
+        {% if _debug %}console.log('Prevent caching the request (X-pwa-prevent-cache header)');{% endif %}
+        return false;
+    }
+
+    if (event.request.headers.get('accept').includes('text/html')) {
+        {% if _debug %}console.log('Prevent caching the request (text/html)');{% endif%}
+        return false;
+    }
+
     for (var i = 0; i < startsWith.length; i++) {
-        if(event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
-            {% if _debug %}console.log('Prevent caching the'+ startsWith[i]);{% endif %}
+        if (event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
+            {% if _debug %}console.log('Prevent caching the' + startsWith[i]);{% endif %}
             return false;
         }
     }
 
-    {# [/fonts.gstatic.com/, /fonts.googleapis.com/];#}
+    {# [/fonts.gstatic.com/, /fonts.googleapis.com/]; #}
     var externalCache = [{{ external_cache|raw }}];
 
     if (event.request.url.startsWith(self.location.origin) || matchInArray(event.request.url, externalCache)) {
@@ -69,8 +79,8 @@ self.addEventListener('fetch', event => {
                         });
                     });
                 });
-            {# https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#generic_fallback #}
-            }).catch(function() {
+                {# https://developers.google.com/web/ilt/pwa/caching-files-with-service-worker#generic_fallback #}
+            }).catch(function () {
                 return caches.match('{{ path('aurora_pwa_offline')|raw }}');
             })
         );

@@ -1,4 +1,4 @@
-{% set _debug = app.debug %}
+{% set _debug = app.debug or pwaDebug %}
 
 <script nonce="{{ aurora.nonce() }}">
     function auroraPWADeleteCache() {

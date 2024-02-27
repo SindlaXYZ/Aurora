@@ -145,6 +145,7 @@ class UtilityExtension extends AbstractExtension
     public function pwa(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.html.twig', [
+            'pwaDebug'    => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'host'        => $Request->getHost(),
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
@@ -165,6 +166,7 @@ class UtilityExtension extends AbstractExtension
     public function pwaDelete(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.delete.html.twig', [
+            'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'host'       => $Request->getHost(),
             'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'build'      => $this->getBuild(),
@@ -176,6 +178,7 @@ class UtilityExtension extends AbstractExtension
     public function pwaUnregister(Request $Request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.unregister.html.twig', [
+            'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'host'       => $Request->getHost(),
             'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
             'build'      => $this->getBuild(),

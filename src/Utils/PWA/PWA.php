@@ -141,6 +141,7 @@ class PWA
     public function mainJS(Request $Request): Response
     {
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
+            'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'           => $this->version($Request),
             'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
         ]);
@@ -161,6 +162,7 @@ class PWA
     public function serviceWorkerJS(Request $Request): Response
     {
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
+            'pwaDebug'       => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'     => $this->version($Request),
             'precache'       => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'  => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
