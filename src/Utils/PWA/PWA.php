@@ -162,13 +162,13 @@ class PWA
     public function serviceWorkerJS(Request $Request): Response
     {
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
-            'pwaDebug'                   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
-            'pwaVersion'                 => $this->version($Request),
-            'precache'                   => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
-            'prevent_cache'              => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
-            'prevent_cache_content_type' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_content_type')) . "'",
-            'external_cache'             => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
-            'offline'                    => $this->container->getParameter('aurora.pwa.offline')
+            'pwaDebug'                            => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaVersion'                          => $this->version($Request),
+            'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
+            'prevent_cache'                       => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
+            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_header_request_accept')) . "'",
+            'external_cache'                      => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
+            'offline'                             => $this->container->getParameter('aurora.pwa.offline')
         ]);
 
         // Minify if not DEV

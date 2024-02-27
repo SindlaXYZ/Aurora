@@ -58,12 +58,18 @@ self.addEventListener('fetch', event => {
         return false;
     }
 
-    {#
-    if (event.request.headers.get('accept').includes('text/html')) {
-        {% if _debug %}console.log('Prevent caching the request (text/html)');{% endif%}
-        return false;
+    {# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #}
+
+    var preventCacheHeaderRequestAccept = [{{ prevent_cache_header_request_accept|raw }}];
+
+    for (var k = 0; k < preventCacheHeaderRequestAccept.length; k++) {
+        if (event.request.headers.get('accept').includes(preventCacheHeaderRequestAccept[k])) {
+            {% if _debug %}console.log('Prevent caching: header accept '+ preventCacheHeaderRequestAccept[k]);{% endif%}
+            return false;
+        }
     }
-    #}
+
+    {# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #}
 
     for (var i = 0; i < startsWith.length; i++) {
         if (event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
