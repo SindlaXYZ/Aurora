@@ -58,8 +58,8 @@ self.addEventListener('fetch', event => {
     var preventCacheHeaderRequestAccept = [{{ prevent_cache_header_request_accept|raw }}];
 
     for (var k = 0; k < preventCacheHeaderRequestAccept.length; k++) {
-        if (event.request.headers.get('accept').includes(preventCacheHeaderRequestAccept[k])) {
-            {% if _debug %}console.log('Prevent caching: header accept '+ preventCacheHeaderRequestAccept[k]);{% endif%}
+        if ('' !== preventCacheHeaderRequestAccept[k] && event.request.headers.get('accept').includes(preventCacheHeaderRequestAccept[k])) {
+            {% if _debug %}console.log('Prevent caching: header accept ' + preventCacheHeaderRequestAccept[k]);{% endif %}
             return false;
         }
     }
