@@ -48,6 +48,7 @@ parameters:
     aurora.minify.output.ignore.content.type: [ 'text/plain' ]
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
+    aurora.pwa.debug: false
     aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersioAppend()`"
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
@@ -61,6 +62,10 @@ parameters:
     aurora.pwa.offline: '/aurora/pwa-offline'
     aurora.pwa.precache:
         - '/'
+    aurora.pwa.prevent_cache_content_type:
+        - 'text/html'
+        - 'text/html; charset=UTF-8'
+        - 'application/json'
     aurora.pwa.prevent_cache:
         - '/ajax-requests'
         - '/q'
