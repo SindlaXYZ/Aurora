@@ -43,9 +43,6 @@ self.addEventListener('fetch', event => {
     console.log(event.request.url);
     {% endif %}
 
-    {# ['/ajax-requests', '/q', '/xhr', ..] #}
-    var startsWith = [{{ prevent_cache|raw }}];
-
     if (event.request.method === 'POST') {
         {% if _debug %}console.log('Prevent caching: POST request');{% endif %}
         return false;
@@ -68,6 +65,9 @@ self.addEventListener('fetch', event => {
     }
 
     {# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #}
+
+    {# ['/ajax-requests', '/q', '/xhr', ..] #}
+    var startsWith = [{{ prevent_cache|raw }}];
 
     for (var i = 0; i < startsWith.length; i++) {
         if (event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {

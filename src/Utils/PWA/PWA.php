@@ -166,7 +166,7 @@ class PWA
             'pwaVersion'                          => $this->version($Request),
             'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'                       => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
-            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_header_request_accept')) . "'",
+            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_header_request_accept') ?? []) . "'",
             'external_cache'                      => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
             'offline'                             => $this->container->getParameter('aurora.pwa.offline')
         ]);
