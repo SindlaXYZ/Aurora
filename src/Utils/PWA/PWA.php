@@ -140,6 +140,10 @@ class PWA
 
     public function mainJS(Request $Request): Response
     {
+        if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+            return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
+        }
+
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'           => $this->version($Request),
@@ -161,6 +165,10 @@ class PWA
 
     public function serviceWorkerJS(Request $Request): Response
     {
+        if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+            return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
+        }
+
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
             'pwaDebug'                            => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'                          => $this->version($Request),

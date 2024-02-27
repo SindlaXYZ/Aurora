@@ -59,10 +59,11 @@ parameters:
     aurora.pwa.icons: '%kernel.project_dir%/public/static/img/favicon'
     aurora.pwa.theme_color: '#2C3E50' # Sets the color of the tool bar, and may be reflected in the app's preview in task switchers
     aurora.pwa.background_color: '#2C3E50' # Should be the same color as the load page, to provide a smooth transition from the splash screen to your app
+    aurora.pwa.enabled: true
     aurora.pwa.offline: '/aurora/pwa-offline'
     aurora.pwa.precache:
         - '/'
-    aurora.pwa.prevent_cache_content_type:
+    aurora.pwa.prevent_cache_header_request_accept:
         - 'text/html'
         - 'text/html; charset=UTF-8'
         - 'application/json'

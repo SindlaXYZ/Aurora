@@ -57,6 +57,7 @@ self.addEventListener('fetch', event => {
 
     var preventCacheHeaderRequestAccept = [{{ prevent_cache_header_request_accept|raw }}];
 
+    {# https://developer.mozilla.org/en-US/docs/Web/API/Cache/match #}
     for (var k = 0; k < preventCacheHeaderRequestAccept.length; k++) {
         if (preventCacheHeaderRequestAccept[k].length > 0 && event.request.headers.get('accept').includes(preventCacheHeaderRequestAccept[k])) {
             {% if _debug %}console.log('Prevent caching: header accept: ' + preventCacheHeaderRequestAccept[k]);{% endif %}
