@@ -48,6 +48,10 @@ self.addEventListener('fetch', event => {
 
     var preventCacheContentType = [{{ prevent_cache_content_type|raw }}];
 
+    if (event.request.method === 'POST') {
+        {% if _debug %}console.log('Prevent caching: POST request');{% endif %}
+        return false;
+    }
 
     if (event.request.headers.get('X-Pwa-Prevent-Cache')) {
         {% if _debug %}console.log('Prevent caching the request (X-pwa-prevent-cache header)');{% endif %}
