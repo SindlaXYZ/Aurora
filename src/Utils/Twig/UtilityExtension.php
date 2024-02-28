@@ -304,7 +304,7 @@ class UtilityExtension extends AbstractExtension
             // $auroraStaticDir = $this->container->getParameter('aurora.static');
 
             // Can be: %kernel.project_dir%/var/tmp/compiled
-            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'));
+            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', $auroraRootDir . '/public/static/compiled');
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
@@ -351,7 +351,7 @@ class UtilityExtension extends AbstractExtension
             // $auroraStaticDir = $this->container->getParameter('aurora.static');
 
             // Can be: %kernel.project_dir%/var/tmp/compiled
-            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'));
+            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', $auroraRootDir . '/public/static/compiled');
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
