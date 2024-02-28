@@ -304,7 +304,7 @@ class UtilityExtension extends AbstractExtension
             // $auroraStaticDir = $this->container->getParameter('aurora.static');
 
             // Can be: %kernel.project_dir%/var/tmp/compiled
-            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', $auroraRootDir . '/public/static/compiled');
+            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'));
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
@@ -351,7 +351,7 @@ class UtilityExtension extends AbstractExtension
             // $auroraStaticDir = $this->container->getParameter('aurora.static');
 
             // Can be: %kernel.project_dir%/var/tmp/compiled
-            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', $auroraRootDir . '/public/static/compiled');
+            $staticServerDir = 0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled'));
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
@@ -409,8 +409,6 @@ class UtilityExtension extends AbstractExtension
         /** @var Git $serviceGit */
         $serviceGit = $this->container->get('aurora.git');
 
-        $Strink = new Strink();
-
         // Can be: %kernel.project_dir%/var/tmp/compiled
         # $auroraTmpDir  = $this->container->getParameter('aurora.tmp');  // %kernel.project_dir%/var/tmp
         # $staticServerDir = (0 ? preg_replace('~//+~', '/', ($auroraTmpDir . '/compiled')) : preg_replace('~//+~', '/', ($auroraRootDir . '/public/static/compiled')));
@@ -429,10 +427,10 @@ class UtilityExtension extends AbstractExtension
         foreach ($assets as $index => $assetWebPath) {
             if (strlen($assetWebPath) > 3) {
 
-                $assetWebPath  = trim($assetWebPath);                                                       // relative to domain root, eg: static/css/main.css or external file
-                $assetAbsPath  = "{$auroraRootDir}/public/{$assetWebPath}";                                 // relative to server dirs, eg: /srv/domain.tld/public/static/css/main.css
-                $assetBasename = $Strink->compressSlashes(basename($assetWebPath));                         // main.css
-                $assetBaseDir  = str_ireplace($assetBasename, '', $assetWebPath);                           // static/css/
+                $assetWebPath  = trim($assetWebPath);                                                                        // relative to domain root, eg: static/css/main.css or external file
+                $assetAbsPath  = "{$auroraRootDir}/public/{$assetWebPath}";                                                  // relative to server dirs, eg: /srv/domain.tld/public/static/css/main.css
+                $assetBasename = (new Strink())->string(basename($assetWebPath))->compressSlashes();                         // main.css
+                $assetBaseDir  = str_ireplace($assetBasename, '', $assetWebPath);                                            // static/css/
 
                 // No combine in one single file, and do not minify
                 if (!$combineAndMinify) {
