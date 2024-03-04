@@ -60,6 +60,12 @@ services:
         tags:
             - { name: console.command }
 
+    # Register TestCommand (see class file for the command name)
+    aurora.command.i18n:
+        class: Sindla\Bundle\AuroraBundle\Command\I18nCommand
+        tags:
+            - { name: console.command }
+
     # Register LazyEntity command (see class file for the command name)
     aurora.command.lazy_entity:
         class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
