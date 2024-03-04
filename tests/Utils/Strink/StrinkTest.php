@@ -75,4 +75,10 @@ class StrinkTest extends KernelTestCase
             }
         }
     }
+
+    public function testPseudoTranslate()
+    {
+        $this->assertEquals('Åûţéñţîƒîçåŕé ②', (new Strink())->string('Autentificare 2')->pseudoTranslate());
+        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string('Sign In')->pseudoTranslate());
+    }
 }
