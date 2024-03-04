@@ -80,6 +80,16 @@ class CommandMiddleware extends Command
         }
     }
 
+    protected function output($message, $newLine = true)
+    {
+        return ($newLine) ? $this->output->writeln($message) : $this->output->write($message);
+    }
+
+    protected function outputWithTime($message, $appendTab = false)
+    {
+        $this->output->writeln((($appendTab) ? "\n" : '') . "[" . date('H:i:s') . "] " . preg_replace('/[\r\n]+/', '', strip_tags($message)));
+    }
+
     /**
      * @throws \Exception
      */
