@@ -24,7 +24,7 @@ use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
     description: 'Aurora entity generator',
     aliases: ['aurora:composer']
 )]
-class LazyEntityCommand extends CommandMiddleware
+class LazyEntityCommand extends CommandMiddlewareV1
 {
     // V1
     private $entity;

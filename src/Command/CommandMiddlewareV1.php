@@ -11,11 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-/**
- * Class CommandMiddleware
- * Utilities for all command files
- */
-class CommandMiddleware extends Command
+class CommandMiddlewareV1 extends Command
 {
     /** @var ContainerInterface|null */
     protected ?ContainerInterface $container = null;
@@ -39,11 +35,6 @@ class CommandMiddleware extends Command
      */
     protected EntityManagerInterface $em;
 
-    /**
-     * CommandMiddleware constructor.
-     *
-     * @param string $defaultName
-     */
     public function __construct()
     {
         parent::__construct();
