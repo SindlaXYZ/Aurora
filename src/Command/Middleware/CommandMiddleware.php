@@ -22,6 +22,28 @@ class CommandMiddleware extends Command
 {
     protected string $commandName;
 
+    /** @var ContainerInterface|null */
+    protected ?ContainerInterface $container = null;
+
+    /** @var InputInterface */
+    protected InputInterface $input;
+
+    /** @var OutputInterface */
+    protected OutputInterface $output;
+
+    /** @var BufferedOutput */
+    protected BufferedOutput $bufferedOutput;
+
+    /** @var SymfonyStyle */
+    protected SymfonyStyle $io;
+
+    protected $kernelRootDir;
+
+    /**
+     * @var EntityManagerInterface
+     */
+    protected EntityManagerInterface $em;
+
     public function __construct()
     {
         $this->commandName = str_replace('Command', '', (new \ReflectionClass($this))->getShortName());
