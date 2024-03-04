@@ -2,6 +2,8 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
+
+use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -13,7 +15,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
     description: 'Aurora test command',
     aliases: ['aurora:test']
 )]
-final class TestCommand extends Command
+final class TestCommand extends CommandMiddleware
 {
     protected SymfonyStyle $io;
 
