@@ -46,7 +46,7 @@ class CommandMiddleware extends Command
 
     public function __construct()
     {
-        $this->commandName = str_replace('Command', '', (new \ReflectionClass($this))->getShortName());
+        $this->commandName = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
         parent::__construct();
     }
 

@@ -6,6 +6,7 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -35,7 +36,9 @@ final class I18nCommand extends CommandMiddleware
         $this
             ->setHelp('Aurora i18n command')
             // Mandatory
-            ->addOption('action', null, InputOption::VALUE_REQUIRED);
+            ->addOption('action', null, InputOption::VALUE_REQUIRED)
+            // Optional
+            ->addOption('locale', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -70,6 +73,27 @@ final class I18nCommand extends CommandMiddleware
         $this->outputWithTime(sprintf("Command: %s", $this->commandName));
         $this->outputWithTime(sprintf("Application environment: %s", $this->container->getParameter('kernel.environment')));
         $this->outputWithTime(sprintf("Project directory: %s", $this->container->getParameter('kernel.project_dir')));
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * Manual call:
+     *      clear; /usr/bin/php bin/console aurora:i18n --action=dump
+     *      clear; /usr/bin/php bin/console aurora:i18n --action=dump --locale=en
+     */
+    protected function dump(): int
+    {
+        $locale = $this->input->getOption('locale') ?? 'en';
+
+        ($this->getApplication()->find('translation:extract'))->run(
+            (new ArrayInput([
+                '--force'  => true,
+                '--format' => 'yaml',
+                'locale'   => $locale
+            ])),
+            $this->output
+        );
 
         return self::SUCCESS;
     }
