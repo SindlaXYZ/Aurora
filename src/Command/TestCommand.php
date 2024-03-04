@@ -60,12 +60,9 @@ final class TestCommand extends CommandMiddleware
      * Manual call:
      *      clear; /usr/bin/php bin/console aurora:test --action=test
      */
-    protected function test(InputInterface $input, OutputInterface $output): int
+    protected function test(): int
     {
-        /** @var SymfonyStyle io */
-        $this->io = new SymfonyStyle($input, $output);
-        $this->io->success('It works!');
-
-        return Command::SUCCESS;
+        $this->outputWithTime(sprintf("[%s] It works!", $this->commandName));
+        return self::SUCCESS;
     }
 }
