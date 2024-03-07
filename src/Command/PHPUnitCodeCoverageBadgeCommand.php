@@ -25,9 +25,8 @@ final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
 {
     public function __construct(
         #[Autowire(service: 'service_container')]
-        protected ?ContainerInterface                     $container,
-        protected readonly ParameterBagInterface          $parameterBag,
-        protected readonly AuroraPHPUnitCodeCoverageBadge $auroraPHPUnitCodeCoverageBadge
+        protected ?ContainerInterface            $container,
+        protected readonly ParameterBagInterface $parameterBag
     )
     {
         parent::__construct();
@@ -92,7 +91,7 @@ final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
         $cloverXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
         $outputSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputSVGFilePath;
 
-        $this->auroraPHPUnitCodeCoverageBadge->generate($cloverXMLFilePath, $outputSVGFilePath);
+        (new AuroraPHPUnitCodeCoverageBadge())->generate($cloverXMLFilePath, $outputSVGFilePath);
 
         return self::SUCCESS;
     }
