@@ -84,7 +84,7 @@ final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
      */
     protected function generate(): int
     {
-        if (!$cloverXMLFilePath = $this->input->getOption('cloverXMLFilePath') ?? null || !$outputSVGFilePath = $this->input->getOption('cloverXMLFilePath') ?? null) {
+        if (!$cloverXMLFilePath = $this->input->getOption('cloverXMLFilePath') ?? null || !$outputSVGFilePath = $this->input->getOption('outputSVGFilePath') ?? null) {
             throw new \Exception("Missing required options.");
         }
 
