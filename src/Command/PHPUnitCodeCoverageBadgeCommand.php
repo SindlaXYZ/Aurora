@@ -14,22 +14,20 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\Translation\LocaleSwitcher;
-use Symfony\Contracts\Translation\TranslatorInterface;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraPHPUnitCodeCoverageBadge\AuroraPHPUnitCodeCoverageBadge;
 
 #[AsCommand(
-    name       : 'aurora:i18n',
-    description: 'Aurora i18n (internationalization) command',
-    aliases    : ['aurora:internationalization']
+    name       : 'aurora:php-unit-code-coverage-badge',
+    description: 'Generate PHPUnit code coverage badge',
+    aliases    : ['aurora:puccb']
 )]
-final class I18nCommand extends CommandMiddleware
+final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
 {
     public function __construct(
         #[Autowire(service: 'service_container')]
-        protected ?ContainerInterface            $container,
-        protected readonly ParameterBagInterface $parameterBag,
-        protected TranslatorInterface            $translator,
-        protected LocaleSwitcher                 $localeSwitcher
+        protected ?ContainerInterface                     $container,
+        protected readonly ParameterBagInterface          $parameterBag,
+        protected readonly AuroraPHPUnitCodeCoverageBadge $auroraPHPUnitCodeCoverageBadge
     )
     {
         parent::__construct();
@@ -38,11 +36,12 @@ final class I18nCommand extends CommandMiddleware
     protected function configure(): void
     {
         $this
-            ->setHelp('Aurora i18n command')
+            ->setHelp('Aurora PHPUnit code coverage badge command')
             // Mandatory
             ->addOption('action', null, InputOption::VALUE_REQUIRED)
             // Optional
-            ->addOption('locale', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('cloverXMLFilePath', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('outputSVGFilePath', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -70,45 +69,30 @@ final class I18nCommand extends CommandMiddleware
 
     /**
      * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:i18n --action=test
+     *      clear; /usr/bin/php bin/console aurora:php-unit-code-coverage-badge --action=test
      */
     protected function test(): int
     {
         $this->outputWithTime(sprintf("Command: %s", $this->commandName));
         $this->outputWithTime(sprintf("Application environment: %s", $this->container->getParameter('kernel.environment')));
         $this->outputWithTime(sprintf("Project directory: %s", $this->container->getParameter('kernel.project_dir')));
-        $this->outputWithTime(sprintf("Container locale: %s", $this->container->get('translator')->getLocale()));
-        $this->outputWithTime(sprintf("Translator locale: %s", $this->translator->getLocale()));
-        $this->outputWithTime(sprintf("Translator locales: [ %s ]", implode(', ', $this->parameterBag->get('locales'))));
-        $this->outputWithTime(sprintf("Translator default path: %s", $this->parameterBag->get('translator.default_path')));
-
-        $this->io->comment('Call localeSwitcher');
-        $this->localeSwitcher->setLocale('ro');
-
-        $this->outputWithTime(sprintf("Container locale: %s", $this->container->get('translator')->getLocale()));
-        $this->outputWithTime(sprintf("Translator locale: %s", $this->translator->getLocale()));
-
         return self::SUCCESS;
     }
 
     /**
      * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:i18n --action=dump
-     *      clear; /usr/bin/php bin/console aurora:i18n --action=dump --locale=en
-     *      clear; /usr/bin/php bin/console aurora:i18n --action=dump --locale=ro
+     *      clear; /usr/bin/php bin/console aurora:php-unit-code-coverage-badge --action=generate --cloverXMLFilePath=build/logs/clover.xml --outputSVGFilePath=.github/badges/coverage.svg
      */
-    protected function dump(): int
+    protected function generate(): int
     {
-        $locale = $this->input->getOption('locale') ?? 'en';
+        if (!$cloverXMLFilePath = $this->input->getOption('cloverXMLFilePath') ?? null || !$outputSVGFilePath = $this->input->getOption('cloverXMLFilePath') ?? null) {
+            throw new \Exception("Missing required options.");
+        }
 
-        ($this->getApplication()->find('translation:extract'))->run(
-            (new ArrayInput([
-                '--force'  => true,
-                '--format' => 'yaml',
-                'locale'   => $locale
-            ])),
-            $this->output
-        );
+        $cloverXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
+        $outputSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputSVGFilePath;
+
+        $this->auroraPHPUnitCodeCoverageBadge->generate($cloverXMLFilePath, $outputSVGFilePath);
 
         return self::SUCCESS;
     }

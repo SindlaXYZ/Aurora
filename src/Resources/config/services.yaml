@@ -73,6 +73,13 @@ services:
         tags:
             - { name: console.command }
 
+    # Register LazyEntity command (see class file for the command name)
+    aurora.command.php_unit_code_coverage_badge_command:
+        class: Sindla\Bundle\AuroraBundle\Command\PHPUnitCodeCoverageBadgeCommand
+        arguments: [ '@service_container' ]
+        tags:
+            - { name: console.command }
+
     # Register ComposerUpdate command (see class file for the command name)
     aurora.command.composer:
         class: Sindla\Bundle\AuroraBundle\Command\ComposerCommand
