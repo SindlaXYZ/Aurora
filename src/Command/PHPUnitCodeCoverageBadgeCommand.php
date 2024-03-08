@@ -40,7 +40,8 @@ final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
             ->addOption('action', null, InputOption::VALUE_REQUIRED)
             // Optional
             ->addOption('cloverXMLFilePath', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('outputSVGFilePath', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('outputCoverageSVGFilePath', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('outputStatementsSVGFilePath', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -80,21 +81,23 @@ final class PHPUnitCodeCoverageBadgeCommand extends CommandMiddleware
 
     /**
      * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:php-unit-code-coverage-badge --action=generate --cloverXMLFilePath=build/logs/clover.xml --outputSVGFilePath=.github/badges/coverage.svg
+     *      clear; /usr/bin/php bin/console aurora:php-unit-code-coverage-badge --action=generate --cloverXMLFilePath=build/logs/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
      */
     protected function generate(): int
     {
         if (
             !($cloverXMLFilePath = $this->input->getOption('cloverXMLFilePath') ?? null)
-            || !($outputSVGFilePath = $this->input->getOption('outputSVGFilePath') ?? null)
+            || !($outputCoverageSVGFilePath = $this->input->getOption('outputCoverageSVGFilePath') ?? null)
+            || !($outputStatementsSVGFilePath = $this->input->getOption('outputStatementsSVGFilePath') ?? null)
         ) {
             throw new \Exception('Missing required options.');
         }
 
-        $cloverXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
-        $outputSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputSVGFilePath;
+        $cloverXMLFilePath           = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
+        $outputCoverageSVGFilePath   = $this->container->getParameter('kernel.project_dir') . '/' . $outputCoverageSVGFilePath;
+        $outputStatementsSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputStatementsSVGFilePath;
 
-        (new AuroraPHPUnitCodeCoverageBadge())->generate($cloverXMLFilePath, $outputSVGFilePath);
+        (new AuroraPHPUnitCodeCoverageBadge())->generate($cloverXMLFilePath, $outputCoverageSVGFilePath, $outputStatementsSVGFilePath);
 
         return self::SUCCESS;
     }
