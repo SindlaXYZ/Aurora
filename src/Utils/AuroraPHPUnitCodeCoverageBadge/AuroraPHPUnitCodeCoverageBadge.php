@@ -106,8 +106,8 @@ SVG;
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="38" y="15" fill="#010101" fill-opacity=".3">Statements</text>
         <text x="38" y="14">Statements</text>
-        <text x="117" y="15" fill="#010101" fill-opacity=".3">{{ coveredStatements }}/{{ statements }}</text>
-        <text x="117" y="14">{{ coveredStatements }}/{{ statements }}</text>
+        <text x="117" y="15" fill="#010101" fill-opacity=".3">{{ coveredStatements }} / {{ statements }}</text>
+        <text x="117" y="14">{{ coveredStatements }} / {{ statements }}</text>
     </g>
 </svg>
 SVG;
