@@ -88,6 +88,10 @@ final class I18nCommand extends CommandMiddleware
         $this->outputWithTime(sprintf("Container locale: %s", $this->container->get('translator')->getLocale()));
         $this->outputWithTime(sprintf("Translator locale: %s", $this->translator->getLocale()));
 
+        $defaultLocaleYamlFiles = glob($this->parameterBag->get('translator.default_path') . '/*en.yaml');
+
+        print_r($defaultLocaleYamlFiles);
+
         return self::SUCCESS;
     }
 

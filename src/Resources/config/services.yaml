@@ -110,14 +110,8 @@ services:
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
 
-    aurora.calculus:
-        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
-        autowire: true
-        autoconfigure: true
-        public: true
-
     aurora.chronos:
-        class: Sindla\Bundle\AuroraBundle\Utils\Chronos\Chronos
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
         autowire: true
         autoconfigure: true
         public: true
@@ -125,6 +119,18 @@ services:
     aurora.client:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
         arguments: [ '@service_container' ]
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.match:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.calculus:
+        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
         autowire: true
         autoconfigure: true
         public: true
@@ -144,12 +150,6 @@ services:
 
     aurora.io:
         class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.match:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
         autowire: true
         autoconfigure: true
         public: true

@@ -1,8 +1,8 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Chronos;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraChronos;
 
-class Chronos
+class AuroraChronos
 {
     const TIME_UNIT_SECONDS = 1;
     const TIME_UNIT_MINUTES = 2;

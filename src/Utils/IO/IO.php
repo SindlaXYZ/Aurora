@@ -2,17 +2,17 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\IO;
 
-use Sindla\Bundle\AuroraBundle\Utils\Chronos\Chronos;
+use Sindla\Bundle\AuroraBundle\Utils\Chronos\AuroraChronos;
 
 class IO
 {
-    const TIME_UNIT_SECONDS = Chronos::TIME_UNIT_SECONDS;
-    const TIME_UNIT_MINUTES = Chronos::TIME_UNIT_MINUTES;
-    const TIME_UNIT_HOURS   = Chronos::TIME_UNIT_HOURS;
-    const TIME_UNIT_DAYS    = Chronos::TIME_UNIT_DAYS;
-    const TIME_UNIT_WEEKS   = Chronos::TIME_UNIT_WEEKS;
-    const TIME_UNIT_MONTHS  = Chronos::TIME_UNIT_MONTHS;
-    const TIME_UNIT_YEARS   = Chronos::TIME_UNIT_YEARS;
+    const TIME_UNIT_SECONDS = AuroraChronos::TIME_UNIT_SECONDS;
+    const TIME_UNIT_MINUTES = AuroraChronos::TIME_UNIT_MINUTES;
+    const TIME_UNIT_HOURS   = AuroraChronos::TIME_UNIT_HOURS;
+    const TIME_UNIT_DAYS    = AuroraChronos::TIME_UNIT_DAYS;
+    const TIME_UNIT_WEEKS   = AuroraChronos::TIME_UNIT_WEEKS;
+    const TIME_UNIT_MONTHS  = AuroraChronos::TIME_UNIT_MONTHS;
+    const TIME_UNIT_YEARS   = AuroraChronos::TIME_UNIT_YEARS;
 
     /**
      * Recursive create a directory
@@ -76,7 +76,7 @@ class IO
     public function fileIsOlderThan(string $file, int $timeUnit, int $timeUnitType): bool
     {
         /** @var Cronos $Chronos */
-        $Chronos = new Chronos();
+        $Chronos = new AuroraChronos();
 
         $lastModifiedTimestamp = filemtime($file);
         $startDate             = new \DateTime("@{$lastModifiedTimestamp}");

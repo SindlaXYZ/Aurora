@@ -25,7 +25,7 @@ jobs:
             fail-fast: true
             matrix:
                 #operating-system: [ubuntu-16.04, ubuntu-18.04, ubuntu-20.04, debian-10, debian-11]
-                operating-system: [ ubuntu-22.04, debian-11 ]
+                operating-system: [ ubuntu-22.04 ]
                 php-versions: [ '8.3' ]
         name: PHP ${{ matrix.php-versions }} on ${{ matrix.operating-system }}
         steps:
@@ -112,14 +112,17 @@ jobs:
             -   name: "Test /EventListener"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
 
-            -   name: "Test /Utils/AuroraClientTest"
+            -   name: "Test /Utils/AuroraChronos/AuroraChronosTest"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php --no-coverage
+
+            -   name: "Test /Utils/AuroraClient/AuroraClientTest"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php --no-coverage
 
             -   name: "Test /Utils/AuroraMatch"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
 
-            -   name: "Test /Utils/Chronos"
-                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Chronos/ChronosTest.php --no-coverage
+            -   name: "Test /Utils/AuroraChronos"
+                run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/ChronosTest.php --no-coverage
 
             -   name: "Test /Utils/Diacritics"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --no-coverage
