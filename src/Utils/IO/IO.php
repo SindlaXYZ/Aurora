@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\IO;
 
-use Sindla\Bundle\AuroraBundle\Utils\Chronos\AuroraChronos;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 
 class IO
 {

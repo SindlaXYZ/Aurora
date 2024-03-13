@@ -27,7 +27,7 @@ class AuroraChronosTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function testMinutesBetweenTwoDates()
+    public function testMinutesBetweenTwoDates(): void
     {
         $Chronos = new AuroraChronos();
 

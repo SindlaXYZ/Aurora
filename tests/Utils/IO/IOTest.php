@@ -1,16 +1,12 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\IO;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-
-// Sindla
 use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
 /**
@@ -33,7 +29,7 @@ class IOTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function testFileIsOlderThan()
+    public function testFileIsOlderThan(): void
     {
         /** @var  $IO */
         $IO = new IO();
