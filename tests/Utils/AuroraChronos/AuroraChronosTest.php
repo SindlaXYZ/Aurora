@@ -12,15 +12,9 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class AuroraChronosTest extends KernelTestCase
 {
-    private $kernelTest;
-    private $containerTest;
-
-    protected function setUp(): void
-    {
-        $this->kernelTest    = self::bootKernel();
-        $this->containerTest = $this->kernelTest->getContainer();
-    }
-
+    /**
+     * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php --no-coverage --filter testMinutesBetweenTwoDates
+     */
     public function testMinutesBetweenTwoDates(): void
     {
         $Chronos = new AuroraChronos();
