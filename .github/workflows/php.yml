@@ -43,8 +43,7 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-                    vendor/bin/phpunit --version
-                    # ${{env.PHPUNIT}} --version
+                    ${{env.PHPUNIT}} --version
                     ls -a ${{ github.workspace }}
                     mkdir -p ${{ env.BUILD_DIR }}
                     mkdir -p ${{ env.TMP_DIR }}
@@ -67,7 +66,7 @@ jobs:
                     composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
 
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
-                    composer require phpunit/phpunit:^9.6
+                    composer require phpunit/phpunit:^10.*
 
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-cache --no-progress
