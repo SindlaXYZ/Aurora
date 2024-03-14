@@ -83,4 +83,4 @@ jobs:
 #                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:schema:update --force --env=test
 
             -   name: "Run /tests/Config"
-                run: vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.WORKSPACE }}/phpunit.xml.dist ${{ env.WORKSPACE }}/tests/RequirementsTest.php
+                run: vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.WORKSPACE }}/phpunit.xml ${{ env.WORKSPACE }}/tests/RequirementsTest.php
