@@ -21,7 +21,7 @@ class AuroraCalendarTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    #[DataProvide('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
+    #[DataProvider('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
     public function testWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(int $expected, \DateTimeInterface $given): void
     {
         $this->assertEquals(
