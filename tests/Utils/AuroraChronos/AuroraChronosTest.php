@@ -215,7 +215,7 @@ class AuroraChronosTest extends KernelTestCase
     ###################################################################################################################################################################################################
 
     #[DataProvider('dataAreSameYearSameMonth')]
-    public function testAreSameYearSameMonth(int $expected, array $given): void
+    public function testAreSameYearSameMonth(bool $expected, array $given): void
     {
         $this->assertEquals(
             $expected,
