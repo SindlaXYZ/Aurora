@@ -224,35 +224,21 @@ class AuroraChronos
     }
 
     /**
-     * Return months number between two dates
-     *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
+     * Return (rounded) months number between two dates
      */
-    public function monthsBetweenTwoDates($startDate, $endDate): int
+    public function monthsBetweenTwoDates(\DateTimeInterface $startDateParam, \DateTimeInterface $endDateParam): int
     {
-        if (!($startDate instanceof \DateTimeInterface)) {
-            if (!($startDate instanceof \DateTime)) {
-                $startDate = new \DateTime($startDate);
-            }
-        }
-
-        if (!($endDate instanceof \DateTimeInterface)) {
-            if (!($endDate instanceof \DateTime)) {
-                $endDate = new \DateTime($endDate);
-            }
-        }
+        $startDate = $startDateParam; //new \DateTime($startDateParam->format('Y-m-d'));
+        $endDate   = $endDateParam; //new \DateTime($endDateParam->format('Y-m-d'));
 
         if ($this->areSameYearSameMonth($startDate, $endDate)) {
             return 0;
         }
 
-        if ($startDate->getTimestamp() > $endDate->getTimestamp()) {
-            return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
-        } else {
-            return (($startDate->diff($endDate)->y * 12) + ($endDate->diff($startDate)->m));
-        }
+        return (
+            ((intval($endDate->format('Y')) - intval($startDate->format('Y'))) * 12)
+            + (intval($endDate->format('m')) - intval($startDate->format('m')))
+        );
     }
 
     /**

@@ -215,7 +215,7 @@ class AuroraChronosTest extends KernelTestCase
     ###################################################################################################################################################################################################
 
     #[DataProvider('dataAreSameYearSameMonth')]
-    public function testAreSameYearSameMonth(int $expected, \DateTimeInterface $given): void
+    public function testAreSameYearSameMonth(int $expected, array $given): void
     {
         $this->assertEquals(
             $expected,
@@ -234,6 +234,48 @@ class AuroraChronosTest extends KernelTestCase
             [false, [new \DateTimeImmutable('2021-02-20'), new \DateTimeImmutable('2022-02-01')]],
             [false, [new \DateTime('2021-02-20'), new \DateTimeImmutable('2022-02-01')]],
             [false, [new \DateTimeImmutable('2021-02-20'), new \DateTime('2022-02-01')]],
+        ];
+    }
+
+    ###################################################################################################################################################################################################
+
+    #[DataProvider('dataMonthsBetweenTwoDates')]
+    public function testMonthsBetweenTwoDates(int $expected, array $given): void
+    {
+        $this->assertEquals(
+            $expected,
+            (new AuroraChronos())->monthsBetweenTwoDates($given[0], $given[1]),
+            'Given dates: ' . $given[0]->format('Y-m-d') . ' & ' . $given[1]->format('Y-m-d')
+        );
+    }
+
+    public static function dataMonthsBetweenTwoDates(): array
+    {
+        return [
+            [0, [new \DateTime('2021-02-20'), new \DateTime('2021-02-20')]],
+            [0, [new \DateTime('2021-02-20'), new \DateTimeImmutable('2021-02-20')]],
+            [0, [new \DateTimeImmutable('2021-02-20'), new \DateTime('2021-02-20')]],
+            [0, [new \DateTimeImmutable('2021-02-20'), new \DateTimeImmutable('2021-02-20')]],
+
+            [1, [new \DateTime('2021-01-20'), new \DateTime('2021-02-20')]],
+            [1, [new \DateTime('2021-01-20'), new \DateTimeImmutable('2021-02-20')]],
+            [1, [new \DateTimeImmutable('2021-01-20'), new \DateTime('2021-02-20')]],
+            [1, [new \DateTimeImmutable('2021-01-20'), new \DateTimeImmutable('2021-02-20')]],
+
+            [1, [new \DateTime('2024-01-20'), new \DateTime('2024-02-01')]],
+            [1, [new \DateTime('2024-01-20'), new \DateTimeImmutable('2024-02-01')]],
+            [1, [new \DateTimeImmutable('2024-01-20'), new \DateTime('2024-02-01')]],
+            [1, [new \DateTimeImmutable('2024-01-20'), new \DateTimeImmutable('2024-02-01')]],
+
+            [-1, [new \DateTime('2024-03-29'), new \DateTime('2024-02-01')]],
+            [-1, [new \DateTime('2024-03-29'), new \DateTimeImmutable('2024-02-01')]],
+            [-1, [new \DateTimeImmutable('2024-03-29'), new \DateTime('2024-02-01')]],
+            [-1, [new \DateTimeImmutable('2024-03-29'), new \DateTimeImmutable('2024-02-01')]],
+
+            [-1, [new \DateTime('2024-03-01'), new \DateTime('2024-02-28')]],
+            [-1, [new \DateTime('2024-03-01'), new \DateTimeImmutable('2024-02-28')]],
+            [-1, [new \DateTimeImmutable('2024-03-01'), new \DateTime('2024-02-28')]],
+            [-1, [new \DateTimeImmutable('2024-03-01'), new \DateTimeImmutable('2024-02-28')]],
         ];
     }
 }
