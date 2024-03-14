@@ -37,7 +37,7 @@
     ],
     "require-dev": {
         "phpunit/php-code-coverage": "^9.2 || ^10.1",
-        "phpunit/phpunit": "^9.2 || ^10.1",
+        "phpunit/phpunit": "^9.2 || ^10.5",
         "symfony/phpunit-bridge": "7.0.*"
     },
     "autoload": {
