@@ -74,7 +74,6 @@ jobs:
                 run: |
                     composer install --ansi --no-interaction --no-progress
                     mkdir -p ${{ env.BUILD_DIR }}
-                    mkdir -p ${{ env.TMP_DIR }}
 
             -   name: "Check versions"
                 run: |
