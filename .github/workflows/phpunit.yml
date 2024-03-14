@@ -1,0 +1,83 @@
+name: PHPUnit
+
+on:
+    pull_request:
+    push:
+        branches:
+            - "7.0"
+
+env:
+    fail-fast: true
+    WORKSPACE: "${{ github.workspace }}"
+    BUILD_DIR: "${{ github.workspace }}/build"
+    # PHPUnit
+    PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
+    PHPUNIT_FLAGS: "--no-coverage" # for coverage tests, replace "--no-coverage" with: "--coverage-clover coverage.xml"
+    # Symfony
+    SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
+    SYMFONY_DEPRECATIONS_HELPER: 0
+
+permissions:
+    contents: read
+
+jobs:
+    phpunit:
+        name: "${{ matrix.operating-system }} / PHP ${{ matrix.php-version }}"
+        runs-on: ${{ matrix.operating-system }}
+        continue-on-error: false
+
+        strategy:
+            matrix:
+                operating-system: [ 'ubuntu-22.04' ]
+                php-version: [ '8.3' ]
+        services:
+            postgres:
+                image: postgres:16
+                env:
+                    POSTGRES_USER: POSTGRESQL_USERNAME
+                    POSTGRES_PASSWORD: POSTGRESQL_PASSWORD
+                    POSTGRES_DB: POSTGRESQL_DATABASE_test
+                ports:
+                    - 5432:5432
+                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        steps:
+            -   name: "Checkout code"
+                uses: actions/checkout@v4
+
+            -   name: "Install PHP with extensions"
+                uses: shivammathur/setup-php@v2
+                with:
+                    coverage: "none" # for coverage tests, replace "none" with "xdebug"
+                    extensions: "intl, mbstring, pdo_pgsql, zip" # for coverage tests, append: ", xdebug"
+                    php-version: ${{ matrix.php-version }}
+                    tools: composer:v2
+
+            -   name: "Add PHPUnit matcher"
+                run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
+            -   name: "Set composer cache directory"
+                id: composer-cache
+                run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+                shell: bash
+
+            -   name: "Cache composer"
+                uses: actions/cache@v4
+                with:
+                    path: ${{ steps.composer-cache.outputs.dir }}
+                    key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+                    restore-keys: ${{ runner.os }}-composer-
+
+            -   name: "Install dependencies"
+                run: composer install --ansi --no-interaction --no-progress
+
+            -   name: "Check versions"
+                run: |
+                    . /etc/os-release && echo $PRETTY_NAME
+                    php --version
+                    composer -V
+                    vendor/bin/phpunit --version
+
+            -   name: "Prepare database"
+                run: |
+                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:database:create --env=test --if-not-exists
+                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:schema:update --force --env=test
