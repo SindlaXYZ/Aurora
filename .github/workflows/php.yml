@@ -91,9 +91,12 @@ jobs:
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
-            -   name: "Test RequirementsTest"
+            -   name: "Check versions"
                 run: |
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
+                    . /etc/os-release && echo $PRETTY_NAME
+                    php --version
+                    composer -V
+                    vendor/bin/phpunit --version
 
             -   name: "Test /Command"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
@@ -138,3 +141,7 @@ jobs:
 
             -   name: "Test /Utils/Twig"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --no-coverage
+
+            -   name: "Test RequirementsTest"
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
