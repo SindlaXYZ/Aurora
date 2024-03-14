@@ -244,7 +244,15 @@ class AuroraChronos
             }
         }
 
-        return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
+        if ($this->areSameYearSameMonth($startDate, $endDate)) {
+            return 0;
+        }
+
+        if ($startDate->getTimestamp() > $endDate->getTimestamp()) {
+            return (($endDate->diff($startDate)->y * 12) + ($startDate->diff($endDate)->m));
+        } else {
+            return (($startDate->diff($endDate)->y * 12) + ($endDate->diff($startDate)->m));
+        }
     }
 
     /**
