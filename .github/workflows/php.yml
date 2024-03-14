@@ -43,7 +43,8 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
-                    ${{env.PHPUNIT}} --version
+                    vendor/bin/phpunit --version
+                    # ${{env.PHPUNIT}} --version
                     ls -a ${{ github.workspace }}
                     mkdir -p ${{ env.BUILD_DIR }}
                     mkdir -p ${{ env.TMP_DIR }}
