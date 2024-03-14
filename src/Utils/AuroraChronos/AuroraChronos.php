@@ -292,4 +292,9 @@ class AuroraChronos
             return $h . ':' . $m . ':' . $s;
         }
     }
+
+    public function areSameYearSameMonth(\DateTimeInterface $date1, \DateTimeInterface $date2): bool
+    {
+        return $date1->format('Y-m') == $date2->format('Y-m');
+    }
 }

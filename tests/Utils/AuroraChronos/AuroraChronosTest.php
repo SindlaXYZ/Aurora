@@ -3,9 +3,9 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraChronos;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php --no-coverage
@@ -19,12 +19,6 @@ class AuroraChronosTest extends KernelTestCase
     {
         $this->kernelTest    = self::bootKernel();
         $this->containerTest = $this->kernelTest->getContainer();
-    }
-
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
     }
 
     public function testMinutesBetweenTwoDates(): void
@@ -216,5 +210,30 @@ class AuroraChronosTest extends KernelTestCase
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->secondsBetweenTwoDates($test['given']['start'], $test['given']['end']), json_encode($test));
         }
+    }
+
+    ###################################################################################################################################################################################################
+
+    #[DataProvider('dataAreSameYearSameMonth')]
+    public function testAreSameYearSameMonth(int $expected, \DateTimeInterface $given): void
+    {
+        $this->assertEquals(
+            $expected,
+            (new AuroraChronos())->areSameYearSameMonth($given[0], $given[1]),
+            'Given dates: ' . $given[0]->format('Y-m-d') . ' & ' . $given[1]->format('Y-m-d')
+        );
+    }
+
+    public static function dataAreSameYearSameMonth(): array
+    {
+        return [
+            [true, [new \DateTimeImmutable('2021-02-20'), new \DateTimeImmutable('2021-02-01')]],
+            [true, [new \DateTime('2021-02-20'), new \DateTimeImmutable('2021-02-01')]],
+            [true, [new \DateTimeImmutable('2021-02-20'), new \DateTime('2021-02-01')]],
+
+            [false, [new \DateTimeImmutable('2021-02-20'), new \DateTimeImmutable('2022-02-01')]],
+            [false, [new \DateTime('2021-02-20'), new \DateTimeImmutable('2022-02-01')]],
+            [false, [new \DateTimeImmutable('2021-02-20'), new \DateTime('2022-02-01')]],
+        ];
     }
 }
