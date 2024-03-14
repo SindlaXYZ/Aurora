@@ -13,6 +13,28 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar;
  */
 class AuroraCalendarTest extends KernelTestCase
 {
+    #[DataProvider('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
+    public function testWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(int $expected, \DateTimeInterface $given): void
+    {
+        $this->assertEquals($expected, AuroraCalendar::weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($given));
+    }
+
+    public static function dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(): array
+    {
+        return [
+            [0, new \DateTimeImmutable('2021-02-20')], // + 0 days before
+            [0, new \DateTime('2021-02-20')], // + 0 days before
+            [3, new \DateTimeImmutable('2022-12-31')], // + 3 days before
+            [3, new \DateTime('2022-12-31')], // + 3 days before
+            [4, new \DateTimeImmutable('2024-03-15')], // + 4 days before
+            [4, new \DateTime('2024-03-15')], // + 4 days before
+            [0, new \DateTimeImmutable('2024-04-01')], // + 0 days before
+            [0, new \DateTime('2024-04-01')], // + 0 days before
+        ];
+    }
+
+    ###################################################################################################################################################################################################
+
     #[DataProvider('dataDaysNumber')]
     public function testDaysNumber(int $expected, \DateTimeInterface $given): void
     {
@@ -32,4 +54,6 @@ class AuroraCalendarTest extends KernelTestCase
             [35, new \DateTime('2024-04-01')], // + 0 days before + 30 days + 5 days after
         ];
     }
+
+    ###################################################################################################################################################################################################
 }

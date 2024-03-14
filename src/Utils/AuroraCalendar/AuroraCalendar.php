@@ -12,16 +12,60 @@ class AuroraCalendar
      */
     public function daysNumber(\DateTimeInterface $date): int
     {
-        $month                = str_pad($date->format('m'), 2, '0', STR_PAD_LEFT);
-        $firstDay             = $date->format('Y-m-01');
-        $firstDayWeekPosition = $date->format('N'); // 1 = monday, 7 = sunday
-        $lastDayOfMonth       = $date->format('t');
-        $lastDayYMD           = $date->format('Y-m-t');
+        $month          = str_pad($date->format('m'), 2, '0', STR_PAD_LEFT);
+        $firstDay       = $date->format('Y-m-01');
+        $lastDayOfMonth = $date->format('t');
+        $lastDayYMD     = $date->format('Y-m-t');
 
-        $gapsBeforeFirstDay = (int)$firstDayWeekPosition - 1;
-        $gapsAfterLastDay   = 7 - (int)date('N', strtotime($lastDayYMD));
-        $totalDays          = ($gapsBeforeFirstDay + $lastDayOfMonth + $gapsAfterLastDay);
+        $gapsBeforeFirstDay = $this->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($date);
+
+        $gapsAfterLastDay = 7 - (int)date('N', strtotime($lastDayYMD));
+        $totalDays        = ($gapsBeforeFirstDay + $lastDayOfMonth + $gapsAfterLastDay);
 
         return $totalDays;
+    }
+
+    /**
+     * Return the number of days from the previous month before the first day of the month
+     * Eg:  If the first day of the month is a Wednesday, return 2
+     *      If the first day of the month is a Monday, return 0
+     *      If the first day of the month is a Sunday, return 6
+     */
+    public function weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(\DateTimeInterface $date): int
+    {
+        $firstDayWeekPosition = $date->format('N'); // 1 = monday, 7 = sunday
+        return (int)$firstDayWeekPosition - 1;
+    }
+
+    public function generateCalendar(\DateTimeInterface $date, int $weeksBeforeFirstDay = 0, int $weeksAfterLastDay = 0): array
+    {
+        $weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth = $this->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($date);
+        $calendarDays                                      = $this->daysNumber($date);
+        $lastDayOfMonth                                    = intval($date->format('t'));
+
+        for ($i = 1; $i <= $calendarDays; ++$i) {
+            if ($i < ($weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth + 1)) {
+                $inPreviousMonth = true;
+                $inNextMonth     = false;
+                $calendarDate    = $date->modify("-" . ($weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth - $i) . " days");
+            } else if ($i > $weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth + $lastDayOfMonth) {
+                $inPreviousMonth = false;
+                $inNextMonth     = true;
+                $calendarDate    = $date->modify("+" . ($i - ($weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth + $lastDayOfMonth)) . " days");
+            } else {
+                $inPreviousMonth = false;
+                $inNextMonth     = false;
+                $calendarDate    = $date->modify("+" . ($i - $weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth) . " days");
+            }
+
+            $calendar[$i] = [
+                'inPreviousMonth' => $inPreviousMonth,
+                'inNextMonth'     => $inNextMonth,
+                'isToday'         => date('Y-m-d') == $calendarDate->format('Y-m-d'),
+                'date'            => $calendarDate
+            ];
+        }
+
+        return $calendar;
     }
 }
