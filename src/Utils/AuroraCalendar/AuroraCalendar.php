@@ -34,7 +34,7 @@ class AuroraCalendar
     public function weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(\DateTimeInterface $date): int
     {
         $firstDayWeekPosition = $date->format('N'); // 1 = monday, 7 = sunday
-        return (int)$firstDayWeekPosition - 1;
+        return (1 == $firstDayWeekPosition ? 0 : (int)$firstDayWeekPosition - 1);
     }
 
     public function generateCalendar(\DateTimeInterface $date, int $weeksBeforeFirstDay = 0, int $weeksAfterLastDay = 0): array
