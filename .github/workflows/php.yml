@@ -38,21 +38,6 @@ jobs:
                     extensions: intl
                     ini-values: ${{ env.PHP_INI_VALUES }}
 
-            -   name: "Check versions"
-                run: |
-                    php --version
-                    composer -V
-                    . /etc/os-release && echo $PRETTY_NAME
-                    ${{env.PHPUNIT}} --version
-                    ls -a ${{ github.workspace }}
-                    mkdir -p ${{ env.BUILD_DIR }}
-                    mkdir -p ${{ env.TMP_DIR }}
-                    echo "\$github.workspace: ${{ github.workspace }}"
-                    echo "\$env.BUILD_DIR: ${{ env.BUILD_DIR }}"
-                    echo "\${{ env.TMP_DIR }} : ${{ env.TMP_DIR }}"
-                    echo "Run id: ${{ github.run_id }}"
-                    echo "Run attempt: ${{ github.run_attempt }}"
-
             -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
@@ -90,6 +75,21 @@ jobs:
             -   name: "PHPUnit check 2/2"
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
+
+            -   name: "Check versions"
+                run: |
+                    php --version
+                    composer -V
+                    . /etc/os-release && echo $PRETTY_NAME
+                    ${{env.PHPUNIT}} --version
+                    ls -a ${{ github.workspace }}
+                    mkdir -p ${{ env.BUILD_DIR }}
+                    mkdir -p ${{ env.TMP_DIR }}
+                    echo "\$github.workspace: ${{ github.workspace }}"
+                    echo "\$env.BUILD_DIR: ${{ env.BUILD_DIR }}"
+                    echo "\${{ env.TMP_DIR }} : ${{ env.TMP_DIR }}"
+                    echo "Run id: ${{ github.run_id }}"
+                    echo "Run attempt: ${{ github.run_attempt }}"
 
             -   name: "Test /Command"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
