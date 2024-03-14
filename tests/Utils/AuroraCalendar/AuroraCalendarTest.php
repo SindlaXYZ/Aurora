@@ -24,7 +24,11 @@ class AuroraCalendarTest extends KernelTestCase
     #[DataProvide('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
     public function testWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(int $expected, \DateTimeInterface $given): void
     {
-        $this->assertEquals($expected, AuroraCalendar::weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($given));
+        $this->assertEquals(
+            $expected,
+            (new AuroraCalendar())->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($given),
+            'Given date: ' . $given->format('Y-m-d') . ' (' . ($given instanceof \DateTimeImmutable ? 'DateTimeImmutable' : 'DateTime') . ')'
+        );
     }
 
     public static function dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(): array

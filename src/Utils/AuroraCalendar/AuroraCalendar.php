@@ -33,6 +33,7 @@ class AuroraCalendar
      */
     public function weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(\DateTimeInterface $date): int
     {
+        $date                 = $date->setDate($date->format('Y'), $date->format('m'), 1);
         $firstDayWeekPosition = $date->format('N'); // 1 = monday, 7 = sunday
         return (1 == $firstDayWeekPosition ? 0 : (int)$firstDayWeekPosition - 1);
     }
