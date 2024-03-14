@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Chronos;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraChronos;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;

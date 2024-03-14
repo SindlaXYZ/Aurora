@@ -1,4 +1,5 @@
-<?php declare(strict_types=1);
+<?php
+declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraMatch;
 
@@ -233,7 +234,7 @@ body {
         $this->assertEmpty($matches[1]);
     }
 
-    public function  testPasswordStrength()
+    public function testPasswordStrength()
     {
         $Match = new AuroraMatch();
 
@@ -256,6 +257,6 @@ body {
         $this->assertFalse($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, true, 6));
         $this->assertTrue($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, false, 6));
         $this->assertTrue($Match->passwordStrength('Te$1123321', true, true, true, true, 6));
-        $this->assertFalse($Match->passwordStrength('Te$11233212214', true, true, true, true, 6,9));
+        $this->assertFalse($Match->passwordStrength('Te$11233212214', true, true, true, true, 6, 9));
     }
 }
