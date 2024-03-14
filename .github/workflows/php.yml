@@ -43,6 +43,7 @@ jobs:
                     php --version
                     composer -V
                     . /etc/os-release && echo $PRETTY_NAME
+                    ${{env.PHPUNIT}} --version
                     ls -a ${{ github.workspace }}
                     mkdir -p ${{ env.BUILD_DIR }}
                     mkdir -p ${{ env.TMP_DIR }}
@@ -89,13 +90,6 @@ jobs:
             -   name: "PHPUnit check 2/2"
                 if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
                 run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
-
-            -   name: "Check versions"
-                run: |
-                    . /etc/os-release && echo $PRETTY_NAME
-                    php --version
-                    composer -V
-                    ${{env.PHPUNIT}} --version
 
             -   name: "Test /Command"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php --no-coverage
