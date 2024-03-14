@@ -77,7 +77,10 @@ jobs:
                     composer -V
                     vendor/bin/phpunit --version
 
-            -   name: "Prepare database"
-                run: |
-                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:database:create --env=test --if-not-exists
-                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:schema:update --force --env=test
+#            -   name: "Prepare database"
+#                run: |
+#                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:database:create --env=test --if-not-exists
+#                    sudo /usr/bin/php ${{ env.WORKSPACE }}/bin/console doctrine:schema:update --force --env=test
+
+            -   name: "Run /tests/Config"
+                run: vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.WORKSPACE }}/phpunit.xml.dist ${{ env.WORKSPACE }}/tests/RequirementsTest.php
