@@ -12,6 +12,15 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
  */
 class AuroraCalendarTest extends KernelTestCase
 {
+    private $kernelTest;
+    private $containerTest;
+
+    protected function setUp(): void
+    {
+        $this->kernelTest    = self::bootKernel();
+        $this->containerTest = $this->kernelTest->getContainer();
+    }
+
     ###################################################################################################################################################################################################
 
     #[DataProvider('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]

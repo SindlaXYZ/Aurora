@@ -3,15 +3,10 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraClient;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 
 /**
