@@ -110,6 +110,12 @@ services:
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
 
+    aurora.calendar:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
+        autowire: true
+        autoconfigure: true
+        public: true
+
     aurora.chronos:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
         autowire: true

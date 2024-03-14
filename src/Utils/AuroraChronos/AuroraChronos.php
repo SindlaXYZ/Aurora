@@ -4,13 +4,13 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraChronos;
 
 class AuroraChronos
 {
-    const TIME_UNIT_SECONDS = 1;
-    const TIME_UNIT_MINUTES = 2;
-    const TIME_UNIT_HOURS   = 3;
-    const TIME_UNIT_DAYS    = 4;
-    const TIME_UNIT_WEEKS   = 5;
-    const TIME_UNIT_MONTHS  = 6;
-    const TIME_UNIT_YEARS   = 7;
+    const int TIME_UNIT_SECONDS = 1;
+    const int TIME_UNIT_MINUTES = 2;
+    const int TIME_UNIT_HOURS   = 3;
+    const int TIME_UNIT_DAYS    = 4;
+    const int TIME_UNIT_WEEKS   = 5;
+    const int TIME_UNIT_MONTHS  = 6;
+    const int TIME_UNIT_YEARS   = 7;
 
     /**
      * Transform/parse a human date to machine date (Y-m-d)
