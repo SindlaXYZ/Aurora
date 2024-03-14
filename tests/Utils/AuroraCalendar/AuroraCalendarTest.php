@@ -12,6 +12,15 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar;
  */
 class AuroraCalendarTest extends KernelTestCase
 {
+    private $kernelTest;
+    private $containerTest;
+
+    protected function setUp(): void
+    {
+        $this->kernelTest    = self::bootKernel();
+        $this->containerTest = $this->kernelTest->getContainer();
+    }
+
     #[DataProvide('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
     public function testWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(int $expected, \DateTimeInterface $given): void
     {
