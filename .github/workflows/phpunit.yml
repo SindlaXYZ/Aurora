@@ -89,7 +89,13 @@ jobs:
                     composer require symfony/webapp-pack
 
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
-                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --dev --no-cache --no-progress
+                    composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --no-cache --no-progress
+
+                    echo -e "\033[0;35m * composer require phpunit/php-code-coverage \033[0m"
+                    composer require phpunit/php-code-coverage:10.1.* -W --no-progress
+
+                    echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
+                    composer require phpunit/phpunit:10.5.* -W
 
                     echo -e "\033[0;35m * sync files \033[0m"
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
