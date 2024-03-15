@@ -224,13 +224,10 @@ class AuroraChronos
     }
 
     /**
-     * Return (rounded) months number between two dates
+     * Return positive or negative (rounded) months number between two dates
      */
-    public function monthsBetweenTwoDates(\DateTimeInterface $startDateParam, \DateTimeInterface $endDateParam): int
+    public function monthsBetweenTwoDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
     {
-        $startDate = $startDateParam; //new \DateTime($startDateParam->format('Y-m-d'));
-        $endDate   = $endDateParam; //new \DateTime($endDateParam->format('Y-m-d'));
-
         if ($this->areSameYearSameMonth($startDate, $endDate)) {
             return 0;
         }

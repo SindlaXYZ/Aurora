@@ -34,7 +34,7 @@
         "twig/twig": "3.8.*"
     },
     "@comment require": [
-        "(re)add scienta/doctrine-json-functions:5.4.*"
+        "no comments at this moment"
     ],
     "autoload": {
         "psr-4": {
@@ -50,7 +50,7 @@
         }
     },
     "suggest": {
-        "scienta/doctrine-json-functions": "Is not working with doctrine/orm:3.0"
+        "sindla/aurora": "no suggestions at this moment"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
