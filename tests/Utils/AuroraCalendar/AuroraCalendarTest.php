@@ -56,13 +56,16 @@ class AuroraCalendarTest extends KernelTestCase
 
     ###################################################################################################################################################################################################
 
-    #[DataProvider('dataDaysNumber')]
-    public function testDaysNumber(int $expected, \DateTimeInterface $given): void
+    #[DataProvider('dataFullWeeksDaysNumber')]
+    public function testFullWeeksDaysNumber(int $expected, \DateTimeInterface $given): void
     {
-        $this->assertEquals($expected, (new AuroraCalendar())->daysNumber($given));
+        $this->assertEquals($expected, (new AuroraCalendar())->fullWeeksDaysNumber($given));
+
+        // No matter the month and the year, the number of days must be a multiple of 7
+        $this->assertEquals(0, (new AuroraCalendar())->fullWeeksDaysNumber($given) % 7);
     }
 
-    public static function dataDaysNumber(): array
+    public static function dataFullWeeksDaysNumber(): array
     {
         return [
             // + 0 days before + 28 days + 0 days after
