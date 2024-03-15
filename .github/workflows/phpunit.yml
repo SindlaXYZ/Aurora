@@ -94,6 +94,7 @@ jobs:
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --dev --no-cache --no-progress
 
+                    echo -e "\033[0;35m * sync files \033[0m"
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
@@ -126,7 +127,6 @@ jobs:
 
             -   name: "Check versions"
                 run: |
-                    echo -e
                     echo -e "\033[0;35m * current working directory: \033[0m"
                     echo "$PWD"
 
@@ -139,6 +139,9 @@ jobs:
 
                     echo -e "\033[0;35m * Composer Version: \033[0m"
                     composer -V
+
+                    echo -e "\033[0;35m * bin/phpunit Version: \033[0m"
+                    bin/phpunit --version
 
                     echo -e "\033[0;35m * vendor/bin/phpunit Version: \033[0m"
                     vendor/bin/phpunit --version
