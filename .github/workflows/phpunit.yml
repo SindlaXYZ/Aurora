@@ -91,11 +91,8 @@ jobs:
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --no-cache --no-progress
 
-                    echo -e "\033[0;35m * composer require phpunit/php-code-coverage \033[0m"
-                    composer require phpunit/php-code-coverage:10.1.* -W --no-progress
-
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
-                    composer require phpunit/phpunit:10.5.* -W
+                    composer require phpunit/phpunit:11.0.* -W --dev --no-progress
 
                     echo -e "\033[0;35m * sync files \033[0m"
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
