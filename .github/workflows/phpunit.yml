@@ -5,11 +5,12 @@ on:
     push:
         branches:
             - "7.0"
-
 env:
     fail-fast: true
     WORKSPACE: "${{ github.workspace }}"
     BUILD_DIR: "${{ github.workspace }}/build"
+    # PHP
+    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # PHPUnit
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: "--no-coverage" # for coverage tests, replace "--no-coverage" with: "--coverage-clover coverage.xml"
@@ -24,12 +25,13 @@ permissions:
     contents: read
 
 jobs:
-    phpunit:
+    build:
         name: "${{ matrix.operating-system }} / PHP ${{ matrix.php-version }}"
         runs-on: ${{ matrix.operating-system }}
         continue-on-error: false
 
         strategy:
+            fail-fast: ${{ env.fail-fast }}
             matrix:
                 operating-system: [ 'ubuntu-22.04' ]
                 php-version: [ '8.3' ]
@@ -53,6 +55,7 @@ jobs:
                 with:
                     coverage: "none" # for coverage tests, replace "none" with "xdebug"
                     extensions: "intl, mbstring, pdo_pgsql, zip" # for coverage tests, append: ", xdebug"
+                    ini-values: ${{ env.PHP_INI_VALUES }}
                     php-version: ${{ matrix.php-version }}
                     tools: composer:v2
 
@@ -116,17 +119,6 @@ jobs:
 
                     composer clear-cache
                     composer dump-autoload
-
-            #            -   name: "PHPUnit check 1/2"
-            #                run: |
-            #                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
-            #                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
-            #                    echo 'EOF' >> $GITHUB_ENV
-            #                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
-            #
-            #            -   name: "PHPUnit check 2/2"
-            #                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
-            #                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Check versions"
                 working-directory: ${{ env.BUILD_DIR }}
