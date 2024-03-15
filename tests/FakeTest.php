@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests;
 
-use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -11,15 +10,11 @@ use PHPUnit\Framework\TestCase;
  */
 class FakeTest extends TestCase
 {
-//    public function __construct($name = null, array $data = [], $dataName = '')
-//    {
-//        $this->preSetUp();
-//        parent::__construct($name, $data, $dataName);
-//    }
-
     ###################################################################################################################################################################################################
 
-    #[DataProvider('dataFakeDataProvider')]
+    /**
+     * @dataProvider dataFakeDataProvider
+     */
     public function testFakeDataProvider($given, $expected): void
     {
         $this->assertEquals($given, $expected);

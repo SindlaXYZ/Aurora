@@ -183,7 +183,7 @@ jobs:
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     vendor/bin/phpunit --version
-                    /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/FakeTest.php
+                    /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/FakeTest.php
 
 #            -   name: "Test RequirementsTest"
 #                run: |
