@@ -101,6 +101,7 @@ jobs:
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ github.workspace }}/phpunit.xml ${{ env.BUILD_DIR }}/phpunit.xml
                     cp -f ${{ github.workspace }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
+                    cp -f vendor/bin/phpunit ${{ env.BUILD_DIR }}/bin/phpunit
 
             #            -   name: "Prepare database"
             #                run: |
@@ -177,7 +178,7 @@ jobs:
 
             -   name: "Test FakeTest"
                 run: |
-                    /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/FakeTest.php
+                    /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/FakeTest.php
 
 #            -   name: "Test FakeTest 2"
 #                run: |
