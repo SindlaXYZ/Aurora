@@ -224,7 +224,7 @@ class AuroraChronos
     }
 
     /**
-     * Return positive or negative (rounded) months number between two dates
+     * Return negative or positive (rounded) months number between two dates
      */
     public function monthsBetweenTwoDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
     {
@@ -235,7 +235,7 @@ class AuroraChronos
         return (
             ((intval($endDate->format('Y')) - intval($startDate->format('Y'))) * 12)
             + (intval($endDate->format('m')) - intval($startDate->format('m')))
-        );
+        ) * -1;
     }
 
     /**
