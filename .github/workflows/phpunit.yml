@@ -126,6 +126,7 @@ jobs:
 #                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Check versions"
+                working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     echo -e "\033[0;35m * current working directory: \033[0m"
                     echo "$PWD"
@@ -148,15 +149,6 @@ jobs:
 
                     echo -e "\033[0;35m * ${{ env.BUILD_DIR }}/vendor/bin/phpunit Version: \033[0m"
                     ${{ env.BUILD_DIR }}/vendor/bin/phpunit --version
-
-            -   name: "Check versions 2"
-                working-directory: ${{ env.BUILD_DIR }}
-                run: |
-                    echo -e "\033[0;35m * current working directory: \033[0m"
-                    echo "$PWD"
-
-                    echo -e "\033[0;35m * vendor/bin/phpunit Version: \033[0m"
-                    vendor/bin/phpunit --version
 
 #            -   name: "Test /Command"
 #                run: /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
