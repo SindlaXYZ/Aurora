@@ -51,7 +51,7 @@ class AuroraCalendar
             $calendar[$calendarDate->format('Y-m-d')] = [
                 'date'         => $calendarDate,
                 'day'          => $calendarDate->format('j'),
-                'dayOfTheWeek' => date('N', strtotime($date)),
+                'dayOfTheWeek' => $calendarDate->format('N'),
                 'monthsDiff'   => ((new AuroraChronos())->monthsBetweenTwoDates($calendarDate, $date)),
                 'isToday'      => (date('Y-m-d') == $calendarDate->format('Y-m-d')),
             ];
