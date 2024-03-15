@@ -87,11 +87,7 @@ jobs:
 
                     echo -e "\033[0;35m * composer require symfony/phpunit-bridge \033[0m"
                     composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
-#                    echo -e "\033[0;35m * composer require phpunit/php-code-coverage \033[0m"
-#                    composer require phpunit/php-code-coverage:^10.1
-#
-#                    echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
-#                    composer require phpunit/phpunit:^10.5
+
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev --no-cache --no-progress
 
