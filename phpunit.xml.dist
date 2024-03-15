@@ -8,7 +8,6 @@
     bootstrap="tests/bootstrap.php"
     cacheDirectory=".phpunit.cache"
 >
-
     <coverage>
         <report>
             <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70" />
