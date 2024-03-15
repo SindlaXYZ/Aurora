@@ -6,7 +6,7 @@ on:
         branches:
             - "7.0"
 env:
-    fail-fast: true
+    FAIL_FAST: true
     WORKSPACE: "${{ github.workspace }}"
     BUILD_DIR: "${{ github.workspace }}/build"
     # PHP
@@ -31,7 +31,7 @@ jobs:
         continue-on-error: false
 
         strategy:
-            fail-fast: ${{ env.fail-fast }}
+            fail-fast: ${{ env.FAIL_FAST }}
             matrix:
                 operating-system: [ 'ubuntu-22.04' ]
                 php-version: [ '8.3' ]
