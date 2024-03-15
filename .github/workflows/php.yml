@@ -1,23 +1,23 @@
-name: PHPUnit
-
-on:
-    push:
-        branches: [ "7.0" ]
-    pull_request:
-        branches: [ "7.0" ]
-
-env:
-    fail-fast: true
-    working-directory: /home/runner/work/aurora
-    BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/adminer.ro/adminer.ro/build
-    TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
-    AURORA_VERSION: "7.0"
-    SYMFONY_VERSION: "7.0.x-dev" # 7.0.* / 7.0.x-dev
-    PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
-    PHPUNIT_FLAGS: ""
-    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
-    SYMFONY_REQUIRE: "7.0.*" # 7.0.* / >=7.0
-
+#name: PHPUnit
+#
+#on:
+#    push:
+#        branches: [ "7.0" ]
+#    pull_request:
+#        branches: [ "7.0" ]
+#
+#env:
+#    fail-fast: true
+#    working-directory: /home/runner/work/aurora
+#    BUILD_DIR: "${{ github.workspace }}/build" # /home/runner/work/adminer.ro/adminer.ro/build
+#    TMP_DIR: "${{ github.workspace }}/${{ github.run_id }}${{ github.run_attempt }}"
+#    AURORA_VERSION: "7.0"
+#    SYMFONY_VERSION: "7.0.x-dev" # 7.0.* / 7.0.x-dev
+#    PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
+#    PHPUNIT_FLAGS: ""
+#    PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
+#    SYMFONY_REQUIRE: "7.0.*" # 7.0.* / >=7.0
+#
 #jobs:
 #    build:
 #        runs-on: ubuntu-22.04
