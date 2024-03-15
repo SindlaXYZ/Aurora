@@ -173,6 +173,10 @@ jobs:
             -   name: "Test /Utils/Twig"
                 run: /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php
 
+            -   name: "Test FakeTest"
+                run: |
+                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/FakeTest.php
+
             -   name: "Test RequirementsTest"
                 run: |
                     /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php

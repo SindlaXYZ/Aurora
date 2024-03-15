@@ -4,6 +4,9 @@ namespace Sindla\Bundle\AuroraBundle\Tests;
 
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
+/**
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/RequirementsTest.php --no-coverage
+ */
 class RequirementsTest extends WebTestCase
 {
     protected function setUp(): void
