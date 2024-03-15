@@ -49,9 +49,11 @@ class AuroraCalendar
             $calendarDate = $calendarStartDate->modify('+' . ($i - 1) . ' days');
 
             $calendar[$calendarDate->format('Y-m-d')] = [
-                'date'       => $calendarDate,
-                'monthsDiff' => ((new AuroraChronos())->monthsBetweenTwoDates($calendarDate, $date)),
-                'isToday'    => (date('Y-m-d') == $calendarDate->format('Y-m-d')),
+                'date'         => $calendarDate,
+                'day'          => $calendarDate->format('j'),
+                'dayOfTheWeek' => date('N', strtotime($date)),
+                'monthsDiff'   => ((new AuroraChronos())->monthsBetweenTwoDates($calendarDate, $date)),
+                'isToday'      => (date('Y-m-d') == $calendarDate->format('Y-m-d')),
             ];
         }
 
