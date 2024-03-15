@@ -111,16 +111,16 @@ jobs:
                     composer clear-cache
                     composer dump-autoload
 
-            -   name: "PHPUnit check 1/2"
-                run: |
-                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
-                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
-                    echo 'EOF' >> $GITHUB_ENV
-                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
-
-            -   name: "PHPUnit check 2/2"
-                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
-                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
+#            -   name: "PHPUnit check 1/2"
+#                run: |
+#                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
+#                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
+#                    echo 'EOF' >> $GITHUB_ENV
+#                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
+#
+#            -   name: "PHPUnit check 2/2"
+#                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
+#                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Check versions"
                 run: |
