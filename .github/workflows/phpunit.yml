@@ -94,6 +94,9 @@ jobs:
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
                     composer require phpunit/phpunit:11.0.* -W --dev --no-progress
 
+                    echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
+                    composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
+
                     echo -e "\033[0;35m * sync files \033[0m"
                     cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
