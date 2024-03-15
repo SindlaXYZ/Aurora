@@ -33,17 +33,17 @@ jobs:
             matrix:
                 operating-system: [ 'ubuntu-22.04' ]
                 php-version: [ '8.3' ]
-# IT WORKS, BUT IT'S NOT NEEDED
-#        services:
-#            postgres:
-#                image: postgres:16
-#                env:
-#                    POSTGRES_USER: POSTGRESQL_USERNAME
-#                    POSTGRES_PASSWORD: POSTGRESQL_PASSWORD
-#                    POSTGRES_DB: POSTGRESQL_DATABASE_test
-#                ports:
-#                    - 5432:5432
-#                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+        # IT WORKS, BUT IT'S NOT NEEDED
+        #        services:
+        #            postgres:
+        #                image: postgres:16
+        #                env:
+        #                    POSTGRES_USER: POSTGRESQL_USERNAME
+        #                    POSTGRES_PASSWORD: POSTGRESQL_PASSWORD
+        #                    POSTGRES_DB: POSTGRESQL_DATABASE_test
+        #                ports:
+        #                    - 5432:5432
+        #                options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         steps:
             -   name: "Checkout code"
                 uses: actions/checkout@v4
@@ -118,16 +118,16 @@ jobs:
                     composer clear-cache
                     composer dump-autoload
 
-#            -   name: "PHPUnit check 1/2"
-#                run: |
-#                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
-#                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
-#                    echo 'EOF' >> $GITHUB_ENV
-#                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
-#
-#            -   name: "PHPUnit check 2/2"
-#                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
-#                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
+            #            -   name: "PHPUnit check 1/2"
+            #                run: |
+            #                    echo 'SED_STRICT_TYPES_FOUND<<EOF' >> $GITHUB_ENV
+            #                    echo $(grep -c "strict_types" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit) >> $GITHUB_ENV
+            #                    echo 'EOF' >> $GITHUB_ENV
+            #                    echo "${{ env.SED_STRICT_TYPES_FOUND }}"
+            #
+            #            -   name: "PHPUnit check 2/2"
+            #                if: ${{ env.SED_STRICT_TYPES_FOUND == '1' || env.SED_STRICT_TYPES_FOUND == 1 }}
+            #                run: sed -i -e "s/<?php/<?php declare(strict_types=0);/g" ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit
 
             -   name: "Check versions"
                 working-directory: ${{ env.BUILD_DIR }}
@@ -155,49 +155,48 @@ jobs:
                     ${{ env.BUILD_DIR }}/vendor/bin/phpunit --version
 
             -   name: "Test /Command"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
 
             -   name: "Test /Console"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php
 
             -   name: "Test /Controller"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php
 
             -   name: "Test /Entity"
                 run: |
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/IdentifiableUUIDTest.php
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAnnotation/TemporalTraitTest.php
 
             -   name: "Test /EventListener"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php
 
             -   name: "Test /Utils/AuroraCalendar"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php
 
             -   name: "Test /Utils/AuroraChronos"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php
 
             -   name: "Test /Utils/AuroraClient"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php
 
             -   name: "Test /Utils/AuroraMatch"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php
 
             -   name: "Test /Utils/Diacritics"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php
 
             -   name: "Test /Utils/Helper"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php
 
             -   name: "Test /Utils/IO"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php
 
             -   name: "Test /Utils/Strink"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php
 
             -   name: "Test /Utils/Twig"
-                run: /usr/bin/php vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php
 
             -   name: "Test RequirementsTest"
-                run: |
-                    /usr/bin/php ${{env.PHPUNIT}} ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php
