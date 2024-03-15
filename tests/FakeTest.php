@@ -11,17 +11,14 @@ use PHPUnit\Framework\TestCase;
  */
 class FakeTest extends TestCase
 {
-
-    public function __construct()
+    public function __construct($name = null, array $data = [], $dataName = '')
     {
-        parent::__construct();
+        $this->preSetUp();
+        parent::__construct($name, $data, $dataName);
     }
 
     ###################################################################################################################################################################################################
 
-    /**
-     * @dataProvider dataFakeDataProvider
-     */
     #[DataProvider('dataFakeDataProvider')]
     public function testFakeDataProvider($given, $expected): void
     {
