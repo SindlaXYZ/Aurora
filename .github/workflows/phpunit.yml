@@ -121,19 +121,29 @@ jobs:
             -   name: "Check versions"
                 run: |
                     ls -al
+                    echo -e "\033[0;35m * OS Name: \033[0m"
                     . /etc/os-release && echo $PRETTY_NAME
+
+                    echo -e "\033[0;35m * PHP Version: \033[0m"
                     php --version
                     php -r "phpinfo();" | grep opcache.save_comments
+
+                    echo -e "\033[0;35m * Composer Version: \033[0m"
                     composer -V
+
+                    echo -e "\033[0;35m * vendor/bin/phpunit Version: \033[0m"
                     vendor/bin/phpunit --version
-                    ${{env.PHPUNIT}} --version
+
+                    echo -e "\033[0;35m * ${{ env.BUILD_DIR }}/vendor/bin/phpunit Version: \033[0m"
                     ${{ env.BUILD_DIR }}/vendor/bin/phpunit --version
-                    ${{ env.BUILD_DIR }}/vendor/phpunit/phpunit/phpunit --version
 
             -   name: "Check versions 2"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     ls -al
+
+                    echo -e "\033[0;35m * vendor/bin/phpunit Version: \033[0m"
+                    vendor/bin/phpunit --version
 
 #            -   name: "Test /Command"
 #                run: /usr/bin/php ${{ env.BUILD_DIR }}/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
