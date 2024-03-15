@@ -88,9 +88,6 @@ jobs:
                     echo -e "\033[0;35m * require symfony/webapp-pack \033[0m"
                     composer require symfony/webapp-pack
 
-                    echo -e "\033[0;35m * composer require symfony/phpunit-bridge \033[0m"
-                    composer require symfony/phpunit-bridge:${{ env.SYMFONY_VERSION }}
-
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --dev --no-cache --no-progress
 
