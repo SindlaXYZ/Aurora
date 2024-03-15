@@ -13,26 +13,6 @@ class FakeTest extends TestCase
 {
     ###################################################################################################################################################################################################
 
-    /**
-     * @dataProvider dataFakeDataProviderAnnotation
-     */
-    public function testFakeDataProviderAnnotation($given, $expected): void
-    {
-        $this->assertEquals($given, $expected);
-    }
-
-    public static function dataFakeDataProviderAnnotation(): array
-    {
-        return [
-            [1, 1],
-            ['1', "1"],
-            [1, '1'],
-            ['1', 1]
-        ];
-    }
-
-    ###################################################################################################################################################################################################
-
     #[DataProvider('dataFakeDataProviderAttribute')]
     public function testFakeDataProviderAttribute($given, $expected): void
     {
