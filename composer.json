@@ -35,11 +35,6 @@
     "@comment require": [
         "(re)add scienta/doctrine-json-functions:5.4.*"
     ],
-    "require-dev": {
-        "phpunit/php-code-coverage": "10.1.*",
-        "phpunit/phpunit": "10.5.*",
-        "symfony/phpunit-bridge": "7.0.*"
-    },
     "autoload": {
         "psr-4": {
             "Sindla\\Bundle\\AuroraBundle\\": "src/"
