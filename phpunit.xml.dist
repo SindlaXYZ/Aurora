@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- https://phpunit.readthedocs.io/en/latest/configuration.html -->
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+    backupGlobals="false"
+    colors="true"
+    bootstrap="tests/bootstrap.php"
+    cacheDirectory=".phpunit.cache"
+>
+
+    <coverage>
+        <report>
+            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70" />
+            <clover outputFile=".envs/.test-results/clover.xml" />
+        </report>
+    </coverage>
+
+    <!--
+      <logging>
+          <log type="coverage-html" target="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
+      </logging>
+      -->
+    <php>
+        <ini name="display_errors" value="1" />
+        <ini name="error_reporting" value="-1" />
+        <server name="APP_ENV" value="test" force="true" />
+        <server name="SHELL_VERBOSITY" value="-1" />
+        <server name="SYMFONY_PHPUNIT_REMOVE" value="" />
+        <server name="SYMFONY_PHPUNIT_VERSION" value="9.5" /> <!-- PHPUnit version -->
+        <env name="SYMFONY_DEPRECATIONS_HELPER" value="" /> <!-- values: "disabled" > "weak" > "" (empty) -->
+        <env name="APP_ENV" value="test" force="true" />
+        <ini name="xdebug.mode" value="coverage" />
+        <env name="XDEBUG_MODE" value="coverage" />
+    </php>
+
+    <testsuites>
+        <testsuite name="Project Test Suite">
+            <directory>tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <!-- Element 'filter': This element is not expected.
+      <filter>
+          <whitelist processUncoveredFilesFromWhitelist="true">
+              <directory suffix=".php">src</directory>
+          </whitelist>
+      </filter>
+      -->
+    <extensions>
+        <!-- it begins a database transaction before every testcase and rolls it back after
+                the test finished, so tests can manipulate the database without affecting other tests -->
+        <bootstrap class="DAMA\DoctrineTestBundle\PHPUnit\PHPUnitExtension" />
+        <!-- Run `composer require symfony/panther` before enabling this extension -->
+        <!-- <extension class="Symfony\Component\Panther\ServerExtension" /> -->
+    </extensions>
+
+    <source>
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+        <exclude>
+            <directory suffix=".php">src/Migrations</directory>
+        </exclude>
+    </source>
+
+</phpunit>
