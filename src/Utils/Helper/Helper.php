@@ -20,10 +20,6 @@ class Helper
 
     /**
      * Check if a key exists in a multidimensional array
-     *
-     * @param       $key
-     * @param array $array
-     * @return bool
      */
     public function arrayMultidimensionalKeyExists($key, array $array): bool
     {
@@ -41,10 +37,6 @@ class Helper
 
     /**
      * Convert a nested array into dot path array
-     *
-     * @param array  $array
-     * @param string $prepend
-     * @return array
      */
     public function arrayToFlattenedDotPath(array $array, $prepend = ''): array
     {
@@ -63,9 +55,6 @@ class Helper
 
     /**
      * Recursive ksort
-     *
-     * @param array $array
-     * @return array
      */
     public function ksortRecursive(array $array): array
     {

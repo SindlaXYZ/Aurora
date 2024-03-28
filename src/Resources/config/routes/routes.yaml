@@ -28,6 +28,11 @@ aurora.controller.blackhole:
         - '/wp-info.php'
         - '/{anything}/wp-info.php'
         - '/{anything}/wp-includes/wlwmanifest.xml'
+        - '{anything}/taf.php'
+        - '/taf.php'
+        - '/wp-admin/admin.php'
+        - '{anything}/chosen.php'
+        - 'chosen.php'
         # Joomla
         - '/nf_tracking.php'
         # eval-stdin.php
