@@ -115,7 +115,7 @@ class CommandMiddleware extends Command
     /**
      * @throws \Exception
      */
-    protected function readYamlFile($yamlFileName): iterable
+    protected function readYamlFile($yamlFileName): array
     {
         $results = (new Parser())->parse($this->readFile($yamlFileName));
 
