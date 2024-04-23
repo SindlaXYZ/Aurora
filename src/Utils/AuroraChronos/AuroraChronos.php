@@ -233,9 +233,9 @@ class AuroraChronos
         }
 
         return (
-            ((intval($endDate->format('Y')) - intval($startDate->format('Y'))) * 12)
-            + (intval($endDate->format('m')) - intval($startDate->format('m')))
-        ) * -1;
+                ((intval($endDate->format('Y')) - intval($startDate->format('Y'))) * 12)
+                + (intval($endDate->format('m')) - intval($startDate->format('m')))
+            ) * -1;
     }
 
     /**
@@ -287,5 +287,11 @@ class AuroraChronos
     public function areSameYearSameMonth(\DateTimeInterface $date1, \DateTimeInterface $date2): bool
     {
         return $date1->format('Y-m') == $date2->format('Y-m');
+    }
+
+    public function isDateValid(string $date, $format = 'Y-m-d H:i:s'): bool
+    {
+        $datetime = \DateTime::createFromFormat($format, $date);
+        return $datetime && $datetime->format($format) == $date;
     }
 }
