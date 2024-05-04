@@ -31,7 +31,7 @@
         "symfony/twig-bundle": "7.0.*",
         "symfony/uid": "7.0.*",
         "tedivm/jshrink": "1.7.*",
-        "twig/twig": "3.8.*"
+        "twig/twig": "3.8.*|3.9.*"
     },
     "@comment require": [
         "no comments at this moment"
