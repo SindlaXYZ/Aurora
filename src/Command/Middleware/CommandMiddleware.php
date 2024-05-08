@@ -28,10 +28,11 @@ class CommandMiddleware extends Command
     protected BufferedOutput         $bufferedOutput;
     protected SymfonyStyle           $io;
     protected                        $kernelRootDir;
-    protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
 
-    public function __construct()
+    public function __construct(
+        protected ManagerRegistry $managerRegistry
+    )
     {
         $this->commandName = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
         parent::__construct();
@@ -162,11 +163,11 @@ class CommandMiddleware extends Command
     protected function auditDropAndRecreateSchema(): void
     {
         $sqlDrop = 'DROP SCHEMA public CASCADE';
-        $query = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlDrop);
+        $query   = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlDrop);
         $query->executeQuery();
 
         $sqlCreate = 'CREATE SCHEMA public';
-        $query = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlCreate);
+        $query     = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlCreate);
         $query->executeQuery();
     }
 }
