@@ -28,11 +28,10 @@ class CommandMiddleware extends Command
     protected BufferedOutput         $bufferedOutput;
     protected SymfonyStyle           $io;
     protected                        $kernelRootDir;
+    protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
 
-    public function __construct(
-        protected ManagerRegistry $managerRegistry
-    )
+    public function __construct()
     {
         $this->commandName = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
         parent::__construct();
