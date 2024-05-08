@@ -7,6 +7,7 @@ use Brick\Math\RoundingMode;
 use Doctrine\DBAL\Exception;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -20,28 +21,14 @@ use Symfony\Component\Yaml\Parser;
 
 class CommandMiddleware extends Command
 {
-    protected string $commandName;
-
-    /** @var ContainerInterface|null */
-    protected ?ContainerInterface $container = null;
-
-    /** @var InputInterface */
-    protected InputInterface $input;
-
-    /** @var OutputInterface */
-    protected OutputInterface $output;
-
-    /** @var BufferedOutput */
-    protected BufferedOutput $bufferedOutput;
-
-    /** @var SymfonyStyle */
-    protected SymfonyStyle $io;
-
-    protected $kernelRootDir;
-
-    /**
-     * @var EntityManagerInterface
-     */
+    protected string                 $commandName;
+    protected ?ContainerInterface    $container = null;
+    protected InputInterface         $input;
+    protected OutputInterface        $output;
+    protected BufferedOutput         $bufferedOutput;
+    protected SymfonyStyle           $io;
+    protected                        $kernelRootDir;
+    protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
 
     public function __construct()
@@ -170,5 +157,16 @@ class CommandMiddleware extends Command
             '-n'
         ]);
         $process->run();
+    }
+
+    protected function auditDropAndRecreateSchema(): void
+    {
+        $sqlDrop = 'DROP SCHEMA public CASCADE';
+        $query = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlDrop);
+        $query->executeQuery();
+
+        $sqlCreate = 'CREATE SCHEMA public';
+        $query = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlCreate);
+        $query->executeQuery();
     }
 }
