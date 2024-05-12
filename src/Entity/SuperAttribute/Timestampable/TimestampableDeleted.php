@@ -21,13 +21,11 @@ trait TimestampableDeleted
 
     public function getDeletedAt(): ?DateTimeInterface
     {
-        trigger_error('TimestampableDeleted is deprecated. Use TimestampableDeletedMutable or TimestampableDeletedImutable instead.', E_USER_DEPRECATED);
         return $this->deletedAt;
     }
 
     public function setDeletedAt(?DateTimeInterface $deletedAt): self
     {
-        trigger_error('TimestampableDeleted is deprecated. Use TimestampableDeletedMutable or TimestampableDeletedImutable instead.', E_USER_DEPRECATED);
         $this->deletedAt = $deletedAt;
         return $this;
     }
