@@ -2,13 +2,13 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
-use DateTimeInterface;
+use DateTimeImmutable;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-trait TimestampableDeleted
+trait TimestampableDeletedImmutable
 {
     /**
      * Should have a default value (a date in the future), so that it can be used in a composed uniq key
@@ -17,17 +17,15 @@ trait TimestampableDeleted
      * I.e.: two identical records CANNOT exist if the deleted_at is a date in the future, and the rest of the composer keys are the same
      */
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
-    private ?DateTimeInterface $deletedAt = null;
+    private ?DateTimeImmutable $deletedAt = null;
 
-    public function getDeletedAt(): ?DateTimeInterface
+    public function getDeletedAt(): ?DateTimeImmutable
     {
-        trigger_error('TimestampableDeleted is deprecated. Use TimestampableDeletedMutable or TimestampableDeletedImutable instead.', E_USER_DEPRECATED);
         return $this->deletedAt;
     }
 
-    public function setDeletedAt(?DateTimeInterface $deletedAt): self
+    public function setDeletedAt(?DateTimeImmutable $deletedAt): self
     {
-        trigger_error('TimestampableDeleted is deprecated. Use TimestampableDeletedMutable or TimestampableDeletedImutable instead.', E_USER_DEPRECATED);
         $this->deletedAt = $deletedAt;
         return $this;
     }
