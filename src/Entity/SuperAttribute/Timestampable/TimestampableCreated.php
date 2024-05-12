@@ -11,7 +11,7 @@ trait TimestampableCreated
 {
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
     #[Groups([AuroraConstants::GROUP_READ])]
-    protected ?\DateTimeInterface $createdAt = null;
+    protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\PrePersist]
     public function prePersistHook(): void
@@ -42,12 +42,12 @@ trait TimestampableCreated
         }
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeImmutable
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(?\DateTimeInterface $createdAt): self
+    public function setCreatedAt(?\DateTimeImmutable $createdAt): self
     {
         $this->createdAt = $createdAt;
         return $this;
