@@ -27,7 +27,20 @@ trait TimestampableCreated
         }
 
         if (method_exists($this, 'setDeletedAt') && !isset($this->deletedAt)) {
-            $this->setDeletedAt(new DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
+            $attributes = (new \ReflectionClass($this))->getProperty('deletedAt')->getAttributes();
+            foreach ($attributes as $attribute) {
+                if ($attribute->getName() === Orm\Column::class) {
+                    foreach ($attribute->getArguments() as $argument) {
+                        if ('datetime' === $argument) {
+                            $this->setDeletedAt(new \DateTime(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
+                            break;
+                        } else if ('datetime_immutable' === $argument) {
+                            $this->setDeletedAt(new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
