@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
-use DateTime;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
@@ -17,14 +16,14 @@ trait TimestampableDeletedMutable
      * I.e.: two identical records CANNOT exist if the deleted_at is a date in the future, and the rest of the composer keys are the same
      */
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_MUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
-    private ?DateTime $deletedAt = null;
+    private ?\DateTime $deletedAt = null;
 
-    public function getDeletedAt(): ?DateTime
+    public function getDeletedAt(): ?\DateTime
     {
         return $this->deletedAt;
     }
 
-    public function setDeletedAt(?DateTime $deletedAt): self
+    public function setDeletedAt(?\DateTime $deletedAt): self
     {
         $this->deletedAt = $deletedAt;
         return $this;
