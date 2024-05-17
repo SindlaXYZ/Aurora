@@ -24,7 +24,7 @@ class Git
 
     public function getBranch()
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
             $root = $this->container->getParameter('aurora.root');
@@ -46,7 +46,7 @@ class Git
 
     public function getHash(?string $branch = null)
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
             if (!$branch) {
@@ -76,7 +76,7 @@ class Git
 
     public function getDate(?string $branch = null)
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
 
