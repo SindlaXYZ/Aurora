@@ -28,7 +28,7 @@ class PWAController extends AbstractController
     {
         //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
 
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
             /** @var PWA $PWA */

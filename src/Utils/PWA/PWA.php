@@ -54,7 +54,7 @@ class PWA
      */
     public function manifestJSON(Request $Request): JsonResponse
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () {
             $manifest = [
@@ -109,7 +109,7 @@ class PWA
      */
     public function browserConfig(Request $Request): Response
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () {
             $encoder       = new XmlEncoder();
@@ -220,7 +220,7 @@ class PWA
      */
     public function icon(Request $Request)
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 0));
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () use ($Request) {
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
