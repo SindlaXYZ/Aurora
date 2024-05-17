@@ -72,6 +72,34 @@ class Git
         });
     }
 
+    public function gitLatestTagHash(): ?string
+    {
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
+
+            $root = $this->container->getParameter('aurora.root');
+
+            if (is_dir($root . '/.git/refs/tags/')) {
+                if ($tags = glob($root . '/.git/refs/tags/*')) {
+                    natsort($tags);
+                    $reverse = array_reverse($tags);
+                    if ($reverse[0] ?? null) {
+                        return trim(file_get_contents($reverse[0]));
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+
+            } else {
+                $item->expiresAfter(10);
+                return null;
+            }
+        });
+    }
+
     public function getHash(?string $branch = null)
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));

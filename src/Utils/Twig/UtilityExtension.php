@@ -90,6 +90,7 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('build', [$this, 'getBuild']),
             new TwigFunction('buildDate', [$this, 'getBuildDate']),
             new TwigFunction('gitLatestTag', [$this, 'getGitLatestTag']),
+            new TwigFunction('gitLatestTagHash', [$this, 'getGitLatestTagHash']),
 
             /** {{ aurora.hash(2) }} */
             new TwigFunction('hash', [$this, 'getHash']),
@@ -240,6 +241,12 @@ class UtilityExtension extends AbstractExtension
     {
         $serviceGit = $this->container->get('aurora.git');
         return $serviceGit->gitLatestTag();
+    }
+
+    public function getGitLatestTagHash(): ?string
+    {
+        $serviceGit = $this->container->get('aurora.git');
+        return $serviceGit->gitLatestTagHash();
     }
 
     public function getHash($size = 24)
