@@ -31,15 +31,43 @@ class Git
             $this->container->getParameter('aurora.root');
 
             if (is_dir($root . '/.git/')) {
-                $stringfromfile = file($root . '/.git/HEAD', FILE_USE_INCLUDE_PATH);
-                $firstLine      = $stringfromfile[0];          //get the string from the array
-                $explodedstring = explode("/", $firstLine, 3); //seperate out by the "/" in the string
-                $branchname     = $explodedstring[2];          //get the one that is always the branch name
+                $stringFromFile = file($root . '/.git/HEAD', FILE_USE_INCLUDE_PATH);
+                $firstLine      = $stringFromFile[0];          //get the string from the array
+                $explodedString = explode("/", $firstLine, 3); //seperate out by the "/" in the string
+                $branchName     = $explodedString[2];          //get the one that is always the branch name
 
-                return trim($branchname);
+                return trim($branchName);
             } else {
                 $item->expiresAfter(10);
                 return 'NOT-A-GIT-REPO';
+            }
+        });
+    }
+
+    public function gitLatestTag(): ?string
+    {
+        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
+
+            $root = $this->container->getParameter('aurora.root');
+
+            if (is_dir($root . '/.git/refs/tags/')) {
+                if ($tags = glob($root . '/.git/refs/tags/*')) {
+                    natsort($tags);
+                    $reverse = array_reverse($tags);
+                    if ($reverse[0] ?? null) {
+                        return basename($reverse[0]);
+                    } else {
+                        return null;
+                    }
+                } else {
+                    return null;
+                }
+
+            } else {
+                $item->expiresAfter(10);
+                return null;
             }
         });
     }
@@ -51,7 +79,7 @@ class Git
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
             if (!$branch) {
                 if (!$branch = $this->getBranch()) {
-                    $branch = 'master';
+                    $branch = 'main';
                 }
             }
 
@@ -74,7 +102,7 @@ class Git
         });
     }
 
-    public function getDate(?string $branch = null)
+    public function getDate(?string $branch = null): ?string
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
@@ -82,7 +110,7 @@ class Git
 
             if (!$branch) {
                 if (!$branch = $this->getBranch()) {
-                    $branch = 'master';
+                    $branch = 'main';
                 }
             }
 
@@ -117,5 +145,10 @@ class Git
                 return 'NOT-A-GIT-REPO';
             }
         });
+    }
+
+    public function getTag(): ?string
+    {
+
     }
 }
