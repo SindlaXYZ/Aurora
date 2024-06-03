@@ -145,7 +145,7 @@ jobs:
                     ${{ env.BUILD_DIR }}/vendor/bin/phpunit --version
 
                     cat ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
-                    sed -i -e 's/   orm:/   orm:\n      auto_mapping: true/g' ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
+                    sed -i -e 's/    orm:/    orm:\n        auto_mapping: true/g' ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
                     cat ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
 
             -   name: "Test /Command"
