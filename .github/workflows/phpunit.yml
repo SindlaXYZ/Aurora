@@ -4,7 +4,7 @@ on:
     pull_request:
     push:
         branches:
-            - "7.0"
+            - "7.1"
 env:
     fail-fast: true
     WORKSPACE: "${{ github.workspace }}"
@@ -15,11 +15,11 @@ env:
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
     PHPUNIT_FLAGS: "--no-coverage" # for coverage tests, replace "--no-coverage" with: "--coverage-clover coverage.xml"
     # Symfony
-    SYMFONY_VERSION: "7.0.x-dev" # 7.0.* / 7.0.x-dev
+    SYMFONY_VERSION: "7.1.x-dev" # 7.1.* / 7.1.x-dev
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_DEPRECATIONS_HELPER: 0
     # Aurora
-    AURORA_VERSION: "7.0"
+    AURORA_VERSION: "7.1"
 
 permissions:
     contents: read

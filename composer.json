@@ -1,7 +1,7 @@
 {
     "name": "sindla/aurora",
     "type": "symfony-bundle",
-    "description": "Aurora - Symfony 7.0 bundle",
+    "description": "Aurora - Symfony 7.1 bundle",
     "keywords": [
     ],
     "homepage": "https://sindla.com",
@@ -28,7 +28,7 @@
         "geoip2/geoip2": "3.0.*",
         "matthiasmullie/minify": "1.3.*",
         "scienta/doctrine-json-functions": "6.1.*",
-        "symfony/uid": "7.0.*",
+        "symfony/uid": "7.1.*",
         "tedivm/jshrink": "1.7.*"
     },
     "@comment require": [

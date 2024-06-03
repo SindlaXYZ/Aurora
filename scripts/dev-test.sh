@@ -1,4 +1,4 @@
-echo -e "Aurora short version (short version - X.Y, eg: 5.2, 6.3, 7.0, etc):" ;\
+echo -e "Aurora short version (short version - X.Y, eg: 5.2, 6.3, 7.1, etc):" ;\
 read auroraVersion ;\
 composer create-project symfony/skeleton:${auroraVersion}.x-dev --no-cache . ;\
 yes | composer require symfony/webapp-pack ;\
