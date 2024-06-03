@@ -144,8 +144,8 @@ jobs:
                     echo -e "\033[0;35m * ${{ env.BUILD_DIR }}/vendor/bin/phpunit Version: \033[0m"
                     ${{ env.BUILD_DIR }}/vendor/bin/phpunit --version
 
-                    sed -i -e 's/    orm:/    orm:\n        controller_resolver:\n            auto_mapping: true/g' ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
-                    cat ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
+                    # sed -i -e 's/    orm:/    orm:\n        controller_resolver:\n            auto_mapping: true/g' ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
+                    # cat ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
 
             -   name: "Test /Command"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
