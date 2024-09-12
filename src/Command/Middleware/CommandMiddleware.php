@@ -23,7 +23,7 @@ use Symfony\Component\Yaml\Parser;
 class CommandMiddleware extends Command
 {
     protected string                 $commandName;
-    protected ?ContainerInterface    $container = null;
+    protected ?ContainerInterface    $container   = null;
     protected InputInterface         $input;
     protected OutputInterface        $output;
     protected BufferedOutput         $bufferedOutput;
@@ -31,6 +31,7 @@ class CommandMiddleware extends Command
     protected                        $kernelRootDir;
     protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
+    private ?ProgressBar             $progressBar = null;
 
     public function __construct()
     {
@@ -124,10 +125,17 @@ class CommandMiddleware extends Command
 
     protected function createProgressBar(int $max): ProgressBar
     {
-        $progressBar = $this->io->createProgressBar($max);
-        $progressBar->setFormat("\n %current%/%max% [%bar%] %percent:3s%% in %elapsed:6s% / ETA %estimated:-6s%/ %memory:6s% \n %message%\n");
-        $progressBar->setOverwrite(true);
-        return $progressBar;
+        $this->progressBar = $this->io->createProgressBar($max);
+        $this->progressBar->setFormat("\n %current%/%max% [%bar%] %percent:3s%% in %elapsed:6s% / ETT %estimated:-16s% / ETA %remaining:-16s% / %memory:6s% \n %message%\n");
+        $this->progressBar->setOverwrite(true);
+        return $this->progressBar;
+    }
+
+    protected function progressBarAdvanceMessage(string $message, int $step = 1): void
+    {
+        $this->progressBar->setMessage($message);
+        $this->progressBar->display();
+        $this->progressBar->advance($step);
     }
 
     /**
@@ -150,13 +158,12 @@ class CommandMiddleware extends Command
         // Find the absolute path of the executable PHP binary (eg: /usr/bin/php | /usr/bin/php7.4 | ...)
         $phpBinaryFinder = new PhpExecutableFinder();
         $phpBinaryPath   = $phpBinaryFinder->find();
-
-        $process = new Process([
-            $phpBinaryPath,
-            sprintf('%s/bin/console', $this->container->getParameter('root')),
-            'doctrine:migrations:migrate',
-            '-n'
-        ]);
+        $process         = new Process([
+                                           $phpBinaryPath,
+                                           sprintf('%s/bin/console', $this->container->getParameter('root')),
+                                           'doctrine:migrations:migrate',
+                                           '-n'
+                                       ]);
         $process->run();
     }
 
