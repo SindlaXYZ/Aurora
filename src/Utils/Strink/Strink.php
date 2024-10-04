@@ -530,7 +530,9 @@ class Strink
 
     public function classShortName(): self
     {
-        $this->string = explode('\\', $this->string);
+        $classParts   = explode('\\', $this->string);
+        $this->string = end($classParts);
+
         return $this;
     }
 
