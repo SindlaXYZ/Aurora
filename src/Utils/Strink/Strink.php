@@ -212,6 +212,24 @@ class Strink
         return $this;
     }
 
+    public function lower(): Strink
+    {
+        $this->string = strtolower($this->string);
+        return $this;
+    }
+
+    public function upper(): Strink
+    {
+        $this->string = strtoupper($this->string);
+        return $this;
+    }
+
+    public function ucfirst(): Strink
+    {
+        $this->string = ucfirst($this->string);
+        return $this;
+    }
+
     /**
      * Remove a list of words from sentence
      *
