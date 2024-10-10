@@ -32,10 +32,12 @@ class CommandMiddleware extends Command
     protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
     private ?ProgressBar             $progressBar = null;
+    private \DatetimeInterface       $progressBarPreviousDisplay;
 
     public function __construct()
     {
-        $this->commandName = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
+        $this->commandName                = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
+        $this->progressBarPreviousDisplay = new \DateTimeImmutable();
         parent::__construct();
     }
 
@@ -134,8 +136,16 @@ class CommandMiddleware extends Command
     protected function progressBarAdvanceMessage(string $message, int $step = 1): void
     {
         $this->progressBar->setMessage($message);
-        $this->progressBar->display();
         $this->progressBar->advance($step);
+
+        if (
+            $this->progressBarPreviousDisplay->getTimestamp() < (new \DateTimeImmutable())->getTimestamp()
+            || ($this->progressBar->getMaxSteps() == $this->progressBar->getProgress())
+        ) {
+            $this->progressBar->display();
+        }
+
+        $this->progressBarPreviousDisplay = new \DateTimeImmutable();
     }
 
     /**
@@ -159,11 +169,11 @@ class CommandMiddleware extends Command
         $phpBinaryFinder = new PhpExecutableFinder();
         $phpBinaryPath   = $phpBinaryFinder->find();
         $process         = new Process([
-                                           $phpBinaryPath,
-                                           sprintf('%s/bin/console', $this->container->getParameter('root')),
-                                           'doctrine:migrations:migrate',
-                                           '-n'
-                                       ]);
+            $phpBinaryPath,
+            sprintf('%s/bin/console', $this->container->getParameter('root')),
+            'doctrine:migrations:migrate',
+            '-n'
+        ]);
         $process->run();
     }
 
