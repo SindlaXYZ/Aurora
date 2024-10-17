@@ -56,6 +56,7 @@ services:
 
     aurora.command.cloudlare.r2:
         class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+        arguments: [ '@aurora.cloudflare.r2' ]
         tags:
             - { name: console.command }
 
@@ -189,6 +190,12 @@ services:
 
     aurora.strink:
         class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.cloudflare.r2:
+        class: Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2
         autowire: true
         autoconfigure: true
         public: true
