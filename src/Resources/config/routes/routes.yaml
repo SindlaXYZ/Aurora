@@ -111,6 +111,8 @@ aurora.controller.blackhole:
         - '/yl10gohp.php'
         - '/zcoqCGrnVix.php'
         - '/yanz.php/wp-admin/user/cloud.php'
+        - '/media/system/js/core.js'
+        - '//xmlrpc.php'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa::progressiveWebApplication'
