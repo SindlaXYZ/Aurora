@@ -108,6 +108,9 @@ aurora.controller.blackhole:
         - '/rss'
         - '/feed'
         - '/feeds'
+        - '/yl10gohp.php'
+        - '/zcoqCGrnVix.php'
+        - '/yanz.php/wp-admin/user/cloud.php'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa::progressiveWebApplication'

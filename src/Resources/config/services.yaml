@@ -54,6 +54,11 @@ services:
     ###################################################################################################################
     ###  Aurora Commands  #############################################################################################
 
+    aurora.command.cloudlare.r2:
+        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+        tags:
+            - { name: console.command }
+
     # Register TestCommand (see class file for the command name)
     aurora.command.test:
         class: Sindla\Bundle\AuroraBundle\Command\TestCommand

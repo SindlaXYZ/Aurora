@@ -25,6 +25,7 @@
         "ext-simplexml": "*",
         "ext-tokenizer": "*",
         "ext-zend-opcache": "*",
+        "aws/aws-sdk-php": "^3.324",
         "geoip2/geoip2": "3.0.*",
         "matthiasmullie/minify": "1.3.*",
         "scienta/doctrine-json-functions": "6.1.*",
