@@ -55,8 +55,8 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             'port'      => $request->getPort() ?? 80,
                             'path'      => $request->getPathInfo(),
                             'query'     => $request->getQueryString(),
-                            'isHTTP'    => intval(!$request->isSecure()),
-                            'isHTTPS'   => intval($request->isSecure()),
+                            'isHTTP'    => boolval(!$request->isSecure()),
+                            'isHTTPS'   => boolval($request->isSecure()),
                             'serverIP'  => $request->server->get('SERVER_ADDR'),
                             'clientIP'  => $this->auroraClient->ip($event->getRequest()),
                             'userAgent' => $request->headers->get('User-Agent'),
@@ -80,7 +80,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             ]
                         );
                     } catch (\Exception|TransportExceptionInterface $e) {
-                        // do nothing
+                        throw $e;
                     }
                 }
             }
