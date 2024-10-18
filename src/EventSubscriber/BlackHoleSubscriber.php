@@ -31,7 +31,16 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
     public function onKernelException(ExceptionEvent $event): void
     {
         $this->auroraClient->ip($event->getRequest());
-        if (isset($_ENV['BLACK_HOLE_API_HOST']) && str_starts_with($_ENV['BLACK_HOLE_API_HOST'], 'http') && isset($_ENV['BLACK_HOLE_API_BEARER']) && !empty($_ENV['BLACK_HOLE_API_BEARER'])) {
+        if (
+            isset($_ENV['BLACK_HOLE_API_URL'])
+            && str_starts_with($_ENV['BLACK_HOLE_API_URL'], 'http')
+            && isset($_ENV['BLACK_HOLE_API_VERSION'])
+            && !empty($_ENV['BLACK_HOLE_API_VERSION'])
+            && isset($_ENV['BLACK_HOLE_API_ENDPOINT'])
+            && !empty($_ENV['BLACK_HOLE_API_ENDPOINT'])
+            && isset($_ENV['BLACK_HOLE_API_BEARER'])
+            && !empty($_ENV['BLACK_HOLE_API_BEARER'])
+        ) {
             $exception = $event->getThrowable();
             if ($exception instanceof NotFoundHttpException) {
                 $client = HttpClient::create();
@@ -42,7 +51,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                         'url'       => $event->getRequest()->getUri(),
                         'scheme'    => $request->getScheme(),
                         'host'      => $request->getHost(),
-                        'port'      => $request->getPort(),
+                        'port'      => $request->getPort() ?? 80,
                         'path'      => $request->getPathInfo(),
                         'query'     => $request->getQueryString(),
                         'isHTTP'    => intval(!$request->isSecure()),
@@ -55,11 +64,16 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
 
                     $client->request(
                         'POST',
-                        (new Strink())->string($_ENV['BLACK_HOLE_API_HOST'] . '/api/paths')->compressSlashes()->__toString(),
+                        (new Strink())->string(sprintf(
+                            '%s/%s/%s',
+                            $_ENV['BLACK_HOLE_API_URL'],
+                            $_ENV['BLACK_HOLE_API_VERSION'],
+                            $_ENV['BLACK_HOLE_API_ENDPOINT']
+                        ))->compressSlashes()->__toString(),
                         [
                             'headers' => [
                                 'Content-Type'  => 'application/json',
-                                'Authorization' => 'Bearer ' . $_ENV['BLACK_HOLE_API_BEARER']
+                                'Authorization' => 'Bearer ' . $_ENV['BLACK_HOLE_API_VERSION']
                             ],
                             'json'    => $payload,
                         ]
