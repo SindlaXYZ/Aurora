@@ -112,7 +112,10 @@ aurora.controller.blackhole:
         - '/zcoqCGrnVix.php'
         - '/yanz.php/wp-admin/user/cloud.php'
         - '/media/system/js/core.js'
-        - '//xmlrpc.php'
+        - '/cgi-bin/plugins.php'
+        - '/cgi-bin/xmrlpc.php'
+        - '/.well-known/pki-validation/plugins.php'
+        - '/.tmb/plugins.php'
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa::progressiveWebApplication'
