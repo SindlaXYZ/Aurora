@@ -284,6 +284,28 @@ class AuroraChronos
         }
     }
 
+    public function seconds2HM(int $secs, bool $roundUp = false): string
+    {
+        if ($secs < 0) {
+            return false;
+        }
+
+        $m = (int)($secs / 60);
+        $s = $secs % 60;
+        $h = (int)($m / 60);
+        $m = $m % 60;
+
+        $m = str_pad($m, 2, '0', STR_PAD_LEFT);
+        $h = str_pad($h, 2, '0', STR_PAD_LEFT);
+        $s = str_pad($s, 2, '0', STR_PAD_LEFT);
+
+        if ($roundUp && $s >= 30) {
+            $m++;
+        }
+
+        return $h . ':' . $m;
+    }
+
     public function areSameYearSameMonth(\DateTimeInterface $date1, \DateTimeInterface $date2): bool
     {
         return $date1->format('Y-m') == $date2->format('Y-m');
