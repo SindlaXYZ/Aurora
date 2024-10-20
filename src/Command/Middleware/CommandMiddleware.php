@@ -133,13 +133,14 @@ class CommandMiddleware extends Command
         return $this->progressBar;
     }
 
-    protected function progressBarAdvanceMessage(string $message, int $step = 1): void
+    protected function progressBarAdvanceMessage(string $message, int $step = 1, bool $displayAllTimes = false): void
     {
         $this->progressBar->setMessage($message);
         $this->progressBar->advance($step);
 
         if (
-            $this->progressBarPreviousDisplay->getTimestamp() < (new \DateTimeImmutable())->getTimestamp()
+            $displayAllTimes
+            || $this->progressBarPreviousDisplay->getTimestamp() < (new \DateTimeImmutable())->getTimestamp()
             || ($this->progressBar->getMaxSteps() == $this->progressBar->getProgress())
         ) {
             $this->progressBar->display();
