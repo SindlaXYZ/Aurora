@@ -244,6 +244,7 @@ class AuroraChronos
      * @param mixed $startDate
      * @param mixed $endDate
      * @return  integer
+     * @throws \DateMalformedStringException
      */
     public function yearsBetweenTwoDates($startDate, $endDate): int
     {
@@ -315,5 +316,32 @@ class AuroraChronos
     {
         $datetime = \DateTime::createFromFormat($format, $date);
         return $datetime && $datetime->format($format) == $date;
+    }
+
+
+    /**
+     * Convert a time string to seconds
+     *   eg: 1h => 3600, 2d => 172800, 3w => 1814400, 4m => 10368000, 5y => 157680000
+     */
+    function convertHumanTimeToSeconds(string $timeStr): int
+    {
+        $timeUnits = [
+            'h' => 3600,          // 1 hour = 3600 seconds
+            'd' => 86400,         // 1 day = 86400 seconds
+            'w' => 604800,        // 1 week = 604800 seconds
+            'm' => 2592000,       // 1 month (30 days) = 2592000 seconds
+            'y' => 31536000       // 1 year (365 days) = 31536000 seconds
+        ];
+
+        preg_match('/(\d+)([hdwmy])/', $timeStr, $matches);
+
+        if (!$matches) {
+            return 0;
+        }
+
+        $number = (int)$matches[1];
+        $unit   = $matches[2];
+
+        return $number * $timeUnits[$unit];
     }
 }
