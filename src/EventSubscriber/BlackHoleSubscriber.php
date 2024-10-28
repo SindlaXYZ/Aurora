@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
+use Sindla\Bundle\AuroraBundle\Utils\Client\Client as AuroraClient;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpClient\HttpClient;
