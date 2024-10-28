@@ -16,14 +16,13 @@ final class CloudflareR2Command extends CommandMiddleware
     protected CloudflareR2 $cloudflareR2;
 
     public function __construct(
-        ContainerInterface $container,
-        CloudflareR2       $cloudflareR2
+        ContainerInterface $container
     )
     {
         parent::__construct(self::$defaultName);
         $this->container     = $container;
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
-        $this->cloudflareR2  = $cloudflareR2;
+        $this->cloudflareR2  = $this->container->get('aurora.cloudflare.r2');
     }
 
     protected static $defaultName = 'aurora:cloudflare:r2';
