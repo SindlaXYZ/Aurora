@@ -13,15 +13,9 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class CloudflareR2Command extends CommandMiddleware
 {
-    // V1
-    private $entity;
-    private $namespace;
-    private $sonataAdmin;
-
-    // V2
-    private $entityQualifiedName;
-
     protected CloudflareR2 $cloudflareR2;
+
+    protected static $defaultName = 'aurora:cloudflare:r2';
 
     public function __construct(
         ContainerInterface $container
@@ -32,8 +26,6 @@ final class CloudflareR2Command extends CommandMiddleware
         $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
         $this->cloudflareR2  = $this->container->get('aurora.cloudflare.r2');
     }
-
-    protected static $defaultName = 'aurora:cloudflare:r2';
 
     /**
      * {@inheritDoc}
@@ -71,38 +63,39 @@ final class CloudflareR2Command extends CommandMiddleware
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        /** @var InputInterface */
+        /** @var InputInterface input */
         $this->input = $input;
 
-        /** @var OutputInterface */
+        /** @var OutputInterface output */
         $this->output = $output;
 
         /** @var SymfonyStyle io */
         $this->io = new SymfonyStyle($this->input, $this->output);
 
-        $this->em = $this->container->get('doctrine')->getManager();
+        $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
-        $this->namespace           = $this->input->getOption('namespace');
-        $this->sonataAdmin         = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
-        $this->entity              = $this->input->getOption('entity');
-        $this->entityQualifiedName = $this->input->getOption('entityQualifiedName') ?? $this->input->getOption('eqn');
+        $action = trim($input->getOption('action'));
 
-        if (null == $this->entityQualifiedName && null == $this->namespace) {
-            throw new \Exception('Option --namespace is not set.');
+        if (empty($action)) {
+            return $this->io->warning("Invalid action: not specified.");
         }
 
-        if (null == $this->entityQualifiedName && null == $this->entity) {
-            throw new \Exception('Option --entityQualifiedName (--eqn) or --file is not set.');
+        if ('_' == substr($action, 0, 1)) {
+            return $this->io->warning("Invalid action {$action}()");
         }
 
-        if ($this->entityQualifiedName) {
-            $this->generateSettersGettersFile();
+        if (method_exists($this, $action)) {
+            $this->io->comment("[AURORA] Start to execute {$action}()");
+            $this->$action();
+            $this->io->newLine();
+            $this->io->success('[AURORA] All commands were successfully run (post update).');
         } else {
-            $this->generateSettersGetters();
+            return $this->outputWithTime("Invalid action {$action}()");
         }
 
         return Command::SUCCESS;
     }
+
 
     /**
      * Usage:
