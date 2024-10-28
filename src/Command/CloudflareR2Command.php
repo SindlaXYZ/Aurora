@@ -17,10 +17,13 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 )]
 final class CloudflareR2Command extends CommandMiddleware
 {
+    protected CloudflareR2 $cloudflareR2;
+
     public function __construct(
-        protected CloudflareR2 $cloudflareR2
+        CloudflareR2 $cloudflareR2
     )
     {
+        $this->cloudflareR2 = $cloudflareR2;
         parent::__construct();
     }
 

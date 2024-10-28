@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\CloudflareR2;
 use Aws\Credentials\Credentials;
 use Aws\S3\S3Client;
 
-readonly class CloudflareR2
+class CloudflareR2
 {
     /**
      * @throws \Exception

@@ -13,7 +13,7 @@ use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 
-readonly class BlackHoleSubscriber implements EventSubscriberInterface
+class BlackHoleSubscriber implements EventSubscriberInterface
 {
     public function __construct(
         private AuroraClient $auroraClient
