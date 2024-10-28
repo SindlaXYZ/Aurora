@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-use App\Command\Middleware\CommandMiddleware;
+#use App\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -11,10 +11,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
-#[AsCommand(
-    name       : 'aurora:cloudflare:r2',
-    description: 'Cloudflare R2'
-)]
 final class CloudflareR2Command extends CommandMiddleware
 {
     protected CloudflareR2 $cloudflareR2;
@@ -23,9 +19,13 @@ final class CloudflareR2Command extends CommandMiddleware
         CloudflareR2 $cloudflareR2
     )
     {
-        $this->cloudflareR2 = $cloudflareR2;
-        parent::__construct();
+        parent::__construct(self::$defaultName);
+        #$this->container     = $container;
+        #$this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
+        $this->cloudflareR2  = $cloudflareR2;
     }
+
+    protected static $defaultName = 'aurora:cloudflare:r2';
 
     /**
      * {@inheritDoc}
