@@ -56,7 +56,7 @@ services:
 
     aurora.command.cloudlare.r2:
         class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
-        arguments: [ '@aurora.cloudflare.r2' ]
+        arguments: [ '@service_container', '@aurora.cloudflare.r2' ]
         tags:
             - { name: console.command }
 
