@@ -61,9 +61,39 @@ final class CloudflareR2Command extends CommandMiddleware
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output)
     {
-        return $this->try($input, $output, $this);
+        /** @var InputInterface */
+        $this->input = $input;
+
+        /** @var OutputInterface */
+        $this->output = $output;
+
+        /** @var SymfonyStyle io */
+        $this->io = new SymfonyStyle($this->input, $this->output);
+
+        $this->em = $this->container->get('doctrine')->getManager();
+
+        $this->namespace   = $this->input->getOption('namespace');
+        $this->sonataAdmin = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
+        $this->entity      = $this->input->getOption('entity');
+        $this->entityQualifiedName = $this->input->getOption('entityQualifiedName') ?? $this->input->getOption('eqn');
+
+        if (null == $this->entityQualifiedName && null == $this->namespace) {
+            throw new \Exception('Option --namespace is not set.');
+        }
+
+        if (null == $this->entityQualifiedName && null == $this->entity) {
+            throw new \Exception('Option --entityQualifiedName (--eqn) or --file is not set.');
+        }
+
+        if ($this->entityQualifiedName) {
+            $this->generateSettersGettersFile();
+        } else {
+            $this->generateSettersGetters();
+        }
+
+        return Command::SUCCESS;
     }
 
     /**
