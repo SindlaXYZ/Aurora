@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-#use App\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
@@ -17,12 +16,12 @@ final class CloudflareR2Command extends CommandMiddleware
     protected CloudflareR2 $cloudflareR2;
 
     public function __construct(
-        CloudflareR2 $cloudflareR2
-    )
+        ContainerInterface $container,
+        CloudflareR2       $cloudflareR2)
     {
         parent::__construct(self::$defaultName);
-        #$this->container     = $container;
-        #$this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
+        $this->container     = $container;
+        $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
         $this->cloudflareR2  = $cloudflareR2;
     }
 
@@ -75,9 +74,9 @@ final class CloudflareR2Command extends CommandMiddleware
 
         $this->em = $this->container->get('doctrine')->getManager();
 
-        $this->namespace   = $this->input->getOption('namespace');
-        $this->sonataAdmin = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
-        $this->entity      = $this->input->getOption('entity');
+        $this->namespace           = $this->input->getOption('namespace');
+        $this->sonataAdmin         = (in_array((string)$this->input->getOption('sonataAdmin'), ['1', 'true']) ? true : false);
+        $this->entity              = $this->input->getOption('entity');
         $this->entityQualifiedName = $this->input->getOption('entityQualifiedName') ?? $this->input->getOption('eqn');
 
         if (null == $this->entityQualifiedName && null == $this->namespace) {
