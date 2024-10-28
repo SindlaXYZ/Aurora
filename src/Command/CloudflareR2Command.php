@@ -40,22 +40,9 @@ final class CloudflareR2Command extends CommandMiddleware
             ->addOption('remoteFile', null, InputOption::VALUE_OPTIONAL);
     }
 
-    /**
-     * This optional method is the first one executed for a command after configure() and is useful to initialize properties based on the input arguments and options.
-     */
-    protected function initialize(InputInterface $input, OutputInterface $output): void
+    private function p(): string
     {
-        parent::initialize($input, $output);
-    }
-
-    /**
-     * This method is executed after initialize() and before execute(). Its purpose is to check if some of the options/arguments are missing and interactively ask the user for those values.
-     *
-     * This method is completely optional. If you are developing an internal console command, you probably should not implement this method because it requires quite a lot of work.
-     * However, if the command is meant to be used by external users, this method is a nice way to fall back and prevent errors.
-     */
-    protected function interact(InputInterface $input, OutputInterface $output): void
-    {
+        return '[AURORA]';
     }
 
     /**
