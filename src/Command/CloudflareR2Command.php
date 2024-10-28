@@ -17,7 +17,8 @@ final class CloudflareR2Command extends CommandMiddleware
 
     public function __construct(
         ContainerInterface $container,
-        CloudflareR2       $cloudflareR2)
+        CloudflareR2       $cloudflareR2
+    )
     {
         parent::__construct(self::$defaultName);
         $this->container     = $container;
