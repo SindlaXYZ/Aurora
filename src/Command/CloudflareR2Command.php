@@ -80,7 +80,7 @@ final class CloudflareR2Command extends CommandMiddleware
             return $this->outputWithTime("Invalid action {$action}()");
         }
 
-        return Command::SUCCESS;
+        return self::SUCCESS;
     }
 
 
