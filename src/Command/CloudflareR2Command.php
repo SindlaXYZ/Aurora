@@ -13,6 +13,14 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 final class CloudflareR2Command extends CommandMiddleware
 {
+    // V1
+    private $entity;
+    private $namespace;
+    private $sonataAdmin;
+
+    // V2
+    private $entityQualifiedName;
+
     protected CloudflareR2 $cloudflareR2;
 
     public function __construct(
