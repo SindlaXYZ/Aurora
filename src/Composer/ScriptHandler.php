@@ -23,7 +23,7 @@ class ScriptHandler
             'symfony-cache-warmup'   => false,
         ];
 
-    protected static function getOptions(Event $event)
+    protected static function getOptions(Event $event): array
     {
         $options = array_merge(static::$options, $event->getComposer()->getPackage()->getExtra());
 
@@ -41,10 +41,10 @@ class ScriptHandler
      */
     public static function postInstall(Event $event)
     {
-        $options = static::getOptions($event);
+        $options          = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'aurora:composer --action=postInstall', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer', ['--action=postInstall'], $options['process-timeout']);
     }
 
     /**
@@ -61,10 +61,10 @@ class ScriptHandler
      */
     public static function postUpdate(Event $event)
     {
-        $options = static::getOptions($event);
+        $options          = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
-        static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
+        static::executeCommand($event, 'bin', 'aurora:composer', ['--action=postUpdate'], $options['process-timeout']);
     }
 
     protected static function getPhp($includeArgs = true)
@@ -101,33 +101,37 @@ class ScriptHandler
         return $arguments;
     }
 
-    protected static function executeCommand(Event $event, $consoleDir, $cmd, $timeout = 300)
+    protected static function executeCommand(Event $event, $consoleDir, $cmd, array $commandArguments = [], $timeout = 300)
     {
-        $php     = escapeshellarg(static::getPhp(false));
-        $phpArgs = implode(' ', array_map('escapeshellarg', static::getPhpArguments()));
-        $console = escapeshellarg($consoleDir . '/console');
+        $processCommand[] = static::getPhp(false);
+        foreach (static::getPhpArguments() as $phpArgument) {
+            $processCommand[] = $phpArgument;
+        }
+        $processCommand[] = $consoleDir . '/console';
+        $processCommand[] = $cmd;
+        foreach ($commandArguments as $commandArgument) {
+            $processCommand[] = $commandArgument;
+        }
         if ($event->getIO()->isDecorated()) {
-            $console .= ' --ansi';
+            $processCommand[] = '--ansi';
         }
 
-        $process = new Process(
-            $php . ($phpArgs ? ' ' . $phpArgs : '') . ' ' . $console . ' ' . $cmd,
-            null,
-            null,
-            null,
-            $timeout
-        );
-
+        $process = new Process($processCommand, null, null, null, $timeout);
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
         });
-
         if (!$process->isSuccessful()) {
-            throw new \RuntimeException(sprintf("An error occurred when executing the \"%s\" command:\n\n%s\n\n%s", escapeshellarg($cmd), self::removeDecoration($process->getOutput()), self::removeDecoration($process->getErrorOutput())));
+            throw new \RuntimeException(sprintf(
+                "An error occurred when executing the \"%s\" command.\n%s\nError:\n\n%s\n\n%s",
+                $cmd,
+                trim(implode(' ', array_map('trim', $processCommand))),
+                self::removeDecoration($process->getOutput()),
+                self::removeDecoration($process->getErrorOutput())
+            ));
         }
     }
 
-    private static function removeDecoration($string)
+    private static function removeDecoration($string): string
     {
         return preg_replace("/\033\[[^m]*m/", '', $string);
     }
