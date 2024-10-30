@@ -41,7 +41,7 @@ class ScriptHandler
      */
     public static function postInstall(Event $event)
     {
-        $options          = static::getOptions($event);
+        $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
         static::executeCommand($event, 'bin', 'aurora:composer --action=postInstall', $options['process-timeout']);
@@ -61,7 +61,7 @@ class ScriptHandler
      */
     public static function postUpdate(Event $event)
     {
-        $options          = static::getOptions($event);
+        $options = static::getOptions($event);
 
         // Run the ComposerCommand [composer:run]
         static::executeCommand($event, 'bin', 'aurora:composer --action=postUpdate', $options['process-timeout']);
@@ -110,10 +110,18 @@ class ScriptHandler
             $console .= ' --ansi';
         }
 
-        $process = new Process($php . ($phpArgs ? ' ' . $phpArgs : '') . ' ' . $console . ' ' . $cmd, null, null, null, $timeout);
+        $process = new Process(
+            $php . ($phpArgs ? ' ' . $phpArgs : '') . ' ' . $console . ' ' . $cmd,
+            null,
+            null,
+            null,
+            $timeout
+        );
+
         $process->run(function ($type, $buffer) use ($event) {
             $event->getIO()->write($buffer, false);
         });
+
         if (!$process->isSuccessful()) {
             throw new \RuntimeException(sprintf("An error occurred when executing the \"%s\" command:\n\n%s\n\n%s", escapeshellarg($cmd), self::removeDecoration($process->getOutput()), self::removeDecoration($process->getErrorOutput())));
         }
