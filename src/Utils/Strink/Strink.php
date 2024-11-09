@@ -158,9 +158,11 @@ class Strink
                 $limitedString = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
 
             } else if ($cut == 'middle' || $cut == 'center') {
-                $limitedString = mb_substr($this->string, 0, (round($limit / 2) - strlen($postText)), 'utf-8');
-                $limitedString .= $postText;
-                $limitedString .= mb_substr($this->string, strlen($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
+                $left   = mb_substr($this->string, 0, (ceil($limit / 2) - strlen($postText)), 'utf-8');
+                $center = $postText;
+                $right  = mb_substr($this->string, (strlen($this->string) + 1) - (strlen($left) + strlen($center)) + $limit % 2, strlen($this->string), 'utf-8');
+
+                $limitedString = $left . $center . $right;
             }
 
             $this->string = $limitedString;
