@@ -151,16 +151,19 @@ class Strink
     {
         if (strlen($this->string) > $limit) {
 
-            $limit = $limit + 1;
+            $limit         = $limit + 1;
+            $limitedString = $this->string;
 
             if ($cut == 'right') {
-                $this->string = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
+                $limitedString = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
 
             } else if ($cut == 'middle' || $cut == 'center') {
-                $this->string = mb_substr($this->string, 0, (round($limit / 2) - strlen($postText)), 'utf-8');
-                $this->string .= $postText;
-                $this->string .= mb_substr($this->string, strlen($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
+                $limitedString = mb_substr($this->string, 0, (round($limit / 2) - strlen($postText)), 'utf-8');
+                $limitedString .= $postText;
+                $limitedString .= mb_substr($this->string, strlen($this->string) - round($limit / 2), strlen($this->string), 'utf-8');
             }
+
+            $this->string = $limitedString;
         }
 
         return $this;
