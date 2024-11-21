@@ -81,4 +81,10 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals('Åûţéñţîƒîçåŕé ②', (new Strink())->string('Autentificare 2')->pseudoTranslate());
         $this->assertEquals('Šîĝñ Îñ', (new Strink())->string('Sign In')->pseudoTranslate());
     }
+
+    public function testCompressSpaces()
+    {
+        $this->assertEquals('Šîĝñ   Îñ', (new Strink())->string('Šîĝñ Îñ')->pseudoTranslate());
+        $this->assertEquals('Ora de          început', (new Strink())->string('Ora de început')->pseudoTranslate());
+    }
 }
