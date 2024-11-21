@@ -84,7 +84,8 @@ class StrinkTest extends KernelTestCase
 
     public function testCompressSpaces()
     {
-        $this->assertEquals('Šîĝñ   Îñ', (new Strink())->string('Šîĝñ Îñ')->compressSpaces());
-        $this->assertEquals('Ora de          început', (new Strink())->string('Ora de început')->compressSpaces());
+        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string('Šîĝñ   Îñ')->compressSpaces());
+        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string("Šîĝñ\x20\x20\x20Îñ")->compressSpaces());
+        $this->assertEquals('Ora de început', (new Strink())->string('Ora de          început')->compressSpaces());
     }
 }
