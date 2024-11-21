@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-use App\Command\Middleware\CommandMiddleware;
+use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
