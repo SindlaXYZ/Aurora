@@ -71,7 +71,7 @@ class StrinkTest extends KernelTestCase
                      'externalRequestRepository' => ['external_request_repository', 'external_Request_repository', 'External_request_repository']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
-                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(false));   
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(false));
             }
         }
     }
@@ -102,10 +102,10 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals('Lorem  Isum', (new Strink())->string("Lorem\n\nIsum")->removeNewLines("\x20"));
         $this->assertEquals('  Lorem  Isum  ', (new Strink())->string("\n\nLorem\n\nIsum\n\n")->removeNewLines("\x20"));
 
-        $this->assertEquals('Lorem Isum', (new Strink())->string("Lorem\rIsum")->removeNewLines());
-        $this->assertEquals('Lorem Isum', (new Strink())->string("\rLorem\rIsum\r")->removeNewLines());
-        $this->assertEquals('Lorem Isum', (new Strink())->string("Lorem\r\rIsum")->removeNewLines());
-        $this->assertEquals('Lorem Isum', (new Strink())->string("\r\rLorem\r\rIsum\r\r")->removeNewLines());
+        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\rIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', (new Strink())->string("\rLorem\rIsum\r")->removeNewLines());
+        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\r\rIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', (new Strink())->string("\r\rLorem\r\rIsum\r\r")->removeNewLines());
 
 
         $this->assertEquals('Lorem Isum', (new Strink())->string("Lorem\rIsum")->removeNewLines("\x20"));
