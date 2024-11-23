@@ -29,6 +29,12 @@ class Strink
         return $this;
     }
 
+    public function removeNewLines(string $replaceWith = ''): Strink
+    {
+        $this->string = str_replace(["\r", "\n"], $replaceWith, $this->string);
+        return $this;
+    }
+
     /**
      * Compress multiple slashes to a single one (from many ///// to one /)
      *
