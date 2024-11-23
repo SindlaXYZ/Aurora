@@ -166,7 +166,7 @@ class CommandMiddleware extends Command
     protected function progressBarWarning(string $warning): void
     {
         $this->progressBar->clear();
-        $this->io->error($warning);
+        $this->io->warning($warning);
         $this->progressBar->display();
     }
 
