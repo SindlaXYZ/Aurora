@@ -149,38 +149,53 @@ class CommandMiddleware extends Command
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
     }
 
-    protected function progressBarComment(string $comment): void
+    protected function progressBarComment(string $comment, int $step = 0): void
     {
         $this->progressBar->clear();
         $this->io->comment($comment);
+        if ($step > 0) {
+            $this->progressBar->advance($step);
+        }
         $this->progressBar->display();
     }
 
-    protected function progressBarInfo(string $info): void
+    protected function progressBarInfo(string $info, int $step = 0): void
     {
         $this->progressBar->clear();
         $this->io->info($info);
+        if ($step > 0) {
+            $this->progressBar->advance($step);
+        }
         $this->progressBar->display();
     }
 
-    protected function progressBarWarning(string $warning): void
+    protected function progressBarWarning(string $warning, int $step = 0): void
     {
         $this->progressBar->clear();
         $this->io->warning($warning);
+        if ($step > 0) {
+            $this->progressBar->advance($step);
+        }
         $this->progressBar->display();
     }
 
-    protected function progressBarError(string $error): void
+    protected function progressBarError(string $error, int $step = 0): void
     {
         $this->progressBar->clear();
         $this->io->error($error);
+        if ($step > 0) {
+            $this->progressBar->advance($step);
+        }
         $this->progressBar->display();
     }
 
-    protected function progressBarSuccess(string $success): void
+    protected function progressBarSuccess(string $success, int $step = 0): void
     {
         $this->progressBar->clear();
         $this->io->success($success);
+        if ($step > 0) {
+            $this->progressBar->advance($step);
+        }
         $this->progressBar->display();
     }
 
