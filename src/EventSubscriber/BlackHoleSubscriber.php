@@ -34,7 +34,8 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
         if ($event->isMainRequest()) {
             $this->auroraClient->ip($request);
             if (
-                isset($_ENV['BLACK_HOLE_API_URL'])
+                filter_var($_ENV['BLACK_HOLE_API_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN)
+                && isset($_ENV['BLACK_HOLE_API_URL'])
                 && str_starts_with($_ENV['BLACK_HOLE_API_URL'], 'http')
                 && isset($_ENV['BLACK_HOLE_API_VERSION'])
                 && !empty($_ENV['BLACK_HOLE_API_VERSION'])
