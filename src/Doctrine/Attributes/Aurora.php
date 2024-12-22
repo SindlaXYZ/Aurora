@@ -7,18 +7,11 @@ use Attribute;
 #[Attribute(Attribute::TARGET_PROPERTY)]
 class Aurora
 {
-    public bool    $toSting      = false;   // eg: #[Aurora(toSting: true)]
-    public ?string $bitwiseConst = null;    // eg: #[Aurora(bitwiseConst: "STATUS_")]
-    public bool    $json         = false;   // eg: #[Aurora(json: true)]
-
     public function __construct(
-        bool   $toSting = false,
-        string $bitwiseConst = null,
-        bool   $json = false
+        bool    $toSting = false,       // eg: #[Aurora(toSting: true)]
+        ?string $bitwiseConst = null,   // eg: #[Aurora(bitwiseConst: "STATUS_")]
+        bool    $json = false           // eg: #[Aurora(json: true)]
     )
     {
-        $this->toSting      = $toSting;
-        $this->bitwiseConst = $bitwiseConst;
-        $this->json         = $json;
     }
 }
