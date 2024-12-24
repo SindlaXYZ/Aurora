@@ -252,6 +252,6 @@ class AuroraClient
      */
     public function ipIsGoogleOrBingBot(string $IP): bool
     {
-        return $this->ipIsGoogleOrBingBot($IP) || $this->ipIsBingBot($IP);
+        return $this->ipIsGoogleBot($IP) || $this->ipIsBingBot($IP);
     }
 }
