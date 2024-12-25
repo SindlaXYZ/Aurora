@@ -2,7 +2,8 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
-// Symfony
+use AllowDynamicProperties;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
@@ -14,14 +15,10 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Contracts\Cache\ItemInterface;
-
-// Twig
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 use Twig\Environment;
-
-// Minify
 use MatthiasMullie\Minify;
 
 /**
@@ -29,6 +26,7 @@ use MatthiasMullie\Minify;
  *
  * @package AuroraBundle\Utils
  */
+#[AllowDynamicProperties]
 class PWA
 {
     /** @var ContainerInterface */
@@ -49,8 +47,6 @@ class PWA
 
     /**
      * manifest.json | manifest.webmanifest
-     *
-     * @return JsonResponse
      */
     public function manifestJSON(Request $Request): JsonResponse
     {
@@ -104,8 +100,6 @@ class PWA
 
     /**
      * browserconfig.xml | IEconfig.xml
-     *
-     * @return XML
      */
     public function browserConfig(Request $Request): Response
     {
@@ -215,10 +209,9 @@ class PWA
     /**
      * Favicon image
      *
-     * @param Request $Request
      * @return image/x-icon
      */
-    public function icon(Request $Request)
+    public function icon(Request $Request): Response|BinaryFileResponse
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
