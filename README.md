@@ -50,8 +50,8 @@ parameters:
     aurora.minify.output.ignore.content.type: [ 'text/plain' ]
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
-    aurora.pwa.enabled:                 '%env(default:true:bool:AURORA_PWA_ENABLED)%'
-    aurora.pwa.debug:                   '%env(default:true:bool:AURORA_PWA_DEBUG)%'
+    aurora.pwa.enabled:                 '%env(bool:AURORA_PWA_ENABLED)%'
+    aurora.pwa.debug:                   '%env(bool:AURORA_PWA_DEBUG)%'
     aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersioAppend()`"
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
