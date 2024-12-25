@@ -17,7 +17,7 @@ class ExtraLoader extends Loader
 {
     private bool $isLoaded = false;
 
-    public function load($resource, string $type = null): RouteCollection
+    public function load(mixed $resource, ?string $type = null): RouteCollection
     {
         if (true === $this->isLoaded) {
             throw new \RuntimeException('Do not add the "extra" loader twice');
@@ -64,7 +64,7 @@ class ExtraLoader extends Loader
         return $routes;
     }
 
-    public function supports($resource, string $type = null): bool
+    public function supports(mixed $resource, ?string $type = null): bool
     {
         return 'extra' === $type;
     }

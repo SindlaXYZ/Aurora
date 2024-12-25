@@ -4,12 +4,9 @@ namespace Sindla\Bundle\AuroraBundle\Utils\Strink;
 
 class Strink
 {
-    protected $string;
+    protected $string = '';
 
-    /**
-     * @return Strink
-     */
-    public function string(string $string = null)
+    public function string(string $string): self
     {
         $this->string = $string;
         return $this;
@@ -20,16 +17,14 @@ class Strink
      *
      * @in  The string  you want to   fix
      * @out The string you want to fix
-     *
-     * @return  Strink
      */
-    public function compressSpaces(): Strink
+    public function compressSpaces(): self
     {
         $this->string = preg_replace('/\s\s+/', ' ', $this->string);
         return $this;
     }
 
-    public function removeNewLines(string $replaceWith = ''): Strink
+    public function removeNewLines(string $replaceWith = ''): self
     {
         $this->string = str_replace(["\r", "\n"], $replaceWith, $this->string);
         return $this;
@@ -40,10 +35,8 @@ class Strink
      *
      * @in  this/is/a//very/bad/uri//
      * @out this/is/a/very/bad/uri/
-     *
-     * @return Strink
      */
-    public function compressSlashes(): Strink
+    public function compressSlashes(): self
     {
         $this->string = preg_replace('~(^|[^:])//+~', '\\1/', $this->string);
         return $this;
@@ -54,10 +47,8 @@ class Strink
      *
      * @in  ""Pleașe țest thîs string""
      * @out "Pleașe țest thîs string"
-     *
-     * @return Strink
      */
-    public function compressDoubleQuotes(): Strink
+    public function compressDoubleQuotes(): self
     {
         $this->string = preg_replace('/"+/', '"', $this->string);
         return $this;
@@ -68,10 +59,8 @@ class Strink
      *
      * @in  '''Please 'test\" this string''
      * @out 'Please 'test\" this string'
-     *
-     * @return Strink
      */
-    public function compressSimpleQuotes(): Strink
+    public function compressSimpleQuotes(): self
     {
         $this->string = preg_replace("/'+/", "'", $this->string);
         return $this;
@@ -79,10 +68,8 @@ class Strink
 
     /**
      * Compress multiple simple and double quotes
-     *
-     * @return Strink
      */
-    public function compressQuotes(): Strink
+    public function compressQuotes(): self
     {
         $this->string = $this
             ->compressSimpleQuotes()
@@ -98,10 +85,8 @@ class Strink
      *
      * @param integer     $length
      * @param multi-array $keysToUse
-     *
-     * @return Strink
      */
-    public function randomString(int $length = 12, array $keysToUse = []): Strink
+    public function randomString(int $length = 12, array $keysToUse = []): self
     {
         if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
@@ -136,13 +121,8 @@ class Strink
      * Convert/obfuscate a string  with *
      *  eg: youremail@gmail.com > yo**************om
      *  eg: youremail@gmail.com > yo*****il@gmail.com
-     *
-     * @param     $string
-     * @param int $margins
-     *
-     * @return string
      */
-    public function obfuscateString($string, $margins = 2)
+    public function obfuscateString(mixed $string, int $margins = 2): string
     {
         return
             substr($string, 0, min(2, strlen($string) - $margins))
@@ -153,7 +133,7 @@ class Strink
     /**
      * Make a string shorter
      */
-    public function limitedString(int $limit = 10, string $postText = '...', string $cut = 'right'): Strink
+    public function limitedString(int $limit = 10, string $postText = '...', string $cut = 'right'): self
     {
         if (strlen($this->string) > $limit) {
 
@@ -180,12 +160,8 @@ class Strink
     /**
      * Transform a snake_case string to camelCase or CamelCase
      * Translates a string with underscores into camel case (e.g. first_name -> firstName)
-     *
-     * @param boolean $upperCaseFirsLetter
-     *
-     * @return Strink
      */
-    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): Strink
+    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): self
     {
         $this->string = str_replace('_', '', ucwords('external_request_repository', '_'));
         $this->string = (!$upperCaseFirsLetter ? lcfirst($this->string) : $this->string);
@@ -195,13 +171,8 @@ class Strink
     /**
      * Transform a snake_case string to "huma case" or "Human case" or "Human Case"
      * Translates a string with underscores into camel case (e.g. first_name -> first name)
-     *
-     * @param bool $upperCaseFirsLetter
-     * @param bool $upperCaseAllLetter
-     *
-     * @return Strink
      */
-    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = false, bool $upperCaseAllLetter = false): Strink
+    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = false, bool $upperCaseAllLetter = false): self
     {
         $this->string = strtolower($this->string);
 
@@ -214,28 +185,26 @@ class Strink
     /**
      * Transform a camelCase string to snake_case
      * Translates a camel case string into a string with underscores (e.g. firstName -> first_name)
-     *
-     * @return Strink
      */
-    public function camelCaseToSnakeCase(): Strink
+    public function camelCaseToSnakeCase(): self
     {
         $this->string = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
         return $this;
     }
 
-    public function lower(): Strink
+    public function lower(): self
     {
         $this->string = strtolower($this->string);
         return $this;
     }
 
-    public function upper(): Strink
+    public function upper(): self
     {
         $this->string = strtoupper($this->string);
         return $this;
     }
 
-    public function ucfirst(): Strink
+    public function ucfirst(): self
     {
         $this->string = ucfirst($this->string);
         return $this;
@@ -243,11 +212,8 @@ class Strink
 
     /**
      * Remove a list of words from sentence
-     *
-     * @param array $wordsList
-     * @return  Strink
      */
-    public function removeWords(array $wordsList): Strink
+    public function removeWords(array $wordsList): self
     {
         foreach ($wordsList as $word) {
             $this->string = preg_replace("/\b{$word}\b/i", '', $this->string);
@@ -257,11 +223,7 @@ class Strink
         return $this;
     }
 
-    /**
-     * @param array $keyValueArray
-     * @return  Strink
-     */
-    public function replaceKeyValue(array $keyValueArray): Strink
+    public function replaceKeyValue(array $keyValueArray): self
     {
         foreach ($keyValueArray as $replaceThat => $withThis) {
             $this->string = str_replace($replaceThat, $withThis, $this->string);
@@ -273,10 +235,8 @@ class Strink
     /**
      * Replace/transliterate accented characters with non accented
      * Remove diacritics from a string
-     *
-     * @return Strink
      */
-    public function transliterateUtf8String(): Strink
+    public function transliterateUtf8String(): self
     {
         $sets = [
             'a' => ['á', 'à', 'â', 'ä', 'ã', 'å', 'ā', 'ă', 'ą', 'ǻ', 'ǎ'],
@@ -365,10 +325,8 @@ class Strink
 
     /**
      * Fix bad diacritics/accents
-     *
-     * @return Strink
      */
-    public function fixDiacritics(string $ISO6391 = 'ro')
+    public function fixDiacritics(string $ISO6391 = 'ro'): self
     {
         $sets = [
             'ă' => ['ă', 'ã'],
@@ -503,7 +461,7 @@ class Strink
      *
      * @docs    http://stackoverflow.com/questions/2955251/php-function-to-make-slug-url-string
      */
-    public function slugify(bool $keepUTF8Chars = false): Strink
+    public function slugify(bool $keepUTF8Chars = false): self
     {
         /* Not used yet:
         preg_match_all('/[A-Z]/', $this->string, $match);
@@ -544,8 +502,6 @@ class Strink
 
     /**
      * Convert a multi lines string to array - convert every line intro a array element
-     *
-     * @return array
      */
     public function linesToArray(): array
     {
@@ -573,9 +529,6 @@ class Strink
 
     }
 
-    /**
-     * @return string
-     */
     public function __toString(): string
     {
         return $this->string;
