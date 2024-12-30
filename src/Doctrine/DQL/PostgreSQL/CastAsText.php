@@ -8,19 +8,19 @@ use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 
 /**
- * CASTASVARCHAR: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\CastAsVarchar
+ * CASTASTEXT: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\CastAsText
  *
- *  Usage: CASTASVARCHAR(row) will produce CAST(row AS VARCHAR)
+ *  Usage: CASTASTEXT(row) will produce CAST(row AS TEXT)
  *  Eg:
- *       ->andWhere("CASTASVARCHAR({$tableName}.{$row}) ...");
+ *       ->andWhere("CASTASTEXT({$tableName}.{$row}) ...");
  */
-class CastAsVarchar extends FunctionNode
+class CastAsText extends FunctionNode
 {
     private $string;
 
     public function getSql(SqlWalker $sqlWalker)
     {
-        return 'CAST(' . $this->string->dispatch($sqlWalker) . " AS VARCHAR)";
+        return 'CAST(' . $this->string->dispatch($sqlWalker) . " AS TEXT)";
     }
 
     public function parse(Parser $parser)
