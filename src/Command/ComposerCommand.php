@@ -16,9 +16,9 @@ use Symfony\Component\Yaml\Yaml;
 use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
 
 #[AsCommand(
-    name: 'aurora:composer',
+    name       : 'aurora:composer',
     description: 'Composer update command',
-    aliases: ['aurora:composer']
+    aliases    : ['aurora:composer']
 )]
 final class ComposerCommand extends Command
 {
@@ -42,6 +42,7 @@ final class ComposerCommand extends Command
 
     private const  GEOIP2_COUNTRY = 'Country';
     private const  GEOIP2_CITY    = 'City';
+    private const  GEOIP2_ASN     = 'ASN';
 
     /**
      * {@inheritdoc}
@@ -72,7 +73,7 @@ final class ComposerCommand extends Command
     }
 
     public function __construct(
-        protected ContainerInterface    $container
+        protected ContainerInterface $container
     )
     {
         parent::__construct();
@@ -133,6 +134,9 @@ final class ComposerCommand extends Command
         // GeoIP2City
         $this->_updateGeoIP2(self::GEOIP2_CITY);
 
+        // GeoIP2ASN
+        $this->_updateGeoIP2(self::GEOIP2_ASN);
+
         $this->_cleanUpAndChecks(__FUNCTION__);
     }
 
@@ -149,6 +153,9 @@ final class ComposerCommand extends Command
 
         // GeoIP2City
         $this->_updateGeoIP2(self::GEOIP2_CITY);
+
+        // GeoIP2ASN
+        $this->_updateGeoIP2(self::GEOIP2_ASN);
 
         $this->_cleanUpAndChecks(__FUNCTION__);
 
@@ -194,12 +201,12 @@ final class ComposerCommand extends Command
     }
 
     /**
-     * @param string $type Country|City
+     * @param string $type Country|City|ASN
      * @throws \Exception
      */
     private function _updateGeoIP2(string $type)
     {
-        if (!in_array($type, [self::GEOIP2_COUNTRY, self::GEOIP2_CITY])) {
+        if (!in_array($type, [self::GEOIP2_COUNTRY, self::GEOIP2_CITY, self::GEOIP2_ASN])) {
             $this->io->error(sprintf('[AURORA] _updateGeoIP2(%s) invalid type!', $type));
             return;
         }
@@ -209,11 +216,14 @@ final class ComposerCommand extends Command
         if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'])) {
             $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are not defined in .env[.local]');
             return;
-        } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'], FILTER_VALIDATE_BOOLEAN)) {
+        } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false</warning>');
             return;
-        } else if (self::GEOIP2_CITY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'], FILTER_VALIDATE_BOOLEAN)) {
+        } else if (self::GEOIP2_CITY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false</warning>');
+            return;
+        } else if (self::GEOIP2_ASN == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_ASN'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
+            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_ASN=false</warning>');
             return;
         }
 

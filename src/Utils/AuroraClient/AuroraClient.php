@@ -2,27 +2,17 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
-// Symfony
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
-
-// GeoIp2
 use GeoIp2\Database\Reader;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
-/**
- * Class Client
- *
- * @package AuroraBundle\Utils
- */
 class AuroraClient
 {
     private $container;
-
     private $geoLiteCountryReader;
     private $geoLiteCityReader;
+    private $geoLiteASNReader;
 
     public function __construct(Container $Container)
     {
@@ -53,6 +43,18 @@ class AuroraClient
         }
     }
 
+    private function readGeoLite2ASN()
+    {
+        if (!$this->geoLiteASNReader) {
+            $GeoLite2ASNFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2ASN.mmdb';
+            if (!is_file($GeoLite2ASNFile)) {
+                throw new \Exception("[{$GeoLite2ASNFile}] file not found!");
+            }
+
+            $this->geoLiteASNReader = new Reader($GeoLite2ASNFile);
+        }
+    }
+
     /**
      * Read country code (ISO-) for an IP address
      *
@@ -72,7 +74,7 @@ class AuroraClient
         return (isset($record)) ? $record->country->isoCode : null;
     }
 
-    public function ip2CityCounty(string $ipAddress)
+    public function ip2CityCounty(string $ipAddress): ?string
     {
         $this->readGeoLite2City();
 
@@ -85,7 +87,7 @@ class AuroraClient
         return (isset($record) && isset($record->subdivisions[0])) ? $record->subdivisions[0]->name : null;
     }
 
-    public function ip2CityName(string $ipAddress)
+    public function ip2CityName(string $ipAddress): ?string
     {
         $this->readGeoLite2City();
 
@@ -96,6 +98,23 @@ class AuroraClient
         }
 
         return (isset($record)) ? $record->city->name : null;
+    }
+
+    public function ip2ASN(string $ipAddress): array
+    {
+        $asn = [];
+        $this->readGeoLite2ASN();
+
+        try {
+            $ip2asn         = $this->geoLiteASNReader->asn($ipAddress);
+            $asn['name']    = $ip2asn->autonomousSystemOrganization; // Digi Romania S.A.
+            $asn['number']  = $ip2asn->autonomousSystemNumber;       // 8708
+            $asn['network'] = $ip2asn->network;                      // 2a02:2f08::/33
+        } catch (\GeoIp2\Exception\AddressNotFoundException $e) {
+
+        }
+
+        return $asn;
     }
 
     /**
