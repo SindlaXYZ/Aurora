@@ -94,7 +94,7 @@ final class CloudflareR2Command extends CommandMiddleware
      */
     protected function test(): int
     {
-        $this->outputWithTime(sprintf("[%s] It works!", $this->commandName));
+        $this->outputWithTime(sprintf("[%s] It works!", self::$defaultName));
         return self::SUCCESS;
     }
 
