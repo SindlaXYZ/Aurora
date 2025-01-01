@@ -54,6 +54,12 @@ services:
     ###################################################################################################################
     ###  Aurora Commands ##############################################################################################
 
+    aurora.command.cloudlare.r2:
+        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+        arguments: [ '@aurora.cloudflare.r2' ]
+        tags:
+            - { name: console.command }
+
     # Register TestCommand (see class file for the command name)
     aurora.command.test:
         class: Sindla\Bundle\AuroraBundle\Command\TestCommand
@@ -104,6 +110,12 @@ services:
     aurora.client:
         class: Sindla\Bundle\AuroraBundle\Utils\Client\Client
         arguments: [ '@service_container' ]
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.cloudflare.r2:
+        class: Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2
         autowire: true
         autoconfigure: true
         public: true
