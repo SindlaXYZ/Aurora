@@ -40,6 +40,8 @@ final class ComposerCommand extends Command
     /** @var SymfonyStyle io */
     protected SymfonyStyle $io;
 
+    protected $kernelRootDir;
+
     private const  GEOIP2_COUNTRY = 'Country';
     private const  GEOIP2_CITY    = 'City';
     private const  GEOIP2_ASN     = 'ASN';

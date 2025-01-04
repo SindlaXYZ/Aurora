@@ -30,4 +30,4 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="#2C3E50">
 
 {# https://developers.google.com/web/fundamentals/web-app-manifest/ #}
-<link rel="manifest" href="{{ asset('manifest.json') }}" {#x-host="{{ host }}" x-secure="{{ app.request.isSecure }}"#}>
+<link rel="manifest" href="{{ asset('manifest.json') }}" crossorigin="use-credentials" {#x-host="{{ host }}" x-secure="{{ app.request.isSecure }}"#}>
