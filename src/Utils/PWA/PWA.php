@@ -42,7 +42,6 @@ class PWA
         $this->container     = $container;
         $this->session       = $requestStack->getSession();
         $this->twig          = $twig;
-        $this->kernelRootDir = $this->container->getParameter('kernel.project_dir');
     }
 
     /**
