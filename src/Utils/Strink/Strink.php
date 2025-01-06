@@ -2,6 +2,9 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Strink;
 
+use Brick\Math\BigDecimal;
+use Brick\Math\RoundingMode;
+
 class Strink
 {
     protected $string = '';
@@ -519,6 +522,32 @@ class Strink
         $this->string = end($classParts);
 
         return $this;
+    }
+
+    public function countLowerCharacters(): int
+    {
+        preg_match_all('/\p{Ll}/u', $this->string, $matchesLower);
+        return count($matchesLower[0]);
+    }
+
+    public function lowerCharactersPercentage(): float
+    {
+        $total = strlen($this->string);
+        $lower = $this->countLowerCharacters();
+        return BigDecimal::of($lower)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
+    }
+
+    public function countUpperCharacters(): int
+    {
+        preg_match_all('/\p{Lu}/u', $this->string, $matchesUpper);
+        return count($matchesUpper[0]);
+    }
+
+    public function upperCharactersPercentage(): float
+    {
+        $total = strlen($this->string);
+        $upper = $this->countUpperCharacters();
+        return BigDecimal::of($upper)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
     }
 
     /**
