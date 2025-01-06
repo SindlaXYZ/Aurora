@@ -135,6 +135,12 @@ services:
         autoconfigure: true
         public: true
 
+    aurora.ip:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
+        autowire: true
+        autoconfigure: true
+        public: true
+
     aurora.match:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
         autowire: true
