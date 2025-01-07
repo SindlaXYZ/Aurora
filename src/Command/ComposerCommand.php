@@ -128,7 +128,7 @@ final class ComposerCommand extends Command
     /**
      * clear; php bin/console aurora:composer --action=postInstall
      */
-    private function postInstall()
+    private function postInstall(): void
     {
         // GeoIP2Country
         $this->_updateGeoIP2(self::GEOIP2_COUNTRY);
@@ -145,7 +145,7 @@ final class ComposerCommand extends Command
     /**
      * clear; php bin/console aurora:composer --action=postUpdate
      */
-    private function postUpdate()
+    private function postUpdate(): void
     {
         // PHPUnit
         $this->_updatePHPUnit();
@@ -182,8 +182,17 @@ final class ComposerCommand extends Command
 
         $phpUnitFile = $this->kernelRootDir . '/phpunit.phar';
 
-        // If file is not older than X hours
-        if (file_exists($phpUnitFile) && (time() - filemtime($phpUnitFile)) < 60 * 60 * 24) {
+        // If file is not older than X time
+        $cacheSeconds = (60 * 60 * 24);
+        if (
+            file_exists($phpUnitFile)
+            && 0 != filesize($phpUnitFile)
+            &&
+            (
+                intval($cacheSeconds) < 0
+                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= (new \SplFileInfo($phpUnitFile))->getMTime()
+            )
+        ) {
             $this->io->comment(sprintf('%s ... skip updating (PHPUnit is too new)', $this->p()));
             return;
         }
@@ -215,8 +224,8 @@ final class ComposerCommand extends Command
 
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
-        if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'])) {
-            $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY are not defined in .env[.local]');
+        if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_ASN'])) {
+            $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY or SINDLA_AURORA_GEO_LITE2_ASN are not defined in .env[.local]');
             return;
         } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
             $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false</warning>');
@@ -229,10 +238,11 @@ final class ComposerCommand extends Command
             return;
         }
 
-        $tempDir           = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp')) . '/' . date('Y-m-d Hi') . '_' . microtime(true);
-        $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
-        $maxmindLicenseKey = trim($this->container->getParameter('aurora.maxmind.license_key'));
-        $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
+        $tempDir             = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp')) . '/' . date('Y-m-d Hi') . '_' . microtime(true);
+        $maxmindDir          = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
+        $maxmindLicenseKey   = trim($this->container->getParameter('aurora.maxmind.license_key'));
+        $destinationFile     = "{$maxmindDir}/GeoLite2{$type}.mmdb";
+        $originalFileContent = file_get_contents($destinationFile);
 
         if (empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
@@ -252,8 +262,17 @@ final class ComposerCommand extends Command
             }
         }
 
-        // If file is not older than X hours
-        if (file_exists($destinationFile) && time() - filemtime($destinationFile) < 60 * 60 * 24) {
+        // If file is not older than X time
+        $cacheSeconds = (60 * 60 * 24);
+        if (
+            file_exists($destinationFile)
+            && 0 != filesize($destinationFile)
+            &&
+            (
+                intval($cacheSeconds) < 0
+                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= (new \SplFileInfo($destinationFile))->getMTime()
+            )
+        ) {
             $this->io->comment(sprintf('%s ... skip updating (GeoIP2/GeoLite2%s is too new)', $this->p(), $type));
             return;
         }
@@ -276,6 +295,7 @@ final class ComposerCommand extends Command
         }
 
         if (!file_put_contents($tmpTarGz, $tarGz)) {
+            file_put_contents($destinationFile, $originalFileContent);
             return $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
         }
 
