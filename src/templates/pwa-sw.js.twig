@@ -19,7 +19,9 @@ PRECACHE_URLS = [{{ precache|raw }}];
 {# Installing - the rest below handles the installing and caching #}
 self.addEventListener('install', event => {
     event.waitUntil(
-        caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS)).then(self.skipWaiting())
+        caches.open(PRECACHE)
+            .then(cache => cache.addAll(PRECACHE_URLS))
+            .then(self.skipWaiting())
     );
 });
 
@@ -115,6 +117,12 @@ function matchInArray(string, expressions) {
     }
     return false;
 };
+
+self.addEventListener('message', event => {
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
 
 {#
 self.addEventListener('push', function(event) {
