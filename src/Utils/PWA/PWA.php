@@ -163,11 +163,37 @@ class PWA
             return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
         }
 
+        $notificationInstallTheApp = 'Install the App';
+        $notificationNewVersion    = 'A new version of the application is available. Reload to update.';
+        $notificationReload        = 'Reload';
+
+        if (class_exists('\App\Service\AuroraService')) {
+            $utils          = new \App\Service\AuroraService();
+            $utils->request = $request;
+
+            if (method_exists($utils, 'transNotificationInstallTheApp')) {
+                $notificationInstallTheApp = $utils->transNotificationInstallTheApp();
+            }
+
+            if (method_exists($utils, 'transNotificationNewVersion')) {
+                $notificationNewVersion = $utils->transNotificationNewVersion();
+            }
+
+            if (method_exists($utils, 'transNotificationReload')) {
+                $notificationReload = $utils->transNotificationReload();
+            }
+        }
+
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'           => $this->version($request),
             'hostName'             => $request->getHost(),
-            'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
+            'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true),
+            'translations'         => [
+                'nnotificationInstallTheApp' => addslashes($notificationInstallTheApp),
+                'notificationNewVersion'     => addslashes($notificationNewVersion),
+                'notificationReload'         => addslashes($notificationReload)
+            ]
         ]);
 
         // Minify if not DEV

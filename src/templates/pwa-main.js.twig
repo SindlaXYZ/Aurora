@@ -107,7 +107,7 @@ if ('serviceWorker' in navigator) {
         {# Create the install button. #}
         const installButton = document.createElement('button');
         installButton.id = 'install-button';
-        installButton.textContent = 'Instalează Aplicația';
+        installButton.textContent = '{{ translations.nnotificationInstallTheApp }}';
         installButton.style.position = 'fixed';
         installButton.style.bottom = '20px';
         installButton.style.right = '20px';
@@ -127,9 +127,9 @@ if ('serviceWorker' in navigator) {
                 deferredPrompt.prompt();
                 deferredPrompt.userChoice.then(choiceResult => {
                     if (choiceResult.outcome === 'accepted') {
-                        console.log('User accepted the install prompt');
+                        {% if _debug %}console.log('User accepted the install prompt');{% endif %}
                     } else {
-                        console.log('User dismissed the install prompt');
+                        {% if _debug %}console.log('User dismissed the install prompt');{% endif %}
                     }
                     {# Reset the deferredPrompt. #}
                     deferredPrompt = null;
@@ -176,11 +176,11 @@ if ('serviceWorker' in navigator) {
 
         {# Notification message #}
         const message = document.createElement('p');
-        message.textContent = 'O nouă versiune a aplicației este disponibilă. Reîncarcă pentru a actualiza.';
+        message.textContent = '{{ translations.notificationNewVersion }}';
 
         {# Butonul de reîncărcare #}
         const refreshButton = document.createElement('button');
-        refreshButton.textContent = 'Reîncarcă';
+        refreshButton.textContent = '{{ translations.notificationReload }}';
         refreshButton.style.marginTop = '15px';
         refreshButton.style.padding = '10px 20px';
         refreshButton.style.border = 'none';
