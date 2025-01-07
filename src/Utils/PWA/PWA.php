@@ -23,49 +23,69 @@ use MatthiasMullie\Minify;
 
 /**
  * Debug: php bin/console debug:container aurora.pwa
- *
- * @package AuroraBundle\Utils
  */
 #[AllowDynamicProperties]
 class PWA
 {
-    /** @var ContainerInterface */
-    private ContainerInterface $container;
-
-    /** @var Session */
-    private Session $session;
-
-    private Environment $twig;
-
-    public function __construct(ContainerInterface $container, RequestStack $requestStack, Environment $twig)
+    public function __construct(
+        private ContainerInterface $container,
+        private RequestStack       $requestStack,
+        private Environment        $twig
+    )
     {
-        $this->container     = $container;
-        $this->session       = $requestStack->getSession();
-        $this->twig          = $twig;
+        $this->session = $requestStack->getSession();
     }
 
     /**
      * manifest.json | manifest.webmanifest
      */
-    public function manifestJSON(Request $Request): JsonResponse
+    public function manifestJSON(Request $request): JsonResponse
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () use ($request) {
 
-            $appName = $this->container->getParameter('aurora.pwa.app_name');
-            if(class_exists('\\App\\Utils') && method_exists('\\App\\Utils', 'auroraPWAAppName')) {
-                $appName = \App\Utils::auroraPWAAppName();
+            $appName        = $this->container->getParameter('aurora.pwa.app_name');
+            $appShortName   = $this->container->getParameter('aurora.pwa.app_short_name');
+            $appDescription = $this->container->getParameter('aurora.pwa.app_description');
+            $appThemeColor  = $this->container->getParameter('aurora.pwa.theme_color');
+            $appBackground  = $this->container->getParameter('aurora.pwa.background_color');
+
+            if (class_exists('\App\Service\AuroraService')) {
+                $utils          = new \App\Service\AuroraService();
+                $utils->request = $request;
+
+                if (method_exists($utils, 'pwaAppName')) {
+                    $appName = $utils->pwaAppName();
+                }
+
+                if (method_exists($utils, 'pwaAppShortName')) {
+                    $appShortName = $utils->pwaAppShortName();
+                }
+
+                if (method_exists($utils, 'pwaDescription')) {
+                    $appDescription = $utils->pwaDescription();
+                }
+
+                if (method_exists($utils, 'pwaThemeColor')) {
+                    $appThemeColor = $utils->pwaThemeColor();
+                }
+
+                if (method_exists($utils, 'pwaBackgroundColor')) {
+                    $appBackground = $utils->pwaBackgroundColor();
+                }
             }
 
             $manifest = [
                 'name'             => $appName,
-                'short_name'       => $this->container->getParameter('aurora.pwa.app_short_name'),
-                'description'      => $this->container->getParameter('aurora.pwa.app_description'),
+                'short_name'       => $appShortName, // The short_name manifest member is used to specify a short name for your web application, which may be used when the full name is too long for the available space.
+                'description'      => $appDescription,
+                'id'               => $this->container->getParameter('aurora.pwa.start_url'), // When the browser sees a manifest that does not have an identity that matches an already installed PWA, it will treat it as a new PWA, even if it is served from the same URL as another PWA. But if it sees a manifest with an identity that matches the already installed PWA, it will treat that as the installed PWA.
                 'start_url'        => $this->container->getParameter('aurora.pwa.start_url'),
+                'display_override' => ['fullscreen', 'minimal-ui'],
                 'display'          => $this->container->getParameter('aurora.pwa.display'),  // fullscreen
-                'theme_color'      => $this->container->getParameter('aurora.pwa.theme_color'), // #RGB
-                'background_color' => $this->container->getParameter('aurora.pwa.background_color'), // #RGB
+                'theme_color'      => $appThemeColor, // #RGB
+                'background_color' => $appBackground, // #RGB
                 'icons'            => []
             ];
 
@@ -76,7 +96,7 @@ class PWA
                         'src'     => "/android-icon-{$iconSize}x{$iconSize}.png",
                         'sizes'   => "{$iconSize}x{$iconSize}",
                         'type'    => 'image/png',
-                        'purpose' => 'any' // 'any', 'maskable', 'any maskable'
+                        'purpose' => 'any' // 'any', 'maskable'
                     ];
                 } else {
                     trigger_error(sprintf('File %s not found.', $fileName), E_USER_NOTICE);
@@ -91,7 +111,7 @@ class PWA
                     'src'     => "/android-icon-maskable.png",
                     'sizes'   => "{$maskableWidth}x{$maskableHeight}",
                     'type'    => 'image/png',
-                    'purpose' => 'any maskable'
+                    'purpose' => 'maskable'
                 ];
             } else {
                 trigger_error(sprintf('File %s not found.', 'android-icon-maskable.png'), E_USER_NOTICE);
@@ -106,11 +126,11 @@ class PWA
     /**
      * browserconfig.xml | IEconfig.xml
      */
-    public function browserConfig(Request $Request): Response
+    public function browserConfig(Request $request): Response
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () {
             $encoder       = new XmlEncoder();
             $browserConfig = [
                 'msapplication' => [
@@ -130,14 +150,14 @@ class PWA
                 'xml_root_node_name' => 'browserconfig'
             ]);
 
-            $Response = new Response($xml);
-            $Response->headers->set('Content-Type', 'text/xml');
+            $response = new Response($xml);
+            $response->headers->set('Content-Type', 'text/xml');
 
-            return $Response;
+            return $response;
         });
     }
 
-    public function mainJS(Request $Request): Response
+    public function mainJS(Request $request): Response
     {
         if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
             return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
@@ -145,7 +165,8 @@ class PWA
 
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
-            'pwaVersion'           => $this->version($Request),
+            'pwaVersion'           => $this->version($request),
+            'hostName'             => $request->getHost(),
             'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true)
         ]);
 
@@ -157,12 +178,16 @@ class PWA
         }
 
         $response = new Response($rendered);
+        $response->headers->addCacheControlDirective('no-cache', true);
+        $response->headers->addCacheControlDirective('max-age', 0);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        $response->headers->addCacheControlDirective('no-store', true);
         $response->headers->set('Content-Type', 'text/javascript');
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;
     }
 
-    public function serviceWorkerJS(Request $Request): Response
+    public function serviceWorkerJS(Request $request): Response
     {
         if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
             return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
@@ -170,7 +195,8 @@ class PWA
 
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
             'pwaDebug'                            => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
-            'pwaVersion'                          => $this->version($Request),
+            'pwaVersion'                          => $this->version($request),
+            'hostName'                            => $request->getHost(),
             'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
             'prevent_cache'                       => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
             'prevent_cache_header_request_accept' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_header_request_accept') ?? []) . "'",
@@ -186,18 +212,22 @@ class PWA
         }
 
         $response = new Response($rendered);
+        $response->headers->addCacheControlDirective('no-cache', true);
+        $response->headers->addCacheControlDirective('max-age', 0);
+        $response->headers->addCacheControlDirective('must-revalidate', true);
+        $response->headers->addCacheControlDirective('no-store', true);
         $response->headers->set('Content-Type', 'text/javascript');
         $response->headers->set('X-Do-Not-Minify', 'true');
         return $response;
     }
 
-    public function version(Request $Request): string
+    public function version(Request $request): string
     {
         $serviceGit    = $this->container->get('aurora.git');
         $version       = $serviceGit->getHash();
         $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
 
-        if ($Request->cookies->get('PHPSESSID')) {
+        if ($request->cookies->get('PHPSESSID')) {
             $version .= '_' . $this->session->get('PHPSESSID');
         }
 
@@ -216,15 +246,15 @@ class PWA
      *
      * @return image/x-icon
      */
-    public function icon(Request $Request): Response|BinaryFileResponse
+    public function icon(Request $request): Response|BinaryFileResponse
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () use ($Request) {
-            $iconPath = $this->container->getParameter('aurora.pwa.icons') . $Request->getRequestUri();
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () use ($request) {
+            $iconPath = $this->container->getParameter('aurora.pwa.icons') . $request->getRequestUri();
 
             if (!file_exists($iconPath)) {
-                preg_match('/(\d+)x(\d+)/i', $Request->getPathInfo(), $matches);
+                preg_match('/(\d+)x(\d+)/i', $request->getPathInfo(), $matches);
                 if (isset($matches[0]) && isset($matches[1]) && isset($matches[2]) && 0 != abs(intval($matches[1])) && 0 != abs(intval($matches[2]))) {
                     $iconPath = $this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$matches[1]}x{$matches[2]}.png";
                     if (file_exists($iconPath)) {
@@ -237,7 +267,7 @@ class PWA
                     }
                 }
 
-                trigger_error(sprintf('File %s not found.', $Request->getPathInfo()), E_USER_NOTICE);
+                trigger_error(sprintf('File %s not found.', $request->getPathInfo()), E_USER_NOTICE);
 
                 // Return 404 icon
                 return new Response(
@@ -253,9 +283,9 @@ class PWA
 
     private function _icon(string $iconPath): BinaryFileResponse
     {
-        $Response = new BinaryFileResponse($iconPath);
-        $Response->headers->set('Content-Length', filesize($iconPath));
-        $Response->headers->set('X-Backend-Hit', true);
-        return $Response;
+        $response = new BinaryFileResponse($iconPath);
+        $response->headers->set('Content-Length', filesize($iconPath));
+        $response->headers->set('X-Backend-Hit', true);
+        return $response;
     }
 }
