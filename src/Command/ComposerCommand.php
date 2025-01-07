@@ -242,7 +242,7 @@ final class ComposerCommand extends Command
         $maxmindDir          = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
         $maxmindLicenseKey   = trim($this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile     = "{$maxmindDir}/GeoLite2{$type}.mmdb";
-        $originalFileContent = file_get_contents($destinationFile);
+        $originalFileContent = file_exists($destinationFile) ? file_get_contents($destinationFile) : null;
 
         if (empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
@@ -295,7 +295,9 @@ final class ComposerCommand extends Command
         }
 
         if (!file_put_contents($tmpTarGz, $tarGz)) {
-            file_put_contents($destinationFile, $originalFileContent);
+            if ($originalFileContent) {
+                file_put_contents($destinationFile, $originalFileContent);
+            }
             return $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
         }
 
