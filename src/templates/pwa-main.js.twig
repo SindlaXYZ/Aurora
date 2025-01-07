@@ -3,13 +3,13 @@
 {% set _debug = app.debug or pwaDebug %}
 
 if ('serviceWorker' in navigator) {
-    var serviceWorkerPath       = document.currentScript.getAttribute('service-worker');
-    var serviceWorkerVersion    = '{{ pwaVersion }}'; {# document.currentScript.getAttribute('service-worker-version')#}
-    var serviceWorkerDebug      = document.currentScript.getAttribute('service-worker-debug');
+    var serviceWorkerPath = document.currentScript.getAttribute('service-worker');
+    var serviceWorkerVersion = '{{ pwaVersion }}'; {# document.currentScript.getAttribute('service-worker-version') #}
+    var serviceWorkerDebug = document.currentScript.getAttribute('service-worker-debug');
     let deferredPrompt;
 
     {% if _debug %}
-    console.log('Load SW '+ serviceWorkerPath + ', version ' + serviceWorkerVersion);
+    console.log('Load SW ' + serviceWorkerPath + ', version ' + serviceWorkerVersion);
     {% endif %}
 
     {# if false, then do not automatically show the "Install" prompt #}
@@ -19,14 +19,15 @@ if ('serviceWorker' in navigator) {
     window.addEventListener('beforeinstallprompt', (e) => {
         {# Prevent Chrome 67 and earlier from automatically showing the prompt #}
         e.preventDefault();
-        {# Stash the event so it can be triggered later. #}
+        {# Stash the event so it can be triggered later #}
         deferredPrompt = e;
+        showInstallButton();
     });
     {% endif %}
 
     {# Delay registration until after the page has loaded, to ensure that our precaching requests don't degrade the first visit experience. #}
     {# See https://developers.google.com/web/fundamentals/instant-and-offline/service-worker/registration #}
-    window.addEventListener('load', function() {
+    window.addEventListener('load', function () {
         {# Check it here: chrome://serviceworker-internals/ #}
         navigator.serviceWorker.register(serviceWorkerPath).then(registration => {
 
@@ -44,8 +45,8 @@ if ('serviceWorker' in navigator) {
                     if (newSW.state === 'installed') {
 
                         {# Clear all caches #}
-                        caches.keys().then(function(cacheNames) {
-                            cacheNames.forEach(function(cacheName) {
+                        caches.keys().then(function (cacheNames) {
+                            cacheNames.forEach(function (cacheName) {
                                 caches.delete(cacheName);
                             });
                         });
@@ -58,7 +59,7 @@ if ('serviceWorker' in navigator) {
             {% endif %}
 
             {# updatefound is fired if service-worker.js (sw.js) changes. #}
-            registration.onupdatefound = function() {
+            registration.onupdatefound = function () {
 
                 {% if _debug %}console.log('reg.onupdatefound fired.');{% endif %}
 
@@ -66,10 +67,10 @@ if ('serviceWorker' in navigator) {
                 {# https://w3c.github.io/ServiceWorker/#service-worker-registration-updatefound-event #}
                 var installingWorker = registration.installing;
 
-                installingWorker.onstatechange = function() {
+                installingWorker.onstatechange = function () {
                     {% if _debug %}console.log('Service Worker state changed to: ', installingWorker.state);{% endif %}
 
-                    if('installed' == installingWorker.state) {
+                    if ('installed' == installingWorker.state) {
                         if (navigator.serviceWorker.controller) {
                             {# At this point, the old content will have been purged and the fresh content will have been added to the cache. #}
                             {# It's the perfect time to display a "New content is available; please refresh." message in the page's interface. #}
@@ -80,81 +81,128 @@ if ('serviceWorker' in navigator) {
                             {# It's the perfect time to display a "Content is cached for offline use." message. #}
                             {% if _debug %}console.log('Content is now available offline!');{% endif %}
                         }
-                    } else if('redundant' == installingWorker.state) {
+                    } else if ('redundant' == installingWorker.state) {
                         {% if _debug %}console.error('The installing service worker became redundant.');{% endif %}
                     }
                 };
             };
 
-            registration.controllerchange = function() {
+            registration.controllerchange = function () {
                 {% if _debug %}console.log('reg.controllerchange fired.');{% endif %}
             };
 
-        }).catch(function(e) {
+        }).catch(function (e) {
             {% if _debug %}console.error('Error during service worker registration:', e);{% endif %}
         });
     });
-}
 
-function showUpdateNotification(registration) {
-    {# Check if the modal already exists #}
-    if (document.getElementById('update-modal')) {
-        return;
+    {# Ignore IDE error #}
+    function showInstallButton() {
+        {# Check if the button already exists. #}
+        if (document.getElementById('install-button')) {
+            return;
+        }
+
+        {# Create the install button. #}
+        const installButton = document.createElement('button');
+        installButton.id = 'install-button';
+        installButton.textContent = 'Instalează Aplicația';
+        installButton.style.position = 'fixed';
+        installButton.style.bottom = '20px';
+        installButton.style.right = '20px';
+        installButton.style.padding = '10px 20px';
+        installButton.style.backgroundColor = '#007BFF';
+        installButton.style.color = '#fff';
+        installButton.style.border = 'none';
+        installButton.style.borderRadius = '5px';
+        installButton.style.cursor = 'pointer';
+        installButton.style.zIndex = '1001';
+        installButton.style.boxShadow = '0 2px 5px rgba(0,0,0,0.3)';
+
+        {# Add the click event to trigger the installation prompt. #}
+        installButton.addEventListener('click', () => {
+            {# Check if the event has been saved. #}
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(choiceResult => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('User accepted the install prompt');
+                    } else {
+                        console.log('User dismissed the install prompt');
+                    }
+                    {# Reset the deferredPrompt. #}
+                    deferredPrompt = null;
+                    {# Hide the install button. #}
+                    installButton.style.display = 'none';
+                });
+            }
+        });
+
+        {# Add the elements to the DOM #}
+        document.body.appendChild(installButton);
     }
 
-    {# Create the modal overlay. #}
-    const modalOverlay = document.createElement('div');
-    modalOverlay.id = 'update-modal';
-    modalOverlay.style.position = 'fixed';
-    modalOverlay.style.top = '0';
-    modalOverlay.style.left = '0';
-    modalOverlay.style.width = '100%';
-    modalOverlay.style.height = '100%';
-    modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
-    modalOverlay.style.display = 'flex';
-    modalOverlay.style.justifyContent = 'center';
-    modalOverlay.style.alignItems = 'center';
-    modalOverlay.style.zIndex = '1000';
-
-    {# Create the container for the modal content. #}
-    const modalContent = document.createElement('div');
-    modalContent.style.backgroundColor = '#fff';
-    modalContent.style.padding = '20px';
-    modalContent.style.borderRadius = '5px';
-    modalContent.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
-    modalContent.style.textAlign = 'center';
-    modalContent.style.maxWidth = '90%';
-    modalContent.style.width = '400px';
-
-    {# Notification message #}
-    const message = document.createElement('p');
-    message.textContent = 'O nouă versiune a aplicației este disponibilă. Reîncarcă pentru a actualiza.';
-
-    {# Butonul de reîncărcare #}
-    const refreshButton = document.createElement('button');
-    refreshButton.textContent = 'Reîncarcă';
-    refreshButton.style.marginTop = '15px';
-    refreshButton.style.padding = '10px 20px';
-    refreshButton.style.border = 'none';
-    refreshButton.style.backgroundColor = '#007BFF';
-    refreshButton.style.color = '#fff';
-    refreshButton.style.borderRadius = '5px';
-    refreshButton.style.cursor = 'pointer';
-    refreshButton.style.fontSize = '16px';
-
-    {# Click event on the reload button #}
-    refreshButton.onclick = () => {
-        {# Send a message to the Service Worker to skip waiting. #}
-        if (registration.waiting) {
-            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+    {# Ignore IDE error #}
+    function showUpdateNotification(registration) {
+        {# Check if the modal already exists #}
+        if (document.getElementById('update-modal')) {
+            return;
         }
-        {# Close the modal. #}
-        document.body.removeChild(modalOverlay);
-    };
 
-    {# Add the elements to the DOM. #}
-    modalContent.appendChild(message);
-    modalContent.appendChild(refreshButton);
-    modalOverlay.appendChild(modalContent);
-    document.body.appendChild(modalOverlay);
+        {# Create the modal overlay. #}
+        const modalOverlay = document.createElement('div');
+        modalOverlay.id = 'update-modal';
+        modalOverlay.style.position = 'fixed';
+        modalOverlay.style.top = '0';
+        modalOverlay.style.left = '0';
+        modalOverlay.style.width = '100%';
+        modalOverlay.style.height = '100%';
+        modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+        modalOverlay.style.display = 'flex';
+        modalOverlay.style.justifyContent = 'center';
+        modalOverlay.style.alignItems = 'center';
+        modalOverlay.style.zIndex = '1000';
+
+        {# Create the container for the modal content. #}
+        const modalContent = document.createElement('div');
+        modalContent.style.backgroundColor = '#fff';
+        modalContent.style.padding = '20px';
+        modalContent.style.borderRadius = '5px';
+        modalContent.style.boxShadow = '0 2px 10px rgba(0, 0, 0, 0.1)';
+        modalContent.style.textAlign = 'center';
+        modalContent.style.maxWidth = '90%';
+        modalContent.style.width = '400px';
+
+        {# Notification message #}
+        const message = document.createElement('p');
+        message.textContent = 'O nouă versiune a aplicației este disponibilă. Reîncarcă pentru a actualiza.';
+
+        {# Butonul de reîncărcare #}
+        const refreshButton = document.createElement('button');
+        refreshButton.textContent = 'Reîncarcă';
+        refreshButton.style.marginTop = '15px';
+        refreshButton.style.padding = '10px 20px';
+        refreshButton.style.border = 'none';
+        refreshButton.style.backgroundColor = '#007BFF';
+        refreshButton.style.color = '#fff';
+        refreshButton.style.borderRadius = '5px';
+        refreshButton.style.cursor = 'pointer';
+        refreshButton.style.fontSize = '16px';
+
+        {# Click event on the reload button #}
+        refreshButton.onclick = () => {
+            {# Send a message to the Service Worker to skip waiting. #}
+            if (registration.waiting) {
+                registration.waiting.postMessage({type: 'SKIP_WAITING'});
+            }
+            {# Close the modal #}
+            document.body.removeChild(modalOverlay);
+        };
+
+        {# Add the elements to the DOM #}
+        modalContent.appendChild(message);
+        modalContent.appendChild(refreshButton);
+        modalOverlay.appendChild(modalContent);
+        document.body.appendChild(modalOverlay);
+    }
 }
