@@ -191,7 +191,7 @@ if ('serviceWorker' in navigator) {
 
         {# Click event on the reload button #}
         refreshButton.onclick = () => {
-            {# Send a message to the Service Worker to skip waiting. #}
+            {# Send a message to the Service Worker to skip waiting #}
             if (registration.waiting) {
                 registration.waiting.postMessage({type: 'SKIP_WAITING'});
             }

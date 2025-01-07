@@ -52,8 +52,14 @@ class PWA
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($Request->getRequestUri())), function () {
+
+            $appName = $this->container->getParameter('aurora.pwa.app_name');
+            if(class_exists('\\App\\Utils') && method_exists('\\App\\Utils', 'auroraPWAAppName')) {
+                $appName = \App\Utils::auroraPWAAppName();
+            }
+
             $manifest = [
-                'name'             => $this->container->getParameter('aurora.pwa.app_name'),
+                'name'             => $appName,
                 'short_name'       => $this->container->getParameter('aurora.pwa.app_short_name'),
                 'description'      => $this->container->getParameter('aurora.pwa.app_description'),
                 'start_url'        => $this->container->getParameter('aurora.pwa.start_url'),
