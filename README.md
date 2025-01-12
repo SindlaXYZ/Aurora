@@ -225,8 +225,10 @@ Then run `composer update` to update and install the rest of the dependencies.
 
 ```.env
 MAXMIND_LICENSE_KEY=_CHANGE_THIS_WITH_YOUR_PRIVATE_LICENTE_KEY_
+
 SINDLA_AURORA_GEO_LITE2_COUNTRY=true
 SINDLA_AURORA_GEO_LITE2_CITY=true
+SINDLA_AURORA_GEO_LITE2_ASN=true
 ```
 
 * Edit `config/services.yaml` and add/append the following content:

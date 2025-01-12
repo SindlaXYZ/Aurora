@@ -231,6 +231,10 @@ class AuroraClient
     }
 
     /**
+     * ----------------------------------------------------------------------------------
+     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
+     *  --------------------------------------------------------------------------------
+     *
      * Check if an IPv4 is a Google Bot (by hostname)
      */
     public function ipIsGoogleBot(string $IP): bool
@@ -239,6 +243,14 @@ class AuroraClient
             trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
             $IP = $this->ip($IP);
         }
+
+        /**
+         * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
+         *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
+         *      https://developers.google.com/static/search/apis/ipranges/special-crawlers.json
+         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json
+         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json
+         */
 
         $hostname = gethostbyaddr(trim($IP));
 
@@ -249,6 +261,10 @@ class AuroraClient
     }
 
     /**
+     * ----------------------------------------------------------------------------------
+     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
+     *  --------------------------------------------------------------------------------
+     *
      * Check if an IPv4 is a Microsoft/Bing bot (by hostname)
      */
     public function ipIsBingBot(string $IP): bool
@@ -257,6 +273,11 @@ class AuroraClient
             trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
             $IP = $this->ip($IP);
         }
+
+        /**
+         * @TODO: instead of gethostbyaddr, use (https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26):
+         *      https://www.bing.com/toolbox/bingbot.json
+         */
 
         $hostname = gethostbyaddr(trim($IP));
 
@@ -267,6 +288,10 @@ class AuroraClient
     }
 
     /**
+     * ----------------------------------------------------------------------------------
+     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
+     *  --------------------------------------------------------------------------------
+     *
      * Check if an IPv4 is a Google Bot or a Bing Bot (by hostname)
      */
     public function ipIsGoogleOrBingBot(string $IP): bool

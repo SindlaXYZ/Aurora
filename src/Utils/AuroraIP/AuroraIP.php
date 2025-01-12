@@ -2,6 +2,11 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
 
+/**
+ * https://iplocation.io/ip/
+ * https://db-ip.com/api/basic/
+ * https://ipinfo.io/
+ */
 class AuroraIP
 {
     private string $ip;
@@ -54,11 +59,24 @@ class AuroraIP
 
     public function isGoogle(): bool
     {
+        /**
+         * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
+         *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
+         *      https://developers.google.com/static/search/apis/ipranges/special-crawlers.json
+         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json
+         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json
+         */
+
         return false;
     }
 
     public function isBing(): bool
     {
+        /**
+         * @TODO: instead of gethostbyaddr, use (https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26):
+         *      https://www.bing.com/toolbox/bingbot.json
+         */
+
         return false;
     }
 
