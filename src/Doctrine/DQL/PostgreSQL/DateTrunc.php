@@ -3,9 +3,9 @@
 namespace Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
-use Doctrine\ORM\Query\Lexer;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 
 /**
  * DATE_TRUNC: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\DateTrunc
@@ -28,11 +28,11 @@ class DateTrunc extends FunctionNode
 
     public function parse(Parser $parser)
     {
-        $parser->match(Lexer::T_IDENTIFIER);
-        $parser->match(Lexer::T_OPEN_PARENTHESIS);
+        $parser->match(TokenType::T_IDENTIFIER);
+        $parser->match(TokenType::T_OPEN_PARENTHESIS);
         $this->firstDateExpression = $parser->ArithmeticPrimary();
-        $parser->match(Lexer::T_COMMA);
+        $parser->match(TokenType::T_COMMA);
         $this->secondDateExpression = $parser->ArithmeticPrimary();
-        $parser->match(Lexer::T_CLOSE_PARENTHESIS);
+        $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 }
