@@ -18,13 +18,13 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Month extends FunctionNode
 {
-    private $date;
+    private int $month;
 
     public function getSql(SqlWalker $sqlWalker): string
     {
         return sprintf(
             'EXTRACT(MONTH FROM %s)',
-            $sqlWalker->walkArithmeticPrimary($this->date)
+            $sqlWalker->walkArithmeticPrimary($this->month)
         );
     }
 
@@ -32,7 +32,7 @@ class Month extends FunctionNode
     {
         $parser->match(TokenType::T_IDENTIFIER);
         $parser->match(TokenType::T_OPEN_PARENTHESIS);
-        $this->date = $parser->ArithmeticPrimary();
+        $this->month = $parser->ArithmeticPrimary();
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 }

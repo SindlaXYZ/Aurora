@@ -17,7 +17,7 @@ class DateTrunc extends FunctionNode
     public $firstDateExpression  = null;
     public $secondDateExpression = null;
 
-    public function getSql(SqlWalker $sqlWalker)
+    public function getSql(SqlWalker $sqlWalker): string
     {
         return 'date_trunc('
             . $this->firstDateExpression->dispatch($sqlWalker)

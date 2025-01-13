@@ -14,13 +14,13 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Minute extends FunctionNode
 {
-    private $date;
+    private int $minute;
 
     public function getSql(SqlWalker $sqlWalker): string
     {
         return sprintf(
             'EXTRACT(MINUTE FROM %s)',
-            $sqlWalker->walkArithmeticPrimary($this->date)
+            $sqlWalker->walkArithmeticPrimary($this->minute)
         );
     }
 
@@ -28,7 +28,7 @@ class Minute extends FunctionNode
     {
         $parser->match(TokenType::T_IDENTIFIER);
         $parser->match(TokenType::T_OPEN_PARENTHESIS);
-        $this->date = $parser->ArithmeticPrimary();
+        $this->minute = $parser->ArithmeticPrimary();
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 }

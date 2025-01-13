@@ -34,9 +34,7 @@ class CastAsText extends FunctionNode
     {
         $parser->match(TokenType::T_IDENTIFIER);
         $parser->match(TokenType::T_OPEN_PARENTHESIS);
-
         $this->string = $parser->SimpleArithmeticExpression();
-
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 }

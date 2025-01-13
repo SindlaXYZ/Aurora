@@ -18,13 +18,13 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Year extends FunctionNode
 {
-    private $date;
+    private int $year;
 
     public function getSql(SqlWalker $sqlWalker): string
     {
         return sprintf(
             'EXTRACT(YEAR FROM %s)',
-            $sqlWalker->walkArithmeticPrimary($this->date)
+            $sqlWalker->walkArithmeticPrimary($this->year)
         );
     }
 
@@ -32,7 +32,7 @@ class Year extends FunctionNode
     {
         $parser->match(TokenType::T_IDENTIFIER);
         $parser->match(TokenType::T_OPEN_PARENTHESIS);
-        $this->date = $parser->ArithmeticPrimary();
+        $this->year = $parser->ArithmeticPrimary();
         $parser->match(TokenType::T_CLOSE_PARENTHESIS);
     }
 }
