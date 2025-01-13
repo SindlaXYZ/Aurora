@@ -18,7 +18,7 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Day extends FunctionNode
 {
-    private int $day;
+    private $day;
 
     public function getSql(SqlWalker $sqlWalker): string
     {

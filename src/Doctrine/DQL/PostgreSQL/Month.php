@@ -18,7 +18,7 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Month extends FunctionNode
 {
-    private int $month;
+    private $month;
 
     public function getSql(SqlWalker $sqlWalker): string
     {

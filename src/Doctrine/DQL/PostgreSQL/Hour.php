@@ -14,7 +14,7 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Hour extends FunctionNode
 {
-    private int $hour;
+    private $hour;
 
     public function getSql(SqlWalker $sqlWalker): string
     {

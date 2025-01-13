@@ -15,7 +15,7 @@ use Doctrine\ORM\Query\SqlWalker;
  */
 class Unaccent extends FunctionNode
 {
-    private mixed $string;
+    private $string;
 
     public function getSql(SqlWalker $sqlWalker): string
     {

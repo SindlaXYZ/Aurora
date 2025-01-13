@@ -14,7 +14,7 @@ use Doctrine\ORM\Query\TokenType;
  */
 class Second extends FunctionNode
 {
-    private int $second;
+    private $second;
 
     public function getSql(SqlWalker $sqlWalker): string
     {
