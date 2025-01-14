@@ -43,7 +43,9 @@ class AuroraIPTest extends KernelTestCase
     public static function dataIsGoogleBot(): array
     {
         return [
-            ['66.249.69.69', true]
+            ['66.249.69.69', true],
+            ['66.102.9.32', true],
+            ['66.102.9.41', true]
         ];
     }
 }
