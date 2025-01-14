@@ -9,56 +9,88 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
  */
 class AuroraIP
 {
-    private string $ip;
+    use Google;
 
-    public function ip(string $ip): self
+    public function isIPV4(string $ip): bool
     {
-        $this->ip = $ip;
-        return $this;
+        return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
     }
 
-    public function isIPV4(): bool
+    public function isPublicIPV4(string $ip): bool
     {
-        return (bool)filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4);
+        return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 
-    public function isPublicIPV4(): bool
+    public function isPrivateIPV4(string $ip): bool
     {
-        return (bool)filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+        return !$this->isPublicIPV4($ip);
     }
 
-    public function isPrivateIPV4(): bool
+    public function isIPV6(string $ip): bool
     {
-        return !$this->isPublicIPV4();
+        return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
     }
 
-    public function isIPV6(): bool
+    public function isIPInSubnet(string $ipv6, string $cidr): bool
     {
-        return (bool)filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
+        [$subnet, $prefixLength] = explode('/', $cidr);
+        $prefixLength = (int)$prefixLength;
+
+        $ipBin     = inet_pton($ipv6);
+        $subnetBin = inet_pton($subnet);
+
+        if ($ipBin === false || $subnetBin === false || strlen($ipBin) !== strlen($subnetBin)) {
+            return false;
+        }
+
+        // 32 for IPv4, 128 for IPv6
+        $totalBits = strlen($ipBin) * 8;
+
+        $mask = str_repeat("\xff", (int)($prefixLength / 8));
+        $rest = $prefixLength % 8;
+        if ($rest > 0) {
+            $mask .= chr(0xff << (8 - $rest) & 0xff);
+        }
+        $mask         = str_pad($mask, strlen($ipBin), "\0");
+        $ipMasked     = $ipBin & $mask;
+        $subnetMasked = $subnetBin & $mask;
+
+        return ($ipMasked === $subnetMasked);
     }
 
-    public function isPublicIPV6(): bool
+    public function isPublicIPV6(string $ip): bool
     {
-        return (bool)filter_var($this->ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
+        return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 | FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
     }
 
-    private function isPrivateIPV6(): bool
+    private function isPrivateIPV6(string $ip): bool
     {
-        return !$this->isPublicIPV6();
+        return !$this->isPublicIPV6($ip);
     }
 
-    public function isPrivate(): bool
+    public function isPrivate(string $ip): bool
     {
-        return $this->isPrivateIPV4() || $this->isPrivateIPV6();
+        return $this->isPrivateIPV4($ip) || $this->isPrivateIPV6($ip);
     }
 
-    public function isPublic(): bool
+    public function isPublic(string $ip): bool
     {
-        return $this->isPublicIPV4() || $this->isPublicIPV6();
+        return $this->isPublicIPV4($ip) || $this->isPublicIPV6($ip);
     }
 
-    public function isGoogle(): bool
+    public function isGoogleBot(string $ip): bool
     {
+        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+            return false;
+        }
+
+        // https://developers.google.com/static/search/apis/ipranges/googlebot.json
+        foreach ($this->googleBotIPS as $googleBotIP => $googleBotIPVersion) {
+            if ($this->isIPInSubnet($ip, $googleBotIP)) {
+                return true;
+            }
+        }
+
         /**
          * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
          *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
