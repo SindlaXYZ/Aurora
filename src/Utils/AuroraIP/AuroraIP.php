@@ -78,14 +78,14 @@ class AuroraIP
         return $this->isPublicIPV4($ip) || $this->isPublicIPV6($ip);
     }
 
-    public function isGoogleBot(string $ip): bool
+    public function isGoogle(string $ip): bool
     {
         if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
             return false;
         }
 
         // https://developers.google.com/static/search/apis/ipranges/googlebot.json
-        foreach ($this->googleBotIPS as $googleBotIP => $googleBotIPVersion) {
+        foreach ($this->googleBotAndCrawlerIPS as $googleBotIP => $googleBotIPVersion) {
             if ($this->isIPInSubnet($ip, $googleBotIP)) {
                 return true;
             }

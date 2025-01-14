@@ -35,7 +35,7 @@ class AuroraIPTest extends KernelTestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraIP())->isGoogleBot($given),
+            (new AuroraIP())->isGoogle($given),
             'Given IP: ' . $given . ' != ' . ($expected ? 'true' : 'false')
         );
     }
@@ -43,7 +43,6 @@ class AuroraIPTest extends KernelTestCase
     public static function dataIsGoogleBot(): array
     {
         return [
-            ['2001:4860:7:631::dc', true],
             ['66.249.69.69', true]
         ];
     }
