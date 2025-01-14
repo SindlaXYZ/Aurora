@@ -9,7 +9,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
  */
 class AuroraIP
 {
-    use Google;
+    use KnownBotsAndCrawlers;
 
     public function isIPV4(string $ip): bool
     {
@@ -91,23 +91,21 @@ class AuroraIP
             }
         }
 
-        /**
-         * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
-         *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
-         *      https://developers.google.com/static/search/apis/ipranges/special-crawlers.json
-         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json
-         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json
-         */
-
         return false;
     }
 
-    public function isBing(): bool
+    public function isBing(string $ip): bool
     {
-        /**
-         * @TODO: instead of gethostbyaddr, use (https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26):
-         *      https://www.bing.com/toolbox/bingbot.json
-         */
+        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+            return false;
+        }
+
+        // https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26
+        foreach ($this->bingBotAndCrawlerIPS as $bingBotIP => $bingBotIPVersion) {
+            if ($this->isIPInSubnet($ip, $bingBotIP)) {
+                return true;
+            }
+        }
 
         return false;
     }
