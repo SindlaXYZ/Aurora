@@ -45,7 +45,12 @@ class AuroraIPTest extends KernelTestCase
         return [
             ['66.249.69.69', true],
             ['66.102.9.32', true],
-            ['66.102.9.41', true]
+            ['66.102.9.41', true],
+            ['66.249.77.70', true],
+            ['66.249.83.82', true],
+            ['194.59.207.87', false],
+            ['89.58.53.13', false],
+            ['136.243.89.232', false]
         ];
     }
 }
