@@ -85,8 +85,8 @@ class AuroraIP
         }
 
         // https://developers.google.com/static/search/apis/ipranges/googlebot.json
-        foreach ($this->googleBotAndCrawlerIPS as $googleBotIP => $googleBotIPVersion) {
-            if ($this->isIPInSubnet($ip, $googleBotIP)) {
+        foreach ($this->googleBotAndCrawlerIPS as $botIP => $botIPVersion) {
+            if ($this->isIPInSubnet($ip, $botIP)) {
                 return true;
             }
         }
@@ -101,8 +101,24 @@ class AuroraIP
         }
 
         // https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26
-        foreach ($this->bingBotAndCrawlerIPS as $bingBotIP => $bingBotIPVersion) {
-            if ($this->isIPInSubnet($ip, $bingBotIP)) {
+        foreach ($this->bingBotAndCrawlerIPS as $botIP => $botIPVersion) {
+            if ($this->isIPInSubnet($ip, $botIP)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isApple(string $ip): bool
+    {
+        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+            return false;
+        }
+
+        // https://support.apple.com/en-us/119829
+        foreach ($this->appleBotAndCrawlerIPS as $botIP => $botIPVersion) {
+            if ($this->isIPInSubnet($ip, $botIP)) {
                 return true;
             }
         }

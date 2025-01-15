@@ -25,6 +25,7 @@ foreach ([
 
 ksort($googleBots);
 file_put_contents($outputFile, writeVariable('public array', 'googleBotAndCrawlerIPS', $googleBots), FILE_APPEND);
+
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 
@@ -42,6 +43,25 @@ foreach (['https://www.bing.com/toolbox/bingbot.json'] as $bingJsonURL) {
 
 ksort($bingBots);
 file_put_contents($outputFile, "\n" . writeVariable('public array', 'bingBotAndCrawlerIPS', $bingBots), FILE_APPEND);
+
+##############################################################################################################################################################################################
+##############################################################################################################################################################################################
+
+$appleBots = [];
+https://support.apple.com/en-us/119829
+foreach (['https://search.developer.apple.com/applebot.json'] as $appleJsonURL) {
+    $appleBotJson = file_get_contents($appleJsonURL);
+    $appleBotIPS  = json_decode($appleBotJson, true);
+    foreach ($appleBotIPS['prefixes'] as $prefix) {
+        foreach ($prefix as $ipVersion => $ipAddress) {
+            $appleBots[$ipAddress] = rtrim($ipVersion, 'Prefix');
+        }
+    }
+}
+
+ksort($appleBots);
+file_put_contents($outputFile, "\n" . writeVariable('public array', 'appleBotAndCrawlerIPS', $appleBots), FILE_APPEND);
+
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 

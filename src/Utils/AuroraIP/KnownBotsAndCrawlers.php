@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
 
-// File auto-generated on 2025-01-14 20:21
+// File auto-generated on 2025-01-15 13:16
 trait KnownBotsAndCrawlers
 {
     public array $googleBotAndCrawlerIPS
@@ -1578,5 +1578,21 @@ trait KnownBotsAndCrawlers
             '52.167.144.0/24'    => 'ipv4',
             '52.231.148.0/28'    => 'ipv4',
             '65.55.210.0/24'     => 'ipv4',
+        ];
+
+    public array $appleBotAndCrawlerIPS
+        = [
+            '17.22.237.0/24'    => 'ipv4',
+            '17.22.245.0/24'    => 'ipv4',
+            '17.22.253.0/24'    => 'ipv4',
+            '17.241.193.160/27' => 'ipv4',
+            '17.241.200.160/27' => 'ipv4',
+            '17.241.208.160/27' => 'ipv4',
+            '17.241.219.0/24'   => 'ipv4',
+            '17.241.227.0/24'   => 'ipv4',
+            '17.241.75.0/24'    => 'ipv4',
+            '17.246.15.0/24'    => 'ipv4',
+            '17.246.19.0/24'    => 'ipv4',
+            '17.246.23.0/24'    => 'ipv4',
         ];
 }
