@@ -48,7 +48,7 @@ file_put_contents($outputFile, "\n" . writeVariable('public array', 'bingBotAndC
 ##############################################################################################################################################################################################
 
 $appleBots = [];
-https://support.apple.com/en-us/119829
+// https://support.apple.com/en-us/119829
 foreach (['https://search.developer.apple.com/applebot.json'] as $appleJsonURL) {
     $appleBotJson = file_get_contents($appleJsonURL);
     $appleBotIPS  = json_decode($appleBotJson, true);
@@ -61,6 +61,28 @@ foreach (['https://search.developer.apple.com/applebot.json'] as $appleJsonURL) 
 
 ksort($appleBots);
 file_put_contents($outputFile, "\n" . writeVariable('public array', 'appleBotAndCrawlerIPS', $appleBots), FILE_APPEND);
+
+##############################################################################################################################################################################################
+##############################################################################################################################################################################################
+
+$openAIBots = [];
+// https://platform.openai.com/docs/bots/overview-of-openai-crawlers
+foreach ([
+             'https://openai.com/searchbot.json',
+             'https://openai.com/chatgpt-user.json',
+             'https://openai.com/gptbot.json'
+         ] as $openAIJsonURL) {
+    $openAIBotJson = file_get_contents($openAIJsonURL);
+    $openAIBotIPS  = json_decode($openAIBotJson, true);
+    foreach ($openAIBotIPS['prefixes'] as $prefix) {
+        foreach ($prefix as $ipVersion => $ipAddress) {
+            $openAIBots[$ipAddress] = rtrim($ipVersion, 'Prefix');
+        }
+    }
+}
+
+ksort($openAIBots);
+file_put_contents($outputFile, "\n" . writeVariable('public array', 'openAIBotAndCrawlerIPS', $openAIBots), FILE_APPEND);
 
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################

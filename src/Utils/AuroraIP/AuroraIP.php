@@ -126,6 +126,22 @@ class AuroraIP
         return false;
     }
 
+    public function isOpenAI(string $ip): bool
+    {
+        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+            return false;
+        }
+
+        // https://platform.openai.com/docs/bots/overview-of-openai-crawlers
+        foreach ($this->openAIBotAndCrawlerIPS as $botIP => $botIPVersion) {
+            if ($this->isIPInSubnet($ip, $botIP)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getCountryCode(): ?string
     {
         // @TODO: integrate with curl https://ipinfo.io/$this->ip/json?token=$_ENV['IPINFOIO_TOKEN']
