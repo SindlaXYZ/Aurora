@@ -50,7 +50,7 @@ class AuroraArray
 
         foreach ($array as $k => $v) {
             if (is_array($v)) {
-                $array[$k] = $this->ksortRecursive($v);
+                $array[$k] = $this->kSortRecursive($v);
             }
         }
 
