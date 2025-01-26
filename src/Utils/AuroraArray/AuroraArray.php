@@ -1,7 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\auroraBundle\Utils\AuroraArray;
-
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraArray;
 
 class AuroraArray
 {
