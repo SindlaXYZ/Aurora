@@ -116,6 +116,12 @@ services:
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
 
+    aurora.array:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
+        autowire: true
+        autoconfigure: true
+        public: true
+
     aurora.calendar:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
         autowire: true
