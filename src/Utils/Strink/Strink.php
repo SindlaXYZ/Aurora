@@ -524,6 +524,24 @@ class Strink
         return $this;
     }
 
+    public function trim(?string $characters = null): self
+    {
+        $this->string = (null !== $characters ? trim($this->string, $characters) : trim($this->string));
+        return $this;
+    }
+
+    public function leftTrim(?string $characters = null): self
+    {
+        $this->string = (null !== $characters ? ltrim($this->string, $characters) : ltrim($this->string));
+        return $this;
+    }
+
+    public function rightTrim(?string $characters = null): self
+    {
+        $this->string = (null !== $characters ? rtrim($this->string, $characters) : rtrim($this->string));
+        return $this;
+    }
+
     public function countLowerCharacters(): int
     {
         preg_match_all('/\p{Ll}/u', $this->string, $matchesLower);
