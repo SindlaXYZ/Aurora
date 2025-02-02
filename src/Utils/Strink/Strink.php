@@ -135,6 +135,8 @@ class Strink
 
     /**
      * Make a string shorter
+     *
+     * @TODO: rename to truncate
      */
     public function limitedString(int $limit = 10, string $postText = '...', string $cut = 'right'): self
     {
