@@ -12,24 +12,24 @@ use Symfony\Component\Validator\Constraints as Assert;
 trait PriceTrait
 {
     #[ORM\Column(name: 'price_without_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price with VAT'])]
-    #[FormElement(searchable: true)]
+    #[FormElement(searchable: true, label: 'Price without VAT')]
     #[Assert\GreaterThan(0, message: 'Price with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceWithoutVat = '0.00';
 
     #[ORM\Column(name: 'vat_percentage', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '19.00', 'comment' => 'VAT amount (as percentage)'])]
-    #[FormElement(searchable: true)]
+    #[FormElement(searchable: true, label: 'VAT % (percentage)')]
     #[Assert\Range(min: 0, max: 100)]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $vatPercentage = '0.00';
 
     #[ORM\Column(name: 'vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'VAT Amount'])]
-    #[FormElement(searchable: true)]
+    #[FormElement(searchable: true, label: 'VAT amount')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $vatAmount = '0.00';
 
     #[ORM\Column(name: 'price_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price with VAT'])]
-    #[FormElement(searchable: true)]
+    #[FormElement(searchable: true, label: 'Price with VAT')]
     #[Assert\GreaterThan(0, message: 'Price with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceWithVat = '0.00';
