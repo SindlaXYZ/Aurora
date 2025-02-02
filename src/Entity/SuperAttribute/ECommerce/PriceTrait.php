@@ -31,6 +31,7 @@ trait PriceTrait
     #[ORM\Column(name: 'price_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price with VAT'])]
     #[FormElement(searchable: true)]
     #[Assert\GreaterThan(0, message: 'Price with VAT must be greater than 0.')]
+    #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceWithVat = '0.00';
 
     public function getPriceWithoutVat(): string
