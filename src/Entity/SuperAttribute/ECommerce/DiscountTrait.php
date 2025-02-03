@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Entity\Trait;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce;
 
 use App\Attribute\FormElement;
 use Doctrine\DBAL\Types\Types;
