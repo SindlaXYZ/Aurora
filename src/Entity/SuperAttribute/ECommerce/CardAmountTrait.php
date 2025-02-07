@@ -67,7 +67,7 @@ trait CardAmountTrait
         return $this;
     }
 
-    public function calculateVatAmount(): self
+    public function calculateCardVatAmount(): self
     {
         $this->cardVatAmount = bcdiv(bcmul($this->cardAmountWithoutVat, bcdiv($this->cardVatPercentage, 100, 2), 2), 1, 2);
         return $this;
@@ -84,7 +84,7 @@ trait CardAmountTrait
         return $this;
     }
 
-    public function calculateAmountWithVat(): self
+    public function calculateCardAmountWithVat(): self
     {
         $this->cardAmountWithVat = bcadd($this->cardAmountWithoutVat, $this->cardVatAmount, 2);
         return $this;

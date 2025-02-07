@@ -67,7 +67,7 @@ trait BankTransferAmountTrait
         return $this;
     }
 
-    public function calculateVatAmount(): self
+    public function calculateBankTransferVatAmount(): self
     {
         $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 1, 2);
         return $this;
@@ -84,7 +84,7 @@ trait BankTransferAmountTrait
         return $this;
     }
 
-    public function calculateAmountWithVat(): self
+    public function calculateBankTransferAmountWithVat(): self
     {
         $this->bankTransferAmountWithVat = bcadd($this->bankTransferAmountWithoutVat, $this->bankTransferVatAmount, 2);
         return $this;

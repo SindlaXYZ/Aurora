@@ -67,7 +67,7 @@ trait CashAmountTrait
         return $this;
     }
 
-    public function calculateVatAmount(): self
+    public function calculateCashVatAmount(): self
     {
         $this->cashVatAmount = bcdiv(bcmul($this->cashAmountWithoutVat, bcdiv($this->cashVatPercentage, 100, 2), 2), 1, 2);
         return $this;
@@ -84,7 +84,7 @@ trait CashAmountTrait
         return $this;
     }
 
-    public function calculateAmountWithVat(): self
+    public function calculateCashAmountWithVat(): self
     {
         $this->cashAmountWithVat = bcadd($this->cashAmountWithoutVat, $this->cashVatAmount, 2);
         return $this;
