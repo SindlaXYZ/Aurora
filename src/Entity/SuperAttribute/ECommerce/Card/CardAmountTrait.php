@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\Card;
 
 use App\Attribute\FormElement;
 use Doctrine\DBAL\Types\Types;
@@ -33,6 +33,36 @@ trait CardAmountTrait
     #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $cardAmountWithVat = '0.00';
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function calculateCardAmountWithoutVat(): self
+    {
+        if ($this->cardAmountWithoutVat) {
+            $this->cardAmountWithoutVat = bcsub($this->cardAmountWithoutVat, $this->cardVatAmount, 2);
+        } else if ($this->cardVatAmount) {
+            $this->cardAmountWithoutVat = bcdiv($this->cardVatAmount, bcadd(1, bcdiv($this->cardVatPercentage, 100, 2), 2), 2);
+        }
+
+        return $this;
+    }
+
+    public function calculateCardVatAmount(): self
+    {
+        $this->cardVatAmount = bcdiv(bcmul($this->cardAmountWithoutVat, bcdiv($this->cardVatPercentage, 100, 2), 2), 1, 2);
+        return $this;
+    }
+
+    public function calculateCardAmountWithVat(): self
+    {
+        $this->cardAmountWithVat = bcadd($this->cardAmountWithoutVat, $this->cardVatAmount, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 
     public function getCardAmountWithoutVat(): string
     {
@@ -67,12 +97,6 @@ trait CardAmountTrait
         return $this;
     }
 
-    public function calculateCardVatAmount(): self
-    {
-        $this->cardVatAmount = bcdiv(bcmul($this->cardAmountWithoutVat, bcdiv($this->cardVatPercentage, 100, 2), 2), 1, 2);
-        return $this;
-    }
-
     public function getCardAmountWithVat(): string
     {
         return $this->cardAmountWithVat;
@@ -81,12 +105,6 @@ trait CardAmountTrait
     public function setCardAmountWithVat(string $cardAmountWithVat): self
     {
         $this->cardAmountWithVat = $cardAmountWithVat;
-        return $this;
-    }
-
-    public function calculateCardAmountWithVat(): self
-    {
-        $this->cardAmountWithVat = bcadd($this->cardAmountWithoutVat, $this->cardVatAmount, 2);
         return $this;
     }
 }

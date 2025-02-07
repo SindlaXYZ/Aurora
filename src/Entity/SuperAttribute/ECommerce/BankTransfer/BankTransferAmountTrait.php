@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\BankTransfer;
 
 use App\Attribute\FormElement;
 use Doctrine\DBAL\Types\Types;
@@ -33,6 +33,34 @@ trait BankTransferAmountTrait
     #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $bankTransferAmountWithVat = '0.00';
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function calculateBankTransferAmountWithoutVat(): self
+    {
+        if ($this->bankTransferAmountWithVat) {
+            $this->bankTransferAmountWithoutVat = bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2);
+        } else if ($this->bankTransferVatAmount) {
+            $this->bankTransferAmountWithoutVat = bcdiv($this->bankTransferVatAmount, bcadd(1, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 2);
+        }
+
+        return $this;
+    }
+
+    public function calculateBankTransferVatAmount(): self
+    {
+        $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 1, 2);
+        return $this;
+    }
+
+    public function calculateBankTransferAmountWithVat(): self
+    {
+        $this->bankTransferAmountWithVat = bcadd($this->bankTransferAmountWithoutVat, $this->bankTransferVatAmount, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public function getBankTransferAmountWithoutVat(): string
     {
@@ -67,12 +95,6 @@ trait BankTransferAmountTrait
         return $this;
     }
 
-    public function calculateBankTransferVatAmount(): self
-    {
-        $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 1, 2);
-        return $this;
-    }
-
     public function getBankTransferAmountWithVat(): string
     {
         return $this->bankTransferAmountWithVat;
@@ -81,12 +103,6 @@ trait BankTransferAmountTrait
     public function setBankTransferAmountWithVat(string $bankTransferAmountWithVat): self
     {
         $this->bankTransferAmountWithVat = $bankTransferAmountWithVat;
-        return $this;
-    }
-
-    public function calculateBankTransferAmountWithVat(): self
-    {
-        $this->bankTransferAmountWithVat = bcadd($this->bankTransferAmountWithoutVat, $this->bankTransferVatAmount, 2);
         return $this;
     }
 }

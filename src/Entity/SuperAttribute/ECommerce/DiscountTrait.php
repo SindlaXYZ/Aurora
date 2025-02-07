@@ -23,16 +23,8 @@ trait DiscountTrait
     #[Groups([AuroraConstants::GROUP_READ])]
     private ?string $discountPercentage = null;
 
-    public function getDiscountAmount(): ?string
-    {
-        return $this->discountAmount;
-    }
-
-    public function setDiscountAmount(?string $discountAmount): self
-    {
-        $this->discountAmount = $discountAmount;
-        return $this;
-    }
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * @throws \Exception
@@ -44,6 +36,20 @@ trait DiscountTrait
         }
 
         $this->discountAmount = bcdiv(bcmul($amount, $discountPercentage, 2), 100, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function getDiscountAmount(): ?string
+    {
+        return $this->discountAmount;
+    }
+
+    public function setDiscountAmount(?string $discountAmount): self
+    {
+        $this->discountAmount = $discountAmount;
         return $this;
     }
 

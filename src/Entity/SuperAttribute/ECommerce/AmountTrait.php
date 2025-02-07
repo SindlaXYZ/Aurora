@@ -34,6 +34,35 @@ trait AmountTrait
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $amountWithVat = '0.00';
 
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function calculateAmountWithoutVat(): self
+    {
+        if ($this->amountWithoutVat) {
+            $this->amountWithoutVat = bcsub($this->amountWithoutVat, $this->vatAmount, 2);
+        } else if ($this->vatAmount) {
+            $this->amountWithoutVat = bcdiv($this->vatAmount, bcadd(1, bcdiv($this->vatPercentage, 100, 2), 2), 2);
+        }
+
+        return $this;
+    }
+
+    public function calculateVatAmount(): self
+    {
+        $this->vatAmount = bcdiv(bcmul($this->amountWithoutVat, bcdiv($this->vatPercentage, 100, 2), 2), 1, 2);
+        return $this;
+    }
+
+    public function calculateAmountWithVat(): self
+    {
+        $this->amountWithVat = bcadd($this->amountWithoutVat, $this->vatAmount, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     public function getAmountWithoutVat(): string
     {
         return $this->amountWithoutVat;
@@ -67,12 +96,6 @@ trait AmountTrait
         return $this;
     }
 
-    public function calculateVatAmount(): self
-    {
-        $this->vatAmount = bcdiv(bcmul($this->amountWithoutVat, bcdiv($this->vatPercentage, 100, 2), 2), 1, 2);
-        return $this;
-    }
-
     public function getAmountWithVat(): string
     {
         return $this->amountWithVat;
@@ -81,12 +104,6 @@ trait AmountTrait
     public function setAmountWithVat(string $amountWithVat): self
     {
         $this->amountWithVat = $amountWithVat;
-        return $this;
-    }
-
-    public function calculateAmountWithVat(): self
-    {
-        $this->amountWithVat = bcadd($this->amountWithoutVat, $this->vatAmount, 2);
         return $this;
     }
 }

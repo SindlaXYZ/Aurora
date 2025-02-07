@@ -21,18 +21,47 @@ trait PriceTrait
     #[FormElement(searchable: true, label: 'VAT % (percentage)')]
     #[Assert\Range(min: 0, max: 100)]
     #[Groups([AuroraConstants::GROUP_READ])]
-    private string $vatPercentage = '0.00';
+    private string $priceVatPercentage = '0.00';
 
     #[ORM\Column(name: 'vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'VAT Amount'])]
     #[FormElement(searchable: true, label: 'VAT amount')]
     #[Groups([AuroraConstants::GROUP_READ])]
-    private string $vatAmount = '0.00';
+    private string $priceVatAmount = '0.00';
 
     #[ORM\Column(name: 'price_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price with VAT'])]
     #[FormElement(searchable: true, label: 'Price with VAT')]
     #[Assert\GreaterThan(0, message: 'Price with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceWithVat = '0.00';
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function calculateAmountWithoutVat(): self
+    {
+        if ($this->priceWithoutVat) {
+            $this->priceWithoutVat = bcsub($this->priceWithoutVat, $this->priceVatAmount, 2);
+        } else if ($this->priceVatAmount) {
+            $this->priceWithoutVat = bcdiv($this->priceVatAmount, bcadd(1, bcdiv($this->priceVatPercentage, 100, 2), 2), 2);
+        }
+
+        return $this;
+    }
+
+    public function calculateVatAmount(): self
+    {
+        $this->priceVatAmount = bcdiv(bcmul($this->priceWithoutVat, bcdiv($this->priceVatPercentage, 100, 2), 2), 1, 2);
+        return $this;
+    }
+
+    public function calculatePriceWithVat(): self
+    {
+        $this->priceWithVat = bcadd($this->priceWithoutVat, $this->priceVatAmount, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public function getPriceWithoutVat(): string
     {
@@ -45,31 +74,25 @@ trait PriceTrait
         return $this;
     }
 
-    public function getVatPercentage(): string
+    public function getPriceVatPercentage(): string
     {
-        return $this->vatPercentage;
+        return $this->priceVatPercentage;
     }
 
-    public function setVatPercentage(string $vatPercentage): self
+    public function setPriceVatPercentage(string $priceVatPercentage): self
     {
-        $this->vatPercentage = $vatPercentage;
+        $this->priceVatPercentage = $priceVatPercentage;
         return $this;
     }
 
-    public function getVatAmount(): string
+    public function getPriceVatAmount(): string
     {
-        return $this->vatAmount;
+        return $this->priceVatAmount;
     }
 
-    public function setVatAmount(string $vatAmount): self
+    public function setPriceVatAmount(string $priceVatAmount): self
     {
-        $this->vatAmount = $vatAmount;
-        return $this;
-    }
-
-    public function calculateVatAmount(): self
-    {
-        $this->vatAmount = bcdiv(bcmul($this->priceWithoutVat, bcdiv($this->vatPercentage, 100, 2), 2), 1, 2);
+        $this->priceVatAmount = $priceVatAmount;
         return $this;
     }
 
@@ -81,12 +104,6 @@ trait PriceTrait
     public function setPriceWithVat(string $priceWithVat): self
     {
         $this->priceWithVat = $priceWithVat;
-        return $this;
-    }
-
-    public function calculatePriceWithVat(): self
-    {
-        $this->priceWithVat = bcadd($this->priceWithoutVat, $this->vatAmount, 2);
         return $this;
     }
 }

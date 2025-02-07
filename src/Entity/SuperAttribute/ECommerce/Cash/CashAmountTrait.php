@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce;
+namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\Cash;
 
 use App\Attribute\FormElement;
 use Doctrine\DBAL\Types\Types;
@@ -33,6 +33,36 @@ trait CashAmountTrait
     #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $cashAmountWithVat = '0.00';
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+    public function calculateCashAmountWithoutVat(): self
+    {
+        if ($this->cashAmountWithoutVat) {
+            $this->cashAmountWithoutVat = bcsub($this->cashAmountWithoutVat, $this->cashVatAmount, 2);
+        } else if ($this->cashVatAmount) {
+            $this->cashAmountWithoutVat = bcdiv($this->cashVatAmount, bcadd(1, bcdiv($this->cashVatPercentage, 100, 2), 2), 2);
+        }
+
+        return $this;
+    }
+
+
+    public function calculateCashVatAmount(): self
+    {
+        $this->cashVatAmount = bcdiv(bcmul($this->cashAmountWithoutVat, bcdiv($this->cashVatPercentage, 100, 2), 2), 1, 2);
+        return $this;
+    }
+
+    public function calculateCashAmountWithVat(): self
+    {
+        $this->cashAmountWithVat = bcadd($this->cashAmountWithoutVat, $this->cashVatAmount, 2);
+        return $this;
+    }
+
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
     public function getCashAmountWithoutVat(): string
     {
@@ -67,12 +97,6 @@ trait CashAmountTrait
         return $this;
     }
 
-    public function calculateCashVatAmount(): self
-    {
-        $this->cashVatAmount = bcdiv(bcmul($this->cashAmountWithoutVat, bcdiv($this->cashVatPercentage, 100, 2), 2), 1, 2);
-        return $this;
-    }
-
     public function getCashAmountWithVat(): string
     {
         return $this->cashAmountWithVat;
@@ -81,12 +105,6 @@ trait CashAmountTrait
     public function setCashAmountWithVat(string $cashAmountWithVat): self
     {
         $this->cashAmountWithVat = $cashAmountWithVat;
-        return $this;
-    }
-
-    public function calculateCashAmountWithVat(): self
-    {
-        $this->cashAmountWithVat = bcadd($this->cashAmountWithoutVat, $this->cashVatAmount, 2);
         return $this;
     }
 }
