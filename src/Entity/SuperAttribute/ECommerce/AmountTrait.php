@@ -17,16 +17,16 @@ trait AmountTrait
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $amountWithoutVat = '0.00';
 
-    #[ORM\Column(name: 'vat_percentage', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '19.00', 'comment' => 'VAT amount (as percentage)'])]
+    #[ORM\Column(name: 'amount_vat_percentage', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '19.00', 'comment' => 'Amount VAT (as percentage)'])]
     #[FormElement(searchable: true, label: 'VAT % (percentage)')]
     #[Assert\Range(min: 0, max: 100)]
     #[Groups([AuroraConstants::GROUP_READ])]
-    private string $vatPercentage = '0.00';
+    private string $amountVatPercentage = '0.00';
 
-    #[ORM\Column(name: 'vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'VAT Amount'])]
+    #[ORM\Column(name: 'amount_vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'Amount VAT amount'])]
     #[FormElement(searchable: true, label: 'VAT amount')]
     #[Groups([AuroraConstants::GROUP_READ])]
-    private string $vatAmount = '0.00';
+    private string $amountVatAmount = '0.00';
 
     #[ORM\Column(name: 'amount_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Amount with VAT'])]
     #[FormElement(searchable: true, label: 'Amount with VAT')]
@@ -40,9 +40,9 @@ trait AmountTrait
     public function calculateAmountWithoutVat(): self
     {
         if ($this->amountWithoutVat) {
-            $this->amountWithoutVat = bcsub($this->amountWithoutVat, $this->vatAmount, 2);
-        } else if ($this->vatAmount) {
-            $this->amountWithoutVat = bcdiv($this->vatAmount, bcadd(1, bcdiv($this->vatPercentage, 100, 2), 2), 2);
+            $this->amountWithoutVat = bcsub($this->amountWithoutVat, $this->amountVatAmount, 2);
+        } else if ($this->amountVatAmount) {
+            $this->amountWithoutVat = bcdiv($this->amountVatAmount, bcadd(1, bcdiv($this->amountVatPercentage, 100, 2), 2), 2);
         }
 
         return $this;
@@ -50,13 +50,13 @@ trait AmountTrait
 
     public function calculateVatAmount(): self
     {
-        $this->vatAmount = bcdiv(bcmul($this->amountWithoutVat, bcdiv($this->vatPercentage, 100, 2), 2), 1, 2);
+        $this->amountVatAmount = bcdiv(bcmul($this->amountWithoutVat, bcdiv($this->amountVatPercentage, 100, 2), 2), 1, 2);
         return $this;
     }
 
     public function calculateAmountWithVat(): self
     {
-        $this->amountWithVat = bcadd($this->amountWithoutVat, $this->vatAmount, 2);
+        $this->amountWithVat = bcadd($this->amountWithoutVat, $this->amountVatAmount, 2);
         return $this;
     }
 
@@ -74,25 +74,25 @@ trait AmountTrait
         return $this;
     }
 
-    public function getVatPercentage(): string
+    public function getAmountVatPercentage(): string
     {
-        return $this->vatPercentage;
+        return $this->amountVatPercentage;
     }
 
-    public function setVatPercentage(string $vatPercentage): self
+    public function setAmountVatPercentage(string $amountVatPercentage): self
     {
-        $this->vatPercentage = $vatPercentage;
+        $this->amountVatPercentage = $amountVatPercentage;
         return $this;
     }
 
-    public function getVatAmount(): string
+    public function getAmountVatAmount(): string
     {
-        return $this->vatAmount;
+        return $this->amountVatAmount;
     }
 
-    public function setVatAmount(string $vatAmount): self
+    public function setAmountVatAmount(string $amountVatAmount): self
     {
-        $this->vatAmount = $vatAmount;
+        $this->amountVatAmount = $amountVatAmount;
         return $this;
     }
 

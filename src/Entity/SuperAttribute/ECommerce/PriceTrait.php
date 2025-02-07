@@ -17,13 +17,13 @@ trait PriceTrait
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceWithoutVat = '0.00';
 
-    #[ORM\Column(name: 'vat_percentage', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '19.00', 'comment' => 'VAT amount (as percentage)'])]
+    #[ORM\Column(name: 'price_vat_percentage', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '19.00', 'comment' => 'VAT amount (as percentage)'])]
     #[FormElement(searchable: true, label: 'VAT % (percentage)')]
     #[Assert\Range(min: 0, max: 100)]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceVatPercentage = '0.00';
 
-    #[ORM\Column(name: 'vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'VAT Amount'])]
+    #[ORM\Column(name: 'price_vat_amount', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'comment' => 'VAT Amount'])]
     #[FormElement(searchable: true, label: 'VAT amount')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $priceVatAmount = '0.00';
