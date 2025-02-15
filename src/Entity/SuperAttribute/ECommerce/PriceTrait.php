@@ -37,7 +37,7 @@ trait PriceTrait
     // ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // -- Custom logic -- --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-    public function calculateAmountWithoutVat(): self
+    public function calculatePriceWithoutVat(): self
     {
         if ($this->priceWithoutVat) {
             $this->priceWithoutVat = bcsub($this->priceWithoutVat, $this->priceVatAmount, 2);
@@ -48,7 +48,7 @@ trait PriceTrait
         return $this;
     }
 
-    public function calculateVatAmount(): self
+    public function calculatePriceVatAmount(): self
     {
         $this->priceVatAmount = bcdiv(bcmul($this->priceWithoutVat, bcdiv($this->priceVatPercentage, 100, 2), 2), 1, 2);
         return $this;
