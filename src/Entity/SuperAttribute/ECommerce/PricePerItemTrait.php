@@ -85,12 +85,12 @@ trait PricePerItemTrait
         return $this;
     }
 
-    public function getPriceVatAmount(): string
+    public function getPricePerItemVatAmount(): string
     {
         return $this->pricePerItemVatAmount;
     }
 
-    public function setPriceVatAmount(string $priceVatAmount): self
+    public function setPricePerItemVatAmount(string $priceVatAmount): self
     {
         $this->pricePerItemVatAmount = $priceVatAmount;
         return $this;
