@@ -13,7 +13,6 @@ trait AmountTrait
 {
     #[ORM\Column(name: 'amount_without_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Amount with VAT'])]
     #[FormElement(searchable: true, label: 'Amount without VAT')]
-    #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $amountWithoutVat = '0.00';
 
@@ -30,7 +29,6 @@ trait AmountTrait
 
     #[ORM\Column(name: 'amount_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Amount with VAT'])]
     #[FormElement(searchable: true, label: 'Amount with VAT')]
-    #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $amountWithVat = '0.00';
 

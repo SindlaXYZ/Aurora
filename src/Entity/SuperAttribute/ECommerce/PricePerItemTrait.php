@@ -13,7 +13,6 @@ trait PricePerItemTrait
 {
     #[ORM\Column(name: 'price_per_item_without_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price per item without VAT'])]
     #[FormElement(searchable: true, label: 'Price per item without VAT')]
-    #[Assert\GreaterThan(0, message: 'Price with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $pricePerItemWithoutVat = '0.00';
 
@@ -30,7 +29,6 @@ trait PricePerItemTrait
 
     #[ORM\Column(name: 'price_per_item_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Price per item with VAT'])]
     #[FormElement(searchable: true, label: 'Price per item with VAT')]
-    #[Assert\GreaterThan(0, message: 'Price per item with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $pricePerItemWithVat = '0.00';
 

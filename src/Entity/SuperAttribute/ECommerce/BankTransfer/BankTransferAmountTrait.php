@@ -13,7 +13,6 @@ trait BankTransferAmountTrait
 {
     #[ORM\Column(name: 'bank_transfer_amount_without_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Bank transfer amount with VAT'])]
     #[FormElement(searchable: true, label: 'Amount without VAT')]
-    #[Assert\GreaterThan(0, message: 'Bank transfer amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $bankTransferAmountWithoutVat = '0.00';
 
@@ -30,7 +29,6 @@ trait BankTransferAmountTrait
 
     #[ORM\Column(name: 'bank_transfer_amount_with_vat', type: Types::DECIMAL, precision: 13, scale: 2, nullable: false, options: ['unsigned' => true, 'default' => '0.00', 'comment' => 'Bank transfer amount with VAT'])]
     #[FormElement(searchable: true, label: 'Amount with VAT')]
-    #[Assert\GreaterThan(0, message: 'Amount with VAT must be greater than 0.')]
     #[Groups([AuroraConstants::GROUP_READ])]
     private string $bankTransferAmountWithVat = '0.00';
 
