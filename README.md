@@ -46,8 +46,8 @@ parameters:
     aurora.maxmind.license_key: '%env(default::MAXMIND_LICENSE_KEY)%'
     # Minify output
     aurora.minify.output: false
-    aurora.minify.output.ignore.extensions: [ '.pdf', '.jpg', '.png', '.gif', '.doc' ]
-    aurora.minify.output.ignore.content.type: [ 'text/plain' ]
+    aurora.minify.output.ignore.extensions:   ['.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip']
+    aurora.minify.output.ignore.content.type: ['text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip']
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
     aurora.pwa.enabled:                 '%env(bool:AURORA_PWA_ENABLED)%'
