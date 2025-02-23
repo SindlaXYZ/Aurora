@@ -263,6 +263,25 @@ class AuroraChronos
         return $startDate->diff($endDate)->y;
     }
 
+    public function getUniqueWeeksInRange(\DateTimeImmutable $start, \DateTimeImmutable $end): array
+    {
+        $weeks    = [];
+        $interval = new \DateInterval('P1D');
+        $period   = new \DatePeriod($start, $interval, $end->modify('+1 day'));
+
+        foreach ($period as $date) {
+            $week     = (int)$date->format('W');
+            $year     = (int)$date->format('Y');
+            $weekYear = sprintf('%d-%02d', $year, $week);
+
+            if (!isset($weeks[$weekYear])) {
+                $weeks[$weekYear] = ['week' => $week, 'year' => $year];
+            }
+        }
+
+        return array_values($weeks);
+    }
+
     public function seconds2HMS(int $secs, ?bool $cutHourIfZero = false): string
     {
         if ($secs < 0) {
