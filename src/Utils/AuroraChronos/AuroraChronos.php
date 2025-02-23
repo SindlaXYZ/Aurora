@@ -278,8 +278,8 @@ class AuroraChronos
                 $weeks[$weekYear] = [
                     'week'           => $week,
                     'year'           => $year,
-                    'firstDayOfWeek' => (1 == (intval($date->format('N')) ? $date->format('Y-m-d') : $date->modify('previous Monday')->format('Y-m-d'))),
-                    'lastDayOfWeek'  => $date->modify('next Sunday')->format('Y-m-d'),
+                    'firstDayOfWeek' => (1 == (intval($date->format('N'))) ? $date->format('Y-m-d') : $date->modify('previous Monday')->format('Y-m-d')),
+                    'lastDayOfWeek'  => (7 == (intval($date->format('N'))) ? $date->format('Y-m-d') : $date->modify('next Sunday')->format('Y-m-d')),
                 ];
             }
         }
