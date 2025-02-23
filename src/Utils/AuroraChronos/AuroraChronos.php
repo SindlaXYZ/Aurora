@@ -275,7 +275,12 @@ class AuroraChronos
             $weekYear = sprintf('%d-%02d', $year, $week);
 
             if (!isset($weeks[$weekYear])) {
-                $weeks[$weekYear] = ['week' => $week, 'year' => $year];
+                $weeks[$weekYear] = [
+                    'week'           => $week,
+                    'year'           => $year,
+                    'firstDayOfWeek' => $date->format('Y-m-d'),
+                    'lastDayOfWeek'  => $date->modify('next Sunday')->format('Y-m-d'),
+                ];
             }
         }
 
