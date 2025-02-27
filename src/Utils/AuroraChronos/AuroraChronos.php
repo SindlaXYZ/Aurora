@@ -12,6 +12,31 @@ class AuroraChronos
     const int TIME_UNIT_MONTHS  = 6;
     const int TIME_UNIT_YEARS   = 7;
 
+    public function guessDateTimeFormat($datetime): ?string
+    {
+        if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $datetime)) {
+            return 'Y-m-d';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $datetime)) {
+            return 'Y-m-d H:i:s';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3}$/', $datetime)) {
+            return 'Y-m-d H:i:s.v';
+        }
+
+        if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $datetime)) {
+            return 'm/d/Y';
+        }
+
+        if (preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $datetime)) {
+            return 'd.m.Y';
+        }
+
+        return null;
+    }
+
     /**
      * Transform/parse a human date to machine date (Y-m-d)
      *    eg: 28.09.2013 (d.m.Y) => 2013-09-28
