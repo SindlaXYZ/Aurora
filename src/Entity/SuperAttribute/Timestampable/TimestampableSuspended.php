@@ -28,20 +28,22 @@ trait TimestampableSuspended
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function isSuspended(): bool
     {
-        return boolval($this->suspendedAt);
+        return boolval($this->getSuspendedAt());
     }
 
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function getSuspendedInTheFuture(): bool
     {
-        return $this->suspendedAt && $this->suspendedAt->getTimestamp() > (new \DateTime())->getTimestamp();
+        return $this->getSuspendedAt() && $this->getSuspendedAt()->getTimestamp() > time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getSuspendedAtLifespanAsSeconds(): int
     {
-        return $this->suspendedAt ? (new \DateTime())->getTimestamp() - $this->suspendedAt->getTimestamp() : 0;
+        return $this->getSuspendedAt() ? time() - $this->getSuspendedAt()->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
