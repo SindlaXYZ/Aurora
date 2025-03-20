@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCalendar;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCalendarLinkGenerator;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCalendarLinkGenerator\AuroraCalendarLinkGenerator;
@@ -32,7 +32,6 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getGoogleCalendarLink();
 
-        // Formatul pentru Google Calendar: Ymd\THis
         $expectedStart = $start->format('Ymd\THis');
         $expectedEnd   = $end->format('Ymd\THis');
 
@@ -57,7 +56,6 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getYahooCalendarLink();
 
-        // Yahoo folosește același format ca Google: Ymd\THis
         $expectedStart = $start->format('Ymd\THis');
         $expectedEnd   = $end->format('Ymd\THis');
 
@@ -83,7 +81,6 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getWebOutlookLink();
 
-        // Formatul pentru Outlook: Y-m-d\TH:i:s
         $expectedStart = $start->format('Y-m-d\TH:i:s');
         $expectedEnd   = $end->format('Y-m-d\TH:i:s');
 
@@ -109,7 +106,6 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getWebOfficeLink();
 
-        // Formatul pentru Office: Y-m-d\TH:i:s
         $expectedStart = $start->format('Y-m-d\TH:i:s');
         $expectedEnd   = $end->format('Y-m-d\TH:i:s');
 
