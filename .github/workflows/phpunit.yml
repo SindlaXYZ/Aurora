@@ -168,7 +168,7 @@ jobs:
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php
 
             -   name: "Test /Utils/AuroraCalendarLinkGenerator"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendarLinkGenerator/AuroraCalendarLinkGenerator.php
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendarLinkGenerator/AuroraCalendarLinkGeneratorTest.php
 
             -   name: "Test /Utils/AuroraChronos"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php
