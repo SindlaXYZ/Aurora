@@ -79,7 +79,7 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $location    = 'Test Location';
 
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
-        $link      = $generator->getWebOutlookLink();
+        $link      = $generator->getOutlookLiveCalendarLink();
 
         $expectedStart = $start->format('Y-m-d\TH:i:s');
         $expectedEnd   = $end->format('Y-m-d\TH:i:s');
@@ -104,7 +104,7 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $location    = 'Test Location';
 
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
-        $link      = $generator->getWebOfficeLink();
+        $link      = $generator->getOutlookOfficeCalendarLink();
 
         $expectedStart = $start->format('Y-m-d\TH:i:s');
         $expectedEnd   = $end->format('Y-m-d\TH:i:s');

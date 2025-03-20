@@ -57,7 +57,7 @@ class AuroraCalendarLinkGenerator
         return 'https://calendar.yahoo.com/?' . http_build_query($params);
     }
 
-    public function getWebOutlookLink(): string
+    public function getOutlookLiveCalendarLink(): string
     {
         $startFormatted = $this->formatDateForOutlook($this->start);
         $endFormatted   = $this->formatDateForOutlook($this->end);
@@ -75,7 +75,7 @@ class AuroraCalendarLinkGenerator
         return 'https://outlook.live.com/owa/?' . http_build_query($params);
     }
 
-    public function getWebOfficeLink(): string
+    public function getOutlookOfficeCalendarLink(): string
     {
         $startFormatted = $this->formatDateForOutlook($this->start);
         $endFormatted   = $this->formatDateForOutlook($this->end);
