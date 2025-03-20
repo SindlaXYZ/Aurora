@@ -33,7 +33,7 @@ jobs:
         strategy:
             matrix:
                 operating-system: [ 'ubuntu-22.04' ]
-                php-version: [ '8.3' ]
+                php-version: [ '8.4' ]
         # IT WORKS, BUT IT'S NOT NEEDED
         #        services:
         #            postgres:
@@ -166,6 +166,9 @@ jobs:
 
             -   name: "Test /Utils/AuroraCalendar"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php
+
+            -   name: "Test /Utils/AuroraCalendarLinkGenerator"
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendarLinkGenerator/AuroraCalendarLinkGenerator.php
 
             -   name: "Test /Utils/AuroraChronos"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php
