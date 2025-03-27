@@ -114,6 +114,8 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals('  Lorem  Isum  ', (new Strink())->string("\r\rLorem\r\rIsum\r\r")->removeNewLines("\x20"));
     }
 
+    ##########################################################################################################################################################################################
+
     #[DataProvider('dataStrStartsWithAny')]
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
@@ -123,12 +125,34 @@ class StrinkTest extends KernelTestCase
     public static function dataStrStartsWithAny(): array
     {
         return [
-            'lorem ipsum', ['lorem'], true,
-            'lorem ipsum', ['lorem', 'dolor'], true,
-            'lorem ipsum', ['lorem', 'ipsum', 'dolor'], true,
-            'lorem ipsum', ['ipsum', 'dolor'], false,
-            'lorem ipsum', ['ipsum lorem'], false,
-            'lorem ipsum', ['lorem ipsum dolor'], false,
+            ['lorem ipsum', ['lorem'], true],
+            ['lorem ipsum', ['lorem', 'dolor'], true],
+            ['lorem ipsum', ['lorem', 'ipsum', 'dolor'], true],
+            ['lorem ipsum', ['ipsum', 'dolor'], false],
+            ['lorem ipsum', ['ipsum lorem'], false],
+            ['lorem ipsum', ['lorem ipsum dolor'], false],
         ];
     }
+
+    ##########################################################################################################################################################################################
+
+    #[DataProvider('dataStrEndsWithAny')]
+    public function testStrEndsWithAny(string $haystack, array $needles, bool $expected): void
+    {
+        $this->assertEquals($expected, new Strink()->string($haystack)->strStartsWithAny($needles));
+    }
+
+    public static function dataStrEndsWithAny(): array
+    {
+        return [
+            ['lorem ipsum', ['ipsum'], true],
+            ['lorem ipsum', ['ipsum', 'dolor'], true],
+            ['lorem ipsum', ['lorem', 'ipsum', 'dolor'], true],
+            ['lorem ipsum', ['lorem', 'dolor'], false],
+            ['lorem ipsum', ['lorem ipsum'], true],
+            ['lorem ipsum', ['lorem ipsum dolor'], false],
+        ];
+    }
+
+    ##########################################################################################################################################################################################
 }
