@@ -16,6 +16,7 @@
         "ext-bcmath": "*",
         "ext-curl": "*",
         "ext-ctype": "*",
+        "ext-gmp": "*",
         "ext-iconv": "*",
         "ext-intl": "*",
         "ext-json": "*",

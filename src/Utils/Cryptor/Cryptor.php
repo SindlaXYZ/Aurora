@@ -59,4 +59,56 @@ class Cryptor
         $this->encryptionKey = null;
         return (string)$decrypted;
     }
+
+    /**
+     * Computes the FNV-1a hash of a string using 64-bit arithmetic
+     * This method works both on 32-bit and 64-bit systems
+     * This method may be faster than the sha256To64Bit() but may not be as secure and might produce collisions
+     */
+    function fnv1a64(string $data): string
+    {
+        // Offset basis value for FNV-1a on 64 bits
+        $offsetBasis = gmp_init('14695981039346656037');
+
+        // FNV prime constant for 64 bits (0x100000001b3 in hexadecimal)
+        $fnvPrime = gmp_init('1099511628211');
+
+        // Initialize hash with the offset value
+        $hash = $offsetBasis;
+
+        // 2^64, to ensure modular operations on 64 bits
+        $modulo = gmp_init('18446744073709551616');
+
+        // We iterate through each character in the string
+        $length = strlen($data);
+        for ($i = 0; $i < $length; $i++) {
+            // XOR between the hash and the ASCII code of the current character
+            $hash = gmp_xor($hash, gmp_init(ord($data[$i])));
+            // Multiply the hash by the prime constant
+            $hash = gmp_mul($hash, $fnvPrime);
+            // Perform modulo 2^64 to keep the result within 64 bits
+            $hash = gmp_mod($hash, $modulo);
+        }
+
+        // Return the hash as a string
+        return gmp_strval($hash);
+    }
+
+    /**
+     * !! This method works only on 64-bit systems !!
+     *
+     * Computes the SHA-256 hash of a string and returns the first 64 bits as a decimal number
+     * This method may be slower than the fnv1a64() but is more secure and less likely to produce collisions
+     */
+    function sha256To64Bit(string $data): string
+    {
+        // Obtain the complete hash as a hexadecimal string
+        $fullHash = hash('sha256', $data);
+
+        // Extract the first 16 characters (equivalent to 64 bits)
+        $hash64Hex = substr($fullHash, 0, 16);
+
+        // Convert from hexadecimal to decimal representation
+        return base_convert($hash64Hex, 16, 10);
+    }
 }
