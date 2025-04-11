@@ -80,7 +80,7 @@ class AuroraCalendar
         $calendarStart = $weekStart->modify("-{$weeksBeforeFirstDay} weeks");
 
         // Get today's date string for comparison
-        $todayStr = (new \DateTimeImmutable('today'))->format('Y-m-d');
+        $todayStr = new \DateTimeImmutable('today')->format('Y-m-d');
 
         // If $endDate is provided, generate the calendar between startDate and endDate (with adjustments)
         if ($endDate !== null) {
@@ -111,15 +111,7 @@ class AuroraCalendar
             // Generate the calendar from $calendarStart to $calendarEnd (inclusive)
             $calendar = [];
             for ($currentDate = $calendarStart; $currentDate <= $calendarEnd; $currentDate = $currentDate->modify('+1 day')) {
-                $key            = $currentDate->format('Y-m-d');
-                $dayOfTheWeek   = (int)$currentDate->format('N');
-                $calendar[$key] = [
-                    'date'         => $currentDate,
-                    'dayOfTheWeek' => $dayOfTheWeek,
-                    'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
-                    'isToday'      => $key === $todayStr,
-                    'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
-                ];
+                $calendar = $this->_calendarArray($currentDate, $todayStr, $calendar);
             }
 
             return $calendar;
@@ -130,18 +122,24 @@ class AuroraCalendar
             $calendar    = [];
             $currentDate = $calendarStart;
             for ($i = 0; $i < $totalDays; $i++) {
-                $key            = $currentDate->format('Y-m-d');
-                $dayOfTheWeek   = (int)$currentDate->format('N');
-                $calendar[$key] = [
-                    'date'         => $currentDate,
-                    'dayOfTheWeek' => $dayOfTheWeek,
-                    'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
-                    'isToday'      => $key === $todayStr,
-                    'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
-                ];
-                $currentDate    = $currentDate->modify('+1 day');
+                $calendar    = $this->_calendarArray($currentDate, $todayStr, $calendar);
+                $currentDate = $currentDate->modify('+1 day');
             }
             return $calendar;
         }
+    }
+
+    private function _calendarArray(\DateTimeImmutable $currentDate, string $todayStr, array $calendar): array
+    {
+        $key            = $currentDate->format('Y-m-d');
+        $dayOfTheWeek   = (int)$currentDate->format('N');
+        $calendar[$key] = [
+            'date'         => $currentDate,
+            'dayOfTheWeek' => $dayOfTheWeek,
+            'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
+            'isToday'      => $key === $todayStr,
+            'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
+        ];
+        return $calendar;
     }
 }
