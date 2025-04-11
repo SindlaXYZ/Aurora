@@ -28,7 +28,7 @@ class AuroraCalendarTest extends KernelTestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraCalendar())->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($given),
+            new AuroraCalendar()->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($given),
             'Given date: ' . $given->format('Y-m-d') . ' (' . ($given instanceof \DateTimeImmutable ? 'DateTimeImmutable' : 'DateTime') . ')'
         );
     }
@@ -59,10 +59,10 @@ class AuroraCalendarTest extends KernelTestCase
     #[DataProvider('dataFullWeeksDaysNumber')]
     public function testFullWeeksDaysNumber(int $expected, \DateTimeInterface $given): void
     {
-        $this->assertEquals($expected, (new AuroraCalendar())->fullWeeksDaysNumber($given));
+        $this->assertEquals($expected, new AuroraCalendar()->fullWeeksDaysNumber($given));
 
         // No matter the month and the year, the number of days must be a multiple of 7
-        $this->assertEquals(0, (new AuroraCalendar())->fullWeeksDaysNumber($given) % 7);
+        $this->assertEquals(0, new AuroraCalendar()->fullWeeksDaysNumber($given) % 7);
     }
 
     public static function dataFullWeeksDaysNumber(): array
@@ -91,7 +91,7 @@ class AuroraCalendarTest extends KernelTestCase
     #[DataProvider('dataGenerateCalendar')]
     public function testGenerateCalendar(array $auroraCalendar, array $expected): void
     {
-        $this->assertEquals(count($auroraCalendar), $expected['days']);
+        $this->assertEquals(count($auroraCalendar), count($expected['days']));
 
         foreach ($expected['days'] as $expectedDay) {
             $this->assertTrue(array_key_exists($expectedDay, $auroraCalendar));
