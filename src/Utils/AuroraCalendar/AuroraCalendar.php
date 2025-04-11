@@ -2,6 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar;
 
+use Sindla\Bundle\AuroraBundle\Enum\DayOfWeek;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 
 class AuroraCalendar
@@ -37,24 +38,59 @@ class AuroraCalendar
         return (1 == $firstDayWeekPosition ? 0 : (int)$firstDayWeekPosition - 1);
     }
 
-    public function generateCalendar(\DateTimeInterface $date, int $weeksBeforeFirstDay = 0, int $weeksAfterLastDay = 0): ?array
+    /**
+     * Generate a calendar in the form of an associative array, where each key is the date in the format Y-m-d, and the value is an array containing:
+     *  - 'date': the date as a DateTimeImmutable object
+     *  - 'dayOfTheWeek': the day of the week (1 = Monday, 7 = Sunday)
+     *  - 'isYesterday': boolean indicating if the date is yesterday
+     *  - 'isToday': boolean indicating if the date is today
+     *  - 'isTomorrow': boolean indicating if the date is tomorrow
+     */
+    function generateCalendar(\DateTimeInterface $immutableDate, int $firstDayOfTheWeek = 1, int $weeksBeforeFirstDay = 0, int $weeksAfterLastDay = 0): array
     {
-        $date                                              = (new \DateTimeImmutable())->setDate($date->format('Y'), $date->format('m'), 1)->setTime(0, 0, 0);
-        $weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth = $this->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($date);
-        $calendarDays                                      = $this->fullWeeksDaysNumber($date);
-        $calendarStartDate                                 = $date->modify("-" . $weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth . " days");
-        $calendar                                          = [];
+        $weeksBeforeFirstDay = abs(intval($weeksBeforeFirstDay));
+        $weeksAfterLastDay   = abs(intval($weeksAfterLastDay));
 
-        for ($i = 1; $i <= $calendarDays; ++$i) {
-            $calendarDate = $calendarStartDate->modify('+' . ($i - 1) . ' days');
+        // Obtain the current day number (1 = Monday, 7 = Sunday)
+        $currentDayNumber = (int)$immutableDate->format('N');
 
-            $calendar[$calendarDate->format('Y-m-d')] = [
-                'date'         => $calendarDate,
-                'day'          => $calendarDate->format('j'),
-                'dayOfTheWeek' => $calendarDate->format('N'),
-                'monthsDiff'   => ((new AuroraChronos())->monthsBetweenTwoDates($calendarDate, $date)),
-                'isToday'      => (date('Y-m-d') == $calendarDate->format('Y-m-d')),
+        // Calculate the number of days to subtract to reach the first day of the week ($firstDayOfTheWeek)
+        if ($currentDayNumber >= $firstDayOfTheWeek) {
+            $diff = $currentDayNumber - $firstDayOfTheWeek;
+        } else {
+            $diff = 7 - ($firstDayOfTheWeek - $currentDayNumber);
+        }
+
+        // Determine the beginning of the week that contains $date
+        $weekStart = $immutableDate->modify("-{$diff} days");
+
+        // Adjust to include previous weeks
+        $calendarStart = $weekStart->modify("-{$weeksBeforeFirstDay} weeks");
+
+        // Calculate the total number of weeks in the calendar
+        $totalWeeks = 1 + $weeksBeforeFirstDay + $weeksAfterLastDay;
+        $totalDays  = $totalWeeks * 7;
+        $calendar   = [];
+
+        // Calculate today's date for comparisons
+        $todayStr = new \DateTimeImmutable('today')->format('Y-m-d');
+
+        $currentDate = $calendarStart;
+        for ($i = 0; $i < $totalDays; $i++) {
+            $key          = $currentDate->format('Y-m-d');
+            $dayOfTheWeek = (int)$currentDate->format('N');
+            $isToday      = ($key === $todayStr);
+
+            $calendar[$key] = [
+                'date'         => $currentDate,
+                'dayOfTheWeek' => $dayOfTheWeek,
+                'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
+                'isToday'      => $isToday,
+                'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
             ];
+
+            // Move to the next day
+            $currentDate = $currentDate->modify('+1 day');
         }
 
         return $calendar;
