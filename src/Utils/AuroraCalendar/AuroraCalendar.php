@@ -39,64 +39,6 @@ class AuroraCalendar
     }
 
     /**
-     * Generate a calendar in the form of an associative array, where each key is the date in the format Y-m-d, and the value is an array containing:
-     *  - 'date': the date as a DateTimeImmutable object
-     *  - 'dayOfTheWeek': the day of the week (1 = Monday, 7 = Sunday)
-     *  - 'isYesterday': boolean indicating if the date is yesterday
-     *  - 'isToday': boolean indicating if the date is today
-     *  - 'isTomorrow': boolean indicating if the date is tomorrow
-     */
-    function generateCalendar_v1(\DateTimeInterface $immutableDate, int $firstDayOfTheWeek = 1, int $weeksBeforeFirstDay = 0, int $weeksAfterLastDay = 0): array
-    {
-        $weeksBeforeFirstDay = abs(intval($weeksBeforeFirstDay));
-        $weeksAfterLastDay   = abs(intval($weeksAfterLastDay));
-
-        // Obtain the current day number (1 = Monday, 7 = Sunday)
-        $currentDayNumber = (int)$immutableDate->format('N');
-
-        // Calculate the number of days to subtract to reach the first day of the week ($firstDayOfTheWeek)
-        if ($currentDayNumber >= $firstDayOfTheWeek) {
-            $diff = $currentDayNumber - $firstDayOfTheWeek;
-        } else {
-            $diff = 7 - ($firstDayOfTheWeek - $currentDayNumber);
-        }
-
-        // Determine the beginning of the week that contains $date
-        $weekStart = $immutableDate->modify("-{$diff} days");
-
-        // Adjust to include previous weeks
-        $calendarStart = $weekStart->modify("-{$weeksBeforeFirstDay} weeks");
-
-        // Calculate the total number of weeks in the calendar
-        $totalWeeks = 1 + $weeksBeforeFirstDay + $weeksAfterLastDay;
-        $totalDays  = $totalWeeks * 7;
-        $calendar   = [];
-
-        // Calculate today's date for comparisons
-        $todayStr = new \DateTimeImmutable('today')->format('Y-m-d');
-
-        $currentDate = $calendarStart;
-        for ($i = 0; $i < $totalDays; $i++) {
-            $key          = $currentDate->format('Y-m-d');
-            $dayOfTheWeek = (int)$currentDate->format('N');
-            $isToday      = ($key === $todayStr);
-
-            $calendar[$key] = [
-                'date'         => $currentDate,
-                'dayOfTheWeek' => $dayOfTheWeek,
-                'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
-                'isToday'      => $isToday,
-                'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
-            ];
-
-            // Move to the next day
-            $currentDate = $currentDate->modify('+1 day');
-        }
-
-        return $calendar;
-    }
-
-    /**
      * Generates a calendar as an associative array, where each key is a date formatted as "Y-m-d" and the value is an array containing:
      *  - 'date': the date as a DateTimeImmutable object
      *  - 'dayOfTheWeek': the day of the week (ISO-8601, 1 = Monday, ..., 7 = Sunday)
@@ -105,12 +47,13 @@ class AuroraCalendar
      *  - 'isTomorrow': true if the date is tomorrow
      */
     function generateCalendar(
-        \DateTimeInterface $startDate,
+        \DateTimeInterface  $startDate,
         ?\DateTimeInterface $endDate = null,
-        int $firstDayOfTheWeek = 1,
-        int $weeksBeforeFirstDay = 0,
-        int $weeksAfterLastDay = 0
-    ): array {
+        int                 $firstDayOfTheWeek = 1,
+        int                 $weeksBeforeFirstDay = 0,
+        int                 $weeksAfterLastDay = 0
+    ): array
+    {
         // Ensure positive values for weeksBeforeFirstDay and weeksAfterLastDay
         $weeksBeforeFirstDay = abs(intval($weeksBeforeFirstDay));
         $weeksAfterLastDay   = abs(intval($weeksAfterLastDay));
@@ -146,9 +89,9 @@ class AuroraCalendar
                 ? $endDate
                 : \DateTimeImmutable::createFromInterface($endDate);
 
-            // Determine the last day of the week for $endDate.
-            // If the first day is Monday (1), then the last day is Sunday (7).
-            // Otherwise, assume the last day of the week is $firstDayOfTheWeek - 1.
+            // Determine the last day of the week for $endDate
+            // If the first day is Monday (1), then the last day is Sunday (7)
+            // Otherwise, assume the last day of the week is $firstDayOfTheWeek - 1
             $lastDayOfWeek = ($firstDayOfTheWeek === 1) ? 7 : $firstDayOfTheWeek - 1;
             $endDayNumber  = (int)$endDateImmutable->format('N');
 
@@ -168,35 +111,35 @@ class AuroraCalendar
             // Generate the calendar from $calendarStart to $calendarEnd (inclusive)
             $calendar = [];
             for ($currentDate = $calendarStart; $currentDate <= $calendarEnd; $currentDate = $currentDate->modify('+1 day')) {
-                $key = $currentDate->format('Y-m-d');
-                $dayOfTheWeek = (int)$currentDate->format('N');
+                $key            = $currentDate->format('Y-m-d');
+                $dayOfTheWeek   = (int)$currentDate->format('N');
                 $calendar[$key] = [
                     'date'         => $currentDate,
                     'dayOfTheWeek' => $dayOfTheWeek,
-                    'isYesterday'  => $currentDate->format('Y-m-d') === (new \DateTimeImmutable('yesterday'))->format('Y-m-d'),
+                    'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
                     'isToday'      => $key === $todayStr,
-                    'isTomorrow'   => $currentDate->format('Y-m-d') === (new \DateTimeImmutable('tomorrow'))->format('Y-m-d'),
+                    'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
                 ];
             }
 
             return $calendar;
         } else {
             // If $endDate is not provided, calculate a fixed number of weeks for the calendar
-            $totalWeeks = 1 + $weeksBeforeFirstDay + $weeksAfterLastDay;
-            $totalDays  = $totalWeeks * 7;
-            $calendar   = [];
+            $totalWeeks  = 1 + $weeksBeforeFirstDay + $weeksAfterLastDay;
+            $totalDays   = $totalWeeks * 7;
+            $calendar    = [];
             $currentDate = $calendarStart;
             for ($i = 0; $i < $totalDays; $i++) {
-                $key = $currentDate->format('Y-m-d');
-                $dayOfTheWeek = (int)$currentDate->format('N');
+                $key            = $currentDate->format('Y-m-d');
+                $dayOfTheWeek   = (int)$currentDate->format('N');
                 $calendar[$key] = [
                     'date'         => $currentDate,
                     'dayOfTheWeek' => $dayOfTheWeek,
-                    'isYesterday'  => $currentDate->format('Y-m-d') === (new \DateTimeImmutable('yesterday'))->format('Y-m-d'),
+                    'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
                     'isToday'      => $key === $todayStr,
-                    'isTomorrow'   => $currentDate->format('Y-m-d') === (new \DateTimeImmutable('tomorrow'))->format('Y-m-d'),
+                    'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
                 ];
-                $currentDate = $currentDate->modify('+1 day');
+                $currentDate    = $currentDate->modify('+1 day');
             }
             return $calendar;
         }
