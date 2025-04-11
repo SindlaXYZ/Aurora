@@ -103,7 +103,7 @@ class AuroraCalendarTest extends KernelTestCase
         return [
             // First day: Monday
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 1, 0, 0),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 0, 0),
                 [
                     'days' => [
                         '2025-04-07', '2025-04-08', '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12', '2025-04-13'
@@ -111,7 +111,7 @@ class AuroraCalendarTest extends KernelTestCase
                 ]
             ],
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 1, 1, 0),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 1, 0),
                 [
                     'days' => [
                         '2025-03-31', '2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06',
@@ -120,7 +120,7 @@ class AuroraCalendarTest extends KernelTestCase
                 ]
             ],
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 1, 1, 1),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 1, 1),
                 [
                     'days' => [
                         '2025-03-31', '2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06',
@@ -131,7 +131,7 @@ class AuroraCalendarTest extends KernelTestCase
             ],
             // First day: Sunday
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 7, 0, 0),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 7, 0, 0),
                 [
                     'days' => [
                         '2025-04-06', '2025-04-07', '2025-04-08', '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12'
@@ -139,7 +139,7 @@ class AuroraCalendarTest extends KernelTestCase
                 ]
             ],
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 7, 1, 0),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 7, 1, 0),
                 [
                     'days' => [
                         '2025-03-30', '2025-03-31', '2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05',
@@ -148,7 +148,7 @@ class AuroraCalendarTest extends KernelTestCase
                 ]
             ],
             [
-                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), 7, 1, 1),
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 7, 1, 1),
                 [
                     'days' => [
                         '2025-03-30', '2025-03-31', '2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05',
