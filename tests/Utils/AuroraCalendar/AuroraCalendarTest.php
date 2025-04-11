@@ -101,7 +101,7 @@ class AuroraCalendarTest extends KernelTestCase
     public static function dataGenerateCalendar(): array
     {
         return [
-            // First day: Monday
+            // First day: Monday - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             [
                 new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 0, 0),
                 [
@@ -111,6 +111,23 @@ class AuroraCalendarTest extends KernelTestCase
                 ]
             ],
             [
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), new \DateTimeImmutable('2025-04-11'), 1, 0, 0),
+                [
+                    'days' => [
+                        '2025-04-07', '2025-04-08', '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12', '2025-04-13'
+                    ],
+                ]
+            ],
+            [
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), new \DateTimeImmutable('2025-04-12'), 1, 0, 0),
+                [
+                    'days' => [
+                        '2025-04-07', '2025-04-08', '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12', '2025-04-13'
+                    ],
+                ]
+            ],
+            // First day: Monday + 1 day after - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            [
                 new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 1, 0),
                 [
                     'days' => [
@@ -119,6 +136,17 @@ class AuroraCalendarTest extends KernelTestCase
                     ],
                 ]
             ],
+            [
+                new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-02'), new \DateTimeImmutable('2025-04-11'), 1, 1, 0),
+                [
+                    'days' => [
+                        '2025-03-24', '2025-03-25', '2025-03-26', '2025-03-27', '2025-03-28', '2025-30-29', '2025-03-30',
+                        '2025-03-31', '2025-04-01', '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06',
+                        '2025-04-07', '2025-04-08', '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12', '2025-04-13'
+                    ],
+                ]
+            ],
+            // First day: Monday + 1 day after - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             [
                 new AuroraCalendar()->generateCalendar(new \DateTimeImmutable('2025-04-11'), null, 1, 1, 1),
                 [
