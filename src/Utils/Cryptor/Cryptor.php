@@ -111,4 +111,31 @@ class Cryptor
         // Convert from hexadecimal to decimal representation
         return base_convert($hash64Hex, 16, 10);
     }
+
+    /**
+     * !! This method works only on 64-bit systems !!
+     *
+     * Computes the SHA-256 hash of a string and returns the first 32 bits as a decimal number
+     */
+    function sha256To32Bit(string $data): string
+    {
+        // Obtain the complete hash as a hexadecimal string
+        $fullHash = hash('sha256', $data);
+
+        // Extract the first 8 characters (equivalent to 32 bits)
+        $hash32Hex = substr($fullHash, 0, 8);
+
+        // Convert from hexadecimal to decimal representation
+        return base_convert($hash32Hex, 16, 10);
+    }
+
+    /**
+     * !! This method works only on 64-bit systems !!
+     *
+     * Computes the SHA-256 hash of a string and returns the first 32 bits as a decimal number
+     */
+    function sha256To32BitUnsigned(string $data): string
+    {
+        return $this->sha256To32Bit($data) % 2147483647;
+    }
 }
