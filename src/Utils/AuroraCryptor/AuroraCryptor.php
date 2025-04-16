@@ -1,17 +1,13 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Cryptor;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraCryptor;
 
 /**
- * Class Cryptor
- *
- * $Cryptor = new Cryptor();
+ * $auroraCryptor = new AuroraCryptor();
  * $a       = $Cryptor->setEncryptionKey('myPa$$worD123')->encrypt('megaSecretKey');
  * $b       = $Cryptor->setEncryptionKey('myPa$$worD123')->decrypt($a);
- *
- * @package AuroraBundle\Utils
  */
-class Cryptor
+class AuroraCryptor
 {
     private $cipher  = 'AES-128-CTR';
     private $encryptionKey;
@@ -24,13 +20,13 @@ class Cryptor
         return $this;
     }
 
-    public function setCipher($cipher = 'AES-128-CTR'): Cryptor
+    public function setCipher($cipher = 'AES-128-CTR'): AuroraCryptor
     {
         $this->cipher = $cipher;
         return $this;
     }
 
-    public function setEncryptionKey($encryptionKey): Cryptor
+    public function setEncryptionKey($encryptionKey): AuroraCryptor
     {
         $this->encryptionKey = $encryptionKey;
         return $this;
