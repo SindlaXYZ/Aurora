@@ -20,13 +20,13 @@ class AuroraCryptor
         return $this;
     }
 
-    public function setCipher($cipher = 'AES-128-CTR'): AuroraCryptor
+    public function setCipher($cipher = 'AES-128-CTR'): self
     {
         $this->cipher = $cipher;
         return $this;
     }
 
-    public function setEncryptionKey($encryptionKey): AuroraCryptor
+    public function setEncryptionKey($encryptionKey): self
     {
         $this->encryptionKey = $encryptionKey;
         return $this;
