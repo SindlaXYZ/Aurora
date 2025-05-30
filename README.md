@@ -9,20 +9,21 @@
 | 7.0       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/badge/tag-v7.0.3-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.0&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
 | 7.1       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.1) | [![Latest Version](https://img.shields.io/badge/tag-v7.1.6-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.1&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.1)](https://github.com/SindlaXYZ/Aurora/tree/7.1) | >= 8.3         |
 | <= 7.2.24 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/badge/tag-v7.2.24-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true)                                 | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.3         |
-| **7.2**   | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.4         |
+| 7.3       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) | [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) | >= 8.4         |
+| **7.3**  | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) | [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) | >= 8.4         |
 
 ## Installation
 
 The Aurora package is Packagist ready, and Composer can be used to install it.
 
 ```bash
-composer require sindla/aurora:7.2.*
+composer require sindla/aurora:7.3.*
 ```
 
 The x-dev flag can be used to install the development version:
 
 ```bash
-composer require sindla/aurora:7.2.x-dev
+composer require sindla/aurora:7.3.x-dev
 ```
 
 ## Configuration
