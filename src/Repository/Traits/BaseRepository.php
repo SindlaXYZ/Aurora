@@ -99,7 +99,7 @@ trait BaseRepository
     {
         $Strink    = new Strink();
         $className = $this->getClassName();
-        $reflect   = new \ReflectionClass(new $className());
+        $reflect   = new \ReflectionClass(new $className()); // @TODO: refactor this and use "symfony/property-info"
 
         $tableName = null;
         foreach ($reflect->getAttributes() as $attribute) {
@@ -146,7 +146,7 @@ trait BaseRepository
                         [$column, $jsonKey] = explode('.', $column);
                     }
 
-                    $ReflectionProperty = new \ReflectionProperty(new $className(), $column);
+                    $ReflectionProperty = new \ReflectionProperty(new $className(), $column); // @TODO: refactor this and use "symfony/property-info"
 
                     foreach ($ReflectionProperty->getAttributes() as $attribute) {
                         $randomKey = $Strink->randomString(6, ['ABCDEFGHIJKLMNOPQRSTUWXYZ']);
@@ -233,7 +233,7 @@ trait BaseRepository
 
     public function truncate(): bool
     {
-        $reflect        = new \ReflectionClass($this->getClassName());
+        $reflect        = new \ReflectionClass($this->getClassName());// @TODO: refactor this and use "symfony/property-info"
         $namespaceParts = explode('\\', $reflect->getNamespaceName());
 
         $classMetaData = $this->_em->getClassMetadata("{$namespaceParts[0]}:{$reflect->getShortName()}");
