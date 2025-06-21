@@ -87,6 +87,28 @@ file_put_contents($outputFile, "\n" . writeVariable('public array', 'openAIBotAn
 ##############################################################################################################################################################################################
 ##############################################################################################################################################################################################
 
+$upTimeRobotIps = [];
+// https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt
+foreach ([
+             'https://uptimerobot.com/inc/files/ips/IPv4andIPv6.txt'
+         ] as $upTimeRobotURL) {
+    $upTimeRobotContent = file_get_contents($upTimeRobotURL);
+    $upTimeRobotLines   = explode("\n", $upTimeRobotContent);
+    foreach ($upTimeRobotLines as $line) {
+        $line = trim($line);
+        if (empty($line) || str_starts_with($line, '#')) {
+            continue;
+        }
+        $upTimeRobotIps[$line] = 'IPv4';
+    }
+}
+
+ksort($upTimeRobotIps);
+file_put_contents($outputFile, "\n" . writeVariable('public array', 'uptimeRobotIPS', $upTimeRobotIps), FILE_APPEND);
+
+##############################################################################################################################################################################################
+##############################################################################################################################################################################################
+
 file_put_contents($outputFile, "\n}\n", FILE_APPEND);
 
 ##############################################################################################################################################################################################
