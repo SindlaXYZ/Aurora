@@ -142,6 +142,22 @@ class AuroraIP
         return false;
     }
 
+    public function isUpTimeRobot(string $ip): bool
+    {
+        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+            return false;
+        }
+
+        // https://uptimerobot.com/help/locations/
+        foreach ($this->uptimeRobotIPS as $botIP => $botIPVersion) {
+            if ($this->isIPInSubnet($ip, $botIP)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function getCountryCode(): ?string
     {
         // @TODO: integrate with curl https://ipinfo.io/$this->ip/json?token=$_ENV['IPINFOIO_TOKEN']
