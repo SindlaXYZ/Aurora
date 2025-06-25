@@ -31,8 +31,8 @@ trait IdentifiableIntNonNullableStrategyCustom
     {
         $uuid      = Uuid::v7();
         $hexString = $uuid->toHex();
-        $bigInt    = base_convert($uuid->toHex(), 16, 10);
-        
+        $bigInt    = intval(base_convert($uuid->toHex(), 16, 10));
+
         $this->id = $bigInt;
         return $this;
     }
