@@ -25,7 +25,7 @@ class IdentifiableIntNonNullableStrategyCustomTest extends KernelTestCase
     {
         $Mock = new Mock();
         $Mock->generateId();
-        $this->assertIsString($Mock->getId()->toBinary());
+        $this->assertIsString($Mock->getId());
     }
 }
 
