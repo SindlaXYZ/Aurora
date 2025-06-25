@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAnnotation;
+namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\Identifiable;
 
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Identifiable\IdentifiableIntNonNullableStrategyCustom;

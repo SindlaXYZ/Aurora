@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAnnotation;
+namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\Timestampable;
 
 use DateTime;
 use TypeError;
