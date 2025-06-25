@@ -29,7 +29,7 @@ trait IdentifiableIntNonNullableStrategyCustom
 
     public function generateId(): self
     {
-        $this->id = Uuid::v7();
+        $this->id = Uuid::v6();
         return $this;
     }
 }
