@@ -4,14 +4,14 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAnnotation;
 
 use PHPUnit\Framework\TestCase;
-use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Identifiable\IdentifiableIntNonNullable;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Identifiable\IdentifiableIntNonNullableStrategyCustom;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/IdentifiableIntNonNullable.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/IdentifiableIntNonNullableStrategyCustomTest.php --no-coverage
  */
-class IdentifiableIntNonNullableTest extends KernelTestCase
+class IdentifiableIntNonNullableStrategyCustomTest extends KernelTestCase
 {
     protected function setUp(): void
     {
@@ -31,5 +31,5 @@ class IdentifiableIntNonNullableTest extends KernelTestCase
 
 class Mock
 {
-    use IdentifiableIntNonNullable;
+    use IdentifiableIntNonNullableStrategyCustom;
 }
