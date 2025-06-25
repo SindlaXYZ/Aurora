@@ -29,19 +29,19 @@ class PriceTraitTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-//    public function testCalculatePriceVatAmount(): void
-//    {
-//        /** @var PriceTrait $priceTrait */
-//        $priceTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait');
-//
-//        $priceTrait
-//            ->setPriceWithoutVat('123.45')
-//            ->setPriceVatPercentage('19.5');
-//
-//        $this->assertEquals(
-//            '24.07',
-//            $priceTrait->calculatePriceVatAmount(),
-//            'Price VAT amount should be 24.07 for price 123.45 with VAT percentage 19.50%'
-//        );
-//    }
+    public function testCalculatePriceVatAmount(): void
+    {
+        /** @var PriceTrait $priceTrait */
+        $priceTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait');
+
+        $priceTrait
+            ->setPriceWithoutVat('123.45')
+            ->setPriceVatPercentage('19.5');
+
+        $this->assertEquals(
+            '24.07',
+            $priceTrait->calculatePriceVatAmount(),
+            'Price VAT amount should be 24.07 for price 123.45 with VAT percentage 19.50%'
+        );
+    }
 }
