@@ -1,18 +1,18 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\ECommerce;
+namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\Misc;
 
 use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait;
+use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Misc\MetaTrait;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/ECommerce/PriceTraitTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Misc/MetaTraitTest.php --no-coverage
  */
-class PriceTraitTestTest extends KernelTestCase
+class MetaTraitTest extends KernelTestCase
 {
     private $kernelTest;
     private $containerTest;
