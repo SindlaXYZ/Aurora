@@ -11,17 +11,17 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait IdentifiableIntNonNullableStrategyCustom
 {
     #[ORM\Id]
-    #[ORM\Column(type: Types::INTEGER, nullable: false, options: ['unsigned' => true])]
+    #[ORM\Column(type: Types::STRING, nullable: false)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[Groups([AuroraConstants::GROUP_READ])]
-    protected int $id;
+    protected string $id;
 
-    public function getId(): ?int
+    public function getId(): string
     {
         return $this->id;
     }
 
-    public function setId(int $id): self
+    public function setId(string $id): self
     {
         $this->id = $id;
         return $this;
@@ -29,11 +29,8 @@ trait IdentifiableIntNonNullableStrategyCustom
 
     public function generateId(): self
     {
-        $uuid      = Uuid::v7();
-        $hexString = $uuid->toHex();
-        $bigInt    = intval(base_convert($uuid->toHex(), 16, 10));
-
-        $this->id = $bigInt;
+        $uuid     = Uuid::v7();
+        $this->id = $uuid->toHex();
         return $this;
     }
 }
