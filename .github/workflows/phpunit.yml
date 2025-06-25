@@ -158,7 +158,6 @@ jobs:
 
             -   name: "Test /Entity/SuperAttribute"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/ECommerce/
                     /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/
                     /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/Timestampable/
 
