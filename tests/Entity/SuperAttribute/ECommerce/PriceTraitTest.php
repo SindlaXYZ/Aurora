@@ -12,7 +12,7 @@ use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait;
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/ECommerce/PriceTraitTest.php --no-coverage
  */
-class PriceTraitTestTest extends KernelTestCase
+class PriceTraitTest extends KernelTestCase
 {
     private $kernelTest;
     private $containerTest;
