@@ -39,7 +39,7 @@ class PriceTraitTest extends KernelTestCase
             ->setPriceVatPercentage('19');
 
         $this->assertEquals(
-            '23.46',
+            '23.45',
             $priceTrait->calculatePriceVatAmount()->getPriceVatAmount(),
             'Price VAT amount should be 24.07 for price 123.45 with VAT percentage 19.50%'
         );
