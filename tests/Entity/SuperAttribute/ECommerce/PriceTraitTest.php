@@ -31,8 +31,9 @@ class PriceTraitTest extends KernelTestCase
 
     public function testCalculatePriceVatAmount(): void
     {
-        $priceTrait = $this->createMock(PriceTraitMock::class);
-        $priceTrait->method('getPriceWithoutVat')->willReturn('123.45');
+        $priceTrait = $this->createMock(PriceTraitMock::class)
+            ->method('getPriceVatPercentage')->willReturn('19')
+            ->method('getPriceWithoutVat')->willReturn('123.45');
 
         $priceTrait
             ->setPriceWithoutVat('123.45')
