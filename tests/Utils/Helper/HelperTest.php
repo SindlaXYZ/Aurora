@@ -10,10 +10,10 @@ use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 // Sindla
-use Sindla\Bundle\auroraBundle\Utils\Helper\Helper;
+use Sindla\Bundle\auroraBundle\Utils\AuroraHelper\AuroraHelper;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraHelper/HelperTest.php --no-coverage
  */
 class HelperTest extends KernelTestCase
 {
@@ -34,7 +34,7 @@ class HelperTest extends KernelTestCase
 
     public function arrayToFlattenedDotPath()
     {
-        $Helper = new Helper($this->containerTest);
+        $Helper = new AuroraHelper($this->containerTest);
 
         $nestedArray = [
             'this' => [

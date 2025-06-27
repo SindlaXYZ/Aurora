@@ -173,7 +173,7 @@ services:
         public: true
 
     aurora.helper:
-        class: Sindla\Bundle\AuroraBundle\Utils\Helper\Helper
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
         autowire: true
         autoconfigure: true
         public: true

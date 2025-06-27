@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\Helper;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraHelper;
 
 use GeoIp2\Database\Reader;
 use Symfony\Component\HttpFoundation\Request;
@@ -8,7 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Debug: php bin/console debug:container aurora.helper
  */
-class Helper
+class AuroraHelper
 {
     /**
      * Check if a key exists in a multidimensional array

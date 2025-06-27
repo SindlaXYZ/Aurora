@@ -3,8 +3,8 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
-use Sindla\Bundle\AuroraBundle\Utils\Helper\Helper;
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
@@ -28,7 +28,7 @@ class UtilityExtension extends AbstractExtension
         private RequestStack $Request,
         private Environment  $twig,
         #[Autowire(service: 'aurora.helper')]
-        private Helper       $helper
+        private AuroraHelper $auroraHelper
     )
     {
 
@@ -83,8 +83,8 @@ class UtilityExtension extends AbstractExtension
             new TwigFunction('hash', [$this, 'getHash']),
 
             /** {{ aurora.isTrue('true') }} */
-            new TwigFunction('isTrue', [$this->helper, 'isTrue']),
-            new TwigFunction('isFalse', [$this->helper, 'isFalse']),
+            new TwigFunction('isTrue', [$this->auroraHelper, 'isTrue']),
+            new TwigFunction('isFalse', [$this->auroraHelper, 'isFalse']),
 
             /** {{ aurora.sha1('my string to sha1') }} */
             new TwigFunction('sha1', [$this, 'getSha1']),

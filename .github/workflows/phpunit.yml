@@ -187,8 +187,8 @@ jobs:
             -   name: "Test /Utils/Diacritics"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php
 
-            -   name: "Test /Utils/Helper"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Helper/HelperTest.php
+            -   name: "Test /Utils/AuroraHelper"
+                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraHelper/HelperTest.php
 
             -   name: "Test /Utils/IO"
                 run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php
