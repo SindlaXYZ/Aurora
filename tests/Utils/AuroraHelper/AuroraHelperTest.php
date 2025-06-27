@@ -3,19 +3,14 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Strink;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
-// Sindla
 use Sindla\Bundle\auroraBundle\Utils\AuroraHelper\AuroraHelper;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraHelper/HelperTest.php --no-coverage
+ * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraHelper/AuroraHelperTest.php --no-coverage
  */
-class HelperTest extends KernelTestCase
+class AuroraHelperTest extends KernelTestCase
 {
     private $kernelTest;
     private $containerTest;
@@ -32,9 +27,9 @@ class HelperTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function arrayToFlattenedDotPath()
+    public function arrayToFlattenedDotPath(): void
     {
-        $Helper = new AuroraHelper($this->containerTest);
+        $Helper = new AuroraHelper();
 
         $nestedArray = [
             'this' => [
