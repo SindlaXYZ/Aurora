@@ -2,10 +2,10 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\HttpFoundation\Request;
 use GeoIp2\Database\Reader;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Request;
 
 class AuroraClient
 {
@@ -19,7 +19,7 @@ class AuroraClient
         $this->container = $Container;
     }
 
-    private function readGeoLite2Country()
+    private function readGeoLite2Country(): void
     {
         if (!$this->geoLiteCountryReader) {
             $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
@@ -31,7 +31,7 @@ class AuroraClient
         }
     }
 
-    private function readGeoLite2City()
+    private function readGeoLite2City(): void
     {
         if (!$this->geoLiteCityReader) {
             $GeoLite2CityFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2City.mmdb';
@@ -43,7 +43,7 @@ class AuroraClient
         }
     }
 
-    private function readGeoLite2ASN()
+    private function readGeoLite2ASN(): void
     {
         if (!$this->geoLiteASNReader) {
             $GeoLite2ASNFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2ASN.mmdb';
@@ -57,11 +57,8 @@ class AuroraClient
 
     /**
      * Read country code (ISO-) for an IP address
-     *
-     * @param string $ipAddress
-     * @return string|null
      */
-    public function ip2CountryCode(string $ipAddress)
+    public function ip2CountryCode(string $ipAddress): ?string
     {
         $this->readGeoLite2Country();
 
@@ -122,7 +119,7 @@ class AuroraClient
      *
      * @return string
      */
-    public function protocol()
+    public function protocol(): string
     {
         // Reverse proxy
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
@@ -133,9 +130,7 @@ class AuroraClient
     }
 
     /**
-     * Check is we have a SSL connection
-     *
-     * @return bool
+     * Check is we have an SSL connection
      */
     public function isSSL(): bool
     {
@@ -148,10 +143,6 @@ class AuroraClient
 
     /**
      * Returns the client IP
-     *
-     * @param Request $request
-     *
-     * @return string
      */
     public function ip(Request $request): string
     {
@@ -191,12 +182,8 @@ class AuroraClient
 
     /**
      * Check if an IP is valid
-     *
-     * @param $ip
-     *
-     * @return bool
      */
-    public function ipIsValide($ip): bool
+    public function ipIsValide(mixed $ip): bool
     {
         $ipIsValid = filter_var(
             $ip,
@@ -209,8 +196,6 @@ class AuroraClient
 
     /**
      * Return the client browser preferred languages
-     *
-     * @return array
      */
     public function preferredLanguages(): array
     {
