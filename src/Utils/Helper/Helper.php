@@ -1,6 +1,6 @@
 <?php
 
-namespace Sindla\Bundle\auroraBundle\Utils\Helper;
+namespace Sindla\Bundle\AuroraBundle\Utils\Helper;
 
 use GeoIp2\Database\Reader;
 use Symfony\Component\HttpFoundation\Request;

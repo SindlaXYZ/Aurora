@@ -4,7 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 use MatthiasMullie\Minify;
 use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
-use Sindla\Bundle\auroraBundle\Utils\Helper\Helper;
+use Sindla\Bundle\AuroraBundle\Utils\Helper\Helper;
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
