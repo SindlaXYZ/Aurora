@@ -2,18 +2,15 @@
 
 namespace Sindla\Bundle\AuroraBundle\Tests;
 
-// Symfony
+use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\Tests\TestClient;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\BrowserKit\Tests\TestClient;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Routing\Router;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\Encoder\EncoderFactory;
 use Symfony\Component\Security\Core\User\UserInterface;
-use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-
-// Doctrine
-use Doctrine\ORM\EntityManager;
 
 class WebTestCaseMiddleware extends WebTestCase
 {
@@ -56,25 +53,20 @@ class WebTestCaseMiddleware extends WebTestCase
 
     /**
      * Login a user with raw password
-     *
-     * @param UserInterface $user
-     * @param string        $rawPassword
      */
-    protected function loginWithRawPassword(UserInterface $user, string $rawPassword)
+    protected function loginWithRawPassword(UserInterface $user, string $rawPassword): void
     {
         /** @var EncoderFactory $encoderFactory */
         $encoderFactory = static::getContainer()->get('security.encoder_factory');
-        $encoder = $encoderFactory->getEncoder($user);
+        $encoder        = $encoderFactory->getEncoder($user);
 
-        if($encoder->isPasswordValid($user->getPassword(), $rawPassword, $user->getSalt())) {
+        if ($encoder->isPasswordValid($user->getPassword(), $rawPassword, $user->getSalt())) {
             $this->loginWithoutValidation($user);
         }
     }
 
     /**
      * Login a user without any validation (just for tests)
-     *
-     * @param UserInterface $user
      */
     protected function loginWithoutValidation(UserInterface $user): void
     {
@@ -85,7 +77,7 @@ class WebTestCaseMiddleware extends WebTestCase
     /**
      * Fake test. Do not delete this, otherwise Bitbucket Pipeline will fail
      */
-    public function testFake()
+    public function testFake(): void
     {
         $this->assertTrue(true);
         $this->assertFalse(false);
@@ -96,10 +88,10 @@ class WebTestCaseMiddleware extends WebTestCase
         $this->progressTotal = $count;
     }
 
-    public function progressAdvance()
+    public function progressAdvance(): void
     {
         if (1 == $this->progressIndex) {
-            fwrite(STDERR, "\nRun {$this->getName()}() tests ...\n");
+            fwrite(STDERR, "\nRun " . $this->getParentOrNull() ?? 'Unknown' . "() tests ...\n");
         }
 
         fwrite(STDERR, '.');
@@ -109,7 +101,7 @@ class WebTestCaseMiddleware extends WebTestCase
             $dots          = ($this->progressIndex % $this->progressSplitAt);
             $remainingDots = ($dots > 0 ? $this->progressSplitAt - $dots : 0);
 
-            // Break every $splitAt chars, or at the end of iteration
+            // Break all $splitAt chars, or at the end of iteration
             fwrite(STDERR, " " . str_pad($this->progressIndex, ($remainingDots + strlen($this->progressTotal)), ' ', STR_PAD_LEFT) . "/{$this->progressTotal}\n");
         }
 
@@ -164,6 +156,17 @@ class WebTestCaseMiddleware extends WebTestCase
 
     public function error($message, $fail = false): string
     {
-        return (($fail) ? $this->fail("\e[1;37;41m{$message}\e[0m\n") : "\e[1;37;41m{$message}\e[0m\n"); // white on red bg
+        return "\e[1;37;41m{$message}\e[0m\n"; // white on red bg
+    }
+
+    public function hasParent(): bool
+    {
+        return get_parent_class($this) !== false;
+    }
+
+    public function getParentOrNull(): ?string
+    {
+        $parent = get_parent_class($this);
+        return $parent !== false ? $parent : null;
     }
 }
