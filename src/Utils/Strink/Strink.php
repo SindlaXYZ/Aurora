@@ -7,7 +7,7 @@ use Brick\Math\RoundingMode;
 
 class Strink
 {
-    protected $string = '';
+    protected string $string = '';
 
     public function string(string $string): self
     {

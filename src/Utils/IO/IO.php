@@ -6,19 +6,16 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 
 class IO
 {
-    const TIME_UNIT_SECONDS = AuroraChronos::TIME_UNIT_SECONDS;
-    const TIME_UNIT_MINUTES = AuroraChronos::TIME_UNIT_MINUTES;
-    const TIME_UNIT_HOURS   = AuroraChronos::TIME_UNIT_HOURS;
-    const TIME_UNIT_DAYS    = AuroraChronos::TIME_UNIT_DAYS;
-    const TIME_UNIT_WEEKS   = AuroraChronos::TIME_UNIT_WEEKS;
-    const TIME_UNIT_MONTHS  = AuroraChronos::TIME_UNIT_MONTHS;
-    const TIME_UNIT_YEARS   = AuroraChronos::TIME_UNIT_YEARS;
+    const int TIME_UNIT_SECONDS = AuroraChronos::TIME_UNIT_SECONDS;
+    const int TIME_UNIT_MINUTES = AuroraChronos::TIME_UNIT_MINUTES;
+    const int TIME_UNIT_HOURS   = AuroraChronos::TIME_UNIT_HOURS;
+    const int TIME_UNIT_DAYS    = AuroraChronos::TIME_UNIT_DAYS;
+    const int TIME_UNIT_WEEKS   = AuroraChronos::TIME_UNIT_WEEKS;
+    const int TIME_UNIT_MONTHS  = AuroraChronos::TIME_UNIT_MONTHS;
+    const int TIME_UNIT_YEARS   = AuroraChronos::TIME_UNIT_YEARS;
 
     /**
      * Recursive create a directory
-     *
-     * @param string $directory
-     * @return  boolean
      */
     public function recursiveCreateDirectory(string $directory): bool
     {
@@ -31,10 +28,6 @@ class IO
 
     /**
      * Recursive delete files/directories
-     *
-     * @param string  $str
-     * @param boolean $removeGivenDir
-     * @return  boolean
      */
     public function recursiveDelete(string $str, bool $removeGivenDir = true): bool
     {

@@ -4,39 +4,29 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraMatch;
 
 class AuroraMatch
 {
-    /**
-     * @param string $needle
-     * @param string $domain
-     * @return bool
-     */
     public function matchDomain(string $needle, string $domain): bool
     {
         $parsedNeedle = parse_url($needle);
-        if(array_key_exists('scheme', $parsedNeedle) && array_key_exists('host', $parsedNeedle)) {
+        if (array_key_exists('scheme', $parsedNeedle) && array_key_exists('host', $parsedNeedle)) {
             $needle = $parsedNeedle['host'];
         }
 
         $parsedDomain = parse_url($domain);
-        if(array_key_exists('scheme', $parsedDomain) && array_key_exists('host', $parsedDomain)) {
+        if (array_key_exists('scheme', $parsedDomain) && array_key_exists('host', $parsedDomain)) {
             $domain = $parsedNeedle['host'];
         }
 
-        preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)'. preg_quote($domain) .'$/', $needle, $matches);
+        preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain) . '$/', $needle, $matches);
 
         return ((is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false);
     }
 
-    /**
-     * @param string $needle
-     * @param array  $domains
-     * @return bool
-     */
     public function matchAtLeastOneDomain(string $needle, array $domains): bool
     {
         $matched = false;
 
         foreach ($domains as $domain) {
-            if($this->matchDomain($needle, $domain)) {
+            if ($this->matchDomain($needle, $domain)) {
                 $matched = true;
             }
         }
@@ -44,42 +34,40 @@ class AuroraMatch
         return $matched;
     }
 
-    public function matchCssUrls(string $css, $relativeUrlOnly = true)
+    public function matchCssUrls(string $css, $relativeUrlOnly = true): array
     {
         preg_match_all("/url\((?!['\"]?(?:data|https|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
-
         return $matches;
     }
 
     /**
-     * Check a password strength
-     *
-     * @param mixed $password
-     * @param bool  $min1LowerCase
-     * @param bool  $min1UpperCase
-     * @param bool  $min1number
-     * @param false $min1Symbol
-     * @param int   $minLength
-     * @param int   $maxLength
-     * @return bool
+     * Check password strength
      */
-    public function passwordStrength($password, $min1LowerCase = true, $min1UpperCase = true, $min1number = true, $min1Symbol = false, int $minLength = 1, int $maxLength = 999): bool
+    public function passwordStrength(
+        mixed $password,
+        bool  $min1LowerCase = true,
+        bool  $min1UpperCase = true,
+        bool  $min1number = true,
+        false $min1Symbol = false,
+        int   $minLength = 1,
+        int   $maxLength = 999
+    ): bool
     {
         $match = '/^';
 
-        if($min1LowerCase) {
+        if ($min1LowerCase) {
             $match .= '(?=.*[a-z])';
         }
 
-        if($min1UpperCase) {
+        if ($min1UpperCase) {
             $match .= '(?=.*[A-Z])';
         }
 
-        if($min1number) {
+        if ($min1number) {
             $match .= '(?=.*[\d])';
         }
 
-        if($min1Symbol && ctype_alnum($password)) {
+        if ($min1Symbol && ctype_alnum($password)) {
             return false;
         }
 

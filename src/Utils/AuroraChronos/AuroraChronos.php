@@ -40,12 +40,8 @@ class AuroraChronos
     /**
      * Transform/parse a human date to machine date (Y-m-d)
      *    eg: 28.09.2013 (d.m.Y) => 2013-09-28
-     *
-     * @param string $datetime
-     * @param string $humanFormat
-     * @return  string
      */
-    public function dateToMachineDate($datetime, $humanFormat): string
+    public function dateToMachineDate(string $datetime, string $humanFormat): string
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
         return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT);
@@ -54,12 +50,8 @@ class AuroraChronos
     /**
      * Transform/parse a human date to machine date (Y-m-d H:i:s)
      *    eg: 28.09.2013 23:41:12 => 2013-09-28 23:41:12
-     *
-     * @param string $datetime
-     * @param string $humanFormat
-     * @return  string
      */
-    public function dateToMachineDateTime($datetime, $humanFormat): string
+    public function dateToMachineDateTime(string $datetime, string $humanFormat): string
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
         return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT) . ' ' . (!empty($parsedDate['hour']) ? $parsedDate['hour'] : '00') . ':' . (!empty($parsedDate['minute']) ? $parsedDate['minute'] : '00') . ':' . (!empty($parsedDate['second']) ? $parsedDate['second'] : '00');

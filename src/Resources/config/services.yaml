@@ -108,7 +108,7 @@ services:
         class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
         tags:
             - { name: twig.extension }
-        arguments: [ '@service_container', "@request_stack", "@twig" ]
+        arguments: [ '@service_container', "@request_stack", "@twig", "@aurora.helper"]
         autowire: true
         autoconfigure: true
         public: true
