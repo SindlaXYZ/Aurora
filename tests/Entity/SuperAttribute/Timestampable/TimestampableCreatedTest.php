@@ -30,9 +30,8 @@ class TimestampableCreatedTest extends KernelTestCase
     {
         $datetime = new \DateTimeImmutable('2021-01-12 01:02:03');
 
-        /** @var TimestampableCreated $timestampableCreated */
         $timestampableCreated = $this->createMock(TimestampableCreatedMock::class);
-        $timestampableCreated->setCreatedAt($datetime);
+        $timestampableCreated->method('getCreatedAt')->willReturn($datetime);
 
         $someDateTime = clone $datetime;
         $dateFormat   = 'Y-m-d H:i:s';
