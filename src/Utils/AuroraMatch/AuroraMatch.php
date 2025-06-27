@@ -48,7 +48,7 @@ class AuroraMatch
         bool  $min1LowerCase = true,
         bool  $min1UpperCase = true,
         bool  $min1number = true,
-        false $min1Symbol = false,
+        bool  $min1Symbol = false,
         int   $minLength = 1,
         int   $maxLength = 999
     ): bool
