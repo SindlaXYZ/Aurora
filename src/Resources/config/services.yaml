@@ -172,6 +172,12 @@ services:
         autoconfigure: true
         public: true
 
+    aurora.helper:
+        class: Sindla\Bundle\AuroraBundle\Utils\Helper\Helper
+        autowire: true
+        autoconfigure: true
+        public: true
+
     aurora.io:
         class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
         autowire: true
