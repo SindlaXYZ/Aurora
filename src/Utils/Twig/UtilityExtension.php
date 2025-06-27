@@ -8,6 +8,7 @@ use Sindla\Bundle\auroraBundle\Utils\Helper\Helper;
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -26,6 +27,7 @@ class UtilityExtension extends AbstractExtension
         private Container    $container,
         private RequestStack $Request,
         private Environment  $twig,
+        #[Autowire(service: 'aurora.helper')]
         private Helper       $helper
     )
     {
