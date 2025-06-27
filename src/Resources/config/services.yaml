@@ -60,33 +60,33 @@ services:
         tags:
             - { name: console.command }
 
-    # Register TestCommand (see class file for the command name)
+    # Register TestCommand (see the class file for the command name)
     aurora.command.test:
         class: Sindla\Bundle\AuroraBundle\Command\TestCommand
         tags:
             - { name: console.command }
 
-    # Register TestCommand (see class file for the command name)
+    # Register TestCommand (see the class file for the command name)
     aurora.command.i18n:
         class: Sindla\Bundle\AuroraBundle\Command\I18nCommand
         tags:
             - { name: console.command }
 
-    # Register LazyEntity command (see class file for the command name)
+    # Register LazyEntity command (see the class file for the command name)
     aurora.command.lazy_entity:
         class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
         arguments: [ '@service_container' ]
         tags:
             - { name: console.command }
 
-    # Register LazyEntity command (see class file for the command name)
+    # Register LazyEntity command (see the class file for the command name)
     aurora.command.php_unit_code_coverage_badge_command:
         class: Sindla\Bundle\AuroraBundle\Command\PHPUnitCodeCoverageBadgeCommand
         arguments: [ '@service_container' ]
         tags:
             - { name: console.command }
 
-    # Register ComposerUpdate command (see class file for the command name)
+    # Register ComposerUpdate command (see the class file for the command name)
     aurora.command.composer:
         class: Sindla\Bundle\AuroraBundle\Command\ComposerCommand
         arguments: [ '@service_container' ]
