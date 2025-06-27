@@ -22,16 +22,16 @@ class UtilityExtension extends AbstractExtension
 {
     /** @var string|null */
     private ?string $nonce = null;
+    private Helper  $helper;
 
     public function __construct(
         private Container    $container,
         private RequestStack $Request,
-        private Environment  $twig,
-        #[Autowire(service: 'aurora.helper')]
-        private Helper       $helper
+        private Environment  $twig
+
     )
     {
-
+        $this->helper = $this->container->get('aurora.helper');
     }
 
     ##########################################################################################################################################################################################
