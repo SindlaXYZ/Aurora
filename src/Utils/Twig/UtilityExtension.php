@@ -27,6 +27,7 @@ class UtilityExtension extends AbstractExtension
         private Container    $container,
         private RequestStack $Request,
         private Environment  $twig,
+        #[Autowire(service: 'aurora.helper')]
         private Helper       $helper
     )
     {
