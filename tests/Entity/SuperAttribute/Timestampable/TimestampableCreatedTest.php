@@ -34,7 +34,7 @@ class TimestampableCreatedTest extends KernelTestCase
     public function testTimestampableCreated(): void
     {
         /** @var TimestampableCreated $timestampableCreated */
-        $timestampableCreated = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable\TimestampableCreated');
+        $timestampableCreated = $this->createMock(TimestampableCreatedMock::class);
 
         $someDateTime = new \DateTimeImmutable('2021-01-12 01:02:03');
         $dateFormat   = 'Y-m-d H:i:s';
@@ -45,10 +45,15 @@ class TimestampableCreatedTest extends KernelTestCase
     public function testTimestampableCreatedException(): void
     {
         /** @var TimestampableCreated $timestampableCreated */
-        $timestampableCreated = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable\TimestampableCreated');
+        $timestampableCreated = $this->createMock(TimestampableCreatedMock::class);
 
         $this->expectException(TypeError::class);
         $timestampableCreated->setCreatedAt(new DateTime());
         $timestampableCreated->getCreatedAt();
     }
+}
+
+class TimestampableCreatedMock
+{
+    use TimestampableCreated;
 }

@@ -46,7 +46,6 @@ class PriceTraitTest extends KernelTestCase
     }
 }
 
-
 class PriceTraitMock
 {
     use PriceTrait;
