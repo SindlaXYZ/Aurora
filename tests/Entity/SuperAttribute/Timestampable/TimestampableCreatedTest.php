@@ -30,8 +30,7 @@ class TimestampableCreatedTest extends KernelTestCase
     {
         $datetime = new \DateTimeImmutable('2021-01-12 01:02:03');
 
-        $timestampableCreated = $this->createMock(TimestampableCreatedMock::class);
-        $timestampableCreated->method('getCreatedAt')->willReturn($datetime);
+        $timestampableCreated = new TimestampableCreatedMock()->setCreatedAt($datetime);
 
         $someDateTime = clone $datetime;
         $dateFormat   = 'Y-m-d H:i:s';
@@ -43,8 +42,7 @@ class TimestampableCreatedTest extends KernelTestCase
 
     public function testTimestampableCreatedException(): void
     {
-        /** @var TimestampableCreated $timestampableCreated */
-        $timestampableCreated = $this->createMock(TimestampableCreatedMock::class);
+        $timestampableCreated = new TimestampableCreatedMock();
 
         $this->expectException(\TypeError::class);
         $timestampableCreated->setCreatedAt(new \DateTime())->getCreatedAt();

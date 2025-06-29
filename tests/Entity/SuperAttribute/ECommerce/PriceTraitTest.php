@@ -28,10 +28,7 @@ class PriceTraitTest extends KernelTestCase
 
     public function testCalculatePriceVatAmount(): void
     {
-        // Option 2: Test with actual implementation instead of mock
-        $priceTrait = new PriceTraitMock();
-
-        $priceTrait
+        $priceTrait = new PriceTraitMock()
             ->setPriceWithoutVat('123.45')
             ->setPriceVatPercentage('19');
 
