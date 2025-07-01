@@ -1,23 +1,15 @@
 <?php
 
-namespace Sindla\Bundle\auroraBundle\Utils\Helper;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraHelper;
 
 use GeoIp2\Database\Reader;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
  * Debug: php bin/console debug:container aurora.helper
  */
-class Helper
+class AuroraHelper
 {
-    private Container $container;
-
-    public function __construct(Container $Container)
-    {
-        $this->container = $Container;
-    }
-
     /**
      * Check if a key exists in a multidimensional array
      */
@@ -36,7 +28,7 @@ class Helper
     }
 
     /**
-     * Convert a nested array into dot path array
+     * Convert a nested array into a dot path array
      */
     public function arrayToFlattenedDotPath(array $array, $prepend = ''): array
     {
@@ -71,5 +63,15 @@ class Helper
         }
 
         return $array;
+    }
+
+    public function isTrue(mixed $value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === true;
+    }
+
+    public function isFalse(mixed $value): bool
+    {
+        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === false;
     }
 }

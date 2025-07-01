@@ -40,12 +40,8 @@ class AuroraChronos
     /**
      * Transform/parse a human date to machine date (Y-m-d)
      *    eg: 28.09.2013 (d.m.Y) => 2013-09-28
-     *
-     * @param string $datetime
-     * @param string $humanFormat
-     * @return  string
      */
-    public function dateToMachineDate($datetime, $humanFormat): string
+    public function dateToMachineDate(string $datetime, string $humanFormat): string
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
         return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT);
@@ -54,12 +50,8 @@ class AuroraChronos
     /**
      * Transform/parse a human date to machine date (Y-m-d H:i:s)
      *    eg: 28.09.2013 23:41:12 => 2013-09-28 23:41:12
-     *
-     * @param string $datetime
-     * @param string $humanFormat
-     * @return  string
      */
-    public function dateToMachineDateTime($datetime, $humanFormat): string
+    public function dateToMachineDateTime(string $datetime, string $humanFormat): string
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
         return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT) . ' ' . (!empty($parsedDate['hour']) ? $parsedDate['hour'] : '00') . ':' . (!empty($parsedDate['minute']) ? $parsedDate['minute'] : '00') . ':' . (!empty($parsedDate['second']) ? $parsedDate['second'] : '00');
@@ -68,10 +60,8 @@ class AuroraChronos
     /**
      * Transform/parse a machine date to human date
      *    eg: 01.09.2013 => 2013-09-01
-     *
-     * @param mixed $datetime
      */
-    public function dateToHuman($date, $humanFormat)
+    public function dateToHuman(string|\DateTime $date, string $humanFormat): string
     {
         if (!($date instanceof \DateTime)) {
             $date = new \DateTime($date);
@@ -92,16 +82,15 @@ class AuroraChronos
     }
 
     /**
-     * Check if difference between two dates is higher than ...
-     * 1 hours and 1 seconds is higher (return true) than 1 hours and 0 seconds
-     *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @param int   $intervalUnit
-     * @param int   $timeUnit
-     * @return bool
+     * Check if the difference between two dates is higher than ...
+     * 1 hour and 1 second is higher (return true) than 1 hour and 0 seconds
      */
-    public function diffIsHigherThan($startDate, $endDate, int $intervalUnit, int $timeUnit)
+    public function diffIsHigherThan(
+        string|\DateTime $startDate,
+        string|\DateTime $endDate,
+        int              $intervalUnit,
+        int              $timeUnit
+    ): bool
     {
         if (!($startDate instanceof \DateTime)) {
             $startDate = new \DateTime($startDate);
@@ -166,18 +155,19 @@ class AuroraChronos
                 ($this->yearsBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
             );
         }
+
+        return false;
     }
 
     /**
      * Return minutes number between two dates
      *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
-     *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
      */
-    public function minutesBetweenTwoDates($startDate, $endDate): int
+    public function minutesBetweenTwoDates(
+        string|\DateTimeInterface|\DateTime $startDate,
+        string|\DateTimeInterface|\DateTime $endDate
+    ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
             if (!($startDate instanceof \DateTime)) {
@@ -197,13 +187,12 @@ class AuroraChronos
     /**
      * Return hours number between two dates
      *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
-     *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
      */
-    public function hoursBetweenTwoDates($startDate, $endDate): int
+    public function hoursBetweenTwoDates(
+        string|\DateTimeInterface|\DateTime $startDate,
+        string|\DateTimeInterface|\DateTime $endDate
+    ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
             if (!($startDate instanceof \DateTime)) {
@@ -224,13 +213,12 @@ class AuroraChronos
     /**
      * Return days number between two dates
      *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
-     *
      * @docs    http://stackoverflow.com/questions/2040560/finding-the-number-of-days-between-two-dates
      */
-    public function daysBetweenTwoDates($startDate, $endDate): int
+    public function daysBetweenTwoDates(
+        string|\DateTimeInterface|\DateTime $startDate,
+        string|\DateTimeInterface|\DateTime $endDate
+    ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
             if (!($startDate instanceof \DateTime)) {
@@ -251,7 +239,10 @@ class AuroraChronos
     /**
      * Return negative or positive (rounded) months number between two dates
      */
-    public function monthsBetweenTwoDates(\DateTimeInterface $startDate, \DateTimeInterface $endDate): int
+    public function monthsBetweenTwoDates(
+        \DateTimeInterface $startDate,
+        \DateTimeInterface $endDate
+    ): int
     {
         if ($this->areSameYearSameMonth($startDate, $endDate)) {
             return 0;
@@ -266,12 +257,12 @@ class AuroraChronos
     /**
      * Return years number between two dates
      *
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return  integer
      * @throws \DateMalformedStringException
      */
-    public function yearsBetweenTwoDates($startDate, $endDate): int
+    public function yearsBetweenTwoDates(
+        string|\DateTimeInterface|\DateTime $startDate,
+        string|\DateTimeInterface|\DateTime $endDate
+    ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
             if (!($startDate instanceof \DateTime)) {

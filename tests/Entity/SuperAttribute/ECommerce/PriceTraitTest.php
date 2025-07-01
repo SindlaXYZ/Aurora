@@ -3,11 +3,8 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\ECommerce;
 
-use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\HttpClient\HttpClient;
 use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/ECommerce/PriceTraitTest.php --no-coverage
@@ -31,17 +28,22 @@ class PriceTraitTest extends KernelTestCase
 
     public function testCalculatePriceVatAmount(): void
     {
-        /** @var PriceTrait $priceTrait */
-        $priceTrait = $this->getMockForTrait('Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\PriceTrait');
-
-        $priceTrait
+        $priceTrait = new PriceTraitMock()
             ->setPriceWithoutVat('123.45')
             ->setPriceVatPercentage('19');
 
+        $expectedVatAmount = '23.45';
+
         $this->assertEquals(
-            '23.45',
+            $expectedVatAmount,
             $priceTrait->calculatePriceVatAmount()->getPriceVatAmount(),
-            'Price VAT amount should be 24.07 for price 123.45 with VAT percentage 19.50%'
+            "Price VAT amount should be {$expectedVatAmount} for price 123.45 with VAT percentage 19%"
         );
     }
+
+}
+
+class PriceTraitMock
+{
+    use PriceTrait;
 }

@@ -22,7 +22,7 @@ class AuroraArray
     }
 
     /**
-     * Convert a nested array into dot path array
+     * Convert a nested array into a.dot.path.array
      */
     public function toFlattenedDotPath(array $array, $prepend = ''): array
     {

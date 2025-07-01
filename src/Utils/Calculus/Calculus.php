@@ -22,8 +22,6 @@ class Calculus
     /**
      * Check if a number is prime based on trial division
      *
-     * @param integer $number
-     * @return  boolean
      * @docs    http://en.wikipedia.org/wiki/Prime_number
      * @docs    http://www.ideaflix.com/question/formula-to-calculate-distance-between-two-latitude-and-longitude-in-php/
      */
@@ -44,7 +42,7 @@ class Calculus
     }
 
     /**
-     * Return percentage between two number
+     * Return percentage between two numbers
      *
      * @param $newNumber
      * @param $originalNumber

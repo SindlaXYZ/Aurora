@@ -9,10 +9,10 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraCryptor;
  */
 class AuroraCryptor
 {
-    private $cipher  = 'AES-128-CTR';
-    private $encryptionKey;
-    private $options = 0;
-    private $randomInitializationVector;
+    private string $cipher  = 'AES-128-CTR';
+    private        $encryptionKey;
+    private        $options = 0;
+    private string $randomInitializationVector;
 
     public function __construct()
     {
@@ -33,7 +33,6 @@ class AuroraCryptor
     }
 
     /**
-     * @param string $data
      * @return string (base64 of "encrypted key::initialization vector"
      */
     public function encrypt(string $data): string
@@ -45,7 +44,6 @@ class AuroraCryptor
 
     /**
      * @param string $encryptedBase64 (base64 of "encrypted key::initialization vector"
-     * @return string
      */
     public function decrypt(string $encryptedBase64): string
     {

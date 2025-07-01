@@ -7,7 +7,7 @@ namespace Sindla\Bundle\AuroraBundle\Utils\PseudoLocalization;
  */
 class PseudoLocalization
 {
-    protected $groups
+    protected array $groups
         = [
             'circled' => [
                 'numbers' => '0①②③④⑤⑥⑦⑧⑨',

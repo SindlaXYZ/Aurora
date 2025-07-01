@@ -23,8 +23,8 @@ class IdentifiableIntNonNullableStrategyCustomTest extends KernelTestCase
      */
     public function testIdentifiableUUID(): void
     {
-        $Mock = new Mock();
-        $Mock->generateId();
+        $Mock = new Mock()
+            ->generateId();
         $this->assertIsString($Mock->getId());
     }
 }

@@ -3,10 +3,12 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Twig;
 
 use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 use Sindla\Bundle\AuroraBundle\Utils\Git\Git;
 use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -18,30 +20,18 @@ use Twig\TwigFunction;
 
 class UtilityExtension extends AbstractExtension
 {
-    /** @var Container */
-    protected Container $container;
-
-    /** @var RequestStack */
-    protected RequestStack $request;
-
-    /** @var Environment */
-    private Environment $twig;
-
     /** @var string|null */
     private ?string $nonce = null;
 
-    /**
-     * UtilityExtension constructor
-     *
-     * @param Container    $serviceContainer
-     * @param RequestStack $Request
-     * @param Environment  $twig
-     */
-    public function __construct(Container $serviceContainer, RequestStack $Request, Environment $twig)
+    public function __construct(
+        private Container    $container,
+        private RequestStack $Request,
+        private Environment  $twig,
+        #[Autowire(service: 'aurora.helper')]
+        private AuroraHelper $auroraHelper
+    )
     {
-        $this->container = $serviceContainer;
-        $this->request   = $Request;
-        $this->twig      = $twig;
+
     }
 
     ##########################################################################################################################################################################################
@@ -60,9 +50,6 @@ class UtilityExtension extends AbstractExtension
         ];
     }
 
-    /**
-     * @param \DateTime $date
-     */
     public function filterAge(\DateTime $date): int
     {
         $referenceDate           = date('01-01-Y');
@@ -94,6 +81,10 @@ class UtilityExtension extends AbstractExtension
 
             /** {{ aurora.hash(2) }} */
             new TwigFunction('hash', [$this, 'getHash']),
+
+            /** {{ aurora.isTrue('true') }} */
+            new TwigFunction('isTrue', [$this->auroraHelper, 'isTrue']),
+            new TwigFunction('isFalse', [$this->auroraHelper, 'isFalse']),
 
             /** {{ aurora.sha1('my string to sha1') }} */
             new TwigFunction('sha1', [$this, 'getSha1']),
@@ -157,39 +148,39 @@ class UtilityExtension extends AbstractExtension
         ]);
     }
 
-    public function pwaVersion(Request $Request)
+    public function pwaVersion(Request $request): string
     {
         /** @var PWA $PWA */
         $PWA = $this->container->get('aurora.pwa');
 
-        return $PWA->version($Request);
+        return $PWA->version($request);
     }
 
-    public function pwaDelete(Request $Request, bool $debug)
+    public function pwaDelete(Request $request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.delete.html.twig', [
             'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
-            'host'       => $Request->getHost(),
-            'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'host'       => $request->getHost(),
+            'pwa'        => (bool)($request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $request->getHost())),
             'build'      => $this->getBuild(),
-            'pwaVersion' => $this->pwaVersion($Request),
+            'pwaVersion' => $this->pwaVersion($request),
             'debug'      => $debug
         ]);
     }
 
-    public function pwaUnregister(Request $Request, bool $debug)
+    public function pwaUnregister(Request $request, bool $debug)
     {
         return $this->twig->display('@Aurora/pwa.unregister.html.twig', [
             'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
-            'host'       => $Request->getHost(),
-            'pwa'        => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
+            'host'       => $request->getHost(),
+            'pwa'        => (bool)($request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $request->getHost())),
             'build'      => $this->getBuild(),
-            'pwaVersion' => $this->pwaVersion($Request),
+            'pwaVersion' => $this->pwaVersion($request),
             'debug'      => $debug
         ]);
     }
 
-    public function dnsPrefetch()
+    public function dnsPrefetch(): void
     {
         // Since 2020-12-18
         trigger_error('Method aurora.dnsPrefetch() is deprecated. Use aurora.linkRelDnsPrefetch() instead.', E_USER_DEPRECATED);
@@ -224,7 +215,7 @@ class UtilityExtension extends AbstractExtension
         echo $html;
     }
 
-    public function getBuild($limit = null)
+    public function getBuild($limit = null): string
     {
         $serviceGit = $this->container->get('aurora.git');
         $build      = $serviceGit->getHash();
@@ -249,14 +240,14 @@ class UtilityExtension extends AbstractExtension
         return $serviceGit->gitLatestTagHash();
     }
 
-    public function getHash($size = 24)
+    public function getHash($size = 24): string
     {
         $size = min($size, 40);
 
         return substr(sha1(microtime() . time() . uniqid()), 0, $size);
     }
 
-    public function getSha1($string)
+    public function getSha1($string): string
     {
         return sha1($string);
     }

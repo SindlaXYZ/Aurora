@@ -25,71 +25,71 @@ services:
 
     aurora.controller.test:
         class: 'Sindla\Bundle\AuroraBundle\Controller\TestController'
-        tags: [ 'controller.service_arguments' ]
+        tags: ['controller.service_arguments']
         calls:
-            - [ setContainer, [ "@service_container" ] ]
+            - [setContainer, ["@service_container"]]
 
     aurora.controller.blackhole:
         class: 'Sindla\Bundle\AuroraBundle\Controller\BlackHoleController'
-        tags: [ 'controller.service_arguments' ]
+        tags: ['controller.service_arguments']
         calls:
-            - [ setContainer, [ "@service_container" ] ]
+            - [setContainer, ["@service_container"]]
 
     aurora.controller.pwa:
         class: 'Sindla\Bundle\AuroraBundle\Controller\PWAController'
-        tags: [ 'controller.service_arguments' ]
+        tags: ['controller.service_arguments']
         calls:
-            - [ setContainer, [ "@service_container" ] ]
+            - [setContainer, ["@service_container"]]
 
     aurora.controller.compiled:
         class: 'Sindla\Bundle\AuroraBundle\Controller\CompiledController'
-        tags: [ 'controller.service_arguments' ]
+        tags: ['controller.service_arguments']
         calls:
-            - [ setContainer, [ "@service_container" ] ]
+            - [setContainer, ["@service_container"]]
 
     # Extra controller. See `src/Resources/config/routes/routes.yaml : aurora_extra` &
     Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader:
-        tags: [ routing.loader ]
+        tags: [routing.loader]
 
     ###################################################################################################################
     ###  Aurora Commands  #############################################################################################
 
     aurora.command.cloudlare.r2:
         class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
-        arguments: [ '@aurora.cloudflare.r2' ]
+        arguments: ['@aurora.cloudflare.r2']
         tags:
             - { name: console.command }
 
-    # Register TestCommand (see class file for the command name)
+    # Register TestCommand (see the class file for the command name)
     aurora.command.test:
         class: Sindla\Bundle\AuroraBundle\Command\TestCommand
         tags:
             - { name: console.command }
 
-    # Register TestCommand (see class file for the command name)
+    # Register TestCommand (see the class file for the command name)
     aurora.command.i18n:
         class: Sindla\Bundle\AuroraBundle\Command\I18nCommand
         tags:
             - { name: console.command }
 
-    # Register LazyEntity command (see class file for the command name)
+    # Register LazyEntity command (see the class file for the command name)
     aurora.command.lazy_entity:
         class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
         tags:
             - { name: console.command }
 
-    # Register LazyEntity command (see class file for the command name)
+    # Register LazyEntity command (see the class file for the command name)
     aurora.command.php_unit_code_coverage_badge_command:
         class: Sindla\Bundle\AuroraBundle\Command\PHPUnitCodeCoverageBadgeCommand
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
         tags:
             - { name: console.command }
 
-    # Register ComposerUpdate command (see class file for the command name)
+    # Register ComposerUpdate command (see the class file for the command name)
     aurora.command.composer:
         class: Sindla\Bundle\AuroraBundle\Command\ComposerCommand
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
         tags:
             - { name: console.command }
 
@@ -108,7 +108,7 @@ services:
         class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
         tags:
             - { name: twig.extension }
-        arguments: [ '@service_container', "@request_stack", "@twig" ]
+        arguments: ['@service_container', "@request_stack", "@twig"]
         autowire: true
         autoconfigure: true
         public: true
@@ -136,7 +136,7 @@ services:
 
     aurora.client:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
         autowire: true
         autoconfigure: true
         public: true
@@ -167,7 +167,13 @@ services:
 
     aurora.git:
         class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
+        autowire: true
+        autoconfigure: true
+        public: true
+
+    aurora.helper:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
         autowire: true
         autoconfigure: true
         public: true
@@ -188,14 +194,14 @@ services:
 
     aurora.pwa:
         class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
-        arguments: [ '@service_container', '@request_stack', '@twig' ]
+        arguments: ['@service_container', '@request_stack', '@twig']
         autowire: true
         autoconfigure: true
         public: true
 
     aurora.sanitizer:
         class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
-        arguments: [ '@service_container' ]
+        arguments: ['@service_container']
         autowire: true
         autoconfigure: true
         public: true

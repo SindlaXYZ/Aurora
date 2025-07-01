@@ -4,10 +4,10 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraClient;
 
 use PHPUnit\Framework\TestCase;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php --no-coverage
@@ -69,14 +69,22 @@ class AuroraClientTest extends KernelTestCase
         }
     }
 
-    public function testIpIsGoogleBot()
+    public function testIpIsGoogleBot(): void
     {
-        $Client = new AuroraClient($this->containerTest);
+        $auroraClient = new AuroraClient($this->containerTest);
 
-        $this->assertTrue($Client->ipIsGoogleBot('66.249.66.1'), sprintf('IP: %s / Host: %s', '66.249.66.1', gethostbyaddr('66.249.66.1')));
-        $this->assertTrue($Client->ipIsGoogleBot('66.249.90.77'), sprintf('IP: %s / Host: %s', '66.249.90.77', gethostbyaddr('66.249.90.77')));
+        $ip = '66.249.66.128';
+        $this->assertTrue($auroraClient->ipIsGoogleBot($ip),
+            sprintf('IP: %s / Host: %s', $ip, gethostbyaddr($ip))
+        );
 
-        if(false) {
+        $ip = '66.249.69.160';
+        $this->assertTrue(
+            $auroraClient->ipIsGoogleBot($ip),
+            sprintf('IP: %s / Host: %s', $ip, gethostbyaddr($ip))
+        );
+
+        if (false) {
             // BUG: this will test only internal urls (will remove the host from the request)
             // $this->client->request('GET', 'https://www.gstatic.com/ipranges/goog.json');
 
@@ -115,8 +123,8 @@ class AuroraClientTest extends KernelTestCase
                         $ips[] = long2ip($start + $i);
                     }
 
-                    $this->assertTrue($Client->ipIsGoogleBot(current($ips)), current($ips));
-                    $this->assertTrue($Client->ipIsGoogleBot(end($ips)), end($ips));
+                    $this->assertTrue($auroraClient->ipIsGoogleBot(current($ips)), current($ips));
+                    $this->assertTrue($auroraClient->ipIsGoogleBot(end($ips)), end($ips));
                 }
             }
 
