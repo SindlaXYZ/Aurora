@@ -66,7 +66,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
 
                         $client->request(
                             'POST',
-                            (new Strink())->string(sprintf(
+                            new Strink()->string(sprintf(
                                 '%s/%s/%s',
                                 $_ENV['BLACK_HOLE_API_URL'],
                                 $_ENV['BLACK_HOLE_API_VERSION'],

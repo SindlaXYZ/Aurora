@@ -213,7 +213,7 @@ class AuroraChronosTest extends KernelTestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraChronos())->areSameYearSameMonth($given[0], $given[1]),
+            new AuroraChronos()->areSameYearSameMonth($given[0], $given[1]),
             'Given dates: ' . $given[0]->format('Y-m-d') . ' & ' . $given[1]->format('Y-m-d')
         );
     }
@@ -238,7 +238,7 @@ class AuroraChronosTest extends KernelTestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraChronos())->monthsBetweenTwoDates($given[0], $given[1]),
+            new AuroraChronos()->monthsBetweenTwoDates($given[0], $given[1]),
             'Given dates: ' . $given[0]->format('Y-m-d') . ' & ' . $given[1]->format('Y-m-d')
         );
     }

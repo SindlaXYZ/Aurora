@@ -434,7 +434,7 @@ class UtilityExtension extends AbstractExtension
 
                 $assetWebPath  = trim($assetWebPath);                                                                        // relative to domain root, eg: static/css/main.css or external file
                 $assetAbsPath  = "{$auroraRootDir}/public/{$assetWebPath}";                                                  // relative to server dirs, eg: /srv/domain.tld/public/static/css/main.css
-                $assetBasename = (new Strink())->string(basename($assetWebPath))->compressSlashes();                         // main.css
+                $assetBasename = new Strink()->string(basename($assetWebPath))->compressSlashes();                         // main.css
                 $assetBaseDir  = str_ireplace($assetBasename, '', $assetWebPath);                                            // static/css/
 
                 // No combine in one single file, and do not minify

@@ -182,7 +182,7 @@ final class ComposerCommand extends Command
 
         $phpUnitFile = $this->kernelRootDir . '/phpunit.phar';
 
-        // If file is not older than X time
+        // If the file is not older than X time
         $cacheSeconds = (60 * 60 * 24);
         if (
             file_exists($phpUnitFile)
@@ -190,7 +190,7 @@ final class ComposerCommand extends Command
             &&
             (
                 intval($cacheSeconds) < 0
-                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= (new \SplFileInfo($phpUnitFile))->getMTime()
+                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= new \SplFileInfo($phpUnitFile)->getMTime()
             )
         ) {
             $this->io->comment(sprintf('%s ... skip updating (PHPUnit is too new)', $this->p()));
@@ -262,7 +262,7 @@ final class ComposerCommand extends Command
             }
         }
 
-        // If file is not older than X time
+        // If the file is not older than X time
         $cacheSeconds = (60 * 60 * 24);
         if (
             file_exists($destinationFile)
@@ -270,7 +270,7 @@ final class ComposerCommand extends Command
             &&
             (
                 intval($cacheSeconds) < 0
-                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= (new \SplFileInfo($destinationFile))->getMTime()
+                || strtotime(sprintf('-%d seconds', $cacheSeconds)) <= new \SplFileInfo($destinationFile)->getMTime()
             )
         ) {
             $this->io->comment(sprintf('%s ... skip updating (GeoIP2/GeoLite2%s is too new)', $this->p(), $type));

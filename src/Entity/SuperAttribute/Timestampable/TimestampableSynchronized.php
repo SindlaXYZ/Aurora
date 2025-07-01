@@ -36,7 +36,7 @@ trait TimestampableSynchronized
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getSynchronizedAtLifespanAsSeconds(): int
     {
-        return $this->synchronizedAt ? (new \DateTime())->getTimestamp() - $this->synchronizedAt->getTimestamp() : 0;
+        return $this->synchronizedAt ? new \DateTime()->getTimestamp() - $this->synchronizedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

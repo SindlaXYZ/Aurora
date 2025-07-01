@@ -35,7 +35,7 @@ class AuroraIPTest extends KernelTestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraIP())->isGoogle($given),
+            new AuroraIP()->isGoogle($given),
             'Given IP: ' . $given . ' != ' . ($expected ? 'true' : 'false')
         );
     }

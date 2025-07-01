@@ -79,40 +79,40 @@ class StrinkTest extends KernelTestCase
 
     public function testPseudoTranslate()
     {
-        $this->assertEquals('Åûţéñţîƒîçåŕé ②', (new Strink())->string('Autentificare 2')->pseudoTranslate());
-        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string('Sign In')->pseudoTranslate());
+        $this->assertEquals('Åûţéñţîƒîçåŕé ②', new Strink()->string('Autentificare 2')->pseudoTranslate());
+        $this->assertEquals('Šîĝñ Îñ', new Strink()->string('Sign In')->pseudoTranslate());
     }
 
     public function testCompressSpaces()
     {
-        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string('Šîĝñ   Îñ')->compressSpaces());
-        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string("Šîĝñ \nÎñ")->compressSpaces());
-        $this->assertEquals('Šîĝñ Îñ', (new Strink())->string("Šîĝñ\x20\x20\x20Îñ")->compressSpaces());
-        $this->assertEquals('Ora de început', (new Strink())->string('Ora de          început')->compressSpaces());
+        $this->assertEquals('Šîĝñ Îñ', new Strink()->string('Šîĝñ   Îñ')->compressSpaces());
+        $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ \nÎñ")->compressSpaces());
+        $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ\x20\x20\x20Îñ")->compressSpaces());
+        $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
     }
 
     public function testRemoveNewLines(): void
     {
-        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\nIsum")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("\nLorem\nIsum\n")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\n\nIsum")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("\n\nLorem\n\nIsum\n\n")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("Lorem\nIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("\nLorem\nIsum\n")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("Lorem\n\nIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("\n\nLorem\n\nIsum\n\n")->removeNewLines());
 
-        $this->assertEquals('Lorem Isum', (new Strink())->string("Lorem\nIsum")->removeNewLines("\x20"));
-        $this->assertEquals(' Lorem Isum ', (new Strink())->string("\nLorem\nIsum\n")->removeNewLines("\x20"));
-        $this->assertEquals('Lorem  Isum', (new Strink())->string("Lorem\n\nIsum")->removeNewLines("\x20"));
-        $this->assertEquals('  Lorem  Isum  ', (new Strink())->string("\n\nLorem\n\nIsum\n\n")->removeNewLines("\x20"));
+        $this->assertEquals('Lorem Isum', new Strink()->string("Lorem\nIsum")->removeNewLines("\x20"));
+        $this->assertEquals(' Lorem Isum ', new Strink()->string("\nLorem\nIsum\n")->removeNewLines("\x20"));
+        $this->assertEquals('Lorem  Isum', new Strink()->string("Lorem\n\nIsum")->removeNewLines("\x20"));
+        $this->assertEquals('  Lorem  Isum  ', new Strink()->string("\n\nLorem\n\nIsum\n\n")->removeNewLines("\x20"));
 
-        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\rIsum")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("\rLorem\rIsum\r")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("Lorem\r\rIsum")->removeNewLines());
-        $this->assertEquals('LoremIsum', (new Strink())->string("\r\rLorem\r\rIsum\r\r")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("Lorem\rIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("\rLorem\rIsum\r")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("Lorem\r\rIsum")->removeNewLines());
+        $this->assertEquals('LoremIsum', new Strink()->string("\r\rLorem\r\rIsum\r\r")->removeNewLines());
 
 
-        $this->assertEquals('Lorem Isum', (new Strink())->string("Lorem\rIsum")->removeNewLines("\x20"));
-        $this->assertEquals(' Lorem Isum ', (new Strink())->string("\rLorem\rIsum\r")->removeNewLines("\x20"));
-        $this->assertEquals('Lorem  Isum', (new Strink())->string("Lorem\r\rIsum")->removeNewLines("\x20"));
-        $this->assertEquals('  Lorem  Isum  ', (new Strink())->string("\r\rLorem\r\rIsum\r\r")->removeNewLines("\x20"));
+        $this->assertEquals('Lorem Isum', new Strink()->string("Lorem\rIsum")->removeNewLines("\x20"));
+        $this->assertEquals(' Lorem Isum ', new Strink()->string("\rLorem\rIsum\r")->removeNewLines("\x20"));
+        $this->assertEquals('Lorem  Isum', new Strink()->string("Lorem\r\rIsum")->removeNewLines("\x20"));
+        $this->assertEquals('  Lorem  Isum  ', new Strink()->string("\r\rLorem\r\rIsum\r\r")->removeNewLines("\x20"));
     }
 
     ##########################################################################################################################################################################################

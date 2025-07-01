@@ -160,7 +160,7 @@ class PWA
     public function mainJS(Request $request): Response
     {
         if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
-            return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
+            return new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']);
         }
 
         $notificationInstallTheApp = 'Install the App';
@@ -216,7 +216,7 @@ class PWA
     public function serviceWorkerJS(Request $request): Response
     {
         if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
-            return (new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']));
+            return new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']);
         }
 
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [

@@ -36,7 +36,7 @@ trait TimestampableCroned
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getCronedAtLifespanAsSeconds(): int
     {
-        return $this->cronedAt ? (new \DateTime())->getTimestamp() - $this->cronedAt->getTimestamp() : 0;
+        return $this->cronedAt ? new \DateTime()->getTimestamp() - $this->cronedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

@@ -36,7 +36,7 @@ trait TimestampableTranslated
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getTranslatedAtLifespanAsSeconds(): int
     {
-        return $this->translatedAt ? (new \DateTime())->getTimestamp() - $this->translatedAt->getTimestamp() : 0;
+        return $this->translatedAt ? new \DateTime()->getTimestamp() - $this->translatedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

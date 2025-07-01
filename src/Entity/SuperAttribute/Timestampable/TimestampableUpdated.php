@@ -47,7 +47,7 @@ trait TimestampableUpdated
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getUpdatedAtLifespanAsSeconds(): int
     {
-        return $this->updatedAt ? (new \DateTime())->getTimestamp() - $this->updatedAt->getTimestamp() : 0;
+        return $this->updatedAt ? new \DateTime()->getTimestamp() - $this->updatedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

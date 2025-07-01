@@ -106,11 +106,11 @@ final class I18nCommand extends CommandMiddleware
         $locale = $this->input->getOption('locale') ?? 'en';
 
         ($this->getApplication()->find('translation:extract'))->run(
-            (new ArrayInput([
+            new ArrayInput([
                 '--force'  => true,
                 '--format' => 'yaml',
                 'locale'   => $locale
-            ])),
+            ]),
             $this->output
         );
 

@@ -25,7 +25,7 @@ trait TimestampableCreated
         }
 
         if (method_exists($this, 'setDeletedAt') && !isset($this->deletedAt)) {
-            $attributes = (new \ReflectionClass($this))->getProperty('deletedAt')->getAttributes(); // @TODO: refactor this and use "symfony/property-info"
+            $attributes = new \ReflectionClass($this)->getProperty('deletedAt')->getAttributes(); // @TODO: refactor this and use "symfony/property-info"
             foreach ($attributes as $attribute) {
                 if ($attribute->getName() === Orm\Column::class) {
                     foreach ($attribute->getArguments() as $argument) {
@@ -65,7 +65,7 @@ trait TimestampableCreated
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getCreatedAtLifespanAsSeconds(): int
     {
-        return $this->createdAt ? (new \DateTime())->getTimestamp() - $this->createdAt->getTimestamp() : 0;
+        return $this->createdAt ? new \DateTime()->getTimestamp() - $this->createdAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

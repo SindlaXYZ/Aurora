@@ -35,7 +35,7 @@ trait TimestampableResponded
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getRespondedAtLifespanAsSeconds(): int
     {
-        return $this->respondedAt ? (new \DateTime())->getTimestamp() - $this->respondedAt->getTimestamp() : 0;
+        return $this->respondedAt ? new \DateTime()->getTimestamp() - $this->respondedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

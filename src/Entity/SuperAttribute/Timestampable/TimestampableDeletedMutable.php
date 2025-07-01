@@ -40,7 +40,7 @@ trait TimestampableDeletedMutable
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getDeletedAtLifespanAsSeconds(): int
     {
-        return $this->deletedAt ? (new \DateTime())->getTimestamp() - $this->deletedAt->getTimestamp() : 0;
+        return $this->deletedAt ? new \DateTime()->getTimestamp() - $this->deletedAt->getTimestamp() : 0;
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
