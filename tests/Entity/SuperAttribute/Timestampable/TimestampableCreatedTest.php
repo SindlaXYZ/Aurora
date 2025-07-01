@@ -45,7 +45,7 @@ class TimestampableCreatedTest extends KernelTestCase
         $timestampableCreated = new TimestampableCreatedMock();
 
         $this->expectException(\TypeError::class);
-        $timestampableCreated->setCreatedAt(new \DateTime()->getCreatedAt());
+        $timestampableCreated->setCreatedAt(new \DateTime())->getCreatedAt();
     }
 }
 
