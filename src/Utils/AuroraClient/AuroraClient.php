@@ -9,18 +9,22 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AuroraClient
 {
-    private $container;
     private $geoLiteCountryReader;
     private $geoLiteCityReader;
     private $geoLiteASNReader;
 
-    public function __construct(Container $Container)
+    public function __construct(
+        private ?Container $container = null
+    )
     {
-        $this->container = $Container;
     }
 
     private function readGeoLite2Country(): void
     {
+        if (null == $this->container) {
+            throw new \Exception('Container not set/initialized!');
+        }
+
         if (!$this->geoLiteCountryReader) {
             $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
             if (!is_file($GeoLite2CountryFile)) {
@@ -33,6 +37,10 @@ class AuroraClient
 
     private function readGeoLite2City(): void
     {
+        if (null == $this->container) {
+            throw new \Exception('Container not set/initialized!');
+        }
+
         if (!$this->geoLiteCityReader) {
             $GeoLite2CityFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2City.mmdb';
             if (!is_file($GeoLite2CityFile)) {
@@ -45,6 +53,10 @@ class AuroraClient
 
     private function readGeoLite2ASN(): void
     {
+        if (null == $this->container) {
+            throw new \Exception('Container not set/initialized!');
+        }
+
         if (!$this->geoLiteASNReader) {
             $GeoLite2ASNFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2ASN.mmdb';
             if (!is_file($GeoLite2ASNFile)) {
