@@ -173,7 +173,7 @@ COMMENT;
                 file_put_contents($filePath, $updatedContent);
                 $created++;
             } else {
-                $this->io->warning(sprintf('The test file %s does not contain a class.', $file->getRelativePathname()));
+                $this->io->warning(sprintf('The test file %s does not contain a class that extends the WebTestCaseMiddleware.', $file->getRelativePathname()));
             }
         }
 
