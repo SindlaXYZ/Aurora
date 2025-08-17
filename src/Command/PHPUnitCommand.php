@@ -4,6 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 
 
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraPHPUnitCodeCoverageBadge\AuroraPHPUnitCodeCoverageBadge;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -14,7 +15,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraPHPUnitCodeCoverageBadge\AuroraPHPUnitCodeCoverageBadge;
 use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
@@ -138,25 +138,25 @@ final class PHPUnitCommand extends CommandMiddleware
  */
 COMMENT;
 
-        $createdClass = 0;
-        $updatedClass = 0;
+        $createdClass   = 0;
+        $updatedClass   = 0;
         $createdMethods = 0;
         $updatedMethods = 0;
 
         foreach ($finder as $file) {
-            $filePath = $file->getRealPath();
-            $content = file_get_contents($filePath);
-            $relativePath = trim(str_replace($file->getFilename(), '', $file->getRelativePathname()), '/');
+            $filePath         = $file->getRealPath();
+            $content          = file_get_contents($filePath);
+            $relativePath     = trim(str_replace($file->getFilename(), '', $file->getRelativePathname()), '/');
             $relativeFilePath = trim($file->getRelativePathname(), '/');
 
-            // Actualizare comentarii la nivel de clasă
-            $patternWithCommentBlock = '/(\/\*\*(?:[^*]|\*(?!\/))*\*\/)\s*class\s+(\w+) extends WebTestCaseMiddleware/s';
+            // Update comments at the class level
+            $patternWithCommentBlock    = '/(\/\*\*(?:[^*]|\*(?!\/))*\*\/)\s*class\s+(\w+) extends WebTestCaseMiddleware/s';
             $patternWithoutCommentBlock = '/class\s+(\w+) extends WebTestCaseMiddleware/';
-            $newClassComment = sprintf($classCommentBlock, $relativePath, $file->getFilename());
+            $newClassComment            = sprintf($classCommentBlock, $relativePath, $file->getFilename());
 
             if (preg_match($patternWithCommentBlock, $content, $matches)) {
                 $existingComment = $matches[1];
-                $className = $matches[2];
+                $className       = $matches[2];
 
                 $content = preg_replace(
                     $patternWithCommentBlock,
@@ -178,15 +178,15 @@ COMMENT;
                 continue;
             }
 
-            // Actualizare comentarii pentru metodele de test
+            // Update comments for test methods
             $content = $this->updateTestMethodComments($content, $relativeFilePath);
 
-            // Numărare metode actualizate/create
+            // Counting updated/created methods
             preg_match_all('/public function (test\w+)\(\)/', $content, $methodMatches);
             if (!empty($methodMatches[1])) {
                 $methodCount = count($methodMatches[1]);
 
-                // Verifică dacă au fost adăugate comentarii (simplist)
+                // Check if comments have been added (simplistic)
                 $commentCount = substr_count($content, '--filter test');
                 if ($commentCount > 0) {
                     $createdMethods += $methodCount;
@@ -207,34 +207,48 @@ COMMENT;
     }
 
     /**
-     * Actualizează comentariile pentru metodele de test
+     * Update the comments for the test methods
      */
     private function updateTestMethodComments(string $content, string $relativeFilePath): string
     {
-        // Pattern pentru metodele de test cu sau fără comentarii existente
-        $pattern = '/(\s*)(\/\*\*(?:[^*]|\*(?!\/))*\*\/)?\s*(public function (test\w+)\(\)[^{]*\{)/s';
+        // 1) Delete any `// clear; cd` comment block located immediately above the test method
+        //    Allow attributes (#\[] / #\[Attribute]) and empty lines between the comment and the method signature.
+        $deletePattern = '~
+        (^[ \t]*(?:\/\/\sclear;\scd\s[^\r\n]*\r?\n)+)           # blocul de linii `//`
+        (?=                                       # lookahead: urmează doar atribute/linii goale și apoi metoda test
+            (?:^[ \t]*\#\[[^\r\n]*\]\r?\n|        # linie cu atribut PHP 8: # [...]
+               ^[ \t]*\#\s*[^\r\n]*\r?\n|         # linie cu # ... (coment/atribut simplu)
+               ^[ \t]*\r?\n                       # linie goală
+            )*
+            ^[ \t]*public[ \t]+function[ \t]+test\w+[ \t]*\(
+        )
+    ~mx';
 
-        return preg_replace_callback($pattern, function ($matches) use ($relativeFilePath) {
-            $indentation = $matches[1];
-            $existingComment = $matches[2] ?? '';
-            $methodDeclaration = $matches[3];
-            $methodName = $matches[4];
+        $content = preg_replace($deletePattern, '', $content);
 
-            // Generează comentariul pentru metodă
-            $methodComment = $this->generateMethodComment($relativeFilePath, $methodName, $indentation);
+        // 2) Insert the correct comment before each test method
+        $insertPattern = '~(^[ \t]*)(public[ \t]+function[ \t]+(test\w+)[ \t]*\([^\r\n]*\))~m';
 
-            // Dacă există deja un comentariu, îl înlocuiește
-            if (!empty($existingComment)) {
-                return $indentation . $methodComment . "\n" . $indentation . $methodDeclaration;
-            } else {
-                // Dacă nu există comentariu, îl adaugă
-                return $indentation . $methodComment . "\n" . $indentation . $methodDeclaration;
-            }
+        $content = preg_replace_callback($insertPattern, function ($m) use ($relativeFilePath) {
+            $indent     = $m[1];
+            $fnHeader   = $m[2];
+            $methodName = $m[3];
+
+            $commentLine = sprintf(
+                "%s// clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s\n",
+                $indent,
+                $relativeFilePath,
+                $methodName
+            );
+
+            return $commentLine . $indent . $fnHeader;
         }, $content);
+
+        return $content;
     }
 
     /**
-     * Generează comentariul pentru o metodă de test specifică
+     * Generate the comment for a specific test method
      */
     private function generateMethodComment(string $relativeFilePath, string $methodName, string $indentation = ''): string
     {
@@ -244,6 +258,7 @@ COMMENT;
  */
 COMMENT;
 
-        return sprintf($commentTemplate, $relativeFilePath, $methodName);
+        $comment = sprintf($commentTemplate, $relativeFilePath, $methodName);
+        return preg_replace('/^/m', "\t", $comment);
     }
 }
