@@ -124,7 +124,7 @@ final class PHPUnitCommand extends CommandMiddleware
             return self::SUCCESS;
         }
 
-        $commentBlock = <<<COMMENT
+        $classCommentBlock = <<<COMMENT
 /**
  * APP_ENV=test /usr/bin/php /srv/\${DKZ_DOMAIN}/bin/console doctrine:schema:drop --full-database --force; yes | APP_ENV=test APP_DEBUG=0 /usr/bin/php /srv/\${DKZ_DOMAIN}/bin/console doctrine:migrations:migrate | APP_ENV=test /usr/bin/php /srv/\${DKZ_DOMAIN}/bin/console doctrine:fixtures:load --verbose --append
  *
@@ -138,47 +138,112 @@ final class PHPUnitCommand extends CommandMiddleware
  */
 COMMENT;
 
-        $created = 0;
-        $updated = 0;
+        $createdClass = 0;
+        $updatedClass = 0;
+        $createdMethods = 0;
+        $updatedMethods = 0;
 
         foreach ($finder as $file) {
-            $filePath                   = $file->getRealPath();
-            $content                    = file_get_contents($filePath);
-            $patternWithCommentBlock    = '/(\/\*\*(?:[^*]|\*(?!\/))*\*\/)\s*class\s+(\w+) extends WebTestCaseMiddleware/s';
+            $filePath = $file->getRealPath();
+            $content = file_get_contents($filePath);
+            $relativePath = trim(str_replace($file->getFilename(), '', $file->getRelativePathname()), '/');
+            $relativeFilePath = trim($file->getRelativePathname(), '/');
+
+            // Actualizare comentarii la nivel de clasă
+            $patternWithCommentBlock = '/(\/\*\*(?:[^*]|\*(?!\/))*\*\/)\s*class\s+(\w+) extends WebTestCaseMiddleware/s';
             $patternWithoutCommentBlock = '/class\s+(\w+) extends WebTestCaseMiddleware/';
-            $relativePath               = trim(str_replace($file->getFilename(), '', $file->getRelativePathname()), '/');
-            $newComment                 = sprintf($commentBlock, $relativePath, $file->getFilename());
+            $newClassComment = sprintf($classCommentBlock, $relativePath, $file->getFilename());
 
             if (preg_match($patternWithCommentBlock, $content, $matches)) {
                 $existingComment = $matches[1];
-                $className       = $matches[2];
+                $className = $matches[2];
 
-                $updatedContent = preg_replace(
+                $content = preg_replace(
                     $patternWithCommentBlock,
-                    $newComment . "\nclass $className extends WebTestCaseMiddleware",
+                    $newClassComment . "\nclass $className extends WebTestCaseMiddleware",
                     $content
                 );
-
-                file_put_contents($filePath, $updatedContent);
-                $updated++;
+                $updatedClass++;
             } else if (preg_match($patternWithoutCommentBlock, $content, $matches)) {
                 $className = $matches[1];
 
-                $updatedContent = preg_replace(
+                $content = preg_replace(
                     $patternWithoutCommentBlock,
-                    $newComment . "\nclass $className extends WebTestCaseMiddleware",
+                    $newClassComment . "\nclass $className extends WebTestCaseMiddleware",
                     $content
                 );
-
-                file_put_contents($filePath, $updatedContent);
-                $created++;
+                $createdClass++;
             } else {
                 $this->io->warning(sprintf('The test file %s does not contain a class that extends the WebTestCaseMiddleware.', $file->getRelativePathname()));
+                continue;
             }
+
+            // Actualizare comentarii pentru metodele de test
+            $content = $this->updateTestMethodComments($content, $relativeFilePath);
+
+            // Numărare metode actualizate/create
+            preg_match_all('/public function (test\w+)\(\)/', $content, $methodMatches);
+            if (!empty($methodMatches[1])) {
+                $methodCount = count($methodMatches[1]);
+
+                // Verifică dacă au fost adăugate comentarii (simplist)
+                $commentCount = substr_count($content, '--filter test');
+                if ($commentCount > 0) {
+                    $createdMethods += $methodCount;
+                }
+            }
+
+            file_put_contents($filePath, $content);
         }
 
-        $this->io->success(sprintf('The comment blocks have been updated in %d test files and created in %d test files.', $updated, $created));
+        $this->io->success(sprintf(
+            'Comment blocks updated: %d class files updated, %d class files created, %d test methods processed.',
+            $updatedClass,
+            $createdClass,
+            $createdMethods
+        ));
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Actualizează comentariile pentru metodele de test
+     */
+    private function updateTestMethodComments(string $content, string $relativeFilePath): string
+    {
+        // Pattern pentru metodele de test cu sau fără comentarii existente
+        $pattern = '/(\s*)(\/\*\*(?:[^*]|\*(?!\/))*\*\/)?\s*(public function (test\w+)\(\)[^{]*\{)/s';
+
+        return preg_replace_callback($pattern, function ($matches) use ($relativeFilePath) {
+            $indentation = $matches[1];
+            $existingComment = $matches[2] ?? '';
+            $methodDeclaration = $matches[3];
+            $methodName = $matches[4];
+
+            // Generează comentariul pentru metodă
+            $methodComment = $this->generateMethodComment($relativeFilePath, $methodName, $indentation);
+
+            // Dacă există deja un comentariu, îl înlocuiește
+            if (!empty($existingComment)) {
+                return $indentation . $methodComment . "\n" . $indentation . $methodDeclaration;
+            } else {
+                // Dacă nu există comentariu, îl adaugă
+                return $indentation . $methodComment . "\n" . $indentation . $methodDeclaration;
+            }
+        }, $content);
+    }
+
+    /**
+     * Generează comentariul pentru o metodă de test specifică
+     */
+    private function generateMethodComment(string $relativeFilePath, string $methodName, string $indentation = ''): string
+    {
+        $commentTemplate = <<<COMMENT
+/**
+ * clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s
+ */
+COMMENT;
+
+        return sprintf($commentTemplate, $relativeFilePath, $methodName);
     }
 }
