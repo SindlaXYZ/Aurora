@@ -10,14 +10,14 @@ class AuroraCookiesExtractor
     {
         $cookies = [];
 
-        $responseInterface->getInfo();
+        $response = $responseInterface->getInfo();
 
         if (!isset($response['response_headers']) || !is_array($response['response_headers'])) {
             return $cookies;
         }
 
         foreach ($response['response_headers'] as $header) {
-            if (stripos($header, 'set-cookie:') !== 0) {
+            if (!str_starts_with($header, 'set-cookie:')) {
                 continue;
             }
 
@@ -52,12 +52,8 @@ class AuroraCookiesExtractor
             $cookie = new Cookie();
 
             // Name & Value
-            if (method_exists($cookie, 'setName')) {
-                $cookie->setName($name);
-            }
-            if (method_exists($cookie, 'setValue')) {
-                $cookie->setValue($value);
-            }
+            $cookie->setName($name);
+            $cookie->setValue($value);
 
             // Known attributes (case-insensitive)
             $normalized = [];
@@ -66,43 +62,43 @@ class AuroraCookiesExtractor
             }
 
             // Path
-            if (isset($normalized['path']) && method_exists($cookie, 'setPath')) {
+            if (isset($normalized['path'])) {
                 $cookie->setPath($normalized['path']);
             }
 
             // Domain
-            if (isset($normalized['domain']) && method_exists($cookie, 'setDomain')) {
+            if (isset($normalized['domain'])) {
                 $cookie->setDomain($normalized['domain']);
             }
 
             // Expires
-            if (isset($normalized['expires']) && method_exists($cookie, 'setExpires')) {
+            if (isset($normalized['expires'])) {
                 // Try to parse the date; if it fails, return the raw string.
                 $ts = strtotime($normalized['expires']);
                 if ($ts !== false) {
                     // You can adjust according to the setExpires signature (DateTime|string|int).
                     // Below I pass timestamp (int); change if needed.
-                    $cookie->setExpires($ts);
+                    $cookie->setExpires(new \DateTimeImmutable('@' . $ts, new \DateTimeZone('UTC')));
                 } else {
                     $cookie->setExpires($normalized['expires']);
                 }
-            }
-
-            // Max-Age
-            if (isset($normalized['max-age']) && method_exists($cookie, 'setMaxAge')) {
-                $cookie->setMaxAge((int)$normalized['max-age']);
+            } else if (isset($normalized['max-age'])) {
+                $cookie->setExpires(new \DateTimeImmutable('@' . (int)$normalized['max-age'], new \DateTimeZone('UTC')));
+            } else if ('PHPSESSID' == $name) {
+                // Set expires to 1440 seconds from now (default PHP session.gc_maxlifetime)
+                $cookie->setExpires(new \DateTimeImmutable('+1440 seconds', new \DateTimeZone('UTC')));
             }
 
             // SameSite
-            if (isset($normalized['samesite']) && method_exists($cookie, 'setSameSite')) {
+            if (isset($normalized['samesite'])) {
                 $cookie->setSameSite($normalized['samesite']);
             }
 
             // Flags Secure / HttpOnly
-            if ((isset($normalized['secure']) && $normalized['secure'] === true) && method_exists($cookie, 'setSecure')) {
+            if ((isset($normalized['secure']) && $normalized['secure'] === true)) {
                 $cookie->setSecure(true);
             }
-            if ((isset($normalized['httponly']) && $normalized['httponly'] === true) && method_exists($cookie, 'setHttpOnly')) {
+            if ((isset($normalized['httponly']) && $normalized['httponly'] === true)) {
                 $cookie->setHttpOnly(true);
             }
 

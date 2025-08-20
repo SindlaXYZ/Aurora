@@ -14,6 +14,7 @@ class Cookie
     private bool               $secure;
     private string             $sameSite;
     private string             $priority;
+    private array              $attributes;
 
     public function getName(): string
     {
@@ -122,6 +123,38 @@ class Cookie
     public function setPriority(string $priority): self
     {
         $this->priority = $priority;
+        return $this;
+    }
+
+    public function getAttributes(): array
+    {
+        return $this->attributes;
+    }
+
+    public function setAttributes(array $attributes): self
+    {
+        $this->attributes = $attributes;
+        return $this;
+    }
+
+    public function addAttribute(mixed $attribute): self
+    {
+        $this->attributes[] = $attribute;
+        return $this;
+    }
+
+    public function mergeAttributes(array $attributes): self
+    {
+        $this->attributes = (is_array($this->attributes) ? array_merge($this->attributes, $attributes) : $attributes);
+        return $this;
+    }
+
+    public function removeAttribute(mixed $attribute): self
+    {
+        if (true === in_array($attribute, $this->attributes, true)) {
+            $index = array_search($attribute, $this->attributes);
+            array_splice($this->attributes, $index, 1);
+        }
         return $this;
     }
 }
