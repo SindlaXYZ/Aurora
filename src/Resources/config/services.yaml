@@ -141,6 +141,12 @@ services:
         autoconfigure: true
         public: true
 
+    aurora.cookies.extractor:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor
+        autowire: true
+        autoconfigure: true
+        public: true
+
     aurora.ip:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
         autowire: true
