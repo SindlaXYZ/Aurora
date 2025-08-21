@@ -251,7 +251,6 @@ class AuroraClient
 
         $hostname = gethostbyaddr(trim($IP));
 
-        /** @var AuroraMatch $AuroraMatch */
         $AuroraMatch = new AuroraMatch();
 
         return $AuroraMatch->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com']);
