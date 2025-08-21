@@ -16,6 +16,16 @@ class Cookie
     private string             $priority;
     private array              $attributes;
 
+    public function toArray(): array
+    {
+        $properties = new \ReflectionClass($this)->getProperties();
+        $array      = [];
+        foreach ($properties as $property) {
+            $array[$property->getName()] = $property->getValue($this);
+        }
+        return $array;
+    }
+
     public function getName(): string
     {
         return $this->name;
