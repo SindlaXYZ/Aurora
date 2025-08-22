@@ -69,7 +69,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals(';', $result);
+        $this->assertEquals('', $result);
     }
 
     public function testToStringWithSpecialCharacters(): void
