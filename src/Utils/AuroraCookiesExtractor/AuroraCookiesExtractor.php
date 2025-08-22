@@ -129,4 +129,34 @@ class AuroraCookiesExtractor
 
         return $cookies;
     }
+
+    public function toString(array $cookies): string
+    {
+        if (empty($cookies)) {
+            return '';
+        }
+
+        foreach ($cookies as $i => $cookie) {
+            if ($cookie instanceof Cookie) {
+                $cookies[$i] = $cookie->toArray();
+            }
+        }
+
+        // Validation that each element has the required structure
+        $validCookies = array_filter($cookies, function ($cookie) {
+            return is_array($cookie) && isset($cookie['name']) && isset($cookie['value']);
+        });
+
+        if (empty($validCookies)) {
+            return '';
+        }
+
+        return implode(
+            ";\x20", // Space after ; for nicer formatting
+            array_map(
+                fn($c) => $c['name'] . '=' . $c['value'],
+                $validCookies
+            )
+        );
+    }
 }
