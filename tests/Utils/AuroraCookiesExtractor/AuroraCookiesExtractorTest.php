@@ -30,7 +30,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('session_id=abc123; user_pref=dark_mode; lang=ro;', $result);
+        $this->assertEquals('session_id=abc123; user_pref=dark_mode; lang=ro', $result);
     }
 
     public function testToStringWithCookieObjects(): void
@@ -45,7 +45,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('test1=value1; test2=value2;', $result);
+        $this->assertEquals('test1=value1; test2=value2', $result);
     }
 
     public function testToStringWithMixedTypes(): void
@@ -60,7 +60,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('from_array=array_value; from_object=obj_value;', $result);
+        $this->assertEquals('from_array=array_value; from_object=obj_value', $result);
     }
 
     public function testToStringWithEmptyArray(): void
@@ -81,7 +81,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('special=test=value&more; encoded=hello world;', $result);
+        $this->assertEquals('special=test=value&more; encoded=hello world', $result);
     }
 
     public function testToStringWithEmptyValues(): void
@@ -93,7 +93,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('empty_value=; normal=test;', $result);
+        $this->assertEquals('empty_value=; normal=test', $result);
     }
 
     public function testToStringWithSingleCookie(): void
@@ -104,7 +104,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
-        $this->assertEquals('single=alone;', $result);
+        $this->assertEquals('single=alone', $result);
     }
 
     public function testToStringImprovedWithInvalidCookies(): void
@@ -153,18 +153,18 @@ class AuroraCookiesExtractorTest extends KernelTestCase
         return [
             'single_cookie'    => [
                 [['name' => 'test', 'value' => 'data']],
-                'test=data;'
+                'test=data'
             ],
             'multiple_cookies' => [
                 [
                     ['name' => 'first', 'value' => '1'],
                     ['name' => 'second', 'value' => '2']
                 ],
-                'first=1; second=2;'
+                'first=1; second=2'
             ],
             'empty_values'     => [
                 [['name' => 'empty', 'value' => '']],
-                'empty=;'
+                'empty='
             ]
         ];
     }
