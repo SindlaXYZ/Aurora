@@ -4,7 +4,33 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraPHPUnitCodeCoverageBadge;
 
 class AuroraPHPUnitCodeCoverageBadge
 {
-    public function generate(string $cloverXMLFilePath, string $outputCoverageSVGFilePath, string $outputStatementsSVGFilePath): void
+    public function generatePHPUnitPassingBadge(string $junitXMLFilePath, string $outputSVGFilePath): void
+    {
+        if (!file_exists($junitXMLFilePath)) {
+            throw new \InvalidArgumentException('Invalid input file provided');
+        }
+
+        $xml        = simplexml_load_file($junitXMLFilePath);
+        $testsTotal = (int)$xml->testsuite['tests'];
+        $failures   = (int)$xml->testsuite['failures'];
+        $errors     = (int)$xml->testsuite['errors'];
+        $skipped    = (int)$xml->testsuite['skipped'];
+
+        // All test cases passed
+        if ($failures === 0 && $errors === 0) {
+            $color = '#44CC11';  // Bright Green
+        } else {
+            $color = '#D73A49';  // Red
+        }
+
+        $PHPUnitSVG = $this->_PHPUnitPassingBadge();
+        $PHPUnitSVG = str_replace('{{ color }}', $color, $PHPUnitSVG);
+        $PHPUnitSVG = str_replace('{{ passedTests }}', $testsTotal - $failures - $errors - $skipped, $PHPUnitSVG);
+        $PHPUnitSVG = str_replace('{{ totalTests }}', $testsTotal, $PHPUnitSVG);
+        file_put_contents($outputSVGFilePath, $PHPUnitSVG);
+    }
+
+    public function generateCoverageBadges(string $cloverXMLFilePath, string $outputCoverageSVGFilePath, string $outputStatementsSVGFilePath): void
     {
         if (!file_exists($cloverXMLFilePath)) {
             throw new \InvalidArgumentException('Invalid input file provided');
@@ -54,6 +80,36 @@ class AuroraPHPUnitCodeCoverageBadge
         $statementsSVG = str_replace('{{ statements }}', $statements, $statementsSVG);
         $statementsSVG = str_replace('{{ coveredStatements }}', $coveredStatements, $statementsSVG);
         file_put_contents($outputStatementsSVGFilePath, $statementsSVG);
+    }
+
+    private function _PHPUnitPassingBadge(): string
+    {
+        $width     = 160;
+        $leftBlock = 75;
+
+        return <<<SVG
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="{$width}" height="20">
+    <linearGradient id="b" x2="0" y2="100%">
+        <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
+        <stop offset="1" stop-opacity=".1"/>
+    </linearGradient>
+    <mask id="a">
+        <rect width="{$width}" height="20" rx="3" fill="#fff"/>
+    </mask>
+    <g mask="url(#a)">
+        <path fill="#555" d="M0 0h{$leftBlock}v20H0z"/>
+        <path fill="{{ color }}" d="M{$leftBlock} 0h{$width}v20H{$leftBlock}z"/>
+        <path fill="url(#b)" d="M0 0h{$width}v20H0z"/>
+    </g>
+    <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+        <text x="38" y="15" fill="#010101" fill-opacity=".3">PHPUnit</text>
+        <text x="38" y="14">PHPUnit</text>
+        <text x="117" y="15" fill="#010101" fill-opacity=".3">{{ passedTests }} / {{ totalTests }}</text>
+        <text x="117" y="14">{{ passedTests }} / {{ totalTests }}</text>
+    </g>
+</svg>
+SVG;
     }
 
     private function _coverageSVG(): string
