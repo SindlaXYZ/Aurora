@@ -173,9 +173,13 @@ trait BaseRepository
                                     ->setParameter($randomKey, $value);
                             }
                         } else {
-                            $queryBuilder
-                                ->andWhere("{$tableName}.{$column} {$operator} :{$randomKey}")
-                                ->setParameter($randomKey, $value);
+                            if ('=' == $operator && is_null($value)) {
+                                $queryBuilder->andWhere("{$tableName}.{$column} IS NULL");
+                            } else {
+                                $queryBuilder
+                                    ->andWhere("{$tableName}.{$column} {$operator} :{$randomKey}")
+                                    ->setParameter($randomKey, $value);
+                            }
                         }
                     }
                 }
