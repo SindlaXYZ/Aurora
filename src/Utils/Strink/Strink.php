@@ -557,13 +557,19 @@ class Strink
 
     public function lowerCharactersPercentage(): float
     {
-        $total = strlen($this->string);
+        $encoding = mb_detect_encoding($this->string);
+        $total    = mb_strlen($this->string, $encoding);
+
         if (0 === $total) {
             return 0.0;
         }
 
         $lower = $this->countLowerCharacters();
-        return BigDecimal::of($lower)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
+
+        return BigDecimal::of($lower)
+            ->dividedBy($total, 2, RoundingMode::HALF_UP)
+            ->multipliedBy(100)
+            ->toFloat();
     }
 
     public function countUpperCharacters(): int
@@ -574,13 +580,19 @@ class Strink
 
     public function upperCharactersPercentage(): float
     {
-        $total = strlen($this->string);
+        $encoding = mb_detect_encoding($this->string);
+        $total    = mb_strlen($this->string, $encoding);
+
         if (0 === $total) {
             return 0.0;
         }
 
         $upper = $this->countUpperCharacters();
-        return BigDecimal::of($upper)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
+
+        return BigDecimal::of($upper)
+            ->dividedBy($total, 2, RoundingMode::HALF_UP)
+            ->multipliedBy(100)
+            ->toFloat();
     }
 
     /**
