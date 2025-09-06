@@ -117,6 +117,13 @@ class StrinkTest extends KernelTestCase
 
     ##########################################################################################################################################################################################
 
+    public function testCharacterCasePercentageWithEmptyString(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals(0.0, $Strink->string('')->lowerCharactersPercentage());
+        $this->assertEquals(0.0, $Strink->string('')->upperCharactersPercentage());
+    }
+
     #[DataProvider('dataStrStartsWithAny')]
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
