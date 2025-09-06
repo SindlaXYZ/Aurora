@@ -168,8 +168,9 @@ class Strink
      */
     public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): self
     {
-        $this->string = str_replace('_', '', ucwords('external_request_repository', '_'));
-        $this->string = (!$upperCaseFirsLetter ? lcfirst($this->string) : $this->string);
+        $this->string = str_replace('_', '', ucwords($this->string, '_'));
+        $this->string = !$upperCaseFirsLetter ? lcfirst($this->string) : $this->string;
+
         return $this;
     }
 
@@ -224,7 +225,9 @@ class Strink
             $this->string = preg_replace("/\b{$word}\b/i", '', $this->string);
         }
 
-        $this->string = trim($this->compressSpaces($this->string));
+        $this->compressSpaces();
+        $this->string = trim($this->string);
+
         return $this;
     }
 
