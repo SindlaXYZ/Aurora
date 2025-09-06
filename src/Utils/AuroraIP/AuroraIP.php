@@ -80,7 +80,7 @@ class AuroraIP
 
     public function isGoogle(string $ip): bool
     {
-        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+        if (!$this->isIPV4($ip) && !$this->isIPV6($ip)) {
             return false;
         }
 
@@ -96,7 +96,7 @@ class AuroraIP
 
     public function isBing(string $ip): bool
     {
-        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+        if (!$this->isIPV4($ip) && !$this->isIPV6($ip)) {
             return false;
         }
 
@@ -112,7 +112,7 @@ class AuroraIP
 
     public function isApple(string $ip): bool
     {
-        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+        if (!$this->isIPV4($ip) && !$this->isIPV6($ip)) {
             return false;
         }
 
@@ -128,7 +128,7 @@ class AuroraIP
 
     public function isOpenAI(string $ip): bool
     {
-        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+        if (!$this->isIPV4($ip) && !$this->isIPV6($ip)) {
             return false;
         }
 
@@ -144,7 +144,7 @@ class AuroraIP
 
     public function isUpTimeRobot(string $ip): bool
     {
-        if ($this->isIPV4($ip) && $this->isIPV6($ip)) {
+        if (!$this->isIPV4($ip) && !$this->isIPV6($ip)) {
             return false;
         }
 
