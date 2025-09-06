@@ -48,6 +48,11 @@ class AuroraMatchTest extends KernelTestCase
                 'expected' => true,
             ],
             [
+                'needle'   => 'http://sindla.com',
+                'domain'   => 'https://sindla.com',
+                'expected' => true,
+            ],
+            [
                 'needle'   => 'https://sindla.com',
                 'domain'   => 'sindla.com',
                 'expected' => true,
@@ -103,6 +108,11 @@ class AuroraMatchTest extends KernelTestCase
                 'expected' => true,
             ],
             # false ------------------------------------------------------------------------
+            [
+                'needle'   => 'http://sindla.com',
+                'domain'   => 'https://notsindla.com',
+                'expected' => false,
+            ],
             [
                 'needle'   => 'http://sindla.com.myscamdomain.info',
                 'domain'   => 'sindla.com',

@@ -13,7 +13,7 @@ class AuroraMatch
 
         $parsedDomain = parse_url($domain);
         if (array_key_exists('scheme', $parsedDomain) && array_key_exists('host', $parsedDomain)) {
-            $domain = $parsedNeedle['host'];
+            $domain = $parsedDomain['host'];
         }
 
         preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain) . '$/', $needle, $matches);
