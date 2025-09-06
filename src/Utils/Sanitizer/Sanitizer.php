@@ -88,7 +88,7 @@ class Sanitizer
             foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
                 $matches = $AuroraMatch->matchCssUrls($line);
 
-                if (isset($matches[0]) & !empty($matches[0])) {
+                if (isset($matches[0]) && !empty($matches[0])) {
                     foreach ($matches[0] as $urlToImport) {
                         $quote = '';
                         if (0 === strpos($urlToImport, "url('")) {
