@@ -115,6 +115,14 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals('  Lorem  Isum  ', new Strink()->string("\r\rLorem\r\rIsum\r\r")->removeNewLines("\x20"));
     }
 
+    public function testUpperLowerAndUcfirst(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals('Ș', (string) $Strink->string('ș')->upper());
+        $this->assertEquals('ș', (string) $Strink->string('Ș')->lower());
+        $this->assertEquals('Șarpe', (string) $Strink->string('șarpe')->ucfirst());
+    }
+
     ##########################################################################################################################################################################################
 
     public function testCharacterCasePercentageWithEmptyString(): void

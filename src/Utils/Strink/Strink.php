@@ -200,19 +200,21 @@ class Strink
 
     public function lower(): self
     {
-        $this->string = strtolower($this->string);
+        $this->string = mb_strtolower($this->string, mb_detect_encoding($this->string));
         return $this;
     }
 
     public function upper(): self
     {
-        $this->string = strtoupper($this->string);
+        $this->string = mb_strtoupper($this->string, mb_detect_encoding($this->string));
         return $this;
     }
 
     public function ucfirst(): self
     {
-        $this->string = ucfirst($this->string);
+        $encoding = mb_detect_encoding($this->string);
+        $this->string = mb_strtoupper(mb_substr($this->string, 0, 1, $encoding), $encoding)
+            . mb_substr($this->string, 1, null, $encoding);
         return $this;
     }
 
