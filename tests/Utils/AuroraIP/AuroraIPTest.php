@@ -53,4 +53,22 @@ class AuroraIPTest extends KernelTestCase
             ['136.243.89.232', false]
         ];
     }
-}
+
+    #[DataProvider('dataIsPrivate')]
+    public function testIsPrivate(string $given, bool $expected): void
+    {
+        $this->assertEquals(
+            $expected,
+            (new AuroraIP())->isPrivate($given),
+            'Given IP: ' . $given . ' != ' . ($expected ? 'true' : 'false')
+        );
+    }
+
+    public static function dataIsPrivate(): array
+    {
+        return [
+            ['127.0.0.1', true],
+            ['999.999.999.999', false]
+        ];
+    }
+  }
