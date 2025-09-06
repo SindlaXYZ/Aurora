@@ -553,6 +553,10 @@ class Strink
     public function lowerCharactersPercentage(): float
     {
         $total = strlen($this->string);
+        if (0 === $total) {
+            return 0.0;
+        }
+
         $lower = $this->countLowerCharacters();
         return BigDecimal::of($lower)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
     }
@@ -566,6 +570,10 @@ class Strink
     public function upperCharactersPercentage(): float
     {
         $total = strlen($this->string);
+        if (0 === $total) {
+            return 0.0;
+        }
+
         $upper = $this->countUpperCharacters();
         return BigDecimal::of($upper)->dividedBy($total, 0, RoundingMode::FLOOR)->multipliedBy(100)->toFloat();
     }

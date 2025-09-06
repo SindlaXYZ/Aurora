@@ -1,11 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Strink;
+namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraHelper;
 
-use PHPUnit\Framework\TestCase;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Sindla\Bundle\auroraBundle\Utils\AuroraHelper\AuroraHelper;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraHelper/AuroraHelperTest.php --no-coverage
@@ -27,7 +26,7 @@ class AuroraHelperTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function arrayToFlattenedDotPath(): void
+    public function testArrayToFlattenedDotPath(): void
     {
         $Helper = new AuroraHelper();
 
