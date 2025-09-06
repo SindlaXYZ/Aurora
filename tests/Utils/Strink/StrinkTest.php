@@ -132,6 +132,20 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals(0.0, $Strink->string('')->upperCharactersPercentage());
     }
 
+    public function testCharacterCasePercentage(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals(50.0, $Strink->string('Aa')->lowerCharactersPercentage());
+        $this->assertEquals(50.0, $Strink->string('Aa')->upperCharactersPercentage());
+    }
+
+    public function testCharacterCasePercentageWithUtf8(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals(50.0, $Strink->string('Șș')->lowerCharactersPercentage());
+        $this->assertEquals(50.0, $Strink->string('Șș')->upperCharactersPercentage());
+    }
+
     #[DataProvider('dataStrStartsWithAny')]
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
