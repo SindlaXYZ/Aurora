@@ -164,7 +164,11 @@ class AuroraClient
             return $_SERVER['HTTP_CF_CONNECTING_IP'];
         }
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && !strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') && $this->ipIsValide($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+        if (
+            isset($_SERVER['HTTP_X_FORWARDED_FOR'])
+            && false === strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',')
+            && $this->ipIsValide($_SERVER['HTTP_X_FORWARDED_FOR'])
+        ) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
