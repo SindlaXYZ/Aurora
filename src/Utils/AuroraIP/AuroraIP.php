@@ -23,7 +23,7 @@ class AuroraIP
 
     public function isPrivateIPV4(string $ip): bool
     {
-        return !$this->isPublicIPV4($ip);
+        return $this->isIPV4($ip) && !$this->isPublicIPV4($ip);
     }
 
     public function isIPV6(string $ip): bool
@@ -65,7 +65,7 @@ class AuroraIP
 
     private function isPrivateIPV6(string $ip): bool
     {
-        return !$this->isPublicIPV6($ip);
+        return $this->isIPV6($ip) && !$this->isPublicIPV6($ip);
     }
 
     public function isPrivate(string $ip): bool
