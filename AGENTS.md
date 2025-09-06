@@ -1,0 +1,21 @@
+# AGENTS Instructions
+
+## Code Style
+
+- Use UTF-8 encoding with LF line endings.
+- Indent using 4 spaces and trim trailing whitespace.
+- Ensure each file ends with a newline and stays within 199 characters per line.
+- Write all source code and comments exclusively in English.
+
+## PHP Guidelines
+
+- Aurora is a Symfony 7.3 bundle requiring PHP 8.4 or newer.
+- Follow PSR-4 autoloading with the `Sindla\\Bundle\\AuroraBundle` namespace.
+- Place application code in `src/` and tests in `tests/`.
+
+## Testing
+
+- Install dependencies with `composer install`.
+- Run static analysis using `vendor/bin/phpstan analyse`.
+- Execute unit tests with `vendor/bin/phpunit`.
+
