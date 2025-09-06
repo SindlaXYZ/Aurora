@@ -331,18 +331,21 @@ class AuroraChronos
             return false;
         }
 
-        $m = (int)($secs / 60);
+        $m = intdiv($secs, 60);
         $s = $secs % 60;
-        $h = (int)($m / 60);
+        $h = intdiv($m, 60);
         $m = $m % 60;
-
-        $m = str_pad($m, 2, '0', STR_PAD_LEFT);
-        $h = str_pad($h, 2, '0', STR_PAD_LEFT);
-        $s = str_pad($s, 2, '0', STR_PAD_LEFT);
 
         if ($roundUp && $s >= 30) {
             $m++;
+            if ($m === 60) {
+                $m = 0;
+                $h++;
+            }
         }
+
+        $m = str_pad((string)$m, 2, '0', STR_PAD_LEFT);
+        $h = str_pad((string)$h, 2, '0', STR_PAD_LEFT);
 
         return $h . ':' . $m;
     }
