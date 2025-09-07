@@ -148,7 +148,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
         $this->assertEquals($expected, $result);
     }
 
-    public function cookieDataProvider(): array
+    public static function cookieDataProvider(): array
     {
         return [
             'single_cookie'    => [
