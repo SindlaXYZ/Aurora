@@ -150,6 +150,13 @@ class StrinkTest extends KernelTestCase
         $this->assertEquals('Șarpe', (string) $Strink->string('șarpe')->ucfirst());
     }
 
+    public function testObfuscateString(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals('my**********ng', $Strink->obfuscateString('mysecretstring', 2));
+        $this->assertEquals('myse******ring', $Strink->obfuscateString('mysecretstring', 4));
+    }
+
     ##########################################################################################################################################################################################
 
     public function testCharacterCasePercentageWithEmptyString(): void
