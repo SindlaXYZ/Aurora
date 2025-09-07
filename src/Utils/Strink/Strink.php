@@ -482,7 +482,7 @@ class Strink
         $caseLower = count($match[0]);
 
         if ($caseLower > 0) {
-            $this->string = $this->camelCaseToSnakeCase($this->string);
+            $this->camelCaseToSnakeCase();
         }
 
         // replace non letter or digits by -
