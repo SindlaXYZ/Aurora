@@ -605,12 +605,12 @@ class Strink
 
     public function strStartsWithAny(array $needles): bool
     {
-        return array_any($needles, fn($needle) => is_string($needle) && str_starts_with($this->string, $needle));
+        return array_any($needles, fn($needle, $_) => is_string($needle) && str_starts_with($this->string, $needle));
     }
 
     public function strEndsWithAny(array $needles): bool
     {
-        return array_any($needles, fn($needle) => is_string($needle) && str_ends_with($this->string, $needle));
+        return array_any($needles, fn($needle, $_) => is_string($needle) && str_ends_with($this->string, $needle));
     }
 
     public function __toString(): string
