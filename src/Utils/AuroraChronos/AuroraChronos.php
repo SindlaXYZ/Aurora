@@ -303,7 +303,7 @@ class AuroraChronos
         return array_values($weeks);
     }
 
-    public function seconds2HMS(int $secs, ?bool $cutHourIfZero = false): string
+    public function seconds2HMS(int $secs, ?bool $cutHourIfZero = false): string|false
     {
         if ($secs < 0) {
             return false;
@@ -325,7 +325,7 @@ class AuroraChronos
         }
     }
 
-    public function seconds2HM(int $secs, bool $roundUp = false): string
+    public function seconds2HM(int $secs, bool $roundUp = false): string|false
     {
         if ($secs < 0) {
             return false;
