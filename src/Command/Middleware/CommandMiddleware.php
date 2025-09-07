@@ -32,7 +32,7 @@ class CommandMiddleware extends Command
     protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
     private ?ProgressBar             $progressBar = null;
-    private \DatetimeInterface       $progressBarPreviousDisplay;
+    private \DateTimeInterface       $progressBarPreviousDisplay;
 
     public function __construct()
     {
