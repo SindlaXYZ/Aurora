@@ -5,22 +5,13 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Strink;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php --no-coverage
  */
-class StrinkTest extends KernelTestCase
+class StrinkTest extends TestCase
 {
-    private $kernelTest;
-    private $containerTest;
-
-    protected function setUp(): void
-    {
-        $this->kernelTest    = self::bootKernel();
-        $this->containerTest = $this->kernelTest->getContainer();
-    }
 
     public function testFake(): void
     {
@@ -155,6 +146,7 @@ class StrinkTest extends KernelTestCase
         $Strink = new Strink();
         $this->assertEquals('my**********ng', $Strink->obfuscateString('mysecretstring', 2));
         $this->assertEquals('myse******ring', $Strink->obfuscateString('mysecretstring', 4));
+        $this->assertEquals('short', $Strink->obfuscateString('short', 10));
     }
 
     ##########################################################################################################################################################################################
