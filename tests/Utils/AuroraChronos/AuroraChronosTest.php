@@ -272,4 +272,20 @@ class AuroraChronosTest extends KernelTestCase
             [1, [new \DateTimeImmutable('2024-03-01'), new \DateTimeImmutable('2024-02-28')]],
         ];
     }
+
+    public function testSeconds2HMS(): void
+    {
+        $Chronos = new AuroraChronos();
+
+        $this->assertSame('00:01:01', $Chronos->seconds2HMS(61));
+        $this->assertFalse($Chronos->seconds2HMS(-1));
+    }
+
+    public function testSeconds2HM(): void
+    {
+        $Chronos = new AuroraChronos();
+
+        $this->assertSame('00:01', $Chronos->seconds2HM(60));
+        $this->assertFalse($Chronos->seconds2HM(-1));
+    }
 }
