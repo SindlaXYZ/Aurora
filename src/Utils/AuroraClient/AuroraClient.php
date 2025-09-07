@@ -172,7 +172,7 @@ class AuroraClient
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',')) {
+        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false) {
             foreach (explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']) as $ip) {
                 $ip = trim($ip);
                 if ($this->ipIsValide($ip)) {
