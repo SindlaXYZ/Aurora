@@ -242,6 +242,12 @@ body {
 
         $this->assertEmpty($matches[0]);
         $this->assertEmpty($matches[1]);
+
+        $matches = $Match->matchCssUrls($css, false);
+        $this->assertSame(
+            'https://fonts.googleapis.com/css?family=Roboto:300,300i,400,500,700,900&display=swap',
+            $matches[1][0]
+        );
     }
 
     public function testPasswordStrength()

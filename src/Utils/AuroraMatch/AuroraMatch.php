@@ -34,9 +34,13 @@ class AuroraMatch
         return $matched;
     }
 
-    public function matchCssUrls(string $css, $relativeUrlOnly = true): array
+    public function matchCssUrls(string $css, bool $relativeUrlOnly = true): array
     {
-        preg_match_all("/url\((?!['\"]?(?:data|https|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
+        $pattern = $relativeUrlOnly
+            ? '/url\((?![\'"]?(?:data|https|http):)[\'"]?([^\'"\)]*)[\'"]?\)/'
+            : '/url\([\'"]?([^\'"\)]*)[\'"]?\)/';
+
+        preg_match_all($pattern, $css, $matches);
         return $matches;
     }
 
