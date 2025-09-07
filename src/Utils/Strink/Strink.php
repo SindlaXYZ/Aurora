@@ -166,25 +166,25 @@ class Strink
      * Transform a snake_case string to camelCase or CamelCase
      * Translates a string with underscores into camel case (e.g. first_name -> firstName)
      */
-    public function snakeCaseToCamelCase(bool $upperCaseFirsLetter = false): self
+    public function snakeCaseToCamelCase(bool $upperCaseFirstLetter = false): self
     {
         $this->string = str_replace('_', '', ucwords($this->string, '_'));
-        $this->string = !$upperCaseFirsLetter ? lcfirst($this->string) : $this->string;
+        $this->string = !$upperCaseFirstLetter ? lcfirst($this->string) : $this->string;
 
         return $this;
     }
 
     /**
-     * Transform a snake_case string to "huma case" or "Human case" or "Human Case"
-     * Translates a string with underscores into camel case (e.g. first_name -> first name)
+     * Transform a snake_case string to "human case" or "Human case" or "Human Case".
+     * Translates a string with underscores into human readable words (e.g. first_name -> first name).
      */
-    public function snakeCaseToHumanCase(bool $upperCaseFirsLetter = false, bool $upperCaseAllLetter = false): self
+    public function snakeCaseToHumanCase(bool $upperCaseFirstLetter = false, bool $upperCaseAllLetters = false): self
     {
         $this->string = strtolower($this->string);
 
         $this->string = str_replace('_', ' ', $this->string);
-        $this->string = ($upperCaseFirsLetter ? ucfirst($this->string) : $this->string);
-        $this->string = ($upperCaseAllLetter ? ucwords($this->string) : $this->string);
+        $this->string = ($upperCaseFirstLetter ? ucfirst($this->string) : $this->string);
+        $this->string = ($upperCaseAllLetters ? ucwords($this->string) : $this->string);
         return $this;
     }
 

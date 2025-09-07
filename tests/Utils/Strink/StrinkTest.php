@@ -63,7 +63,7 @@ class StrinkTest extends KernelTestCase
                      'ExternalRequestRepository' => ['external_request_repository', 'external_Request_repository', 'External_request_repository']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
-                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(true));
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(upperCaseFirstLetter: true));
             }
         }
 
@@ -72,7 +72,34 @@ class StrinkTest extends KernelTestCase
                      'externalRequestRepository' => ['external_request_repository', 'external_Request_repository', 'External_request_repository']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
-                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(false));
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(upperCaseFirstLetter: false));
+            }
+        }
+    }
+
+    public function testSnakeCaseToHumanCase(): void
+    {
+        $Strink = new Strink();
+
+        foreach ([
+                     'External request repository' => ['external_request_repository']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals(
+                    $expected,
+                    $Strink->string($given)->snakeCaseToHumanCase(upperCaseFirstLetter: true)
+                );
+            }
+        }
+
+        foreach ([
+                     'External Request Repository' => ['external_request_repository']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals(
+                    $expected,
+                    $Strink->string($given)->snakeCaseToHumanCase(upperCaseAllLetters: true)
+                );
             }
         }
     }
