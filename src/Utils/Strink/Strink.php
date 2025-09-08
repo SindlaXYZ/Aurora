@@ -145,18 +145,24 @@ class Strink
      */
     public function limitedString(int $limit = 10, string $postText = '...', string $cut = 'right'): self
     {
-        if (strlen($this->string) > $limit) {
+        $stringLength   = mb_strlen($this->string, 'utf-8');
+        $postTextLength = mb_strlen($postText, 'utf-8');
 
+        if ($stringLength > $limit) {
             $limit         = $limit + 1;
             $limitedString = $this->string;
 
             if ($cut == 'right') {
-                $limitedString = mb_substr($this->string, 0, ($limit - strlen($postText)), 'utf-8') . $postText;
-
-            } else if ($cut == 'middle' || $cut == 'center') {
-                $left   = mb_substr($this->string, 0, (ceil($limit / 2) - strlen($postText)), 'utf-8');
+                $limitedString = mb_substr($this->string, 0, ($limit - $postTextLength), 'utf-8') . $postText;
+            } elseif ($cut == 'middle' || $cut == 'center') {
+                $left   = mb_substr($this->string, 0, (ceil($limit / 2) - $postTextLength), 'utf-8');
                 $center = $postText;
-                $right  = mb_substr($this->string, (strlen($this->string) + 1) - (strlen($left) + strlen($center)) + $limit % 2, strlen($this->string), 'utf-8');
+                $right  = mb_substr(
+                    $this->string,
+                    ($stringLength + 1) - (mb_strlen($left, 'utf-8') + mb_strlen($center, 'utf-8')) + $limit % 2,
+                    $stringLength,
+                    'utf-8'
+                );
 
                 $limitedString = $left . $center . $right;
             }

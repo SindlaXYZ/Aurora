@@ -149,6 +149,13 @@ class StrinkTest extends TestCase
         $this->assertEquals('short', $Strink->obfuscateString('short', 10));
     }
 
+    public function testLimitedString(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals('Șîĝñ', (string) $Strink->string('Șîĝñ')->limitedString(4));
+        $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñ')->limitedString(3));
+    }
+
     ##########################################################################################################################################################################################
 
     public function testCharacterCasePercentageWithEmptyString(): void
