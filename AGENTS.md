@@ -6,6 +6,7 @@
 - Indent using 4 spaces and trim trailing whitespace.
 - Ensure each file ends with a newline and stays within 199 characters per line.
 - Write all source code and comments exclusively in English.
+- Ensure all git branch names, tags, commit messages, and related text are written exclusively in English.
 
 ## PHP Guidelines
 
