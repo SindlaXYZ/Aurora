@@ -24,3 +24,12 @@
   For coverage reports, replace `--no-coverage` with `--coverage-clover coverage.xml`.
 - In PHPUnit tests using a data provider, include both the `#[DataProvider(...)]` attribute and the `@dataProvider` annotation.
 
+## Codex
+
+If you are Codex, before running PHPUnit tests, execute the following commands:
+
+```
+composer create-project symfony/skeleton:7.3 . --no-cache
+composer require symfony/webapp-pack
+```
+
