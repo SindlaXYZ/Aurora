@@ -79,7 +79,7 @@ class AuroraMatch
         }
 
         $match .= ".{{$minLength},{$maxLength}}";
-        $match .= '+$/';
+        $match .= '$/';
 
         return (bool)preg_match($match, $password);
     }
