@@ -82,9 +82,9 @@ class AuroraCookiesExtractor
                 } else {
                     $cookie->setExpires($normalized['expires']);
                 }
-            } else if (isset($normalized['max-age'])) {
-                $cookie->setExpires(new \DateTimeImmutable('@' . (int)$normalized['max-age'], new \DateTimeZone('UTC')));
-            } else if ('PHPSESSID' == $name) {
+            } elseif (isset($normalized['max-age'])) {
+                $cookie->setExpires(new \DateTimeImmutable('@' . (time() + (int) $normalized['max-age']), new \DateTimeZone('UTC')));
+            } elseif ('PHPSESSID' === $name) {
                 // Set expires to 1440 seconds from now (default PHP session.gc_maxlifetime)
                 $cookie->setExpires(new \DateTimeImmutable('+1440 seconds', new \DateTimeZone('UTC')));
             }
