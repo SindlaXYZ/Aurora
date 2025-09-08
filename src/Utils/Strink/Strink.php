@@ -511,7 +511,7 @@ class Strink
 
         // transliterate
         if (!$keepUTF8Chars) {
-            $this->string = $this->transliterateUtf8String($this->string);
+            $this->transliterateUtf8String();
 
             $this->string = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $this->string);
 
