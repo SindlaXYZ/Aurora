@@ -109,6 +109,21 @@ class StrinkTest extends TestCase
         $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
     }
 
+    public function testSlugify(): void
+    {
+        $Strink = new Strink();
+
+        $this->assertEquals(
+            'lorem-ipsum',
+            (string) $Strink->string('Lorem Ipsum')->slugify()
+        );
+
+        $this->assertEquals(
+            'șîĝñ-îñ',
+            (string) $Strink->string('Șîĝñ Îñ')->slugify(true)
+        );
+    }
+
     public function testRemoveNewLines(): void
     {
         $this->assertEquals('LoremIsum', new Strink()->string("Lorem\nIsum")->removeNewLines());
