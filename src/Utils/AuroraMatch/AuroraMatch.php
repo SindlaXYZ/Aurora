@@ -16,7 +16,10 @@ class AuroraMatch
             $domain = $parsedDomain['host'];
         }
 
-        preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain, '/') . '$/', $needle, $matches);
+        $needle = strtolower($needle);
+        $domain = strtolower($domain);
+
+        preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain, '/') . '$/i', $needle, $matches);
 
         return ((is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false);
     }
@@ -81,3 +84,4 @@ class AuroraMatch
         return (bool)preg_match($match, $password);
     }
 }
+

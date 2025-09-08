@@ -15,4 +15,13 @@ class InvalidDomainTest extends TestCase
         $this->assertFalse($matcher->matchDomain(':::', 'example.com'));
         $this->assertFalse($matcher->matchDomain('example.com', ':::'));
     }
+
+    public function testDomainMatchingIsCaseInsensitive(): void
+    {
+        $matcher = new AuroraMatch();
+
+        $this->assertTrue($matcher->matchDomain('HTTP://WWW.EXAMPLE.COM', 'example.com'));
+        $this->assertTrue($matcher->matchDomain('example.com', 'EXAMPLE.COM'));
+    }
 }
+
