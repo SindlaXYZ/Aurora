@@ -153,7 +153,8 @@ class StrinkTest extends TestCase
     {
         $Strink = new Strink();
         $this->assertEquals('Șîĝñ', (string) $Strink->string('Șîĝñ')->limitedString(4));
-        $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñ')->limitedString(3));
+        $this->assertEquals('...', (string) $Strink->string('Șîĝñ')->limitedString(3));
+        $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñț')->limitedString(4));
     }
 
     ##########################################################################################################################################################################################
