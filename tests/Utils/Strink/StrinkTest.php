@@ -198,6 +198,7 @@ class StrinkTest extends TestCase
     /**
      * @dataProvider dataStrStartsWithAny
      */
+    #[DataProvider('dataStrStartsWithAny')]
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
         $this->assertEquals($expected, new Strink()->string($haystack)->strStartsWithAny($needles));
@@ -220,6 +221,7 @@ class StrinkTest extends TestCase
     /**
      * @dataProvider dataStrEndsWithAny
      */
+    #[DataProvider('dataStrEndsWithAny')]
     public function testStrEndsWithAny(string $haystack, array $needles, bool $expected): void
     {
         $this->assertEquals($expected, new Strink()->string($haystack)->strEndsWithAny($needles));
