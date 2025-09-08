@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
-use Symfony\Component\Security\Core\Encoder\EncoderFactory;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 class WebTestCaseMiddleware extends WebTestCase
@@ -56,11 +56,10 @@ class WebTestCaseMiddleware extends WebTestCase
      */
     protected function loginWithRawPassword(UserInterface $user, string $rawPassword): void
     {
-        /** @var EncoderFactory $encoderFactory */
-        $encoderFactory = static::getContainer()->get('security.encoder_factory');
-        $encoder        = $encoderFactory->getEncoder($user);
+        /** @var UserPasswordHasherInterface $hasher */
+        $hasher = static::getContainer()->get(UserPasswordHasherInterface::class);
 
-        if ($encoder->isPasswordValid($user->getPassword(), $rawPassword, $user->getSalt())) {
+        if ($hasher->isPasswordValid($user, $rawPassword)) {
             $this->loginWithoutValidation($user);
         }
     }
