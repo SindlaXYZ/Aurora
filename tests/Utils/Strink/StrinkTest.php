@@ -162,6 +162,7 @@ class StrinkTest extends TestCase
         $this->assertEquals('my**********ng', $Strink->obfuscateString('mysecretstring', 2));
         $this->assertEquals('myse******ring', $Strink->obfuscateString('mysecretstring', 4));
         $this->assertEquals('short', $Strink->obfuscateString('short', 10));
+        $this->assertEquals('șa*pe', $Strink->obfuscateString('șarpe', 2));
     }
 
     public function testLimitedString(): void
