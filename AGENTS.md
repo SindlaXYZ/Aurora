@@ -29,7 +29,12 @@
 If you are Codex, before running PHPUnit tests, execute the following commands:
 
 ```
-composer create-project symfony/skeleton:7.3 . --no-cache
+composer create-project symfony/skeleton:7.3 temp_project --no-cache
+
+mv temp_project/* temp_project/.* .
+
+rm -rf temp_project
+
 composer require symfony/webapp-pack
 ```
 
