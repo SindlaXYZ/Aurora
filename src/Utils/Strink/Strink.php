@@ -127,15 +127,15 @@ class Strink
      */
     public function obfuscateString(mixed $string, int $margins = 2): string
     {
-        $length = strlen($string);
+        $length = mb_strlen($string, 'UTF-8');
 
         if ($margins <= 0 || $length <= $margins * 2) {
             return $string;
         }
 
-        return substr($string, 0, $margins)
+        return mb_substr($string, 0, $margins, 'UTF-8')
             . str_repeat('*', $length - ($margins * 2))
-            . substr($string, -$margins, $margins);
+            . mb_substr($string, -$margins, null, 'UTF-8');
     }
 
     /**
