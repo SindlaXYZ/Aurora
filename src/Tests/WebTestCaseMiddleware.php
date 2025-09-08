@@ -5,7 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests;
 use Doctrine\ORM\EntityManager;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\Cookie;
-use Symfony\Component\BrowserKit\Tests\TestClient;
+use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
@@ -20,7 +20,7 @@ class WebTestCaseMiddleware extends WebTestCase
     /** @var Router */
     protected $router;
 
-    /** @var Client */
+    /** @var KernelBrowser */
     protected $client;
 
     protected $domainName;
