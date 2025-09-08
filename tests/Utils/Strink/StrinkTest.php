@@ -247,5 +247,11 @@ class StrinkTest extends TestCase
         $this->assertSame(['line1', '', 'line2'], $Strink->string("line1\n\nline2\n")->linesToArray());
     }
 
+    public function testLinesToArrayTrimsEdges(): void
+    {
+        $Strink = new Strink();
+        $this->assertSame(['line1', 'line2'], $Strink->string("\n\nline1\nline2\n\n")->linesToArray());
+    }
+
     ##########################################################################################################################################################################################
 }

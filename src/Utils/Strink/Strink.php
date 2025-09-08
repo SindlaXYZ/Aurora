@@ -542,11 +542,11 @@ class Strink
             return [];
         }
 
-        if ($linesArray && $linesArray[0] === '') {
+        while ($linesArray && $linesArray[0] === '') {
             array_shift($linesArray);
         }
 
-        if ($linesArray && end($linesArray) === '') {
+        while ($linesArray && end($linesArray) === '') {
             array_pop($linesArray);
         }
 
