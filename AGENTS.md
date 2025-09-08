@@ -20,4 +20,5 @@
 - Run static analysis using `vendor/bin/phpstan analyse`.
 - Execute unit tests using `vendor/bin/phpunit --no-coverage -c phpunit.xml.dist`.
   For coverage reports, replace `--no-coverage` with `--coverage-clover coverage.xml`.
+- In PHPUnit tests using a data provider, include both the `#[DataProvider(...)]` attribute and the `@dataProvider` annotation.
 
