@@ -149,18 +149,27 @@ class Strink
         $postTextLength = mb_strlen($postText, 'utf-8');
 
         if ($stringLength > $limit) {
-            $limit         = $limit + 1;
             $limitedString = $this->string;
 
             if ($cut == 'right') {
-                $limitedString = mb_substr($this->string, 0, ($limit - $postTextLength), 'utf-8') . $postText;
+                $limitedString = mb_substr(
+                    $this->string,
+                    0,
+                    max(0, $limit - $postTextLength),
+                    'utf-8'
+                ) . $postText;
             } elseif ($cut == 'middle' || $cut == 'center') {
-                $left   = mb_substr($this->string, 0, (ceil($limit / 2) - $postTextLength), 'utf-8');
+                $left   = mb_substr(
+                    $this->string,
+                    0,
+                    max(0, (int) ceil($limit / 2) - $postTextLength),
+                    'utf-8'
+                );
                 $center = $postText;
                 $right  = mb_substr(
                     $this->string,
-                    ($stringLength + 1) - (mb_strlen($left, 'utf-8') + mb_strlen($center, 'utf-8')) + $limit % 2,
-                    $stringLength,
+                    $stringLength - max(0, $limit - mb_strlen($left, 'utf-8') - $postTextLength),
+                    null,
                     'utf-8'
                 );
 
