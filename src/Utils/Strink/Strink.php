@@ -229,7 +229,8 @@ class Strink
     public function removeWords(array $wordsList): self
     {
         foreach ($wordsList as $word) {
-            $this->string = preg_replace("/\b{$word}\b/i", '', $this->string);
+            $escapedWord = preg_quote($word, '/');
+            $this->string = preg_replace('/\b' . $escapedWord . '\b/i', '', $this->string);
         }
 
         $this->compressSpaces();
