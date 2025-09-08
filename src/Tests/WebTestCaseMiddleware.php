@@ -91,7 +91,7 @@ class WebTestCaseMiddleware extends WebTestCase
     public function progressAdvance(): void
     {
         if (1 == $this->progressIndex) {
-            fwrite(STDERR, "\nRun " . $this->getParentOrNull() ?? 'Unknown' . "() tests ...\n");
+            fwrite(STDERR, "\nRun " . ($this->getParentOrNull() ?? 'Unknown') . "() tests ...\n");
         }
 
         fwrite(STDERR, '.');
