@@ -159,12 +159,12 @@ class WebTestCaseMiddleware extends WebTestCase
         return "\e[1;37;41m{$message}\e[0m\n"; // white on red bg
     }
 
-    public function hasParent(): bool
+    protected function hasParent(): bool
     {
         return get_parent_class($this) !== false;
     }
 
-    public function getParentOrNull(): ?string
+    protected function getParentOrNull(): ?string
     {
         $parent = get_parent_class($this);
         return $parent !== false ? $parent : null;
