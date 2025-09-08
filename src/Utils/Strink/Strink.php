@@ -521,9 +521,18 @@ class Strink
      */
     public function linesToArray(): array
     {
-        $linesArray = [];
-        foreach (preg_split("/((\r?\n)|(\r\n?))/", $this->string) as $line) {
-            $linesArray[] = $line;
+        $linesArray = preg_split("/\r\n|\r|\n/", $this->string);
+
+        if ($linesArray === false) {
+            return [];
+        }
+
+        if ($linesArray && $linesArray[0] === '') {
+            array_shift($linesArray);
+        }
+
+        if ($linesArray && end($linesArray) === '') {
+            array_pop($linesArray);
         }
 
         return $linesArray;

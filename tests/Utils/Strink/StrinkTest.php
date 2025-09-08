@@ -172,7 +172,9 @@ class StrinkTest extends TestCase
         $this->assertEquals(50.0, $Strink->string('Șș')->upperCharactersPercentage());
     }
 
-    #[DataProvider('dataStrStartsWithAny')]
+    /**
+     * @dataProvider dataStrStartsWithAny
+     */
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
         $this->assertEquals($expected, new Strink()->string($haystack)->strStartsWithAny($needles));
@@ -192,7 +194,9 @@ class StrinkTest extends TestCase
 
     ##########################################################################################################################################################################################
 
-    #[DataProvider('dataStrEndsWithAny')]
+    /**
+     * @dataProvider dataStrEndsWithAny
+     */
     public function testStrEndsWithAny(string $haystack, array $needles, bool $expected): void
     {
         $this->assertEquals($expected, new Strink()->string($haystack)->strEndsWithAny($needles));
@@ -208,6 +212,13 @@ class StrinkTest extends TestCase
             ['lorem ipsum', ['lorem ipsum'], true],
             ['lorem ipsum', ['lorem ipsum dolor'], false],
         ];
+    }
+
+    public function testLinesToArray(): void
+    {
+        $Strink = new Strink();
+        $this->assertSame(['line1', 'line2'], $Strink->string("line1\nline2\n")->linesToArray());
+        $this->assertSame(['line1', '', 'line2'], $Strink->string("line1\n\nline2\n")->linesToArray());
     }
 
     ##########################################################################################################################################################################################
