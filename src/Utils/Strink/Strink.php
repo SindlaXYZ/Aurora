@@ -639,12 +639,24 @@ class Strink
 
     public function strStartsWithAny(array $needles): bool
     {
-        return \array_any($needles, fn($needle, $_) => is_string($needle) && str_starts_with($this->string, $needle));
+        foreach ($needles as $needle) {
+            if (is_string($needle) && str_starts_with($this->string, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function strEndsWithAny(array $needles): bool
     {
-        return \array_any($needles, fn($needle, $_) => is_string($needle) && str_ends_with($this->string, $needle));
+        foreach ($needles as $needle) {
+            if (is_string($needle) && str_ends_with($this->string, $needle)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function __toString(): string
