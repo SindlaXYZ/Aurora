@@ -108,7 +108,7 @@ class UtilityExtension extends AbstractExtension
             // {{ aurora.pwa.unregister(app.request, app.debug) }}
             new TwigFunction('pwa.unregister', [$this, 'pwaUnregister']),
 
-            new TwigFunction('dnsPrefetch', [$this, 'dnsPrefach']),
+            new TwigFunction('dnsPrefetch', [$this, 'dnsPrefetch']),
 
             new TwigFunction('linkRelDnsPrefetch', [$this, 'linkRelDnsPrefetch']),
             new TwigFunction('linkRelPreload', [$this, 'linkRelPreload']),
