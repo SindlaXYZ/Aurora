@@ -51,4 +51,28 @@ class WebTestCaseMiddlewareTest extends TestCase
         $output = shell_exec('php -r '.escapeshellarg($code).' 2>&1');
         $this->assertStringContainsString('Run Unknown() tests', $output);
     }
+
+    public function testProgressStartResetsIndex(): void
+    {
+        $code = <<<'CODE'
+        require 'vendor/autoload.php';
+        class Dummy extends \Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware
+        {
+            protected function getParentOrNull(): ?string
+            {
+                return 'ParentName';
+            }
+            public function run(): void
+            {
+                $this->progressStart(1);
+                $this->progressAdvance();
+                $this->progressStart(1);
+                $this->progressAdvance();
+            }
+        }
+        (new Dummy())->run();
+        CODE;
+        $output = shell_exec('php -r '.escapeshellarg($code).' 2>&1');
+        $this->assertSame(2, substr_count($output, 'Run ParentName() tests'));
+    }
 }
