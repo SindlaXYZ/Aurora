@@ -85,6 +85,7 @@ class WebTestCaseMiddleware extends WebTestCase
     public function progressStart(int $count): void
     {
         $this->progressTotal = $count;
+        $this->progressIndex = 1;
     }
 
     public function progressAdvance(): void
