@@ -208,11 +208,18 @@ class Strink
      */
     public function snakeCaseToHumanCase(bool $upperCaseFirstLetter = false, bool $upperCaseAllLetters = false): self
     {
-        $this->string = strtolower($this->string);
+        $encoding = $this->detectEncoding();
 
+        $this->string = mb_strtolower($this->string, $encoding);
         $this->string = str_replace('_', ' ', $this->string);
-        $this->string = ($upperCaseFirstLetter ? ucfirst($this->string) : $this->string);
-        $this->string = ($upperCaseAllLetters ? ucwords($this->string) : $this->string);
+
+        if ($upperCaseAllLetters) {
+            $this->string = mb_convert_case($this->string, MB_CASE_TITLE, $encoding);
+        } elseif ($upperCaseFirstLetter) {
+            $this->string = mb_strtoupper(mb_substr($this->string, 0, 1, $encoding), $encoding)
+                . mb_substr($this->string, 1, null, $encoding);
+        }
+
         return $this;
     }
 
