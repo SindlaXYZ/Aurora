@@ -114,6 +114,22 @@ class StrinkTest extends TestCase
         $this->assertEquals("\"Pleașe țest thîs string\"", new Strink()->string("\"\"Pleașe țest thîs string\"\"")->compressDoubleQuotes());
     }
 
+    public function testCompressQuotes(): void
+    {
+        $raw = "\"\"''Test''\"\"";
+        $expected = (string) (new Strink())
+            ->string($raw)
+            ->compressSimpleQuotes()
+            ->compressDoubleQuotes()
+            ->compressSimpleQuotes()
+            ->compressDoubleQuotes();
+
+        $this->assertEquals(
+            $expected,
+            (string) (new Strink())->string($raw)->compressQuotes()
+        );
+    }
+
     public function testSlugify(): void
     {
         $Strink = new Strink();
