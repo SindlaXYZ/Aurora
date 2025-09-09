@@ -164,6 +164,24 @@ class AuroraChronosTest extends KernelTestCase
         }
     }
 
+    #[DataProvider('dataDateToMachineDateTime')]
+    /** @dataProvider dataDateToMachineDateTime */
+    public function testDateToMachineDateTime(string $expected, array $given): void
+    {
+        $this->assertSame(
+            $expected,
+            (new AuroraChronos())->dateToMachineDateTime($given[0], $given[1])
+        );
+    }
+
+    public static function dataDateToMachineDateTime(): array
+    {
+        return [
+            ['2010-02-01 01:02:03', ['01.02.2010 1:2:3', 'd.m.Y H:i:s']],
+            ['2010-02-01 00:00:00', ['01.02.2010', 'd.m.Y']],
+        ];
+    }
+
     public function testSecondsBetweenTwoDates()
     {
         $Chronos = new AuroraChronos();

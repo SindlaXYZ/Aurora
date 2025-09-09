@@ -54,7 +54,12 @@ class AuroraChronos
     public function dateToMachineDateTime(string $datetime, string $humanFormat): string
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
-        return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT) . ' ' . (!empty($parsedDate['hour']) ? $parsedDate['hour'] : '00') . ':' . (!empty($parsedDate['minute']) ? $parsedDate['minute'] : '00') . ':' . (!empty($parsedDate['second']) ? $parsedDate['second'] : '00');
+
+        $hour   = str_pad((string)($parsedDate['hour'] ?? 0), 2, '0', STR_PAD_LEFT);
+        $minute = str_pad((string)($parsedDate['minute'] ?? 0), 2, '0', STR_PAD_LEFT);
+        $second = str_pad((string)($parsedDate['second'] ?? 0), 2, '0', STR_PAD_LEFT);
+
+        return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT) . ' ' . $hour . ':' . $minute . ':' . $second;
     }
 
     /**
