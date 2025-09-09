@@ -253,5 +253,11 @@ class StrinkTest extends TestCase
         $this->assertSame(['line1', 'line2'], $Strink->string("\n\nline1\nline2\n\n")->linesToArray());
     }
 
+    public function testRandomStringZeroLength(): void
+    {
+        $Strink = new Strink();
+        $this->assertSame('', (string) $Strink->randomString(0));
+    }
+
     ##########################################################################################################################################################################################
 }
