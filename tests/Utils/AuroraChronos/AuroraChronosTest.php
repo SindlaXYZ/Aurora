@@ -288,4 +288,17 @@ class AuroraChronosTest extends KernelTestCase
         $this->assertSame('00:01', $Chronos->seconds2HM(60));
         $this->assertFalse($Chronos->seconds2HM(-1));
     }
+
+    public function testDateToHumanRespectsTimezone(): void
+    {
+        $previousTz = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+
+        $Chronos = new AuroraChronos();
+        $date    = new \DateTime('2010-01-01 12:00:00', new \DateTimeZone('Europe/Bucharest'));
+
+        $this->assertSame('01.01.2010 12:00', $Chronos->dateToHuman($date, 'd.m.Y H:i'));
+
+        date_default_timezone_set($previousTz);
+    }
 }
