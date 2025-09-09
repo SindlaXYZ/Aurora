@@ -238,7 +238,7 @@ class AuroraClient
      *
      * Check if an IPv4 is a Google Bot (by hostname)
      */
-    public function ipIsGoogleBot(string $IP): bool
+    public function ipIsGoogleBot(Request|string $IP): bool
     {
         if ($IP instanceof Request) {
             trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
@@ -267,7 +267,7 @@ class AuroraClient
      *
      * Check if an IPv4 is a Microsoft/Bing bot (by hostname)
      */
-    public function ipIsBingBot(string $IP): bool
+    public function ipIsBingBot(Request|string $IP): bool
     {
         if ($IP instanceof Request) {
             trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
@@ -294,7 +294,7 @@ class AuroraClient
      *
      * Check if an IPv4 is a Google Bot or a Bing Bot (by hostname)
      */
-    public function ipIsGoogleOrBingBot(string $IP): bool
+    public function ipIsGoogleOrBingBot(Request|string $IP): bool
     {
         return $this->ipIsGoogleBot($IP) || $this->ipIsBingBot($IP);
     }
