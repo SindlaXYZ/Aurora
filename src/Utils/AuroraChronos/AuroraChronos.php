@@ -53,17 +53,18 @@ class AuroraChronos
      */
     public function dateToMachineDateTime(string $datetime, string $humanFormat): string
     {
-        $parsedDate = date_parse_from_format($humanFormat, $datetime);
+        $dateTime = \DateTime::createFromFormat('!' . $humanFormat, $datetime);
 
-        if (($parsedDate['error_count'] ?? 0) > 0) {
+        if (!$dateTime) {
             return date('Y-m-d H:i:s', strtotime($datetime));
         }
 
-        $hour   = str_pad((string)($parsedDate['hour'] ?? 0), 2, '0', STR_PAD_LEFT);
-        $minute = str_pad((string)($parsedDate['minute'] ?? 0), 2, '0', STR_PAD_LEFT);
-        $second = str_pad((string)($parsedDate['second'] ?? 0), 2, '0', STR_PAD_LEFT);
+        $errors = \DateTime::getLastErrors();
+        if (($errors['error_count'] ?? 0) > 0) {
+            return date('Y-m-d H:i:s', strtotime($datetime));
+        }
 
-        return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT) . ' ' . $hour . ':' . $minute . ':' . $second;
+        return $dateTime->format('Y-m-d H:i:s');
     }
 
     /**
