@@ -84,7 +84,8 @@ class StrinkTest extends TestCase
         }
 
         foreach ([
-                     'External Request Repository' => ['external_request_repository']
+                     'External Request Repository' => ['external_request_repository'],
+                     'Șîĝñ Îñ'                    => ['ȘÎĞÑ_ÎÑ']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
                 $this->assertEquals(
