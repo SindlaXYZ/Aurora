@@ -2,8 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Strink;
 
-use Brick\Math\BigDecimal;
-use Brick\Math\RoundingMode;
 
 class Strink
 {
@@ -608,10 +606,7 @@ class Strink
 
         $lower = $this->countLowerCharacters();
 
-        return BigDecimal::of($lower)
-            ->dividedBy($total, 2, RoundingMode::HALF_UP)
-            ->multipliedBy(100)
-            ->toFloat();
+        return round(($lower / $total) * 100, 2);
     }
 
     public function countUpperCharacters(): int
@@ -631,10 +626,7 @@ class Strink
 
         $upper = $this->countUpperCharacters();
 
-        return BigDecimal::of($upper)
-            ->dividedBy($total, 2, RoundingMode::HALF_UP)
-            ->multipliedBy(100)
-            ->toFloat();
+        return round(($upper / $total) * 100, 2);
     }
 
     /**
