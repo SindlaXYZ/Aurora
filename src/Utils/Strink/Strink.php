@@ -77,7 +77,7 @@ class Strink
      */
     public function compressQuotes(): self
     {
-        $this->string = $this
+        $this
             ->compressSimpleQuotes()
             ->compressDoubleQuotes()
             ->compressSimpleQuotes()
