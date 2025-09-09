@@ -32,7 +32,7 @@ class Strink
 
     public function removeNewLines(string $replaceWith = ''): self
     {
-        $this->string = str_replace(["\r", "\n"], $replaceWith, $this->string);
+        $this->string = str_replace(["\r\n", "\r", "\n"], $replaceWith, $this->string);
         return $this;
     }
 

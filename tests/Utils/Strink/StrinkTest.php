@@ -157,6 +157,10 @@ class StrinkTest extends TestCase
         $this->assertEquals('Lorem  Isum', new Strink()->string("Lorem\n\nIsum")->removeNewLines("\x20"));
         $this->assertEquals('  Lorem  Isum  ', new Strink()->string("\n\nLorem\n\nIsum\n\n")->removeNewLines("\x20"));
 
+        $this->assertEquals('LoremIsum', new Strink()->string("Lorem\r\nIsum")->removeNewLines());
+        $this->assertEquals('Lorem Isum', new Strink()->string("Lorem\r\nIsum")->removeNewLines("\x20"));
+        $this->assertEquals(' Lorem Isum ', new Strink()->string("\r\nLorem\r\nIsum\r\n")->removeNewLines("\x20"));
+
         $this->assertEquals('LoremIsum', new Strink()->string("Lorem\rIsum")->removeNewLines());
         $this->assertEquals('LoremIsum', new Strink()->string("\rLorem\rIsum\r")->removeNewLines());
         $this->assertEquals('LoremIsum', new Strink()->string("Lorem\r\rIsum")->removeNewLines());
