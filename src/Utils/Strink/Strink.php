@@ -88,15 +88,20 @@ class Strink
      *
      * @param integer     $length
      * @param multi-array $keysToUse
-     */
+    */
     public function randomString(int $length = 12, array $keysToUse = []): self
     {
+        if ($length <= 0) {
+            $this->string = '';
+            return $this;
+        }
+
         if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
                 'abcdefghijklmnopqrstuwxyz',
                 'ABCDEFGHIJKLMNOPQRSTUWXYZ',
                 '0123456789',
-                '!@#$%^&*+='
+                '!@#$%^&*+=' 
             ];
         }
 
