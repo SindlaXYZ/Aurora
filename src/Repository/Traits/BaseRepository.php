@@ -386,7 +386,7 @@ trait BaseRepository
                 case 'NOTNULL' :
                 case 'isnotnull' :
                 case 'notnull' :
-                    $queryBuilder->andWhere("UNACCENT({$operation['alias']}.{$operation['field']}) IS NULL");
+                    $queryBuilder->andWhere("UNACCENT({$operation['alias']}.{$operation['field']}) IS NOT NULL");
                     break;
             }
         }
