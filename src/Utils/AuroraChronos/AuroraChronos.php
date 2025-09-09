@@ -55,6 +55,10 @@ class AuroraChronos
     {
         $parsedDate = date_parse_from_format($humanFormat, $datetime);
 
+        if (($parsedDate['error_count'] ?? 0) > 0) {
+            return date('Y-m-d H:i:s', strtotime($datetime));
+        }
+
         $hour   = str_pad((string)($parsedDate['hour'] ?? 0), 2, '0', STR_PAD_LEFT);
         $minute = str_pad((string)($parsedDate['minute'] ?? 0), 2, '0', STR_PAD_LEFT);
         $second = str_pad((string)($parsedDate['second'] ?? 0), 2, '0', STR_PAD_LEFT);
