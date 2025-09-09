@@ -58,17 +58,16 @@ class AuroraChronos
     }
 
     /**
-     * Transform/parse a machine date to human date
-     *    eg: 01.09.2013 => 2013-09-01
+     * Transform a machine date to a human date format
+     *    eg: 2013-09-01 => 01.09.2013
      */
-    public function dateToHuman(string|\DateTime $date, string $humanFormat): string
+    public function dateToHuman(string|\DateTimeInterface $date, string $humanFormat): string
     {
-        if (!($date instanceof \DateTime)) {
+        if (!($date instanceof \DateTimeInterface)) {
             $date = new \DateTime($date);
         }
 
-        $parsedDate = date_parse_from_format($humanFormat, $date->format('Y-m-d H:i:s'));
-        return date($humanFormat, $date->getTimestamp());
+        return $date->format($humanFormat);
     }
 
     /**
