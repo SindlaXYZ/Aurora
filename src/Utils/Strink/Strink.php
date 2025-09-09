@@ -56,7 +56,7 @@ class Strink
      */
     public function compressDoubleQuotes(): self
     {
-        $this->string = preg_replace('/"+/', '"', $this->string);
+        $this->string = preg_replace("/\"+/", "\"", $this->string);
         return $this;
     }
 

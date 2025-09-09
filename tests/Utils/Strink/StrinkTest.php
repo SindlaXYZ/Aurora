@@ -109,6 +109,11 @@ class StrinkTest extends TestCase
         $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
     }
 
+    public function testCompressDoubleQuotes(): void
+    {
+        $this->assertEquals("\"Pleașe țest thîs string\"", new Strink()->string("\"\"Pleașe țest thîs string\"\"")->compressDoubleQuotes());
+    }
+
     public function testSlugify(): void
     {
         $Strink = new Strink();
