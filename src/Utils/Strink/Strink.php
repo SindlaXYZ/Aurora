@@ -9,6 +9,11 @@ class Strink
 {
     protected string $string = '';
 
+    private function detectEncoding(): string
+    {
+        return mb_detect_encoding($this->string) ?: 'UTF-8';
+    }
+
     public function string(string $string): self
     {
         $this->string = $string;
@@ -225,19 +230,21 @@ class Strink
 
     public function lower(): self
     {
-        $this->string = mb_strtolower($this->string, mb_detect_encoding($this->string));
+        $encoding = $this->detectEncoding();
+        $this->string = mb_strtolower($this->string, $encoding);
         return $this;
     }
 
     public function upper(): self
     {
-        $this->string = mb_strtoupper($this->string, mb_detect_encoding($this->string));
+        $encoding = $this->detectEncoding();
+        $this->string = mb_strtoupper($this->string, $encoding);
         return $this;
     }
 
     public function ucfirst(): self
     {
-        $encoding = mb_detect_encoding($this->string);
+        $encoding = $this->detectEncoding();
         $this->string = mb_strtoupper(mb_substr($this->string, 0, 1, $encoding), $encoding)
             . mb_substr($this->string, 1, null, $encoding);
         return $this;
@@ -531,7 +538,7 @@ class Strink
         $this->string = preg_replace('/-+/', '-', $this->string);
 
         // lowercase
-        $this->string = mb_strtolower($this->string, mb_detect_encoding($this->string));
+        $this->string = mb_strtolower($this->string, $this->detectEncoding());
 
         return $this;
     }
@@ -592,7 +599,7 @@ class Strink
 
     public function lowerCharactersPercentage(): float
     {
-        $encoding = mb_detect_encoding($this->string);
+        $encoding = $this->detectEncoding();
         $total    = mb_strlen($this->string, $encoding);
 
         if (0 === $total) {
@@ -615,7 +622,7 @@ class Strink
 
     public function upperCharactersPercentage(): float
     {
-        $encoding = mb_detect_encoding($this->string);
+        $encoding = $this->detectEncoding();
         $total    = mb_strlen($this->string, $encoding);
 
         if (0 === $total) {
