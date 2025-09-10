@@ -11,6 +11,11 @@ use Symfony\Component\Routing\Router;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
+use PHPUnit\Framework\TestCase;
+
+if (!class_exists(WebTestCase::class)) {
+    class_alias(TestCase::class, WebTestCase::class);
+}
 
 class WebTestCaseMiddleware extends WebTestCase
 {
