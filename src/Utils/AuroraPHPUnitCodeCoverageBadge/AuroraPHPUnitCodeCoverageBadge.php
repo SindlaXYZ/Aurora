@@ -26,7 +26,7 @@ class AuroraPHPUnitCodeCoverageBadge
             $colorB = '#CB2431';  // Red
         }
 
-        $PHPUnitSVG = $this->_PHPUnitPassingBadge($passedTests, $testsTotal, $colorA, $colorB);;
+        $PHPUnitSVG = $this->_PHPUnitPassingBadge($passedTests, $testsTotal, $colorA, $colorB);
         file_put_contents($outputSVGFilePath, $PHPUnitSVG);
     }
 
