@@ -167,7 +167,7 @@ class AuroraClient
         if (
             isset($_SERVER['HTTP_X_FORWARDED_FOR'])
             && false === strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',')
-            && $this->ipIsValide($_SERVER['HTTP_X_FORWARDED_FOR'])
+            && $this->ipIsValid($_SERVER['HTTP_X_FORWARDED_FOR'])
         ) {
             return $_SERVER['HTTP_X_FORWARDED_FOR'];
         }
@@ -175,21 +175,21 @@ class AuroraClient
         if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false) {
             foreach (explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']) as $ip) {
                 $ip = trim($ip);
-                if ($this->ipIsValide($ip)) {
+                if ($this->ipIsValid($ip)) {
                     return $ip;
                 }
             }
         }
 
-        if ($this->ipIsValide($request->getClientIp())) {
+        if ($this->ipIsValid($request->getClientIp())) {
             return $request->getClientIp();
         }
 
-        if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValide($_SERVER['HTTP_CLIENT_IP'])) {
+        if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValid($_SERVER['HTTP_CLIENT_IP'])) {
             return $_SERVER['HTTP_CLIENT_IP'];
         }
 
-        if (isset($_SERVER['REMOTE_ADDR']) && $this->ipIsValide($_SERVER['REMOTE_ADDR'])) {
+        if (isset($_SERVER['REMOTE_ADDR']) && $this->ipIsValid($_SERVER['REMOTE_ADDR'])) {
             return $_SERVER['REMOTE_ADDR'];
         }
 
@@ -199,7 +199,7 @@ class AuroraClient
     /**
      * Check if an IP is valid
      */
-    public function ipIsValide(mixed $ip): bool
+    public function ipIsValid(mixed $ip): bool
     {
         $ipIsValid = filter_var(
             $ip,
