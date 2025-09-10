@@ -262,7 +262,7 @@ class Strink
     {
         foreach ($wordsList as $word) {
             $escapedWord = preg_quote($word, '/');
-            $this->string = preg_replace('/\b' . $escapedWord . '\b/i', '', $this->string);
+            $this->string = preg_replace('/\b' . $escapedWord . '\b/iu', '', $this->string);
         }
 
         $this->compressSpaces();

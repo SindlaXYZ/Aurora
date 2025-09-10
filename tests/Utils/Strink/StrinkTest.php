@@ -182,6 +182,20 @@ class StrinkTest extends TestCase
         $this->assertEquals('Șarpe', (string) $Strink->string('șarpe')->ucfirst());
     }
 
+    public function testRemoveWords(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals(
+            'maro',
+            (string) $Strink->string('șarpe maro')->removeWords(['șarpe'])
+        );
+
+        $this->assertEquals(
+            'Lorem ipsum',
+            (string) $Strink->string('Lorem ipsum dolor')->removeWords(['dolor'])
+        );
+    }
+
     public function testObfuscateString(): void
     {
         $Strink = new Strink();
