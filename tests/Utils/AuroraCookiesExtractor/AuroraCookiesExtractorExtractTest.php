@@ -37,5 +37,24 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCookiesExtractor {
             $this->assertGreaterThanOrEqual(59, $diff);
             $this->assertLessThanOrEqual(60, $diff);
         }
+
+        public function testHeaderCaseInsensitive(): void
+        {
+            $response = new class implements ResponseInterface {
+                public function getInfo(?string $type = null): mixed
+                {
+                    return [
+                        'response_headers' => ['Set-Cookie: test=1']
+                    ];
+                }
+            };
+
+            $extractor = new AuroraCookiesExtractor();
+            $cookies = $extractor->extractFromSymfonyResponseInterface($response);
+
+            $this->assertCount(1, $cookies);
+            $this->assertSame('test', $cookies[0]->getName());
+            $this->assertSame('1', $cookies[0]->getValue());
+        }
     }
 }

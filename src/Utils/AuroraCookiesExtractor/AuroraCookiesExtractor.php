@@ -17,7 +17,8 @@ class AuroraCookiesExtractor
         }
 
         foreach ($response['response_headers'] as $header) {
-            if (!str_starts_with($header, 'set-cookie:')) {
+            $lowerHeader = strtolower($header);
+            if (!str_starts_with($lowerHeader, 'set-cookie:')) {
                 continue;
             }
 
