@@ -136,9 +136,13 @@ class AuroraClient
         // Reverse proxy
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
             return $_SERVER['HTTP_X_FORWARDED_PROTO'] . '://';
-        } else {
-            return !empty($_SERVER['HTTPS']) ? "https://" : "http://";
         }
+
+        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+            return 'https://';
+        }
+
+        return 'http://';
     }
 
     /**
@@ -146,11 +150,7 @@ class AuroraClient
      */
     public function isSSL(): bool
     {
-        if (preg_match('/https/i', $this->protocol())) {
-            return true;
-        } else {
-            return false;
-        }
+        return preg_match('/https/i', $this->protocol()) === 1;
     }
 
     /**
