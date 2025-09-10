@@ -18,13 +18,13 @@ class WebTestCaseMiddlewareTest extends TestCase
             {
                 return 'ParentName';
             }
-            public function run(): void
+            public function execute(): void
             {
                 $this->progressStart(1);
                 $this->progressAdvance();
             }
         }
-        (new Dummy())->run();
+        (new Dummy('test'))->execute();
         CODE;
         $output = shell_exec('php -r '.escapeshellarg($code).' 2>&1');
         $this->assertStringContainsString('Run ParentName() tests', $output);
@@ -40,13 +40,13 @@ class WebTestCaseMiddlewareTest extends TestCase
             {
                 return null;
             }
-            public function run(): void
+            public function execute(): void
             {
                 $this->progressStart(1);
                 $this->progressAdvance();
             }
         }
-        (new Dummy())->run();
+        (new Dummy('test'))->execute();
         CODE;
         $output = shell_exec('php -r '.escapeshellarg($code).' 2>&1');
         $this->assertStringContainsString('Run Unknown() tests', $output);
@@ -62,7 +62,7 @@ class WebTestCaseMiddlewareTest extends TestCase
             {
                 return 'ParentName';
             }
-            public function run(): void
+            public function execute(): void
             {
                 $this->progressStart(1);
                 $this->progressAdvance();
@@ -70,7 +70,7 @@ class WebTestCaseMiddlewareTest extends TestCase
                 $this->progressAdvance();
             }
         }
-        (new Dummy())->run();
+        (new Dummy('test'))->execute();
         CODE;
         $output = shell_exec('php -r '.escapeshellarg($code).' 2>&1');
         $this->assertSame(2, substr_count($output, 'Run ParentName() tests'));
