@@ -196,8 +196,13 @@ class Strink
      */
     public function snakeCaseToCamelCase(bool $upperCaseFirstLetter = false): self
     {
-        $this->string = str_replace('_', '', ucwords($this->string, '_'));
-        $this->string = !$upperCaseFirstLetter ? lcfirst($this->string) : $this->string;
+        $encoding     = $this->detectEncoding();
+        $this->string = str_replace('_', '', mb_convert_case($this->string, MB_CASE_TITLE, $encoding));
+
+        if (!$upperCaseFirstLetter) {
+            $this->string = mb_strtolower(mb_substr($this->string, 0, 1, $encoding), $encoding)
+                . mb_substr($this->string, 1, null, $encoding);
+        }
 
         return $this;
     }
