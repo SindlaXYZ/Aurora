@@ -26,15 +26,13 @@ class AuroraMatch
 
     public function matchAtLeastOneDomain(string $needle, array $domains): bool
     {
-        $matched = false;
-
         foreach ($domains as $domain) {
             if ($this->matchDomain($needle, $domain)) {
-                $matched = true;
+                return true;
             }
         }
 
-        return $matched;
+        return false;
     }
 
     public function matchCssUrls(string $css, bool $relativeUrlOnly = true): array
