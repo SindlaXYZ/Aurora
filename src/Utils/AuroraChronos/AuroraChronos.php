@@ -215,8 +215,7 @@ class AuroraChronos
             }
         }
 
-        $interval = $startDate->diff($endDate);
-        return $interval->format('%r%h');
+        return intdiv($endDate->getTimestamp() - $startDate->getTimestamp(), 3600);
     }
 
     /**
