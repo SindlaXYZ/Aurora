@@ -163,7 +163,7 @@ class Sanitizer
 
         if (strpos($input, '</script>') !== false) {
             $input = preg_replace_callback('#<script(.*?)>(.*?)</script>#is', function ($matches) {
-                return '<script' . $matches[1] . '>' . $this->minifyCSS($matches[2]) . '</script>';
+                return '<script' . $matches[1] . '>' . $this->minifyJS($matches[2]) . '</script>';
             }, $input);
         }
 
