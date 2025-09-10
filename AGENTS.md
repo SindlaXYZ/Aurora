@@ -23,6 +23,7 @@
 - Execute unit tests using `vendor/bin/phpunit --no-coverage -c phpunit.xml.dist`.
   For coverage reports, replace `--no-coverage` with `--coverage-clover coverage.xml`.
 - In PHPUnit tests using a data provider, include both the `#[DataProvider(...)]` attribute and the `@dataProvider` annotation.
+- When a PHP file (class, method, trait, etc.) is modified, verify and run all existing PHPUnit tests for that file before completing the task and finish only if these tests pass.
 
 ## Codex
 
