@@ -48,6 +48,26 @@ class AuroraClientTest extends KernelTestCase
         );
     }
 
+    public function testProtocolAndIsSSL(): void
+    {
+        $client = new AuroraClient($this->containerTest);
+
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'https';
+        $this->assertSame('https://', $client->protocol());
+        $this->assertTrue($client->isSSL());
+        unset($_SERVER['HTTP_X_FORWARDED_PROTO']);
+
+        $_SERVER['HTTPS'] = 'on';
+        $this->assertSame('https://', $client->protocol());
+        $this->assertTrue($client->isSSL());
+
+        $_SERVER['HTTPS'] = 'off';
+        $this->assertSame('http://', $client->protocol());
+        $this->assertFalse($client->isSSL());
+
+        unset($_SERVER['HTTPS']);
+    }
+
     public function __SKIP__testIP2CountryCode()
     {
         $Client = new AuroraClient($this->containerTest);
