@@ -221,8 +221,8 @@ class AuroraClient
             $prefLanguages = array_reduce(
                 explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']),
                 function ($res, $el) {
-                    [$l, $q] = array_merge(explode(';q=', $el), [1]);
-                    $res[$l] = (float)$q;
+                    [$l, $q] = array_merge(explode(';q=', trim($el)), [1]);
+                    $res[trim($l)] = (float) $q;
                     return $res;
                 }, []);
             arsort($prefLanguages);
