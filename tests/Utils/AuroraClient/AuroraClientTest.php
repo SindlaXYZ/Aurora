@@ -33,17 +33,17 @@ class AuroraClientTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    public function testIpIsValideAcceptsIpv6(): void
+    public function testIpIsValidAcceptsIpv6(): void
     {
         $client = new AuroraClient($this->containerTest);
 
         $this->assertTrue(
-            $client->ipIsValide('2001:4860:4860::8888'),
+            $client->ipIsValid('2001:4860:4860::8888'),
             'Expected a public IPv6 address to be considered valid.'
         );
 
         $this->assertFalse(
-            $client->ipIsValide('::1'),
+            $client->ipIsValid('::1'),
             'Loopback IPv6 address should be considered invalid.'
         );
     }
