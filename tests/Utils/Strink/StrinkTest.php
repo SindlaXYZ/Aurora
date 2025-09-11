@@ -258,6 +258,7 @@ class StrinkTest extends TestCase
             ['lorem ipsum', ['ipsum', 'dolor'], false],
             ['lorem ipsum', ['ipsum lorem'], false],
             ['lorem ipsum', ['lorem ipsum dolor'], false],
+            ['lorem ipsum', [''], false],
         ];
     }
 
@@ -281,6 +282,7 @@ class StrinkTest extends TestCase
             ['lorem ipsum', ['lorem', 'dolor'], false],
             ['lorem ipsum', ['lorem ipsum'], true],
             ['lorem ipsum', ['lorem ipsum dolor'], false],
+            ['lorem ipsum', [''], false],
         ];
     }
 
