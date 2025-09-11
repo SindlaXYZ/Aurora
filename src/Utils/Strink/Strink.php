@@ -652,7 +652,7 @@ class Strink
     public function strStartsWithAny(array $needles): bool
     {
         foreach ($needles as $needle) {
-            if (is_string($needle) && str_starts_with($this->string, $needle)) {
+            if (is_string($needle) && $needle !== '' && str_starts_with($this->string, $needle)) {
                 return true;
             }
         }
@@ -663,7 +663,7 @@ class Strink
     public function strEndsWithAny(array $needles): bool
     {
         foreach ($needles as $needle) {
-            if (is_string($needle) && str_ends_with($this->string, $needle)) {
+            if (is_string($needle) && $needle !== '' && str_ends_with($this->string, $needle)) {
                 return true;
             }
         }
