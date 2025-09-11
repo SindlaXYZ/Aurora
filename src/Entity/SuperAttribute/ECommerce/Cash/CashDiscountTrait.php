@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\Cash;
 
-use App\Attribute\FormElement;
+use Sindla\Bundle\AuroraBundle\Attribute\FormElement;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
