@@ -200,13 +200,25 @@ class StrinkTest extends TestCase
         );
     }
 
-    public function testObfuscateString(): void
+    /**
+     * @dataProvider dataObfuscateString
+     */
+    #[DataProvider('dataObfuscateString')]
+    public function testObfuscateString(mixed $input, int $margins, string $expected): void
     {
         $Strink = new Strink();
-        $this->assertEquals('my**********ng', $Strink->obfuscateString('mysecretstring', 2));
-        $this->assertEquals('myse******ring', $Strink->obfuscateString('mysecretstring', 4));
-        $this->assertEquals('short', $Strink->obfuscateString('short', 10));
-        $this->assertEquals('șa*pe', $Strink->obfuscateString('șarpe', 2));
+        $this->assertEquals($expected, $Strink->obfuscateString($input, $margins));
+    }
+
+    public static function dataObfuscateString(): array
+    {
+        return [
+            ['mysecretstring', 2, 'my**********ng'],
+            ['mysecretstring', 4, 'myse******ring'],
+            ['short', 10, 'short'],
+            ['șarpe', 2, 'șa*pe'],
+            [12345, 2, '12*45'],
+        ];
     }
 
     public function testLimitedString(): void

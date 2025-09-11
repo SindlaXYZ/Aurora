@@ -135,6 +135,7 @@ class Strink
      */
     public function obfuscateString(mixed $string, int $margins = 2): string
     {
+        $string = (string) $string;
         $length = mb_strlen($string, 'UTF-8');
 
         if ($margins <= 0 || $length <= $margins * 2) {
