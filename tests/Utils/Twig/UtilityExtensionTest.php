@@ -23,11 +23,23 @@ class AuroraHelper {}
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Twig;
 
 // PHPUnit
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
+use Twig\Environment;
+
+// Aurora
+use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
+use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
+
+// Symfony
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\RequestStack;
+
+// Twig
 use Twig\Environment;
 
 /**
@@ -43,19 +55,47 @@ class UtilityExtensionTest extends TestCase
         $this->assertTrue(true);
         $this->assertFalse(false);
     }
-
-    public function testFilterAge(): void
+  
+    /**
+     * @dataProvider dataFilterAge
+     */
+    #[DataProvider('dataFilterAge')]
+    public function testFilterAge(\DateTime $given, int $expected): void
     {
         $extension = new UtilityExtension(
-            $this->createMock(Container::class),
-            $this->createMock(RequestStack::class),
-            $this->createMock(Environment::class),
-            $this->createMock(AuroraHelper::class)
+            new Container(),
+            new RequestStack(),
+            $this->createStub(Environment::class),
+            new AuroraHelper()
         );
 
-        $birthDate = new \DateTime('2000-05-01');
-        $expected  = (new \DateTime())->diff($birthDate)->y;
+        $this->assertSame($expected, $extension->filterAge($given));
+    }
 
-        $this->assertSame($expected, $extension->filterAge($birthDate));
+    public static function dataFilterAge(): array
+    {
+        $reference = new \DateTime(date('Y') . '-01-01');
+
+        $years = [];
+        for ($i = 0; $i < 48; $i++) {
+            $years[] = 1900 + (int) round($i * (2025 - 1900) / 47);
+        }
+
+        $data  = [];
+        $index = 0;
+        foreach (range(1, 12) as $month) {
+            foreach ([1, 10, 20, 28] as $day) {
+                $year = $years[$index++];
+                $date = new \DateTime(sprintf('%04d-%02d-%02d', $year, $month, $day));
+                $data[] = [$date, $reference->diff($date)->y];
+            }
+        }
+
+        foreach (['2000-02-29', '2024-02-29'] as $extra) {
+            $date   = new \DateTime($extra);
+            $data[] = [$date, $reference->diff($date)->y];
+        }
+
+        return $data;
     }
 }
