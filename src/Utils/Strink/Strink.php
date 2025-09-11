@@ -26,7 +26,7 @@ class Strink
      */
     public function compressSpaces(): self
     {
-        $this->string = preg_replace('/\s\s+/', ' ', $this->string);
+        $this->string = preg_replace('/ {2,}/', ' ', $this->string);
         return $this;
     }
 

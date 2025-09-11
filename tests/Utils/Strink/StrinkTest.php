@@ -109,8 +109,9 @@ class StrinkTest extends TestCase
     public function testCompressSpaces()
     {
         $this->assertEquals('Šîĝñ Îñ', new Strink()->string('Šîĝñ   Îñ')->compressSpaces());
-        $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ \nÎñ")->compressSpaces());
+        $this->assertEquals("Šîĝñ \nÎñ", new Strink()->string("Šîĝñ \nÎñ")->compressSpaces());
         $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ\x20\x20\x20Îñ")->compressSpaces());
+        $this->assertEquals("line1\n\nline2", new Strink()->string("line1\n\nline2")->compressSpaces());
         $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
     }
 
