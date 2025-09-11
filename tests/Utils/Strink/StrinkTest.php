@@ -66,6 +66,10 @@ class StrinkTest extends TestCase
                 $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(upperCaseFirstLetter: false));
             }
         }
+
+        // UTF-8 support
+        $this->assertEquals('ȘarpeMagic', $Strink->string('șarpe_magic')->snakeCaseToCamelCase(upperCaseFirstLetter: true));
+        $this->assertEquals('șarpeMagic', $Strink->string('șarpe_magic')->snakeCaseToCamelCase(upperCaseFirstLetter: false));
     }
 
     public function testSnakeCaseToHumanCase(): void
