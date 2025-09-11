@@ -264,4 +264,14 @@ body {
         $this->assertTrue($Match->passwordStrength('Te$1123321', true, true, true, true, 6));
         $this->assertFalse($Match->passwordStrength('Te$11233212214', true, true, true, true, 6, 9));
     }
+    public function testMatchCssUrlsIsCaseInsensitive(): void
+    {
+        $match = new AuroraMatch();
+
+        $cssRelative = "body { background: URL('/img/bg.png'); }";
+        $this->assertSame(['/img/bg.png'], $match->matchCssUrls($cssRelative)[1]);
+
+        $cssAbsolute = "body { background: URL('HTTP://example.com/bg.png'); }";
+        $this->assertSame([], $match->matchCssUrls($cssAbsolute)[1]);
+    }
 }
