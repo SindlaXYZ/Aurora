@@ -42,14 +42,14 @@ class Calculus
     }
 
     /**
-     * Return percentage between two numbers
-     *
-     * @param $newNumber
-     * @param $originalNumber
-     * @return float|int
+     * Return percentage between two numbers.
      */
-    public function percentageChange($newNumber, $originalNumber)
+    public function percentageChange(float $newNumber, float $originalNumber): float
     {
-        return ((($newNumber - $originalNumber) / $originalNumber) * 100);
+        if (0.0 === $originalNumber) {
+            return 0.0;
+        }
+
+        return (($newNumber - $originalNumber) / $originalNumber) * 100;
     }
 }
