@@ -17,7 +17,6 @@ class AuroraCryptor
     public function __construct()
     {
         $this->randomInitializationVector = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-        return $this;
     }
 
     public function setCipher($cipher = 'AES-128-CTR'): self
@@ -39,7 +38,8 @@ class AuroraCryptor
     {
         $encrypted           = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $this->randomInitializationVector);
         $this->encryptionKey = null;
-        return "{$encrypted}::{$this->randomInitializationVector}";
+
+        return base64_encode($encrypted . '::' . $this->randomInitializationVector);
     }
 
     /**
