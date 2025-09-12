@@ -52,7 +52,7 @@ class UtilityExtension extends AbstractExtension
 
     public function filterAge(\DateTime $date): int
     {
-        $referenceDateTimeObject = new \DateTime();
+        $referenceDateTimeObject = new \DateTime(date('Y') . '-01-01');
 
         $diff = $referenceDateTimeObject->diff($date);
 
