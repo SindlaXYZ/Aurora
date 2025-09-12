@@ -42,7 +42,7 @@ class UtilityExtensionTest extends TestCase
 
     public static function dataFilterAge(): array
     {
-        $reference = new \DateTime(date('Y') . '-01-01');
+        $reference = new \DateTime();
 
         $years = [];
         for ($i = 0; $i < 48; $i++) {
