@@ -44,7 +44,7 @@ class Strink
      */
     public function compressSlashes(): self
     {
-        $this->string = preg_replace('~(^|[^:])//+~', '\\1/', $this->string);
+        $this->string = preg_replace('~(^|[^:])//+~', '\1/', $this->string);
         return $this;
     }
 
