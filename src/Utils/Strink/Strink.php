@@ -235,7 +235,9 @@ class Strink
      */
     public function camelCaseToSnakeCase(): self
     {
-        $this->string = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
+        $encoding     = $this->detectEncoding();
+        $this->string = preg_replace('/(?<!^)\p{Lu}/u', '_$0', $this->string);
+        $this->string = mb_strtolower($this->string, $encoding);
         return $this;
     }
 
