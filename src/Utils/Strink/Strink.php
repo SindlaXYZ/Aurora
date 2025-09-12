@@ -217,7 +217,9 @@ class Strink
         $encoding = $this->detectEncoding();
 
         $this->string = mb_strtolower($this->string, $encoding);
-        $this->string = str_replace('_', ' ', $this->string);
+        $this->string = preg_replace('/_+/', ' ', $this->string) ?? '';
+        $this->compressSpaces();
+        $this->string = trim($this->string);
 
         if ($upperCaseAllLetters) {
             $this->string = mb_convert_case($this->string, MB_CASE_TITLE, $encoding);
