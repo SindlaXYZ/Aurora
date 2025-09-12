@@ -4,7 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Twig;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper as AuroraHelperUtils;
 use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -34,7 +34,7 @@ class UtilityExtensionTest extends TestCase
             new Container(),
             new RequestStack(),
             $this->createStub(Environment::class),
-            new AuroraHelper()
+            new AuroraHelperUtils()
         );
 
         $this->assertSame($expected, $extension->filterAge($given));
