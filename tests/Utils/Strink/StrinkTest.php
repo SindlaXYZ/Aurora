@@ -43,6 +43,9 @@ class StrinkTest extends TestCase
                 $this->assertEquals($expected, $Strink->string($given)->camelCaseToSnakeCase());
             }
         }
+
+        // UTF-8 support
+        $this->assertEquals('denumire_șarpe', $Strink->string('DenumireȘarpe')->camelCaseToSnakeCase());
     }
 
     public function testSnakeCaseToCamelCase(): void
