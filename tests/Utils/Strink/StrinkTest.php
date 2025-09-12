@@ -115,6 +115,13 @@ class StrinkTest extends TestCase
         $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
     }
 
+    public function testCompressSlashes(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals('http://example.com/foo/bar', $Strink->string('http://example.com//foo///bar')->compressSlashes());
+        $this->assertEquals('/foo/bar', $Strink->string('////foo//bar')->compressSlashes());
+    }
+
     public function testCompressDoubleQuotes(): void
     {
         $this->assertEquals("\"Pleașe țest thîs string\"", new Strink()->string("\"\"Pleașe țest thîs string\"\"")->compressDoubleQuotes());
