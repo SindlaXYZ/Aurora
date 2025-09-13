@@ -138,7 +138,15 @@ class Strink
         $string = (string) $string;
         $length = mb_strlen($string, 'UTF-8');
 
-        if ($margins <= 0 || $length <= $margins * 2) {
+        if ($margins < 0) {
+            return $string;
+        }
+
+        if ($margins === 0) {
+            return str_repeat('*', $length);
+        }
+
+        if ($length <= $margins * 2) {
             return $string;
         }
 
