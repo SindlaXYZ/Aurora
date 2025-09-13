@@ -7,6 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper as AuroraHelperUtils;
 use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
@@ -93,5 +94,32 @@ class UtilityExtensionTest extends TestCase
             [0, 0],
             [-5, 0],
         ];
+    }
+
+    public function testCompressJsOutputsSingleNonce(): void
+    {
+        $container = new Container();
+        $container->setParameter('kernel.environment', 'prod');
+        $container->set('aurora.git', new class {
+            public function getHash(): string
+            {
+                return 'hash';
+            }
+        });
+
+        $extension = new UtilityExtension(
+            $container,
+            new RequestStack(),
+            $this->createStub(Environment::class),
+            new AuroraHelperUtils()
+        );
+
+        $request = new \Symfony\Component\HttpFoundation\Request();
+
+        ob_start();
+        $extension->compressJs($request, false, false, 'file.js');
+        $output = ob_get_clean();
+
+        $this->assertSame(1, substr_count($output, 'nonce='));
     }
 }
