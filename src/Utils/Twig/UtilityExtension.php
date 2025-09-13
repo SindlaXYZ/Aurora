@@ -239,9 +239,9 @@ class UtilityExtension extends AbstractExtension
         return $serviceGit->gitLatestTagHash();
     }
 
-    public function getHash($size = 24): string
+    public function getHash(int $size = 24): string
     {
-        $size = min($size, 40);
+        $size = max(0, min($size, 40));
 
         return substr(sha1(microtime() . time() . uniqid()), 0, $size);
     }

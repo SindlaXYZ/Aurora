@@ -66,4 +66,32 @@ class UtilityExtensionTest extends TestCase
 
         return $data;
     }
+
+    /**
+     * @dataProvider dataGetHash
+     */
+    #[DataProvider('dataGetHash')]
+    public function testGetHash(int $size, int $expectedLength): void
+    {
+        $extension = new UtilityExtension(
+            new Container(),
+            new RequestStack(),
+            $this->createStub(Environment::class),
+            new AuroraHelperUtils()
+        );
+
+        $hash = $extension->getHash($size);
+
+        $this->assertSame($expectedLength, strlen($hash));
+    }
+
+    public static function dataGetHash(): array
+    {
+        return [
+            [5, 5],
+            [50, 40],
+            [0, 0],
+            [-5, 0],
+        ];
+    }
 }
