@@ -328,5 +328,13 @@ class StrinkTest extends TestCase
         $this->assertSame('', (string) $Strink->randomString(0));
     }
 
+    public function testRandomStringIncludesVCharacters(): void
+    {
+        mt_srand(0);
+        $result = (string) (new Strink())->randomString(1000);
+        $this->assertStringContainsString('v', $result);
+        $this->assertStringContainsString('V', $result);
+    }
+
     ##########################################################################################################################################################################################
 }

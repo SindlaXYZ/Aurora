@@ -101,10 +101,10 @@ class Strink
 
         if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
-                'abcdefghijklmnopqrstuwxyz',
-                'ABCDEFGHIJKLMNOPQRSTUWXYZ',
+                'abcdefghijklmnopqrstuvwxyz',
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 '0123456789',
-                '!@#$%^&*+=' 
+                '!@#$%^&*+='
             ];
         }
 
