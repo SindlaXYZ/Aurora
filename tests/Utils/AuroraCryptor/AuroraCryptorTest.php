@@ -26,4 +26,15 @@ class AuroraCryptorTest extends TestCase
         $decrypted = $cryptor->setEncryptionKey($key)->decrypt($encrypted);
         $this->assertSame($data, $decrypted);
     }
+
+    public function testSha256To32BitUnsigned(): void
+    {
+        $cryptor = new AuroraCryptor();
+        $result  = $cryptor->sha256To32BitUnsigned('example');
+
+        $this->assertIsString($result);
+        $value = (int) $result;
+        $this->assertGreaterThanOrEqual(0, $value);
+        $this->assertLessThanOrEqual(2147483647, $value);
+    }
 }
