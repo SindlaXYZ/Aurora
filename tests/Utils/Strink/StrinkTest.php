@@ -229,6 +229,7 @@ class StrinkTest extends TestCase
             ['short', 10, 'short'],
             ['șarpe', 2, 'șa*pe'],
             [12345, 2, '12*45'],
+            ['secret', 0, '******'],
         ];
     }
 
