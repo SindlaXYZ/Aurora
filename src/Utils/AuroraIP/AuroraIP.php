@@ -33,7 +33,16 @@ class AuroraIP
 
     public function isIPInSubnet(string $ip, string $cidr): bool
     {
-        [$subnet, $prefixLength] = explode('/', $cidr);
+        if (strpos($cidr, '/') === false) {
+            return false;
+        }
+
+        [$subnet, $prefixLength] = explode('/', $cidr, 2);
+
+        if ($subnet === '' || $prefixLength === '' || !ctype_digit($prefixLength)) {
+            return false;
+        }
+
         $prefixLength = (int) $prefixLength;
 
         $ipBin     = inet_pton($ip);
