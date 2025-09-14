@@ -104,8 +104,18 @@ class Strink
                 'abcdefghijklmnopqrstuvwxyz',
                 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 '0123456789',
-                '!@#$%^&*+='
+                '!@#$%^&*+=',
             ];
+        }
+
+        $keysToUse = array_values(array_filter(
+            $keysToUse,
+            static fn ($key): bool => is_string($key) && $key !== ''
+        ));
+
+        if (count($keysToUse) === 0) {
+            $this->string = '';
+            return $this;
         }
 
         $password = '';
