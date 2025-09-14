@@ -208,7 +208,7 @@ jobs:
                     --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
                     --outputPassingSVGFilePath=../.github/badges/phpunit.svg
                     /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge \
-                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml
+                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml \
                     --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
                     --outputStatementsSVGFilePath=../.github/badges/statements.svg
 
