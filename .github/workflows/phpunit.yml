@@ -198,6 +198,12 @@ jobs:
             -   name: "Generate PHPUnit badges"
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
+                    echo -e "\033[0;35m * A: \033[0m" \
+                    ls -al ${{ env.BUILD_DIR }} \
+                    echo -e "\033[0;35m * B: \033[0m" \
+                    ls -al ${{ env.BUILD_DIR }}/.github \
+                    echo -e "\033[0;35m * C: \033[0m" \
+                    ls -al ${{ env.BUILD_DIR }}/.github/.test-results \
                     /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge \
                     --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
                     --outputPassingSVGFilePath=../.github/badges/phpunit.svg
