@@ -92,8 +92,13 @@ final class PHPUnitCommand extends CommandMiddleware
             throw new \Exception('Missing required options.');
         }
 
-        $junitXMLFilePath         = $this->container->getParameter('kernel.project_dir') . '/' . $junitXMLFilePath;
-        $outputPassingSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
+        if (!file_exists($junitXMLFilePath)) {
+            $junitXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $junitXMLFilePath;
+        }
+
+        if (!file_exists($outputPassingSVGFilePath)) {
+            $outputPassingSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
+        }
 
         new AuroraPHPUnitCodeCoverageBadge()->generatePHPUnitPassingBadge($junitXMLFilePath, $outputPassingSVGFilePath);
 
