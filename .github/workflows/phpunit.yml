@@ -86,6 +86,10 @@ jobs:
                     echo -e "\033[0;35m * composer create-project symfony/skeleton \033[0m"
                     composer create-project symfony/skeleton:${{ env.SYMFONY_VERSION }} . --no-cache
 
+                    echo -e "\033[0;35m * composer install from sindla/aurora \033[0m"
+                    cp -f ${{ env.WORKSPACE }}/composer.json ${{ env.BUILD_DIR }}/composer.json
+                    composer install --ansi --no-interaction --no-progress
+
                     echo -e "\033[0;35m * require symfony/webapp-pack \033[0m"
                     composer require symfony/webapp-pack
 
