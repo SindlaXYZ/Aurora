@@ -13,7 +13,7 @@ env:
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # PHPUnit
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
-    PHPUNIT_FLAGS: "--coverage-clover build/logs/clover.xml --log-junit .envs/.test-results/junit.xml"
+    PHPUNIT_FLAGS: "--coverage-clover ${{ github.workspace }}/build/.github/.test-results/clover.xml --log-junit ${{ github.workspace }}/build/.github/.test-results/junit.xml"
     # Symfony
     SYMFONY_VERSION: "7.3.x-dev" # 7.3.* / 7.3.x-dev
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
