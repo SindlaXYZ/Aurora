@@ -320,3 +320,24 @@ doctrine_migrations:
 
 
 * For favicons, can use https://www.favicon-generator.org/
+
+---
+
+#### DEV
+
+```bash
+cd installed/
+cp ../composer.json composer.json
+composer install
+
+
+mkdir symfony/
+cd symfony/
+composer create-project symfony/skeleton:7.3.* . --no-cache
+yes | composer require symfony/webapp-pack
+yes | composer require sindla/aurora:7.3.x-dev -W --no-cache --no-progress
+yes | composer require phpunit/phpunit:10.5.* -W --dev --no-progress
+yes | composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
+php vendor/bin/phpunit -c phpunit.dist.xml vendor/sindla/aurora/tests/
+php vendor/bin/phpunit -c vendor/sindla/aurora/phpunit.xml.dist vendor/sindla/aurora/tests/
+```
