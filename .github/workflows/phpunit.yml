@@ -228,6 +228,7 @@ jobs:
                     BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                     git config user.name "github-actions[bot]"
                     git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git pull origin "HEAD:${BRANCH}"
                     git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
                     git push origin "HEAD:${BRANCH}"
