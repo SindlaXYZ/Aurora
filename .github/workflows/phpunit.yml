@@ -198,7 +198,7 @@ jobs:
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
                     /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge \
-                    --junitXMLFilePath=.envs/.test-results/junit.xml \
+                    --junitXMLFilePath=junit.xml \
                     --outputPassingSVGFilePath=../.github/badges/phpunit.svg
                     /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge \
                     --cloverXMLFilePath=build/logs/clover.xml \
