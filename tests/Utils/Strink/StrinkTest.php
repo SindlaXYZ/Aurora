@@ -337,5 +337,13 @@ class StrinkTest extends TestCase
         $this->assertStringContainsString('V', $result);
     }
 
+    public function testRandomStringSkipsEmptyKeys(): void
+    {
+        mt_srand(1);
+        $result = (string) (new Strink())->randomString(5, ['abc', '']);
+        $this->assertSame(5, strlen($result));
+        $this->assertMatchesRegularExpression('/^[abc]+$/', $result);
+    }
+
     ##########################################################################################################################################################################################
 }
