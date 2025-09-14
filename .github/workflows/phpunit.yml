@@ -100,11 +100,10 @@ jobs:
                     composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
 
                     echo -e "\033[0;35m * sync files \033[0m"
-                    cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
-                    cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
-                    cp -f ${{ github.workspace }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php
-                    cp -f ${{ github.workspace }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
-                    # cp -f vendor/bin/phpunit ${{ env.BUILD_DIR }}/bin/phpunit
+                    cp -f ${{ env.WORKSPACE }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
+                    cat ${{ env.WORKSPACE }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
+                    cp -f ${{ env.WORKSPACE }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php
+                    cp -f ${{ env.WORKSPACE }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
 
             #            -   name: "Prepare database"
             #                run: |
