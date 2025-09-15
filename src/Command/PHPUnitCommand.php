@@ -80,8 +80,9 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
+     *
+     * Update the phpunit.svg (PHPUnit X/Y) badge file - where X is the number of passing tests and Y is the total number of tests
      */
     protected function generatePHPUnitPassingBadge(): int
     {
@@ -106,8 +107,9 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=build/logs/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=.envs/.test-results/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
+     *
+     * Update the coverage.svg (Coverage ?%) and statements.svg (Statements ?/?) badges file
      */
     protected function generatePHPUnitCodeCoverageBadge(): int
     {
