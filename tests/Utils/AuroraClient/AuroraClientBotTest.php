@@ -3,23 +3,25 @@
 declare(strict_types=1);
 
 namespace Symfony\Component\HttpFoundation {
-    class Request
-    {
-        public function __construct(
-            array $query = [],
-            array $request = [],
-            array $attributes = [],
-            array $cookies = [],
-            array $files = [],
-            array $server = [],
-            $content = null
-        ) {
-            $this->server = $server;
-        }
-
-        public function getClientIp(): ?string
+    if (!class_exists(Request::class)) {
+        class Request
         {
-            return $this->server['REMOTE_ADDR'] ?? null;
+            public function __construct(
+                array $query = [],
+                array $request = [],
+                array $attributes = [],
+                array $cookies = [],
+                array $files = [],
+                array $server = [],
+                $content = null
+            ) {
+                $this->server = $server;
+            }
+
+            public function getClientIp(): ?string
+            {
+                return $this->server['REMOTE_ADDR'] ?? null;
+            }
         }
     }
 }
