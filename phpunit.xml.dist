@@ -8,18 +8,6 @@
     bootstrap="tests/bootstrap.php"
     cacheDirectory=".phpunit.cache"
 >
-    <coverage>
-        <report>
-            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70" />
-            <clover outputFile=".envs/.test-results/clover.xml" />
-        </report>
-    </coverage>
-
-    <!--
-      <logging>
-          <log type="coverage-html" target="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
-      </logging>
-      -->
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
