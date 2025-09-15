@@ -13,7 +13,8 @@ env:
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # PHPUnit
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
-    PHPUNIT_FLAGS: "--coverage-clover ${{ github.workspace }}/build/.github/.test-results/clover.xml --log-junit ${{ github.workspace }}/build/.github/.test-results/junit.xml"
+    PHPUNIT_FLAGS_WITHOUT_COVERAGE: "--no-coverage"
+    PHPUNIT_FLAGS_WITH_COVERAGE: "--coverage-clover ${{ github.workspace }}/build/.github/.test-results/clover.xml --log-junit ${{ github.workspace }}/build/.github/.test-results/junit.xml"
     # Symfony
     SYMFONY_VERSION: "7.3.x-dev" # 7.3.* / 7.3.x-dev
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
@@ -160,45 +161,51 @@ jobs:
 
             -   name: "Test /Command/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/
 
             -   name: "Test /Console/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/
 
             -   name: "Test /Controller/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/
 
             -   name: "Test /Entity/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/
 
             -   name: "Test /EventListener/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/
 
             -   name: "Test /Utils/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/
 
             -   name: "Test RequirementsTest"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} \
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php
+
+            -   name: "Run all test with coverage"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITH_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/
 
             -   name: "Generate PHPUnit badges"
                 working-directory: ${{ env.BUILD_DIR }}
