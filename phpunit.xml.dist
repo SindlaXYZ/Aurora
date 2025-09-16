@@ -57,9 +57,12 @@
     <source>
         <include>
             <directory suffix=".php">src</directory>
+            <directory suffix=".php">vendor/sindla/aurora/src</directory>
         </include>
         <exclude>
             <directory suffix=".php">src/Migrations</directory>
+            <directory suffix=".php">vendor/sindla/aurora/src/Migrations</directory>
+            <file>src/Kernel.php</file>
         </exclude>
     </source>
 
