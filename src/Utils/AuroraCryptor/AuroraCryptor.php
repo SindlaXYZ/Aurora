@@ -125,6 +125,6 @@ class AuroraCryptor
      */
     function sha256To32BitUnsigned(string $data): string
     {
-        return $this->sha256To32Bit($data) % 2147483647;
+        return (string) ($this->sha256To32Bit($data) % 2147483647);
     }
 }
