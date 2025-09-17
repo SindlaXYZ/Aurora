@@ -36,7 +36,7 @@ class CommandMiddleware extends Command
 
     public function __construct()
     {
-        $this->commandName                = strtolower(str_replace('Command', '', (new \ReflectionClass($this))->getShortName()));
+        $this->commandName                = strtolower(str_replace('Command', '', new \ReflectionClass($this)->getShortName()));
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
         parent::__construct();
     }
@@ -108,7 +108,7 @@ class CommandMiddleware extends Command
      */
     protected function readYamlFile($yamlFileName): array
     {
-        $results = (new Parser())->parse($this->readFile($yamlFileName));
+        $results = new Parser()->parse($this->readFile($yamlFileName));
 
         return $results ?? [];
     }
@@ -140,7 +140,7 @@ class CommandMiddleware extends Command
 
         if (
             $displayAllTimes
-            || $this->progressBarPreviousDisplay->getTimestamp() < (new \DateTimeImmutable())->getTimestamp()
+            || $this->progressBarPreviousDisplay->getTimestamp() < new \DateTimeImmutable()->getTimestamp()
             || ($this->progressBar->getMaxSteps() == $this->progressBar->getProgress())
         ) {
             $this->progressBar->display();
