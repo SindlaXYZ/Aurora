@@ -28,6 +28,7 @@
         "ext-tokenizer": "*",
         "ext-zend-opcache": "*",
         "aws/aws-sdk-php": "3.*",
+        "brick/math": "^0.14",
         "doctrine/orm": "^3.3",
         "firebase/php-jwt": "6.*",
         "geoip2/geoip2": "3.2.*",
