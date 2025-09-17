@@ -176,6 +176,11 @@ class Strink
         $postTextLength = mb_strlen($postText, 'utf-8');
 
         if ($stringLength > $limit) {
+            if ($limit <= $postTextLength) {
+                $this->string = mb_substr($postText, 0, $limit, 'utf-8');
+                return $this;
+            }
+
             $limitedString = $this->string;
 
             if ($cut == 'right') {
