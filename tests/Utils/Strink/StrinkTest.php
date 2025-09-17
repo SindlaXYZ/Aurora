@@ -80,6 +80,18 @@ class StrinkTest extends TestCase
         $Strink = new Strink();
 
         foreach ([
+                     'external request repository' => [
+                         'external_request_repository',
+                         'external__request__repository',
+                         '__external_request__repository__'
+                     ]
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToHumanCase());
+            }
+        }
+
+        foreach ([
                      'External request repository' => ['external_request_repository']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
