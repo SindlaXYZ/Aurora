@@ -49,4 +49,24 @@ class AuroraCryptorTest extends TestCase
         $this->assertGreaterThanOrEqual(0, $value);
         $this->assertLessThanOrEqual(2147483647, $value);
     }
+
+    public function testSetCipherRegeneratesInitializationVector(): void
+    {
+        $cipher  = 'DES-EDE3-CBC';
+        $key     = '0123456789abcdef01234567';
+        $cryptor = new AuroraCryptor();
+
+        $encrypted = $cryptor->setCipher($cipher)
+            ->setEncryptionKey($key)
+            ->encrypt('top');
+
+        $decoded = base64_decode($encrypted, true);
+        $this->assertNotFalse($decoded);
+
+        [, $vector] = explode('::', $decoded, 2);
+
+        $this->assertSame(openssl_cipher_iv_length($cipher), strlen($vector));
+        $decrypted = $cryptor->setEncryptionKey($key)->decrypt($encrypted);
+        $this->assertSame('top', $decrypted);
+    }
 }

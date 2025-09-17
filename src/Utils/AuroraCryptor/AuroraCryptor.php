@@ -13,9 +13,13 @@ class AuroraCryptor
     private        $encryptionKey;
     private        $options = 0;
 
-    public function setCipher($cipher = 'AES-128-CTR'): self
+    public function setCipher(string $cipher = 'AES-128-CTR'): self
     {
         $this->cipher = $cipher;
+        $this->randomInitializationVector = openssl_random_pseudo_bytes(
+            openssl_cipher_iv_length($this->cipher)
+        );
+
         return $this;
     }
 
