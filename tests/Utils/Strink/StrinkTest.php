@@ -229,6 +229,7 @@ class StrinkTest extends TestCase
             ['short', 10, 'short'],
             ['șarpe', 2, 'șa*pe'],
             [12345, 2, '12*45'],
+            ['secret', 0, '******'],
         ];
     }
 
@@ -326,6 +327,22 @@ class StrinkTest extends TestCase
     {
         $Strink = new Strink();
         $this->assertSame('', (string) $Strink->randomString(0));
+    }
+
+    public function testRandomStringIncludesVCharacters(): void
+    {
+        mt_srand(0);
+        $result = (string) (new Strink())->randomString(1000);
+        $this->assertStringContainsString('v', $result);
+        $this->assertStringContainsString('V', $result);
+    }
+
+    public function testRandomStringSkipsEmptyKeys(): void
+    {
+        mt_srand(1);
+        $result = (string) (new Strink())->randomString(5, ['abc', '']);
+        $this->assertSame(5, strlen($result));
+        $this->assertMatchesRegularExpression('/^[abc]+$/', $result);
     }
 
     ##########################################################################################################################################################################################

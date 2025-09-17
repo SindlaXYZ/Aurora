@@ -30,10 +30,13 @@ class AuroraPHPUnitCodeCoverageBadge
         file_put_contents($outputSVGFilePath, $PHPUnitSVG);
     }
 
+    /**
+     * @throws \Exception
+     */
     public function generateCoverageBadges(string $cloverXMLFilePath, string $outputCoverageSVGFilePath, string $outputStatementsSVGFilePath): void
     {
         if (!file_exists($cloverXMLFilePath)) {
-            throw new \InvalidArgumentException('Invalid input file provided');
+            throw new \InvalidArgumentException(sprintf('Clover XML file (%s) does not exist', $cloverXMLFilePath));
         }
 
         $xml             = new \SimpleXMLElement(file_get_contents($cloverXMLFilePath));
