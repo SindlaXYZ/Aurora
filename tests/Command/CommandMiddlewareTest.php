@@ -17,4 +17,19 @@ class CommandMiddlewareTest extends TestCase
 
         $this->assertInstanceOf(\DateTimeInterface::class, $property->getValue($command));
     }
+
+    public function testReadYamlFileParsesYaml(): void
+    {
+        $command = new CommandMiddleware();
+        $reflection = new \ReflectionClass($command);
+        $method = $reflection->getMethod('readYamlFile');
+        $method->setAccessible(true);
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'yaml');
+        file_put_contents($tmpFile, "foo: bar\n");
+
+        $result = $method->invoke($command, $tmpFile);
+
+        $this->assertSame(['foo' => 'bar'], $result);
+    }
 }
