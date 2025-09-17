@@ -43,6 +43,9 @@ class StrinkTest extends TestCase
                 $this->assertEquals($expected, $Strink->string($given)->camelCaseToSnakeCase());
             }
         }
+
+        // UTF-8 support
+        $this->assertEquals('denumire_șarpe', $Strink->string('DenumireȘarpe')->camelCaseToSnakeCase());
     }
 
     public function testSnakeCaseToCamelCase(): void
@@ -66,11 +69,27 @@ class StrinkTest extends TestCase
                 $this->assertEquals($expected, $Strink->string($given)->snakeCaseToCamelCase(upperCaseFirstLetter: false));
             }
         }
+
+        // UTF-8 support
+        $this->assertEquals('ȘarpeMagic', $Strink->string('șarpe_magic')->snakeCaseToCamelCase(upperCaseFirstLetter: true));
+        $this->assertEquals('șarpeMagic', $Strink->string('șarpe_magic')->snakeCaseToCamelCase(upperCaseFirstLetter: false));
     }
 
     public function testSnakeCaseToHumanCase(): void
     {
         $Strink = new Strink();
+
+        foreach ([
+                     'external request repository' => [
+                         'external_request_repository',
+                         'external__request__repository',
+                         '__external_request__repository__'
+                     ]
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToHumanCase());
+            }
+        }
 
         foreach ([
                      'External request repository' => ['external_request_repository']
@@ -105,9 +124,17 @@ class StrinkTest extends TestCase
     public function testCompressSpaces()
     {
         $this->assertEquals('Šîĝñ Îñ', new Strink()->string('Šîĝñ   Îñ')->compressSpaces());
-        $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ \nÎñ")->compressSpaces());
+        $this->assertEquals("Šîĝñ \nÎñ", new Strink()->string("Šîĝñ \nÎñ")->compressSpaces());
         $this->assertEquals('Šîĝñ Îñ', new Strink()->string("Šîĝñ\x20\x20\x20Îñ")->compressSpaces());
+        $this->assertEquals("line1\n\nline2", new Strink()->string("line1\n\nline2")->compressSpaces());
         $this->assertEquals('Ora de început', new Strink()->string('Ora de          început')->compressSpaces());
+    }
+
+    public function testCompressSlashes(): void
+    {
+        $Strink = new Strink();
+        $this->assertEquals('http://example.com/foo/bar', $Strink->string('http://example.com//foo///bar')->compressSlashes());
+        $this->assertEquals('/foo/bar', $Strink->string('////foo//bar')->compressSlashes());
     }
 
     public function testCompressDoubleQuotes(): void
@@ -196,13 +223,26 @@ class StrinkTest extends TestCase
         );
     }
 
-    public function testObfuscateString(): void
+    /**
+     * @dataProvider dataObfuscateString
+     */
+    #[DataProvider('dataObfuscateString')]
+    public function testObfuscateString(mixed $input, int $margins, string $expected): void
     {
         $Strink = new Strink();
-        $this->assertEquals('my**********ng', $Strink->obfuscateString('mysecretstring', 2));
-        $this->assertEquals('myse******ring', $Strink->obfuscateString('mysecretstring', 4));
-        $this->assertEquals('short', $Strink->obfuscateString('short', 10));
-        $this->assertEquals('șa*pe', $Strink->obfuscateString('șarpe', 2));
+        $this->assertEquals($expected, $Strink->obfuscateString($input, $margins));
+    }
+
+    public static function dataObfuscateString(): array
+    {
+        return [
+            ['mysecretstring', 2, 'my**********ng'],
+            ['mysecretstring', 4, 'myse******ring'],
+            ['short', 10, 'short'],
+            ['șarpe', 2, 'șa*pe'],
+            [12345, 2, '12*45'],
+            ['secret', 0, '******'],
+        ];
     }
 
     public function testLimitedString(): void
@@ -211,6 +251,7 @@ class StrinkTest extends TestCase
         $this->assertEquals('Șîĝñ', (string) $Strink->string('Șîĝñ')->limitedString(4));
         $this->assertEquals('...', (string) $Strink->string('Șîĝñ')->limitedString(3));
         $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñț')->limitedString(4));
+        $this->assertEquals('..', (string) $Strink->string('Șîĝñț')->limitedString(2));
     }
 
     ##########################################################################################################################################################################################
@@ -254,6 +295,7 @@ class StrinkTest extends TestCase
             ['lorem ipsum', ['ipsum', 'dolor'], false],
             ['lorem ipsum', ['ipsum lorem'], false],
             ['lorem ipsum', ['lorem ipsum dolor'], false],
+            ['lorem ipsum', [''], false],
         ];
     }
 
@@ -277,6 +319,7 @@ class StrinkTest extends TestCase
             ['lorem ipsum', ['lorem', 'dolor'], false],
             ['lorem ipsum', ['lorem ipsum'], true],
             ['lorem ipsum', ['lorem ipsum dolor'], false],
+            ['lorem ipsum', [''], false],
         ];
     }
 
@@ -297,6 +340,22 @@ class StrinkTest extends TestCase
     {
         $Strink = new Strink();
         $this->assertSame('', (string) $Strink->randomString(0));
+    }
+
+    public function testRandomStringIncludesVCharacters(): void
+    {
+        mt_srand(0);
+        $result = (string) (new Strink())->randomString(1000);
+        $this->assertStringContainsString('v', $result);
+        $this->assertStringContainsString('V', $result);
+    }
+
+    public function testRandomStringSkipsEmptyKeys(): void
+    {
+        mt_srand(1);
+        $result = (string) (new Strink())->randomString(5, ['abc', '']);
+        $this->assertSame(5, strlen($result));
+        $this->assertMatchesRegularExpression('/^[abc]+$/', $result);
     }
 
     ##########################################################################################################################################################################################

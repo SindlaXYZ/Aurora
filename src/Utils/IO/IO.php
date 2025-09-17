@@ -31,26 +31,26 @@ class IO
      */
     public function recursiveDelete(string $str, bool $removeGivenDir = true): bool
     {
-        if (is_file($str)) {
+        if (is_file($str) || is_link($str)) {
             return @unlink($str);
+        }
 
-        } else if (is_dir($str)) {
-            $scan = glob(rtrim($str, '/') . '/*');
-
-            if (is_array($scan) && count($scan) > 0) {
-                foreach ($scan as $index => $path) {
-                    $this->recursiveDelete($path);
+        if (is_dir($str)) {
+            $items = @scandir($str);
+            if (is_array($items)) {
+                foreach (array_diff($items, ['.', '..']) as $item) {
+                    $this->recursiveDelete($str . '/' . $item);
                 }
             }
 
-            if ($removeGivenDir === true) {
+            if ($removeGivenDir) {
                 return @rmdir($str);
-            } else {
-                return true;
             }
-        } else {
-            return false;
+
+            return true;
         }
+
+        return false;
     }
 
     public function dirIsEmpty(string $directory): bool

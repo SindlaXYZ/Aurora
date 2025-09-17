@@ -52,8 +52,7 @@ class UtilityExtension extends AbstractExtension
 
     public function filterAge(\DateTime $date): int
     {
-        $referenceDate           = date('01-01-Y');
-        $referenceDateTimeObject = new \DateTime($referenceDate);
+        $referenceDateTimeObject = new \DateTime();
 
         $diff = $referenceDateTimeObject->diff($date);
 
@@ -240,9 +239,9 @@ class UtilityExtension extends AbstractExtension
         return $serviceGit->gitLatestTagHash();
     }
 
-    public function getHash($size = 24): string
+    public function getHash(int $size = 24): string
     {
-        $size = min($size, 40);
+        $size = max(0, min($size, 40));
 
         return substr(sha1(microtime() . time() . uniqid()), 0, $size);
     }
@@ -345,7 +344,7 @@ class UtilityExtension extends AbstractExtension
                     if (!preg_match('/http:|https:/', $asset)) {
                         $asset = $asset . '?v=' . (('dev' === $this->container->getParameter('kernel.environment')) ? uniqid() : $serviceGit->getHash());
                     }
-                    echo "\n\t" . '<script src="' . $asset . '" nonce="' . $this->getNonce() . '" nonce="' . $this->getNonce() . '"></script>';
+                    echo "\n\t" . '<script src="' . $asset . '" nonce="' . $this->getNonce() . '"></script>';
                 }
             }
         } else {

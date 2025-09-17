@@ -3,6 +3,8 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Git;
 
 use Symfony\Contracts\Cache\ItemInterface;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\DependencyInjection\Container;
 
@@ -22,9 +24,20 @@ class Git
         $this->container = $Container;
     }
 
+    private function createCache(): AdapterInterface
+    {
+        $lifetime = ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1);
+
+        if (ApcuAdapter::isSupported()) {
+            return new ApcuAdapter('', $lifetime);
+        }
+
+        return new ArrayAdapter($lifetime);
+    }
+
     public function getBranch()
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
             $root = $this->container->getParameter('aurora.root');
@@ -46,7 +59,7 @@ class Git
 
     public function gitLatestTag(): ?string
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
 
@@ -74,7 +87,7 @@ class Git
 
     public function gitLatestTagHash(): ?string
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
 
@@ -102,7 +115,7 @@ class Git
 
     public function getHash(?string $branch = null)
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
             if (!$branch) {
@@ -132,7 +145,7 @@ class Git
 
     public function getDate(?string $branch = null): ?string
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) use ($branch) {
 
@@ -177,6 +190,6 @@ class Git
 
     public function getTag(): ?string
     {
-
+        return $this->gitLatestTag();
     }
 }

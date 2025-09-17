@@ -6,25 +6,14 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraMatch;
 // PHPUnit
 use PHPUnit\Framework\TestCase;
 
-// Symfony
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-
 // Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
  */
-class AuroraMatchTest extends KernelTestCase
+class AuroraMatchTest extends TestCase
 {
-    private $kernelTest;
-    private $containerTest;
-
-    protected function setUp(): void
-    {
-        $this->kernelTest    = self::bootKernel();
-        $this->containerTest = $this->kernelTest->getContainer();
-    }
 
     public function testFake(): void
     {
@@ -32,7 +21,7 @@ class AuroraMatchTest extends KernelTestCase
         $this->assertFalse(false);
     }
 
-    private function _matchDomain()
+    private function _matchDomain(): array
     {
         return [
             # true ------------------------------------------------------------------------
@@ -274,5 +263,23 @@ body {
         $this->assertTrue($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, false, 6));
         $this->assertTrue($Match->passwordStrength('Te$1123321', true, true, true, true, 6));
         $this->assertFalse($Match->passwordStrength('Te$11233212214', true, true, true, true, 6, 9));
+    }
+    public function testMatchCssUrlsIsCaseInsensitive(): void
+    {
+        $match = new AuroraMatch();
+
+        $cssRelative = "body { background: URL('/img/bg.png'); }";
+        $this->assertSame(['/img/bg.png'], $match->matchCssUrls($cssRelative)[1]);
+
+        $cssAbsolute = "body { background: URL('HTTP://example.com/bg.png'); }";
+        $this->assertSame([], $match->matchCssUrls($cssAbsolute)[1]);
+    }
+
+    public function testMatchCssUrlsHandlesWhitespace(): void
+    {
+        $match = new AuroraMatch();
+
+        $css = "body { background: url( '/img/bg.png' ); }";
+        $this->assertSame(['/img/bg.png'], $match->matchCssUrls($css)[1]);
     }
 }

@@ -31,12 +31,21 @@ class AuroraIP
         return (bool)filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6);
     }
 
-    public function isIPInSubnet(string $ipv6, string $cidr): bool
+    public function isIPInSubnet(string $ip, string $cidr): bool
     {
-        [$subnet, $prefixLength] = explode('/', $cidr);
-        $prefixLength = (int)$prefixLength;
+        if (strpos($cidr, '/') === false) {
+            return false;
+        }
 
-        $ipBin     = inet_pton($ipv6);
+        [$subnet, $prefixLength] = array_map('trim', explode('/', $cidr, 2));
+
+        if ($subnet === '' || $prefixLength === '' || !ctype_digit($prefixLength)) {
+            return false;
+        }
+
+        $prefixLength = (int) $prefixLength;
+
+        $ipBin     = inet_pton($ip);
         $subnetBin = inet_pton($subnet);
 
         if ($ipBin === false || $subnetBin === false || strlen($ipBin) !== strlen($subnetBin)) {
@@ -46,16 +55,20 @@ class AuroraIP
         // 32 for IPv4, 128 for IPv6
         $totalBits = strlen($ipBin) * 8;
 
-        $mask = str_repeat("\xff", (int)($prefixLength / 8));
+        if ($prefixLength < 0 || $prefixLength > $totalBits) {
+            return false;
+        }
+
+        $mask = str_repeat("\xff", (int) ($prefixLength / 8));
         $rest = $prefixLength % 8;
         if ($rest > 0) {
-            $mask .= chr(0xff << (8 - $rest) & 0xff);
+            $mask .= chr((0xff << (8 - $rest)) & 0xff);
         }
         $mask         = str_pad($mask, strlen($ipBin), "\0");
         $ipMasked     = $ipBin & $mask;
         $subnetMasked = $subnetBin & $mask;
 
-        return ($ipMasked === $subnetMasked);
+        return $ipMasked === $subnetMasked;
     }
 
     public function isPublicIPV6(string $ip): bool

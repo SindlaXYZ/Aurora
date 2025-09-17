@@ -6,12 +6,9 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPHPUnitCodeCoverageBadge\AuroraPHPUnitCodeCoverageBadge;
 use Symfony\Component\Console\Attribute\AsCommand;
-use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
@@ -83,8 +80,9 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
+     *
+     * Update the phpunit.svg (PHPUnit X/Y) badge file - where X is the number of passing tests and Y is the total number of tests
      */
     protected function generatePHPUnitPassingBadge(): int
     {
@@ -95,8 +93,13 @@ final class PHPUnitCommand extends CommandMiddleware
             throw new \Exception('Missing required options.');
         }
 
-        $junitXMLFilePath           = $this->container->getParameter('kernel.project_dir') . '/' . $junitXMLFilePath;
-        $outputPassingSVGFilePath   = $this->container->getParameter('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
+        if (!file_exists($junitXMLFilePath)) {
+            $junitXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $junitXMLFilePath;
+        }
+
+        if (!file_exists($outputPassingSVGFilePath)) {
+            $outputPassingSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
+        }
 
         new AuroraPHPUnitCodeCoverageBadge()->generatePHPUnitPassingBadge($junitXMLFilePath, $outputPassingSVGFilePath);
 
@@ -104,8 +107,9 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * Manual call:
-     *      clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=build/logs/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=.envs/.test-results/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
+     *
+     * Update the coverage.svg (Coverage ?%) and statements.svg (Statements ?/?) badges file
      */
     protected function generatePHPUnitCodeCoverageBadge(): int
     {
@@ -117,9 +121,17 @@ final class PHPUnitCommand extends CommandMiddleware
             throw new \Exception('Missing required options.');
         }
 
-        $cloverXMLFilePath           = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
-        $outputCoverageSVGFilePath   = $this->container->getParameter('kernel.project_dir') . '/' . $outputCoverageSVGFilePath;
-        $outputStatementsSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputStatementsSVGFilePath;
+        if (!file_exists($cloverXMLFilePath)) {
+            $cloverXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
+        }
+
+        if (!file_exists($outputCoverageSVGFilePath)) {
+            $outputCoverageSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputCoverageSVGFilePath;
+        }
+
+        if (!file_exists($outputStatementsSVGFilePath)) {
+            $outputStatementsSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputStatementsSVGFilePath;
+        }
 
         new AuroraPHPUnitCodeCoverageBadge()->generateCoverageBadges($cloverXMLFilePath, $outputCoverageSVGFilePath, $outputStatementsSVGFilePath);
 

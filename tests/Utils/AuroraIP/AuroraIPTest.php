@@ -4,22 +4,14 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraIP;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIP/AuroraIPTest.php --no-coverage
  */
-class AuroraIPTest extends KernelTestCase
+class AuroraIPTest extends TestCase
 {
-    private $kernelTest;
-    private $containerTest;
-
-    protected function setUp(): void
-    {
-        $this->kernelTest    = self::bootKernel();
-        $this->containerTest = $this->kernelTest->getContainer();
-    }
 
     public function testFake(): void
     {
@@ -74,4 +66,29 @@ class AuroraIPTest extends KernelTestCase
             ['999.999.999.999', false]
         ];
     }
-  }
+
+    /**
+     * @dataProvider dataIsIPInSubnet
+     */
+    #[DataProvider('dataIsIPInSubnet')]
+    public function testIsIPInSubnet(string $ip, string $cidr, bool $expected): void
+    {
+        $this->assertEquals($expected, (new AuroraIP())->isIPInSubnet($ip, $cidr));
+    }
+
+    public static function dataIsIPInSubnet(): array
+    {
+        return [
+            ['192.168.1.5', '192.168.1.0/24', true],
+            ['192.168.2.5', '192.168.1.0/24', false],
+            ['2001:db8::1', '2001:db8::/32', true],
+            ['2001:db9::1', '2001:db8::/32', false],
+            ['192.168.1.5', '192.168.1.0/33', false],
+            ['192.168.1.5', '192.168.1.5', false],
+            ['2001:db8::1', '2001:db8::', false],
+            ['192.168.1.5', '192.168.1.0/24 ', true],
+            ['192.168.1.5', ' 192.168.1.0/24', true],
+            ['192.168.1.5', '192.168.1.0', false],
+        ];
+    }
+}
