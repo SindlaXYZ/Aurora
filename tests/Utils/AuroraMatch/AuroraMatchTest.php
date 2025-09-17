@@ -274,4 +274,12 @@ body {
         $cssAbsolute = "body { background: URL('HTTP://example.com/bg.png'); }";
         $this->assertSame([], $match->matchCssUrls($cssAbsolute)[1]);
     }
+
+    public function testMatchCssUrlsHandlesWhitespace(): void
+    {
+        $match = new AuroraMatch();
+
+        $css = "body { background: url( '/img/bg.png' ); }";
+        $this->assertSame(['/img/bg.png'], $match->matchCssUrls($css)[1]);
+    }
 }
