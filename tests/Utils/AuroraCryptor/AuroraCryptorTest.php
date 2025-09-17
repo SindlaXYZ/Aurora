@@ -27,6 +27,18 @@ class AuroraCryptorTest extends TestCase
         $this->assertSame($data, $decrypted);
     }
 
+    public function testEncryptUsesUniqueInitializationVector(): void
+    {
+        $cryptor = new AuroraCryptor();
+        $key    = 'myPa$$worD123';
+        $data   = 'megaSecretKey';
+
+        $first  = $cryptor->setEncryptionKey($key)->encrypt($data);
+        $second = $cryptor->setEncryptionKey($key)->encrypt($data);
+
+        $this->assertNotSame($first, $second);
+    }
+
     public function testSha256To32BitUnsigned(): void
     {
         $cryptor = new AuroraCryptor();
