@@ -80,6 +80,18 @@ class StrinkTest extends TestCase
         $Strink = new Strink();
 
         foreach ([
+                     'external request repository' => [
+                         'external_request_repository',
+                         'external__request__repository',
+                         '__external_request__repository__'
+                     ]
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->snakeCaseToHumanCase());
+            }
+        }
+
+        foreach ([
                      'External request repository' => ['external_request_repository']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
@@ -229,6 +241,7 @@ class StrinkTest extends TestCase
             ['short', 10, 'short'],
             ['șarpe', 2, 'șa*pe'],
             [12345, 2, '12*45'],
+            ['secret', 0, '******'],
         ];
     }
 
@@ -238,6 +251,7 @@ class StrinkTest extends TestCase
         $this->assertEquals('Șîĝñ', (string) $Strink->string('Șîĝñ')->limitedString(4));
         $this->assertEquals('...', (string) $Strink->string('Șîĝñ')->limitedString(3));
         $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñț')->limitedString(4));
+        $this->assertEquals('..', (string) $Strink->string('Șîĝñț')->limitedString(2));
     }
 
     ##########################################################################################################################################################################################
@@ -326,6 +340,22 @@ class StrinkTest extends TestCase
     {
         $Strink = new Strink();
         $this->assertSame('', (string) $Strink->randomString(0));
+    }
+
+    public function testRandomStringIncludesVCharacters(): void
+    {
+        mt_srand(0);
+        $result = (string) (new Strink())->randomString(1000);
+        $this->assertStringContainsString('v', $result);
+        $this->assertStringContainsString('V', $result);
+    }
+
+    public function testRandomStringSkipsEmptyKeys(): void
+    {
+        mt_srand(1);
+        $result = (string) (new Strink())->randomString(5, ['abc', '']);
+        $this->assertSame(5, strlen($result));
+        $this->assertMatchesRegularExpression('/^[abc]+$/', $result);
     }
 
     ##########################################################################################################################################################################################

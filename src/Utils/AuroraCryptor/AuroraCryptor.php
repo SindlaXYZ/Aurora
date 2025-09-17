@@ -12,12 +12,6 @@ class AuroraCryptor
     private string $cipher  = 'AES-128-CTR';
     private        $encryptionKey;
     private        $options = 0;
-    private string $randomInitializationVector;
-
-    public function __construct()
-    {
-        $this->randomInitializationVector = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-    }
 
     public function setCipher(string $cipher = 'AES-128-CTR'): self
     {
@@ -40,10 +34,11 @@ class AuroraCryptor
      */
     public function encrypt(string $data): string
     {
-        $encrypted           = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $this->randomInitializationVector);
+        $vector              = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
+        $encrypted           = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
         $this->encryptionKey = null;
 
-        return base64_encode($encrypted . '::' . $this->randomInitializationVector);
+        return base64_encode($encrypted . '::' . $vector);
     }
 
     /**
@@ -134,6 +129,6 @@ class AuroraCryptor
      */
     function sha256To32BitUnsigned(string $data): string
     {
-        return $this->sha256To32Bit($data) % 2147483647;
+        return (string) ($this->sha256To32Bit($data) % 2147483647);
     }
 }

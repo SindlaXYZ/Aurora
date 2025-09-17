@@ -384,9 +384,9 @@ class AuroraChronos
             'y' => 31536000       // 1 year (365 days) = 31536000 seconds
         ];
 
-        preg_match('/(\d+)([hdwmy])/', $timeStr, $matches);
+        $timeStr = strtolower($timeStr);
 
-        if (!$matches) {
+        if (!preg_match('/^(\d+)([hdwmy])$/', $timeStr, $matches)) {
             return 0;
         }
 
