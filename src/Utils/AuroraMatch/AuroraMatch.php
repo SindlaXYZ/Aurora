@@ -7,12 +7,12 @@ class AuroraMatch
     public function matchDomain(string $needle, string $domain): bool
     {
         $parsedNeedle = parse_url($needle);
-        if (is_array($parsedNeedle) && isset($parsedNeedle['scheme'], $parsedNeedle['host'])) {
+        if ($parsedNeedle !== false && isset($parsedNeedle['scheme'], $parsedNeedle['host'])) {
             $needle = $parsedNeedle['host'];
         }
 
         $parsedDomain = parse_url($domain);
-        if (is_array($parsedDomain) && isset($parsedDomain['scheme'], $parsedDomain['host'])) {
+        if ($parsedDomain !== false && isset($parsedDomain['scheme'], $parsedDomain['host'])) {
             $domain = $parsedDomain['host'];
         }
 
@@ -21,9 +21,10 @@ class AuroraMatch
 
         preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain, '/') . '$/i', $needle, $matches);
 
-        return ((is_array($matches) && count($matches) > 0 && isset($matches[0]) && !empty($matches[0])) ? true : false);
+        return isset($matches[0]) && $matches[0] !== '';
     }
 
+    /** @param string[] $domains */
     public function matchAtLeastOneDomain(string $needle, array $domains): bool
     {
         foreach ($domains as $domain) {
@@ -35,12 +36,17 @@ class AuroraMatch
         return false;
     }
 
+    /** @return array<int, array<int, string>> */
     public function matchCssUrls(string $css, bool $relativeUrlOnly = true): array
     {
-        $pattern = $relativeUrlOnly
-            ? '/url\((?![\'"]?(?:data|https|http):)[\'"]?([^\'"\)]*)[\'"]?\)/i'
-            : '/url\([\'"]?([^\'"\)]*)[\'"]?\)/i';
+        if ($relativeUrlOnly) {
+            $pattern = '/url\((?![\'\"]?(?:data:|https?:|\/\/))[\'\"]?([^\'\"\)]*)[\'\"]?\)/i';
+        } else {
+            $pattern = '/url\([\'\"]?([^\'\"\)]*)[\'\"]?\)/i';
+        }
+
         preg_match_all($pattern, $css, $matches);
+
         return $matches;
     }
 
@@ -81,4 +87,3 @@ class AuroraMatch
         return (bool)preg_match($match, $password);
     }
 }
-
