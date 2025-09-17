@@ -1,14 +1,21 @@
-| Version   | Unit testing                                                                                                                                                         | Latest Version                                                                                                                                                               | Last Commit                                                                                                                    | Required PHP   |
-|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------|
-| 5.4       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=5.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.4) | [![Latest Version](https://img.shields.io/badge/tag-v5.4.1-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.4&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.4)](https://github.com/SindlaXYZ/Aurora/tree/5.4) | >=7.4 & >= 8.0 |
-| 6.1       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1)             | [![Latest Version](https://img.shields.io/badge/tag-N/A-red)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.1&expanded=true)                                             | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1         |
-| 6.2       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2)             | [![Latest Version](https://img.shields.io/badge/tag-v6.2.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.2&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.2         |
-| 6.3       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=6.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.3) | [![Latest Version](https://img.shields.io/badge/tag-v6.3.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.3&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.3)](https://github.com/SindlaXYZ/Aurora/tree/6.3) | >= 8.2         |
-| 7.0       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/badge/tag-v7.0.3-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.0&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
-| 7.1       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.1) | [![Latest Version](https://img.shields.io/badge/tag-v7.1.6-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.1&expanded=true)                                  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.1)](https://github.com/SindlaXYZ/Aurora/tree/7.1) | >= 8.3         |
-| <= 7.2.24 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/badge/tag-v7.2.24-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true)                                 | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.3         |
-| 7.2 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/badge/tag-v7.2.28-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.4         |
-| **7.3**  | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) | [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) | >= 8.4         |
+## Aurora
+
+| Version | Unit testing                                                                                                                                                         | Latest Version                                                                                                                                                               | Last Commit                                                                                                                    | Required PHP |
+|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|--------------|
+| **7.3** | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) | [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) | >= 8.4       |
+
+## Oldest versions
+
+| Version   | Unit testing                                                                                                                                                         | Latest Version                                                                                                                               | Last Commit                                                                                                                    | Required PHP   |
+|-----------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------|----------------|
+| 5.4       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=5.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A5.4) | [![Latest Version](https://img.shields.io/badge/tag-v5.4.1-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v5.4&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/5.4)](https://github.com/SindlaXYZ/Aurora/tree/5.4) | >=7.4 & >= 8.0 |
+| 6.1       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.1)             | [![Latest Version](https://img.shields.io/badge/tag-N/A-red)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.1&expanded=true)             | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.1)](https://github.com/SindlaXYZ/Aurora/tree/6.1) | >= 8.1         |
+| 6.2       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/workflows/PHPUnit/badge.svg?branch=6.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.2)             | [![Latest Version](https://img.shields.io/badge/tag-v6.2.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.2&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.2)](https://github.com/SindlaXYZ/Aurora/tree/6.2) | >= 8.2         |
+| 6.3       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=6.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A6.3) | [![Latest Version](https://img.shields.io/badge/tag-v6.3.0-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v6.3&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/6.3)](https://github.com/SindlaXYZ/Aurora/tree/6.3) | >= 8.2         |
+| 7.0       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.0) | [![Latest Version](https://img.shields.io/badge/tag-v7.0.3-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.0&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.0)](https://github.com/SindlaXYZ/Aurora/tree/7.0) | >= 8.2         |
+| 7.1       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.1) | [![Latest Version](https://img.shields.io/badge/tag-v7.1.6-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.1&expanded=true)  | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.1)](https://github.com/SindlaXYZ/Aurora/tree/7.1) | >= 8.3         |
+| <= 7.2.24 | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/badge/tag-v7.2.24-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.3         |
+| 7.2       | [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.2)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.2) | [![Latest Version](https://img.shields.io/badge/tag-v7.2.28-brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.2&expanded=true) | [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.2)](https://github.com/SindlaXYZ/Aurora/tree/7.2) | >= 8.4         |
 
 ## Installation
 
@@ -46,12 +53,12 @@ parameters:
     aurora.maxmind.license_key: '%env(default::MAXMIND_LICENSE_KEY)%'
     # Minify output
     aurora.minify.output: false
-    aurora.minify.output.ignore.extensions:   ['.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip']
-    aurora.minify.output.ignore.content.type: ['text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip']
+    aurora.minify.output.ignore.extensions: [ '.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip' ]
+    aurora.minify.output.ignore.content.type: [ 'text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip' ]
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
-    aurora.pwa.enabled:                 '%env(bool:AURORA_PWA_ENABLED)%'
-    aurora.pwa.debug:                   '%env(bool:AURORA_PWA_DEBUG)%'
+    aurora.pwa.enabled: '%env(bool:AURORA_PWA_ENABLED)%'
+    aurora.pwa.debug: '%env(bool:AURORA_PWA_DEBUG)%'
     aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersioAppend()`"
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
@@ -202,9 +209,9 @@ Then run `composer update` to update and install the rest of the dependencies.
         arguments:
             $container: '@service_container'
             $utilityExtension: '@aurora.twig.utility'
-              #$headers:
-              #text/html:
-              #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
+                #$headers:
+                #text/html:
+            #Strict-Transport-Security: "max-age=1536000; includeSubDomains"
             #Content-Security-Policy: "default-src 'self'"
             # ?aurora.nonce? will be replace with uniq nonce. for twig, use {{ aurora.nonce() }}
             #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
@@ -318,7 +325,6 @@ doctrine_migrations:
 
 ---
 
-
 * For favicons, can use https://www.favicon-generator.org/
 
 ---
@@ -329,7 +335,6 @@ doctrine_migrations:
 cd installed/
 cp ../composer.json composer.json
 composer install
-
 
 mkdir symfony/
 cd symfony/
