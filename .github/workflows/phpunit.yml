@@ -13,7 +13,8 @@ env:
     PHP_INI_VALUES: assert.exception=1, memory_limit=-1, zend.assertions=1, log_errors_max_len=0
     # PHPUnit
     PHPUNIT: "${{ github.workspace }}/build/bin/phpunit"
-    PHPUNIT_FLAGS: "--no-coverage" # for coverage tests, replace "--no-coverage" with: "--coverage-clover coverage.xml"
+    PHPUNIT_FLAGS_WITHOUT_COVERAGE: "--no-coverage"
+    PHPUNIT_FLAGS_WITH_COVERAGE: "--coverage-clover ${{ github.workspace }}/build/.github/.test-results/clover.xml --log-junit ${{ github.workspace }}/build/.github/.test-results/junit.xml"
     # Symfony
     SYMFONY_VERSION: "7.3.x-dev" # 7.3.* / 7.3.x-dev
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
@@ -22,7 +23,7 @@ env:
     AURORA_VERSION: "7.3"
 
 permissions:
-    contents: read
+    contents: write
 
 jobs:
     build:
@@ -52,8 +53,8 @@ jobs:
             -   name: "Install PHP with extensions"
                 uses: shivammathur/setup-php@v2
                 with:
-                    coverage: "none" # for coverage tests, replace "none" with "xdebug"
-                    extensions: "intl, mbstring, pdo_pgsql, zip" # for coverage tests, append: ", xdebug"
+                    coverage: "xdebug"
+                    extensions: "intl, mbstring, pdo_pgsql, zip, xdebug"
                     ini-values: ${{ env.PHP_INI_VALUES }}
                     php-version: ${{ matrix.php-version }}
                     tools: composer:v2
@@ -75,7 +76,6 @@ jobs:
 
             -   name: "Install dependencies"
                 run: |
-                    # composer install --ansi --no-interaction --no-progress
                     mkdir -p ${{ env.BUILD_DIR }}
 
             -   name: "Create a Symfony skeleton project and install dependencies, including sindla/aurora (dev version)"
@@ -87,24 +87,30 @@ jobs:
                     echo -e "\033[0;35m * composer create-project symfony/skeleton \033[0m"
                     composer create-project symfony/skeleton:${{ env.SYMFONY_VERSION }} . --no-cache
 
+                    # echo -e "\033[0;35m * composer install from sindla/aurora \033[0m"
+                    # cp -f ${{ env.WORKSPACE }}/composer.json ${{ env.BUILD_DIR }}/composer.json
+                    # composer install --ansi --no-interaction --no-progress
+
                     echo -e "\033[0;35m * require symfony/webapp-pack \033[0m"
                     composer require symfony/webapp-pack
 
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --no-cache --no-progress
+                    composer require brick/math:^0.14 -W --no-cache --no-progress
 
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
-                    composer require phpunit/phpunit:10.5.* -W --dev --no-progress
+                    composer require phpunit/phpunit:12.3.* -W --dev --no-progress
 
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
-                    composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
+                    composer require dama/doctrine-test-bundle:8.3.* -W --dev --no-progress
 
                     echo -e "\033[0;35m * sync files \033[0m"
-                    cp -f ${{ github.workspace }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
-                    cat ${{ github.workspace }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
-                    cp -f ${{ github.workspace }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php
-                    cp -f ${{ github.workspace }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
-                    # cp -f vendor/bin/phpunit ${{ env.BUILD_DIR }}/bin/phpunit
+                    cp -rf "${{ env.WORKSPACE }}/src/"* "${{ env.BUILD_DIR }}/vendor/sindla/aurora/src"
+                    cp -f ${{ env.WORKSPACE }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
+                    cat ${{ env.WORKSPACE }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
+                    cp -f ${{ env.WORKSPACE }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php
+                    cp -f ${{ env.WORKSPACE }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
+                    cp -f ${{ env.BUILD_DIR }}/vendor/sindla/aurora/phpunit.xml.dist ${{ env.BUILD_DIR }}/phpunit.xml.dist
 
             #            -   name: "Prepare database"
             #                run: |
@@ -118,6 +124,12 @@ jobs:
 
                     composer clear-cache
                     composer dump-autoload
+
+            -   name: "Prepare report directories"
+                working-directory: ${{ env.BUILD_DIR }}
+                run: |
+                    mkdir -p build/logs
+                    mkdir -p .envs/.test-results
 
             -   name: "Check versions"
                 working-directory: ${{ env.BUILD_DIR }}
@@ -147,60 +159,78 @@ jobs:
                     # sed -i -e 's/    orm:/    orm:\n        controller_resolver:\n            auto_mapping: true/g' ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
                     # cat ${{ env.BUILD_DIR }}/config/packages/doctrine.yaml
 
-            -   name: "Test /Command"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/ComposerCommandTest.php
-
-            -   name: "Test /Console"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/SymfonyStyleFactoryTest.php
-
-            -   name: "Test /Controller"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/BlackHoleControllerTest.php
-
-            -   name: "Test /Entity/SuperAttribute"
+            -   name: "Test /Command/ directory"
                 run: |
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/ECommerce/
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/Misc/
-                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/SuperAttribute/Timestampable/
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Command/
 
-            -   name: "Test /EventListener"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php
+            -   name: "Test /Console/ directory"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Console/
 
-            -   name: "Test /Utils/AuroraCalendar"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php
+            -   name: "Test /Controller/ directory"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Controller/
 
-            -   name: "Test /Utils/AuroraCalendarLinkGenerator"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCalendarLinkGenerator/AuroraCalendarLinkGeneratorTest.php
+            -   name: "Test /Entity/ directory"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Entity/
 
-            -   name: "Test /Utils/AuroraChronos"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php
+            -   name: "Test /EventListener/ directory"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/EventListener/
 
-            -   name: "Test /Utils/AuroraClient"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraClient/AuroraClientTest.php
-
-            -   name: "Test /Utils/AuroraCookiesExtractor"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraCookiesExtractor/AuroraCookiesExtractorTest.php
-
-            -   name: "Test /Utils/AuroraHelper"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraHelper/AuroraHelperTest.php
-
-            -   name: "Test /Utils/AuroraIP"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraIP/AuroraIPTest.php
-
-            -   name: "Test /Utils/AuroraMatch"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php
-
-            -   name: "Test /Utils/Diacritics"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php
-
-            -   name: "Test /Utils/IO"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/IO/IOTest.php
-
-            -   name: "Test /Utils/Strink"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Strink/StrinkTest.php
-
-            -   name: "Test /Utils/Twig"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php
+            -   name: "Test /Utils/ directory"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/Utils/
 
             -   name: "Test RequirementsTest"
-                run: /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS }} -c ${{ env.BUILD_DIR }}/phpunit.xml.dist ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITHOUT_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/RequirementsTest.php
+
+            -   name: "Run all test with coverage"
+                run: |
+                    /usr/bin/php ${{ env.BUILD_DIR }}/vendor/bin/phpunit ${{ env.PHPUNIT_FLAGS_WITH_COVERAGE }} \
+                    -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
+                    ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/
+
+            -   name: "Generate PHPUnit badges"
+                working-directory: ${{ env.BUILD_DIR }}
+                run: |
+                    /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitPassingBadge \
+                    --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
+                    --outputPassingSVGFilePath=../.github/badges/phpunit.svg
+
+                    /usr/bin/cat ${{ env.BUILD_DIR }}/.github/.test-results/clover.xml
+
+                    /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitCodeCoverageBadge \
+                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml \
+                    --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
+                    --outputStatementsSVGFilePath=../.github/badges/statements.svg
+
+            -   name: "Commit PHPUnit badges"
+                run: |
+                    BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                    git config user.name "github-actions[bot]"
+                    git config user.email "github-actions[bot]@users.noreply.github.com"
+                    git config --global pull.rebase true
+                    git config --global rebase.autoStash true
+                    git pull origin "HEAD:${BRANCH}"
+                    git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
+                    git commit -m "Update PHPUnit badges" || echo "No changes to commit"
+                    git push origin "HEAD:${BRANCH}"

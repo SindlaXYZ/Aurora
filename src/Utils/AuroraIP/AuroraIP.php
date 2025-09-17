@@ -37,9 +37,9 @@ class AuroraIP
             return false;
         }
 
-        [$subnet, $prefixLength] = explode('/', $cidr, 2);
+        [$subnet, $prefixLength] = array_map('trim', explode('/', $cidr, 2));
 
-        if ($prefixLength === '' || !ctype_digit($prefixLength)) {
+        if ($subnet === '' || $prefixLength === '' || !ctype_digit($prefixLength)) {
             return false;
         }
 

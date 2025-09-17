@@ -101,11 +101,21 @@ class Strink
 
         if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
-                'abcdefghijklmnopqrstuwxyz',
-                'ABCDEFGHIJKLMNOPQRSTUWXYZ',
+                'abcdefghijklmnopqrstuvwxyz',
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 '0123456789',
-                '!@#$%^&*+=' 
+                '!@#$%^&*+=',
             ];
+        }
+
+        $keysToUse = array_values(array_filter(
+            $keysToUse,
+            static fn ($key): bool => is_string($key) && $key !== ''
+        ));
+
+        if (count($keysToUse) === 0) {
+            $this->string = '';
+            return $this;
         }
 
         $password = '';
@@ -138,7 +148,15 @@ class Strink
         $string = (string) $string;
         $length = mb_strlen($string, 'UTF-8');
 
-        if ($margins <= 0 || $length <= $margins * 2) {
+        if ($margins < 0) {
+            return $string;
+        }
+
+        if ($margins === 0) {
+            return str_repeat('*', $length);
+        }
+
+        if ($length <= $margins * 2) {
             return $string;
         }
 
