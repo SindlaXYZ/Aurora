@@ -44,7 +44,7 @@ class Strink
      */
     public function compressSlashes(): self
     {
-        $this->string = preg_replace('~(^|[^:])//+~', '\\1/', $this->string);
+        $this->string = preg_replace('~(^|[^:])//+~', '\1/', $this->string);
         return $this;
     }
 
@@ -101,11 +101,21 @@ class Strink
 
         if (is_array($keysToUse) && count($keysToUse) == 0) {
             $keysToUse = [
-                'abcdefghijklmnopqrstuwxyz',
-                'ABCDEFGHIJKLMNOPQRSTUWXYZ',
+                'abcdefghijklmnopqrstuvwxyz',
+                'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
                 '0123456789',
-                '!@#$%^&*+=' 
+                '!@#$%^&*+=',
             ];
+        }
+
+        $keysToUse = array_values(array_filter(
+            $keysToUse,
+            static fn ($key): bool => is_string($key) && $key !== ''
+        ));
+
+        if (count($keysToUse) === 0) {
+            $this->string = '';
+            return $this;
         }
 
         $password = '';
@@ -138,7 +148,15 @@ class Strink
         $string = (string) $string;
         $length = mb_strlen($string, 'UTF-8');
 
-        if ($margins <= 0 || $length <= $margins * 2) {
+        if ($margins < 0) {
+            return $string;
+        }
+
+        if ($margins === 0) {
+            return str_repeat('*', $length);
+        }
+
+        if ($length <= $margins * 2) {
             return $string;
         }
 
@@ -158,6 +176,11 @@ class Strink
         $postTextLength = mb_strlen($postText, 'utf-8');
 
         if ($stringLength > $limit) {
+            if ($limit <= $postTextLength) {
+                $this->string = mb_substr($postText, 0, $limit, 'utf-8');
+                return $this;
+            }
+
             $limitedString = $this->string;
 
             if ($cut == 'right') {
@@ -217,7 +240,9 @@ class Strink
         $encoding = $this->detectEncoding();
 
         $this->string = mb_strtolower($this->string, $encoding);
-        $this->string = str_replace('_', ' ', $this->string);
+        $this->string = preg_replace('/_+/', ' ', $this->string) ?? '';
+        $this->compressSpaces();
+        $this->string = trim($this->string);
 
         if ($upperCaseAllLetters) {
             $this->string = mb_convert_case($this->string, MB_CASE_TITLE, $encoding);
@@ -235,7 +260,9 @@ class Strink
      */
     public function camelCaseToSnakeCase(): self
     {
-        $this->string = strtolower(preg_replace('/(?<!^)[A-Z]/', '_$0', $this->string));
+        $encoding     = $this->detectEncoding();
+        $this->string = preg_replace('/(?<!^)\p{Lu}/u', '_$0', $this->string);
+        $this->string = mb_strtolower($this->string, $encoding);
         return $this;
     }
 

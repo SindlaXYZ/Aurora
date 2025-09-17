@@ -8,18 +8,6 @@
     bootstrap="tests/bootstrap.php"
     cacheDirectory=".phpunit.cache"
 >
-    <coverage>
-        <report>
-            <html outputDirectory="./.envs/.test-results" lowUpperBound="35" highLowerBound="70" />
-            <clover outputFile=".envs/.test-results/clover.xml" />
-        </report>
-    </coverage>
-
-    <!--
-      <logging>
-          <log type="coverage-html" target="./.envs/.test-results" lowUpperBound="35" highLowerBound="70"/>
-      </logging>
-      -->
     <php>
         <ini name="display_errors" value="1" />
         <ini name="error_reporting" value="-1" />
@@ -46,6 +34,18 @@
           </whitelist>
       </filter>
       -->
+
+    <coverage>
+        <report>
+            <html outputDirectory=".github/.test-results" lowUpperBound="35" highLowerBound="70" />
+            <clover outputFile=".github/.test-results/clover.xml" />
+        </report>
+    </coverage>
+
+    <logging>
+        <junit outputFile=".github/.test-results/junit.xml"/>
+    </logging>
+
     <extensions>
         <!-- it begins a database transaction before every testcase and rolls it back after
                 the test finished, so tests can manipulate the database without affecting other tests -->
@@ -57,9 +57,12 @@
     <source>
         <include>
             <directory suffix=".php">src</directory>
+            <directory suffix=".php">vendor/sindla/aurora/src</directory>
         </include>
         <exclude>
             <directory suffix=".php">src/Migrations</directory>
+            <directory suffix=".php">vendor/sindla/aurora/src/Migrations</directory>
+            <file>src/Kernel.php</file>
         </exclude>
     </source>
 
