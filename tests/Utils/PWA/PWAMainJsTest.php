@@ -218,6 +218,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
     use Symfony\Component\HttpFoundation\Request;
     use Symfony\Component\HttpFoundation\RequestStack;
     use Symfony\Component\HttpFoundation\Session\Session;
+    use Symfony\Component\HttpFoundation\Session\Storage\MockArraySessionStorage;
     use Twig\Environment;
 
     /**
@@ -294,7 +295,20 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                 }
             };
 
-            $session      = new Session(['PHPSESSID' => 'session-value']);
+            if (class_exists(MockArraySessionStorage::class)) {
+                $session = new Session(new MockArraySessionStorage());
+
+                if (method_exists($session, 'setId')) {
+                    $session->setId('session-value');
+                }
+
+                if (method_exists($session, 'set')) {
+                    $session->set('PHPSESSID', 'session-value');
+                }
+            } else {
+                $session = new Session(['PHPSESSID' => 'session-value']);
+            }
+
             $requestStack = new RequestStack($session);
             $twig         = new Environment();
             $pwa          = new PWA($container, $requestStack, $twig);
