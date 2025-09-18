@@ -164,6 +164,11 @@ namespace Symfony\Component\HttpFoundation\Session {
             {
                 return $this->values[$name] ?? $default;
             }
+
+            public function set(string $name, mixed $value): void
+            {
+                $this->values[$name] = $value;
+            }
         }
     }
 }
@@ -297,16 +302,18 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
 
             if (class_exists(MockArraySessionStorage::class)) {
                 $session = new Session(new MockArraySessionStorage());
-
-                if (method_exists($session, 'setId')) {
-                    $session->setId('session-value');
-                }
-
-                if (method_exists($session, 'set')) {
-                    $session->set('PHPSESSID', 'session-value');
-                }
             } else {
-                $session = new Session(['PHPSESSID' => 'session-value']);
+                $session = new Session();
+            }
+
+            if (method_exists($session, 'setId')) {
+                $session->setId('session-value');
+            }
+
+            if (method_exists($session, 'set')) {
+                $session->set('PHPSESSID', 'session-value');
+            } elseif (method_exists($session, 'replace')) {
+                $session->replace(['PHPSESSID' => 'session-value']);
             }
 
             $requestStack = new RequestStack($session);
