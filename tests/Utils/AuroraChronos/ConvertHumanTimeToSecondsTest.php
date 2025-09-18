@@ -25,6 +25,8 @@ class ConvertHumanTimeToSecondsTest extends TestCase
         return [
             [3600, '1h'],
             [7200, '2H'],
+            [10800, ' 3h '],
+            [432000, '5 d'],
             [0, '10Z'],
         ];
     }
