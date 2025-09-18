@@ -127,14 +127,63 @@ class AuroraChronosTest extends TestCase
                          'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
                          'expected'     => false
                      ],
-                     [
-                         'startDate'    => '2010-01-01 11:12:13',
-                         'endDate'      => '2010-01-08 11:12:14',
-                         'interval'     => 1,
-                         'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
-                         'expected'     => true
-                     ],
-                 ] as $test) {
+                    [
+                        'startDate'    => '2010-01-01 11:12:13',
+                        'endDate'      => '2010-01-08 11:12:14',
+                        'interval'     => 1,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
+                        'expected'     => true
+                    ],
+                    [
+                        'startDate'    => '2024-01-01 00:00:00',
+                        'endDate'      => '2024-03-01 00:00:00',
+                        'interval'     => 1,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                        'expected'     => true
+                    ],
+                    [
+                        'startDate'    => '2024-01-01 00:00:00',
+                        'endDate'      => '2024-02-01 00:00:00',
+                        'interval'     => 1,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                        'expected'     => false
+                    ],
+                    [
+                        'startDate'    => '2024-01-01 00:00:00',
+                        'endDate'      => '2024-02-01 00:00:01',
+                        'interval'     => 1,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                        'expected'     => true
+                    ],
+                    [
+                        'startDate'    => '2024-02-01 00:00:00',
+                        'endDate'      => '2024-01-01 00:00:00',
+                        'interval'     => 1,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                        'expected'     => false
+                    ],
+                    [
+                        'startDate'    => '2020-01-01 00:00:00',
+                        'endDate'      => '2023-01-01 00:00:00',
+                        'interval'     => 2,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_YEARS,
+                        'expected'     => true
+                    ],
+                    [
+                        'startDate'    => '2024-01-01 00:00:00',
+                        'endDate'      => '2023-01-01 00:00:00',
+                        'interval'     => 0,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_YEARS,
+                        'expected'     => false
+                    ],
+                    [
+                        'startDate'    => '2020-01-01 00:00:00',
+                        'endDate'      => '2022-01-01 00:00:01',
+                        'interval'     => 2,
+                        'intervalUnit' => AuroraChronos::TIME_UNIT_YEARS,
+                        'expected'     => true
+                    ],
+                ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->diffIsHigherThan($test['startDate'], $test['endDate'], $test['interval'], $test['intervalUnit']), json_encode($test));
         }
     }
