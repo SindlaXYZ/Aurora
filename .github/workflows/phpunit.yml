@@ -223,7 +223,31 @@ jobs:
                     --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
                     --outputStatementsSVGFilePath=../.github/badges/statements.svg
 
+            -   name: "Check if branch matches version pattern"
+                id: check_branch
+                run: |
+                    BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                    echo "Branch name: $BRANCH_NAME"
+
+                    # Pattern for X.Y where X >= 7 and Y >= 0
+                    if [[ $BRANCH_NAME =~ ^([7-9]|[1-9][0-9]+)\.([0-9]+)$ ]]; then
+                        MAJOR_VERSION=${BASH_REMATCH[1]}
+                        MINOR_VERSION=${BASH_REMATCH[2]}
+
+                        if [ $MAJOR_VERSION -ge 7 ]; then
+                            echo "should_commit=true" >> $GITHUB_OUTPUT
+                            echo "Branch $BRANCH_NAME matches version pattern (Major: $MAJOR_VERSION, Minor: $MINOR_VERSION)"
+                        else
+                            echo "should_commit=false" >> $GITHUB_OUTPUT
+                            echo "Branch $BRANCH_NAME has major version < 7"
+                        fi
+                    else
+                        echo "should_commit=false" >> $GITHUB_OUTPUT
+                        echo "Branch $BRANCH_NAME does not match version pattern X.Y"
+                    fi
+
             -   name: "Commit PHPUnit badges"
+                if: steps.check_branch.outputs.should_commit == 'true'
                 run: |
                     BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
                     git config user.name "github-actions[bot]"
