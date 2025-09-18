@@ -28,8 +28,63 @@ class CommandMiddlewareTest extends TestCase
         $tmpFile = tempnam(sys_get_temp_dir(), 'yaml');
         file_put_contents($tmpFile, "foo: bar\n");
 
-        $result = $method->invoke($command, $tmpFile);
+        try {
+            $result = $method->invoke($command, $tmpFile);
+        } finally {
+            @unlink($tmpFile);
+        }
 
         $this->assertSame(['foo' => 'bar'], $result);
+    }
+
+    public function testReadYamlFileParsesNestedStructuresWithoutSymfonyYaml(): void
+    {
+        $command     = new CommandMiddleware();
+        $reflection  = new \ReflectionClass($command);
+        $method      = $reflection->getMethod('readYamlFile');
+        $method->setAccessible(true);
+
+        $yaml = <<<YAML
+parent:
+  child: value
+  enabled: true
+  count: 5
+  price: 12.5
+  inline: [first, second]
+  numbers: [1, 2, 3]
+  list:
+    - entry-one
+    - entry-two
+  nestedList:
+    - name: foo
+    - name: bar
+YAML;
+
+        $tmpFile = tempnam(sys_get_temp_dir(), 'yaml');
+        file_put_contents($tmpFile, $yaml);
+
+        try {
+            $result = $method->invoke($command, $tmpFile);
+        } finally {
+            @unlink($tmpFile);
+        }
+
+        $expected = [
+            'parent' => [
+                'child'      => 'value',
+                'enabled'    => true,
+                'count'      => 5,
+                'price'      => 12.5,
+                'inline'     => ['first', 'second'],
+                'numbers'    => [1, 2, 3],
+                'list'       => ['entry-one', 'entry-two'],
+                'nestedList' => [
+                    ['name' => 'foo'],
+                    ['name' => 'bar'],
+                ],
+            ],
+        ];
+
+        $this->assertSame($expected, $result);
     }
 }

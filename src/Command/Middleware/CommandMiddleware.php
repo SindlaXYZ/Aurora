@@ -108,9 +108,204 @@ class CommandMiddleware extends Command
      */
     protected function readYamlFile($yamlFileName): array
     {
-        $results = new Parser()->parse($this->readFile($yamlFileName));
+        $yamlContent = $this->readFile($yamlFileName);
 
-        return $results ?? [];
+        return $this->parseYamlContent($yamlContent);
+    }
+
+    private function parseYamlContent(string $yamlContent): array
+    {
+        if (trim($yamlContent) === '') {
+            return [];
+        }
+
+        if (class_exists(Parser::class)) {
+            try {
+                $parsed = (new Parser())->parse($yamlContent);
+                if (is_array($parsed)) {
+                    return $parsed;
+                }
+            } catch (\Throwable) {
+                // Fallback handled below.
+            }
+        }
+
+        if (class_exists(\Symfony\Component\Yaml\Yaml::class)) {
+            try {
+                $parsed = \Symfony\Component\Yaml\Yaml::parse($yamlContent);
+                if (is_array($parsed)) {
+                    return $parsed;
+                }
+            } catch (\Throwable) {
+                // Fallback handled below.
+            }
+        }
+
+        if (function_exists('yaml_parse')) {
+            $parsed = yaml_parse($yamlContent);
+            if (is_array($parsed)) {
+                return $parsed;
+            }
+        }
+
+        return $this->parseSimpleYaml($yamlContent);
+    }
+
+    private function parseSimpleYaml(string $yamlContent): array
+    {
+        $result      = [];
+        $stack       = [&$result];
+        $indentStack = [-1];
+
+        $lines = preg_split('/\r\n|\r|\n/', $yamlContent) ?: [];
+
+        foreach ($lines as $rawLine) {
+            if ($rawLine === null) {
+                continue;
+            }
+
+            $trimmedLine = ltrim($rawLine, " \t");
+
+            if ($trimmedLine === '' || str_starts_with($trimmedLine, '#') || in_array($trimmedLine, ['---', '...'], true)) {
+                continue;
+            }
+
+            $indent = strlen($rawLine) - strlen($trimmedLine);
+
+            while (count($indentStack) > 1 && $indent <= end($indentStack)) {
+                array_pop($indentStack);
+                array_pop($stack);
+            }
+
+            $currentIndex = count($stack) - 1;
+            $current      =& $stack[$currentIndex];
+            $line         = $trimmedLine;
+
+            if ($line[0] === '-') {
+                $valuePart = trim(substr($line, 1));
+
+                if (!is_array($current)) {
+                    $current = [];
+                }
+
+                if ($valuePart === '') {
+                    $current[] = [];
+                    $lastIndex = array_key_last($current);
+                    $stack[]   =& $current[$lastIndex];
+                    $indentStack[] = $indent;
+                    continue;
+                }
+
+                if ($this->looksLikeInlineMap($valuePart)) {
+                    [$inlineKey, $inlineValue] = array_map('trim', explode(':', $valuePart, 2));
+                    $item                      = [];
+
+                    if ($inlineValue === '') {
+                        $item[$inlineKey] = [];
+                        $current[]        = $item;
+                        $lastIndex        = array_key_last($current);
+                        $stack[]          =& $current[$lastIndex][$inlineKey];
+                        $indentStack[]    = $indent;
+                        continue;
+                    }
+
+                    $item[$inlineKey] = $this->castSimpleYamlValue($inlineValue);
+                    $current[]        = $item;
+                    continue;
+                }
+
+                $current[] = $this->castSimpleYamlValue($valuePart);
+                continue;
+            }
+
+            [$key, $valuePart] = array_pad(explode(':', $line, 2), 2, null);
+            $key                = trim((string)$key);
+
+            if ($valuePart === null) {
+                $current[$key] = null;
+                continue;
+            }
+
+            $valuePart = trim($valuePart);
+
+            if ($valuePart === '') {
+                $current[$key] = [];
+                $stack[]       =& $current[$key];
+                $indentStack[] = $indent;
+                continue;
+            }
+
+            $current[$key] = $this->castSimpleYamlValue($valuePart);
+        }
+
+        return $result;
+    }
+
+    private function looksLikeInlineMap(string $valuePart): bool
+    {
+        $colonPosition = strpos($valuePart, ':');
+
+        if ($colonPosition === false) {
+            return false;
+        }
+
+        $firstChar = $valuePart[0];
+        if ($firstChar === '"' || $firstChar === '\'') {
+            return false;
+        }
+
+        $nextChar = $valuePart[$colonPosition + 1] ?? '';
+        if ($nextChar !== '' && $nextChar !== ' ') {
+            return false;
+        }
+
+        return true;
+    }
+
+    private function castSimpleYamlValue(string $value): mixed
+    {
+        $length = strlen($value);
+
+        if ($length >= 2) {
+            $firstChar = $value[0];
+            $lastChar  = $value[$length - 1];
+
+            if ($firstChar === '"' && $lastChar === '"') {
+                return stripcslashes(substr($value, 1, -1));
+            }
+
+            if ($firstChar === '\'' && $lastChar === '\'') {
+                $unquoted = substr($value, 1, -1);
+                return str_replace("''", "'", $unquoted);
+            }
+        }
+
+        if (preg_match('/^\[(.*)]$/', $value, $matches) === 1) {
+            $items = $matches[1] === '' ? [] : array_map('trim', explode(',', $matches[1]));
+
+            return array_values(array_map(
+                fn(string $item) => $this->castSimpleYamlValue($item),
+                array_filter($items, static fn(string $item) => $item !== '')
+            ));
+        }
+
+        $lowerValue = strtolower($value);
+
+        return match ($lowerValue) {
+            'true', 'yes', 'on'  => true,
+            'false', 'no', 'off' => false,
+            'null', '~'          => null,
+            default              => $this->castNumericValue($value),
+        };
+    }
+
+    private function castNumericValue(string $value): mixed
+    {
+        if (is_numeric($value)) {
+            return str_contains($value, '.') ? (float)$value : (int)$value;
+        }
+
+        return $value;
     }
 
     /**
