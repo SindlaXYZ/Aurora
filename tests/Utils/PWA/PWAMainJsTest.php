@@ -252,7 +252,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                     $this->services[$id] = $service;
                 }
 
-                public function getParameter(string $name): mixed
+                public function getParameter(string $name): \UnitEnum|array|string|int|float|bool|null
                 {
                     return $this->parameters[$name] ?? null;
                 }
