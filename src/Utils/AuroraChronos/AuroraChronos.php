@@ -160,18 +160,41 @@ class AuroraChronos
         }
 
         if (self::TIME_UNIT_MONTHS == $timeUnit) {
+            if ($interval->invert === 1) {
+                return false;
+            }
+
+            $monthsDiff = abs($this->monthsBetweenTwoDates($startDate, $endDate));
+            $hasRemainder = $interval->d > 0
+                || $interval->h > 0
+                || $interval->i > 0
+                || $interval->s > 0
+                || $interval->f > 0;
+
             return (
-                $this->monthsBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                $monthsDiff > $intervalUnit
                 ||
-                ($this->monthsBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+                ($monthsDiff === $intervalUnit && $hasRemainder)
             );
         }
 
         if (self::TIME_UNIT_YEARS == $timeUnit) {
+            if ($interval->invert === 1) {
+                return false;
+            }
+
+            $yearsDiff = $this->yearsBetweenTwoDates($startDate, $endDate);
+            $hasRemainder = $interval->m > 0
+                || $interval->d > 0
+                || $interval->h > 0
+                || $interval->i > 0
+                || $interval->s > 0
+                || $interval->f > 0;
+
             return (
-                $this->yearsBetweenTwoDates($startDate, $endDate) > $intervalUnit
+                $yearsDiff > $intervalUnit
                 ||
-                ($this->yearsBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+                ($yearsDiff === $intervalUnit && $hasRemainder)
             );
         }
 
