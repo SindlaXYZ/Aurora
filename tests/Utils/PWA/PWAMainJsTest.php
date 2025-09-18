@@ -105,12 +105,23 @@ namespace Symfony\Component\HttpFoundation {
         {
             public ParameterBag $cookies;
 
-            public function __construct(
-                private string $host,
-                private string $requestUri,
-                array          $cookies = []
-            )
+            private string $host = 'localhost';
+
+            private string $requestUri = '/';
+
+            public function __construct(mixed ...$arguments)
             {
+                if (is_string($arguments[0] ?? null)) {
+                    $this->host       = $arguments[0];
+                    $this->requestUri = (string) ($arguments[1] ?? '/');
+                    $cookies          = is_array($arguments[2] ?? null) ? $arguments[2] : [];
+                } else {
+                    $server           = is_array($arguments[5] ?? null) ? $arguments[5] : [];
+                    $this->host       = (string) ($server['HTTP_HOST'] ?? 'localhost');
+                    $this->requestUri = (string) ($server['REQUEST_URI'] ?? '/');
+                    $cookies          = is_array($arguments[3] ?? null) ? $arguments[3] : [];
+                }
+
                 $this->cookies = new ParameterBag($cookies);
             }
 
@@ -161,7 +172,17 @@ namespace Symfony\Component\DependencyInjection {
     if (!interface_exists(ContainerInterface::class)) {
         interface ContainerInterface extends \Psr\Container\ContainerInterface
         {
+            public const EXCEPTION_ON_INVALID_REFERENCE = 1;
+
+            public const NULL_ON_INVALID_REFERENCE = 0;
+
+            public const IGNORE_ON_INVALID_REFERENCE = 2;
+
+            public const IGNORE_ON_UNINITIALIZED_REFERENCE = 3;
+
             public function set(string $id, mixed $service): void;
+
+            public function initialized(string $id): bool;
 
             public function getParameter(string $name): mixed;
 
@@ -252,6 +273,11 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                     $this->services[$id] = $service;
                 }
 
+                public function initialized(string $id): bool
+                {
+                    return array_key_exists($id, $this->services) && null !== $this->services[$id];
+                }
+
                 public function getParameter(string $name): \UnitEnum|array|string|int|float|bool|null
                 {
                     return $this->parameters[$name] ?? null;
@@ -273,7 +299,33 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
             $twig         = new Environment();
             $pwa          = new PWA($container, $requestStack, $twig);
 
-            $request = new Request('example.com', '/pwa/main.js', ['PHPSESSID' => 'cookie-session']);
+            $request = new class extends Request {
+                public \Symfony\Component\HttpFoundation\ParameterBag $cookies;
+
+                public function __construct()
+                {
+                    parent::__construct(
+                        [],
+                        [],
+                        [],
+                        ['PHPSESSID' => 'cookie-session'],
+                        [],
+                        ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js']
+                    );
+
+                    $this->cookies = new \Symfony\Component\HttpFoundation\ParameterBag(['PHPSESSID' => 'cookie-session']);
+                }
+
+                public function getHost(): string
+                {
+                    return 'example.com';
+                }
+
+                public function getRequestUri(): string
+                {
+                    return '/pwa/main.js';
+                }
+            };
 
             $response = $pwa->mainJS($request);
 
