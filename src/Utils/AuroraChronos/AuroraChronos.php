@@ -26,6 +26,30 @@ class AuroraChronos
             return 'Y-m-d H:i:s.v';
         }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/', $datetime)) {
+            return 'Y-m-d\TH:i:s';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}$/', $datetime)) {
+            return 'Y-m-d\TH:i:s.v';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/', $datetime)) {
+            return 'Y-m-d\TH:i:s\Z';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/', $datetime)) {
+            return 'Y-m-d\TH:i:s.v\Z';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+\-]\d{2}:\d{2}$/', $datetime)) {
+            return 'Y-m-d\TH:i:sP';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}[+\-]\d{2}:\d{2}$/', $datetime)) {
+            return 'Y-m-d\TH:i:s.vP';
+        }
+
         if (preg_match('/^\d{2}\/\d{2}\/\d{4}$/', $datetime)) {
             return 'm/d/Y';
         }
