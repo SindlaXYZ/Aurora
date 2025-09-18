@@ -8,23 +8,25 @@ use Aws\S3\S3Client;
 readonly class CloudflareR2
 {
     /**
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function getEndpoint(): string
     {
         $this->checkCredentials();
-        preg_match('#^(.*)/([^/]+)$#', $_ENV['CLOUDFLARE_R2_API_ENDPOINT'], $matches);
-        return $matches[1];
+        [$endpoint] = $this->splitEndpointAndBucket();
+
+        return $endpoint;
     }
 
     /**
-     * @throws \Exception
+     * @throws \RuntimeException
      */
     public function getBucket(): string
     {
         $this->checkCredentials();
-        preg_match('#^(.*)/([^/]+)$#', $_ENV['CLOUDFLARE_R2_API_ENDPOINT'], $matches);
-        return $matches[2];
+        [, $bucket] = $this->splitEndpointAndBucket();
+
+        return $bucket;
     }
 
     /**
@@ -46,20 +48,62 @@ readonly class CloudflareR2
 
     private function checkCredentials(): void
     {
-        if (!isset($_ENV['CLOUDFLARE_R2_API_ENDPOINT'])) {
+        $endpoint  = $_ENV['CLOUDFLARE_R2_API_ENDPOINT'] ?? null;
+        $accessKey = $_ENV['CLOUDFLARE_R2_API_ACCESS_KEY_ID'] ?? null;
+        $secretKey = $_ENV['CLOUDFLARE_R2_API_SECRET_ACCESS_KEY'] ?? null;
+
+        if ($endpoint === null) {
             throw new \Exception('CLOUDFLARE_R2_API_ENDPOINT is not set');
-        } else if (!isset($_ENV['CLOUDFLARE_R2_API_ACCESS_KEY_ID'])) {
+        }
+
+        if ($accessKey === null) {
             throw new \Exception('CLOUDFLARE_R2_API_ACCESS_KEY_ID is not set');
-        } else if (!isset($_ENV['CLOUDFLARE_R2_API_SECRET_ACCESS_KEY'])) {
+        }
+
+        if ($secretKey === null) {
             throw new \Exception('CLOUDFLARE_R2_API_SECRET_ACCESS_KEY is not set');
         }
 
-        if (isset($_ENV['CLOUDFLARE_R2_API_ENDPOINT']) && !str_starts_with($_ENV['CLOUDFLARE_R2_API_ENDPOINT'], 'https://')) {
+        if (!str_starts_with($endpoint, 'https://')) {
             throw new \Exception('CLOUDFLARE_R2_API_ENDPOINT must start with https://');
-        } else if (isset($_ENV['CLOUDFLARE_R2_API_ACCESS_KEY_ID']) && empty($_ENV['CLOUDFLARE_R2_API_ACCESS_KEY_ID'])) {
+        }
+
+        if ($accessKey === '') {
             throw new \Exception('CLOUDFLARE_R2_API_ACCESS_KEY_ID is empty');
-        } else if (isset($_ENV['CLOUDFLARE_R2_API_SECRET_ACCESS_KEY']) && empty($_ENV['CLOUDFLARE_R2_API_SECRET_ACCESS_KEY'])) {
+        }
+
+        if ($secretKey === '') {
             throw new \Exception('CLOUDFLARE_R2_API_SECRET_ACCESS_KEY is empty');
         }
+    }
+
+    /**
+     * @return array{string, string}
+     *
+     * @throws \RuntimeException
+     */
+    private function splitEndpointAndBucket(): array
+    {
+        $endpoint = rtrim($_ENV['CLOUDFLARE_R2_API_ENDPOINT'], '/');
+        $parsedEndpoint = parse_url($endpoint);
+
+        if ($parsedEndpoint === false || !isset($parsedEndpoint['scheme'], $parsedEndpoint['host'])) {
+            throw new \RuntimeException('CLOUDFLARE_R2_API_ENDPOINT must be a valid URL.');
+        }
+
+        $path = $parsedEndpoint['path'] ?? '';
+        $bucket = ltrim($path, '/');
+
+        if ($bucket === '') {
+            throw new \RuntimeException('CLOUDFLARE_R2_API_ENDPOINT must include a non-empty bucket name.');
+        }
+
+        $baseEndpoint = $parsedEndpoint['scheme'] . '://' . $parsedEndpoint['host'];
+
+        if (isset($parsedEndpoint['port'])) {
+            $baseEndpoint .= ':' . $parsedEndpoint['port'];
+        }
+
+        return [$baseEndpoint, $bucket];
     }
 }
