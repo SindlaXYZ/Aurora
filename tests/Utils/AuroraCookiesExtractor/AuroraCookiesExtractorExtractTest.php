@@ -56,5 +56,29 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCookiesExtractor {
             $this->assertSame('test', $cookies[0]->getName());
             $this->assertSame('1', $cookies[0]->getValue());
         }
+
+        public function testInvalidExpiresStringPreservesAttribute(): void
+        {
+            $response = new class implements ResponseInterface {
+                public function getInfo(?string $type = null): mixed
+                {
+                    return [
+                        'response_headers' => ['Set-Cookie: token=value; Expires=Not a valid date; Secure']
+                    ];
+                }
+            };
+
+            $extractor = new AuroraCookiesExtractor();
+            $cookies = $extractor->extractFromSymfonyResponseInterface($response);
+
+            $this->assertCount(1, $cookies);
+            $cookie = $cookies[0];
+
+            $this->assertNull($cookie->getExpires());
+            $this->assertSame(
+                ['Expires' => 'Not a valid date'],
+                $cookie->getAttributes()
+            );
+        }
     }
 }

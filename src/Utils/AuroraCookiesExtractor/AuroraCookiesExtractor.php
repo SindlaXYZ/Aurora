@@ -62,14 +62,18 @@ class AuroraCookiesExtractor
                 $normalized[strtolower($k)] = $v;
             }
 
+            $handledAttributes = [];
+
             // Path
             if (isset($normalized['path'])) {
                 $cookie->setPath($normalized['path']);
+                $handledAttributes[] = 'path';
             }
 
             // Domain
             if (isset($normalized['domain'])) {
                 $cookie->setDomain($normalized['domain']);
+                $handledAttributes[] = 'domain';
             }
 
             // Expires
@@ -80,11 +84,11 @@ class AuroraCookiesExtractor
                     // You can adjust according to the setExpires signature (DateTime|string|int).
                     // Below I pass timestamp (int); change if needed.
                     $cookie->setExpires(new \DateTimeImmutable('@' . $ts, new \DateTimeZone('UTC')));
-                } else {
-                    $cookie->setExpires($normalized['expires']);
+                    $handledAttributes[] = 'expires';
                 }
             } elseif (isset($normalized['max-age'])) {
                 $cookie->setExpires(new \DateTimeImmutable('@' . (time() + (int) $normalized['max-age']), new \DateTimeZone('UTC')));
+                $handledAttributes[] = 'max-age';
             } elseif ('PHPSESSID' === $name) {
                 // Set expires to 1440 seconds from now (default PHP session.gc_maxlifetime)
                 $cookie->setExpires(new \DateTimeImmutable('+1440 seconds', new \DateTimeZone('UTC')));
@@ -93,21 +97,24 @@ class AuroraCookiesExtractor
             // SameSite
             if (isset($normalized['samesite'])) {
                 $cookie->setSameSite($normalized['samesite']);
+                $handledAttributes[] = 'samesite';
             }
 
             // Flags Secure / HttpOnly
             if ((isset($normalized['secure']) && $normalized['secure'] === true)) {
                 $cookie->setSecure(true);
+                $handledAttributes[] = 'secure';
             }
             if ((isset($normalized['httponly']) && $normalized['httponly'] === true)) {
                 $cookie->setHttpOnly(true);
+                $handledAttributes[] = 'httponly';
             }
 
             // Fallback: if setAttributes(array) or setAttribute(k,v) exists, set the rest
             $leftovers = $attrs;
 
             // Remove those already handled
-            foreach (['path', 'domain', 'expires', 'max-age', 'samesite', 'secure', 'httponly'] as $done) {
+            foreach ($handledAttributes as $done) {
                 foreach (array_keys($leftovers) as $k) {
                     if (strcasecmp($k, $done) === 0) {
                         unset($leftovers[$k]);
