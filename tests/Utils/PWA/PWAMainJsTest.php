@@ -326,37 +326,22 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                 $session->replace(['PHPSESSID' => 'session-value']);
             }
 
-            $request = new class extends Request {
-                public function __construct()
-                {
-                    parent::__construct(
-                        [],
-                        [],
-                        [],
-                        ['PHPSESSID' => 'cookie-session'],
-                        [],
-                        ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js']
-                    );
+            $request = new Request(
+                [],
+                [],
+                [],
+                ['PHPSESSID' => 'cookie-session'],
+                [],
+                ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js']
+            );
 
-                    if (property_exists($this, 'cookies') && is_object($this->cookies)) {
-                        if (method_exists($this->cookies, 'replace')) {
-                            $this->cookies->replace(['PHPSESSID' => 'cookie-session']);
-                        } elseif (method_exists($this->cookies, 'set')) {
-                            $this->cookies->set('PHPSESSID', 'cookie-session');
-                        }
-                    }
+            if (property_exists($request, 'cookies') && is_object($request->cookies)) {
+                if (method_exists($request->cookies, 'replace')) {
+                    $request->cookies->replace(['PHPSESSID' => 'cookie-session']);
+                } elseif (method_exists($request->cookies, 'set')) {
+                    $request->cookies->set('PHPSESSID', 'cookie-session');
                 }
-
-                public function getHost(): string
-                {
-                    return 'example.com';
-                }
-
-                public function getRequestUri(): string
-                {
-                    return '/pwa/main.js';
-                }
-            };
+            }
 
             if (method_exists($request, 'setSession')) {
                 $request->setSession($session);
