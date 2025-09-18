@@ -1,34 +1,19 @@
 <?php
 
-namespace Symfony\Component\DependencyInjection {
-    if (!interface_exists(ContainerInterface::class)) {
-        interface ContainerInterface
+namespace MatthiasMullie\Minify {
+    class CSS
+    {
+        /** @var list<string> */
+        public array $added = [];
+
+        public function add($data): void
         {
-            public const RUNTIME_EXCEPTION_ON_INVALID_REFERENCE = 0;
-            public const EXCEPTION_ON_INVALID_REFERENCE = 1;
-            public const NULL_ON_INVALID_REFERENCE = 2;
-            public const IGNORE_ON_INVALID_REFERENCE = 3;
-            public const IGNORE_ON_UNINITIALIZED_REFERENCE = 4;
+            $this->added[] = (string) $data;
+        }
 
-            public function set(string $id, ?object $service): void;
-
-            public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object;
-
-            public function has(string $id): bool;
-
-            public function initialized(string $id): bool;
-
-            /**
-             * @return array<int|string, mixed>|bool|float|int|string|\UnitEnum|null
-             */
-            public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null;
-
-            public function hasParameter(string $name): bool;
-
-            /**
-             * @param array<int|string, mixed>|bool|float|int|string|\UnitEnum|null $value
-             */
-            public function setParameter(string $name, array|bool|string|int|float|\UnitEnum|null $value): void;
+        public function minify(): string
+        {
+            return implode('', $this->added);
         }
     }
 }
@@ -36,62 +21,86 @@ namespace Symfony\Component\DependencyInjection {
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Sanitizer {
 
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer;
 
 class SanitizerTest extends TestCase
 {
-    public function testHtmlMinifyUsesJsMinifier(): void
+    public function testCssClearCommentsRemovesBlockAndLineComments(): void
     {
-        $container = new class implements ContainerInterface {
-            public function set(string $id, ?object $service): void {}
-            public function get(string $id, int $invalidBehavior = ContainerInterface::EXCEPTION_ON_INVALID_REFERENCE): ?object
-            {
-                return null;
-            }
-            public function has(string $id): bool { return false; }
-            public function initialized(string $id): bool { return false; }
-            /**
-             * @return array<int|string, mixed>|bool|float|int|string|\UnitEnum|null
-             */
-            public function getParameter(string $name): array|bool|string|int|float|\UnitEnum|null { return null; }
-            public function hasParameter(string $name): bool { return false; }
-            /**
-             * @param array<int|string, mixed>|bool|float|int|string|\UnitEnum|null $value
-             */
-            public function setParameter(string $name, array|bool|string|int|float|\UnitEnum|null $value): void {}
-        };
+        $sanitizer = new Sanitizer();
 
-        $sanitizer = new class($container) extends Sanitizer {
-            /**
-             * @var list<string>
-             */
-            public array $calls = [];
-            /**
-             * @param string $input
-             * @return string
-             */
+        $css = "   \n/* comment */\nbody { color: red; }\n// inline comment\n";
+
+        $result = $sanitizer->cssClearComments($css);
+
+        self::assertSame('body { color: red; }', trim($result));
+        self::assertStringNotContainsString('/*', $result);
+        self::assertStringNotContainsString('//', $result);
+    }
+
+    public function testCssMinifyRewritesRelativeUrlsUsingAssetDirectory(): void
+    {
+        $sanitizer = new Sanitizer();
+
+        $css = <<<CSS
+.foo {
+    background: url(images/bg.png);
+    mask: url('icons/icon.svg');
+    border-image: url("https://example.com/img.png");
+}
+CSS;
+
+        $result = $sanitizer->cssMinify($css, '/assets/css/styles.css');
+
+        self::assertStringContainsString('url(/assets/css/images/bg.png)', $result);
+        self::assertStringContainsString("url('/assets/css/icons/icon.svg')", $result);
+        self::assertStringContainsString('url("https://example.com/img.png")', $result);
+        self::assertStringNotContainsString('/*', $result);
+    }
+
+    public function testHtmlMinifyMinifiesInlineCssAndJavascriptBlocks(): void
+    {
+        $sanitizer = new class extends Sanitizer {
+            /** @var list<string> */
+            public array $cssInputs = [];
+
+            /** @var list<array{code: string, removeConsoleOutputs: bool}> */
+            public array $jsInputs = [];
+
             public function minifyCSS($input)
             {
-                $this->calls[] = 'css';
-                return $input;
+                $this->cssInputs[] = $input;
+
+                return 'css:' . trim($input);
             }
-            /**
-             * @param string $input
-             * @param bool   $removeConsoleOutputs
-             * @return string
-             */
+
             public function minifyJS($input, $removeConsoleOutputs = false)
             {
-                $this->calls[] = 'js';
-                return $input;
+                $this->jsInputs[] = [
+                    'code' => $input,
+                    'removeConsoleOutputs' => $removeConsoleOutputs,
+                ];
+
+                return 'js:' . trim($input);
             }
         };
 
-        $sanitizer->htmlMinify('<script>console.log("x");</script>');
+        $html = '<div style="color: red; " data-test="value">Test<style>.foo { color: red; }</style><script>console.log("x");</script></div>';
 
-        self::assertContains('js', $sanitizer->calls);
-        self::assertNotContains('css', $sanitizer->calls);
+        $result = $sanitizer->htmlMinify($html);
+
+        self::assertSame(
+            ['color: red; ', '.foo { color: red; }'],
+            $sanitizer->cssInputs
+        );
+        self::assertSame(
+            [['code' => 'console.log("x");', 'removeConsoleOutputs' => false]],
+            $sanitizer->jsInputs
+        );
+
+        self::assertStringContainsString('style="css:color: red;"', $result);
+        self::assertStringContainsString('<style>css:.foo { color: red; }</style>', $result);
+        self::assertStringContainsString('<script>js:console.log("x");</script>', $result);
     }
 }
 
