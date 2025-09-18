@@ -410,11 +410,12 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                         ]));
                     }
 
-                    public function render($name, array $context = []): string
+                    public function render(...$arguments): string
                     {
+                        $context            = is_array($arguments[1] ?? null) ? $arguments[1] : [];
                         $this->lastContext = $context;
 
-                        return parent::render($name, $context);
+                        return parent::render(...$arguments);
                     }
                 };
             } else {
