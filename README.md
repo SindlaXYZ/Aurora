@@ -1,6 +1,6 @@
 ## Aurora
 
-[![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true) [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/coverage.svg?raw=true) [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3)
+[![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/coverage.svg?raw=true) [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true)
 
 ## Installation
 
