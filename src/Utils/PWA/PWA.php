@@ -253,8 +253,24 @@ class PWA
         $version       = $serviceGit->getHash();
         $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
 
-        if ($request->cookies->get('PHPSESSID')) {
-            $version .= '_' . $this->session->get('PHPSESSID');
+        $cookieSessionId = null;
+
+        if (property_exists($request, 'cookies') && is_object($request->cookies)) {
+            if (method_exists($request->cookies, 'get')) {
+                $cookieSessionId = $request->cookies->get('PHPSESSID');
+            }
+        } elseif (method_exists($request, 'cookies')) {
+            $cookiesBag = $request->cookies();
+            if (is_object($cookiesBag) && method_exists($cookiesBag, 'get')) {
+                $cookieSessionId = $cookiesBag->get('PHPSESSID');
+            }
+        }
+
+        if ($cookieSessionId && is_object($this->session) && method_exists($this->session, 'get')) {
+            $sessionIdentifier = $this->session->get('PHPSESSID');
+            if (null !== $sessionIdentifier && '' !== (string) $sessionIdentifier) {
+                $version .= '_' . (string) $sessionIdentifier;
+            }
         }
 
         if (0 === strpos($versionAppend, '!php/eval')) {

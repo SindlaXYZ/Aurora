@@ -97,6 +97,16 @@ namespace Symfony\Component\HttpFoundation {
             {
                 return $this->parameters[$key] ?? $default;
             }
+
+            public function set(string $key, mixed $value): void
+            {
+                $this->parameters[$key] = $value;
+            }
+
+            public function replace(array $parameters = []): void
+            {
+                $this->parameters = $parameters;
+            }
         }
     }
 
@@ -317,8 +327,6 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
             }
 
             $request = new class extends Request {
-                public \Symfony\Component\HttpFoundation\ParameterBag $cookies;
-
                 public function __construct()
                 {
                     parent::__construct(
@@ -330,7 +338,13 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                         ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js']
                     );
 
-                    $this->cookies = new \Symfony\Component\HttpFoundation\ParameterBag(['PHPSESSID' => 'cookie-session']);
+                    if (property_exists($this, 'cookies') && is_object($this->cookies)) {
+                        if (method_exists($this->cookies, 'replace')) {
+                            $this->cookies->replace(['PHPSESSID' => 'cookie-session']);
+                        } elseif (method_exists($this->cookies, 'set')) {
+                            $this->cookies->set('PHPSESSID', 'cookie-session');
+                        }
+                    }
                 }
 
                 public function getHost(): string
