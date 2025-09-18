@@ -5,7 +5,7 @@ namespace Symfony\Component\HttpFoundation {
     if (!class_exists(HeaderBag::class)) {
         class HeaderBag
         {
-            private array $headers = [];
+            private array $headers      = [];
             private array $cacheControl = [];
 
             public function __construct(array $headers = [])
@@ -48,8 +48,8 @@ namespace Symfony\Component\HttpFoundation {
         class Response
         {
             public HeaderBag $headers;
-            private string $content;
-            private int $status;
+            private string   $content;
+            private int      $status;
 
             public function __construct(string $content = '', int $status = 200, array $headers = [])
             {
@@ -108,8 +108,9 @@ namespace Symfony\Component\HttpFoundation {
             public function __construct(
                 private string $host,
                 private string $requestUri,
-                array $cookies = []
-            ) {
+                array          $cookies = []
+            )
+            {
                 $this->cookies = new ParameterBag($cookies);
             }
 
@@ -190,102 +191,103 @@ namespace Twig {
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
 
-use PHPUnit\Framework\TestCase;
-use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\HttpFoundation\Session\Session;
-use Twig\Environment;
+    use PHPUnit\Framework\TestCase;
+    use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
+    use Symfony\Component\DependencyInjection\ContainerInterface;
+    use Symfony\Component\HttpFoundation\Request;
+    use Symfony\Component\HttpFoundation\RequestStack;
+    use Symfony\Component\HttpFoundation\Session\Session;
+    use Twig\Environment;
 
-/**
- * @covers \Sindla\Bundle\AuroraBundle\Utils\PWA\PWA::mainJS
- */
-final class PWAMainJsTest extends TestCase
-{
-    public function testTranslationsUseExpectedKeys(): void
+    /**
+     * @covers \Sindla\Bundle\AuroraBundle\Utils\PWA\PWA::mainJS
+     */
+    final class PWAMainJsTest extends TestCase
     {
-        $container = new class implements ContainerInterface {
-            /** @var array<string, mixed> */
-            private array $parameters = [
-                'aurora.pwa.enabled'             => true,
-                'aurora.pwa.debug'               => false,
-                'aurora.pwa.automatically_prompt' => true,
-                'aurora.pwa.version_append'      => '',
-                'kernel.environment'             => 'dev',
-            ];
+        public function testTranslationsUseExpectedKeys(): void
+        {
+            $container = new class implements ContainerInterface {
+                /** @var array<string, mixed> */
+                private array $parameters
+                    = [
+                        'aurora.pwa.enabled'              => true,
+                        'aurora.pwa.debug'                => false,
+                        'aurora.pwa.automatically_prompt' => true,
+                        'aurora.pwa.version_append'       => '',
+                        'kernel.environment'              => 'dev',
+                    ];
 
-            /** @var array<string, mixed> */
-            private array $services = [
-                'aurora.git' => null,
-            ];
+                /** @var array<string, mixed> */
+                private array $services
+                    = [
+                        'aurora.git' => null,
+                    ];
 
-            public function __construct()
-            {
-                $this->services['aurora.git'] = new class {
-                    public function getHash(): string
-                    {
-                        return 'hash-value';
-                    }
-                };
-            }
-
-            public function get(string $id): mixed
-            {
-                if (!$this->has($id)) {
-                    throw new \RuntimeException(sprintf('Service %s not found.', $id));
+                public function __construct()
+                {
+                    $this->services['aurora.git'] = new class {
+                        public function getHash(): string
+                        {
+                            return 'hash-value';
+                        }
+                    };
                 }
 
-                return $this->services[$id];
-            }
+                public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object
+                {
+                    if (!$this->has($id)) {
+                        throw new \RuntimeException(sprintf('Service %s not found.', $id));
+                    }
 
-            public function has(string $id): bool
-            {
-                return array_key_exists($id, $this->services);
-            }
+                    return $this->services[$id];
+                }
 
-            public function set(string $id, mixed $service): void
-            {
-                $this->services[$id] = $service;
-            }
+                public function has(string $id): bool
+                {
+                    return array_key_exists($id, $this->services);
+                }
 
-            public function getParameter(string $name): mixed
-            {
-                return $this->parameters[$name] ?? null;
-            }
+                public function set(string $id, mixed $service): void
+                {
+                    $this->services[$id] = $service;
+                }
 
-            public function hasParameter(string $name): bool
-            {
-                return array_key_exists($name, $this->parameters);
-            }
+                public function getParameter(string $name): mixed
+                {
+                    return $this->parameters[$name] ?? null;
+                }
 
-            public function setParameter(string $name, mixed $value): void
-            {
-                $this->parameters[$name] = $value;
-            }
-        };
+                public function hasParameter(string $name): bool
+                {
+                    return array_key_exists($name, $this->parameters);
+                }
 
-        $session      = new Session(['PHPSESSID' => 'session-value']);
-        $requestStack = new RequestStack($session);
-        $twig         = new Environment();
-        $pwa          = new PWA($container, $requestStack, $twig);
+                public function setParameter(string $name, mixed $value): void
+                {
+                    $this->parameters[$name] = $value;
+                }
+            };
 
-        $request = new Request('example.com', '/pwa/main.js', ['PHPSESSID' => 'cookie-session']);
+            $session      = new Session(['PHPSESSID' => 'session-value']);
+            $requestStack = new RequestStack($session);
+            $twig         = new Environment();
+            $pwa          = new PWA($container, $requestStack, $twig);
 
-        $response = $pwa->mainJS($request);
+            $request = new Request('example.com', '/pwa/main.js', ['PHPSESSID' => 'cookie-session']);
 
-        self::assertSame('// rendered: @Aurora/pwa-main.js.twig', $response->getContent());
-        self::assertSame(200, $response->getStatusCode());
+            $response = $pwa->mainJS($request);
 
-        self::assertIsArray($twig->lastContext);
-        self::assertArrayHasKey('translations', $twig->lastContext);
-        $translations = $twig->lastContext['translations'];
+            self::assertSame('// rendered: @Aurora/pwa-main.js.twig', $response->getContent());
+            self::assertSame(200, $response->getStatusCode());
 
-        self::assertIsArray($translations);
-        self::assertArrayHasKey('notificationInstallTheApp', $translations);
-        self::assertArrayNotHasKey('nnotificationInstallTheApp', $translations);
-        self::assertSame('Install the App', $translations['notificationInstallTheApp']);
+            self::assertIsArray($twig->lastContext);
+            self::assertArrayHasKey('translations', $twig->lastContext);
+            $translations = $twig->lastContext['translations'];
+
+            self::assertIsArray($translations);
+            self::assertArrayHasKey('notificationInstallTheApp', $translations);
+            self::assertArrayNotHasKey('nnotificationInstallTheApp', $translations);
+            self::assertSame('Install the App', $translations['notificationInstallTheApp']);
+        }
     }
-}
-
 }
