@@ -256,3 +256,30 @@ jobs:
                     git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
                     git push origin "HEAD:${BRANCH}"
+
+            -   name: "Check if branch is codex branch"
+                id: check_codex_branch
+                run: |
+                    BRANCH_NAME="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                    echo "Branch name: $BRANCH_NAME"
+
+                    if [[ $BRANCH_NAME =~ ^codex/ ]]; then
+                        echo "is_codex_branch=true" >> $GITHUB_OUTPUT
+                        echo "Branch $BRANCH_NAME is a codex branch - auto-merge will be attempted"
+                    else
+                        echo "is_codex_branch=false" >> $GITHUB_OUTPUT
+                        echo "Branch $BRANCH_NAME is not a codex branch"
+                    fi
+
+            -   name: "Auto-merge codex Pull Request"
+                if: steps.check_codex_branch.outputs.is_codex_branch == 'true' && github.event_name == 'pull_request'
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    PR_NUMBER=${{ github.event.number }}
+                    echo "Attempting to merge PR #${PR_NUMBER} for codex branch"
+
+                    # Enable auto-merge for the PR
+                    gh pr merge ${PR_NUMBER} --auto --squash --delete-branch
+
+                    echo "Auto-merge enabled for PR #${PR_NUMBER}. It will be merged automatically when all checks pass."
