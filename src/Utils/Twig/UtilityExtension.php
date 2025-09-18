@@ -218,7 +218,18 @@ class UtilityExtension extends AbstractExtension
     {
         $serviceGit = $this->container->get('aurora.git');
         $build      = $serviceGit->getHash();
-        return substr($build, 0, ($limit ? $limit : strlen($build)));
+
+        if (null === $limit) {
+            return $build;
+        }
+
+        $limit = (int) $limit;
+
+        if ($limit <= 0) {
+            return '';
+        }
+
+        return substr($build, 0, $limit);
     }
 
     public function getBuildDate()

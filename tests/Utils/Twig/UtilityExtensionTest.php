@@ -69,6 +69,28 @@ class UtilityExtensionTest extends TestCase
     }
 
     /**
+     * @dataProvider dataGetBuild
+     */
+    #[DataProvider('dataGetBuild')]
+    public function testGetBuild(?int $limit, string $expected): void
+    {
+        $extension = $this->createUtilityExtensionWithGitHash('abcdef');
+
+        $this->assertSame($expected, $extension->getBuild($limit));
+    }
+
+    public static function dataGetBuild(): array
+    {
+        return [
+            'null limit returns full hash'      => [null, 'abcdef'],
+            'zero limit returns empty string'   => [0, ''],
+            'positive limit truncates hash'     => [3, 'abc'],
+            'longer limit keeps full hash'      => [10, 'abcdef'],
+            'negative limit returns empty hash' => [-5, ''],
+        ];
+    }
+
+    /**
      * @dataProvider dataGetHash
      */
     #[DataProvider('dataGetHash')]
@@ -121,5 +143,27 @@ class UtilityExtensionTest extends TestCase
         $output = ob_get_clean();
 
         $this->assertSame(1, substr_count($output, 'nonce='));
+    }
+
+    private function createUtilityExtensionWithGitHash(string $hash): UtilityExtension
+    {
+        $container = new Container();
+        $container->set('aurora.git', new class($hash) {
+            public function __construct(private string $hash)
+            {
+            }
+
+            public function getHash(): string
+            {
+                return $this->hash;
+            }
+        });
+
+        return new UtilityExtension(
+            $container,
+            new RequestStack(),
+            $this->createStub(Environment::class),
+            new AuroraHelperUtils()
+        );
     }
 }
