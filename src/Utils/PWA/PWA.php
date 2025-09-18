@@ -190,7 +190,7 @@ class PWA
             'hostName'             => $request->getHost(),
             'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true),
             'translations'         => [
-                'nnotificationInstallTheApp' => addslashes($notificationInstallTheApp),
+                'notificationInstallTheApp' => addslashes($notificationInstallTheApp),
                 'notificationNewVersion'     => addslashes($notificationNewVersion),
                 'notificationReload'         => addslashes($notificationReload)
             ]
