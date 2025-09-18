@@ -258,6 +258,12 @@ body {
         $this->assertFalse($Match->passwordStrength('Tes1', true, true, true, true));
         $this->assertTrue($Match->passwordStrength('Te$1', true, true, true, true));
 
+        $this->assertFalse(
+            $Match->passwordStrength('Teă1', true, true, true, true),
+            'Unicode letters must not satisfy the symbol requirement.'
+        );
+        $this->assertTrue($Match->passwordStrength('Teă1$', true, true, true, true));
+
         $this->assertFalse($Match->passwordStrength('Te$1', true, true, true, true, 6));
         $this->assertFalse($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, true, 6));
         $this->assertTrue($Match->passwordStrength('Tekj12g4jh24v23jh523jh5g', true, true, true, false, 6));

@@ -67,7 +67,8 @@ class AuroraMatch
         int   $maxLength = 999
     ): bool
     {
-        $match = '/^';
+        $password = (string) $password;
+        $match    = '/^';
 
         if ($min1LowerCase) {
             $match .= '(?=.*[a-z])';
@@ -81,12 +82,16 @@ class AuroraMatch
             $match .= '(?=.*[\d])';
         }
 
-        if ($min1Symbol && ctype_alnum($password)) {
-            return false;
+        if ($min1Symbol) {
+            if (preg_match('/^[\p{L}\p{N}]+$/u', $password)) {
+                return false;
+            }
+
+            $match .= '(?=.*[^\p{L}\p{N}])';
         }
 
         $match .= ".{{$minLength},{$maxLength}}";
-        $match .= '$/';
+        $match .= '$/u';
 
         return (bool)preg_match($match, $password);
     }
