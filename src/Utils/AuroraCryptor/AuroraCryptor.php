@@ -9,21 +9,28 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraCryptor;
  */
 class AuroraCryptor
 {
-    private string $cipher  = 'AES-128-CTR';
-    private        $encryptionKey;
-    private        $options = 0;
+    private string $cipher = 'AES-128-CTR';
+    private ?string $encryptionKey = null;
+    private int $options = 0;
 
     public function setCipher(string $cipher = 'AES-128-CTR'): self
     {
         $this->cipher = $cipher;
-        $this->randomInitializationVector = openssl_random_pseudo_bytes(
-            openssl_cipher_iv_length($this->cipher)
-        );
+
+        $length = openssl_cipher_iv_length($this->cipher);
+
+        if (false === $length) {
+            throw new \RuntimeException(sprintf('Cipher "%s" is not supported.', $this->cipher));
+        }
+
+        if ($length < 1) {
+            throw new \RuntimeException(sprintf('Cipher "%s" requires a positive initialization vector length.', $this->cipher));
+        }
 
         return $this;
     }
 
-    public function setEncryptionKey($encryptionKey): self
+    public function setEncryptionKey(string $encryptionKey): self
     {
         $this->encryptionKey = $encryptionKey;
         return $this;
@@ -34,8 +41,29 @@ class AuroraCryptor
      */
     public function encrypt(string $data): string
     {
-        $vector              = openssl_random_pseudo_bytes(openssl_cipher_iv_length($this->cipher));
-        $encrypted           = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
+        $length = openssl_cipher_iv_length($this->cipher);
+
+        if (false === $length) {
+            throw new \RuntimeException(sprintf('Cipher "%s" is not supported.', $this->cipher));
+        }
+
+        if ($length < 1) {
+            throw new \RuntimeException(sprintf('Cipher "%s" requires a positive initialization vector length.', $this->cipher));
+        }
+
+        $vector = random_bytes($length);
+
+        if (null === $this->encryptionKey) {
+            throw new \RuntimeException('Encryption key must be provided before encrypting data.');
+        }
+
+        $encrypted = openssl_encrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
+
+        if (false === $encrypted) {
+            $this->encryptionKey = null;
+            throw new \RuntimeException('Unable to encrypt the provided data.');
+        }
+
         $this->encryptionKey = null;
 
         return base64_encode($encrypted . '::' . $vector);
@@ -46,11 +74,30 @@ class AuroraCryptor
      */
     public function decrypt(string $encryptedBase64): string
     {
-        [$data, $vector] = explode('::', base64_decode($encryptedBase64));
+        $decoded = base64_decode($encryptedBase64, true);
 
-        $decrypted           = openssl_decrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
+        if (false === $decoded) {
+            $this->encryptionKey = null;
+            throw new \InvalidArgumentException('Encrypted payload must be valid base64.');
+        }
+
+        $parts = explode('::', $decoded, 2);
+
+        if (2 !== count($parts)) {
+            $this->encryptionKey = null;
+            throw new \InvalidArgumentException('Encrypted payload is missing the initialization vector.');
+        }
+
+        [$data, $vector] = $parts;
+
+        if (null === $this->encryptionKey) {
+            throw new \RuntimeException('Encryption key must be provided before decrypting data.');
+        }
+
+        $decrypted = openssl_decrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
         $this->encryptionKey = null;
-        return (string)$decrypted;
+
+        return (string) $decrypted;
     }
 
     /**
@@ -129,6 +176,6 @@ class AuroraCryptor
      */
     function sha256To32BitUnsigned(string $data): string
     {
-        return (string) ($this->sha256To32Bit($data) % 2147483647);
+        return (string) ((int) $this->sha256To32Bit($data) % 2147483647);
     }
 }
