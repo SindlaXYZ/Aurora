@@ -2,13 +2,8 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\Sanitizer;
 
-// Symfony
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\HttpFoundation\Request;
-
-// Vendor
-use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
  * EXPERIMENTAL
@@ -21,13 +16,6 @@ use MatthiasMullie\Minify;
  */
 class Sanitizer
 {
-    private $container;
-
-    public function __construct(ContainerInterface $container)
-    {
-        $this->container = $container;
-    }
-
     /**
      * Remove CSS comments
      *
@@ -38,7 +26,7 @@ class Sanitizer
     {
         /**
          * Usage:
-         *  $css = preg_replace(array_keys($regexRemoveCSSComments), $regexRemoveCSSComments, $css);
+         *  $CSS = preg_replace(array_keys($regexRemoveCSSComments), $regexRemoveCSSComments, $css);
          */
         $regexRemoveCSSComments = [
             "`^([\t\s]+)`ism"                       => '',
@@ -52,7 +40,7 @@ class Sanitizer
     }
 
     /**
-     * Minify a CSS content, and change url(path) relative to css file
+     * Minify a CSS content and change url(path) relative to css file
      *
      * @param string      $css
      * @param string|null $asset
@@ -63,9 +51,9 @@ class Sanitizer
         $assetBasename = $asset ? basename($asset) : null;
         $assetBaseDir  = $asset ? str_ireplace($assetBasename, '', $asset) : null;
 
-        $css      = $this->cssClearComments($css);
-        $minifier = new Minify\CSS();
-        $AuroraMatch    = new AuroraMatch();
+        $css         = $this->cssClearComments($css);
+        $minifier    = new Minify\CSS();
+        $AuroraMatch = new AuroraMatch();
 
         // TODO: parse line by line
 
