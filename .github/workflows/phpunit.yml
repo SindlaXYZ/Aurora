@@ -271,12 +271,15 @@ jobs:
                         echo "Branch $BRANCH_NAME is not a codex branch"
                     fi
 
-            - name: "Auto-merge codex Pull Request"
-              if: steps.check_codex_branch.outputs.is_codex_branch == 'true' && github.event_name == 'pull_request'
-              env:
-                  GH_TOKEN: ${{ secrets.CI_GH_PAT }}
-              run: |
-                  PR_NUMBER=${{ github.event.number }}
-                  echo "Merging PR #${PR_NUMBER} for codex branch"
-                  # Testele au rulat deja în acest job, deci putem face merge imediat:
-                  gh pr merge ${PR_NUMBER} --squash --delete-branch
+            -   name: "Auto-merge codex Pull Request"
+                if: steps.check_codex_branch.outputs.is_codex_branch == 'true' && github.event_name == 'pull_request'
+                env:
+                    GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                run: |
+                    PR_NUMBER=${{ github.event.number }}
+                    echo "Attempting to merge PR #${PR_NUMBER} for codex branch"
+
+                    # Enable auto-merge for the PR
+                    gh pr merge ${PR_NUMBER} --auto --squash --delete-branch
+
+                    echo "Auto-merge enabled for PR #${PR_NUMBER}. It will be merged automatically when all checks pass."
