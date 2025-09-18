@@ -357,7 +357,27 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                 $requestStack->push($request);
             }
 
-            $twig = new Environment();
+            if (class_exists(\Twig\Loader\ArrayLoader::class)) {
+                $twig = new class () extends Environment {
+                    public ?array $lastContext = null;
+
+                    public function __construct()
+                    {
+                        parent::__construct(new \Twig\Loader\ArrayLoader([
+                            '@Aurora/pwa-main.js.twig' => '// rendered: @Aurora/pwa-main.js.twig',
+                        ]));
+                    }
+
+                    public function render(string $name, array $context = []): string
+                    {
+                        $this->lastContext = $context;
+
+                        return parent::render($name, $context);
+                    }
+                };
+            } else {
+                $twig = new Environment();
+            }
             $pwa  = new PWA($container, $requestStack, $twig);
 
             $response = $pwa->mainJS($request);
