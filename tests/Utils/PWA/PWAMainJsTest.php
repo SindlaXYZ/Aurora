@@ -316,10 +316,6 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                 $session->replace(['PHPSESSID' => 'session-value']);
             }
 
-            $requestStack = new RequestStack($session);
-            $twig         = new Environment();
-            $pwa          = new PWA($container, $requestStack, $twig);
-
             $request = new class extends Request {
                 public \Symfony\Component\HttpFoundation\ParameterBag $cookies;
 
@@ -347,6 +343,23 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                     return '/pwa/main.js';
                 }
             };
+
+            if (method_exists($request, 'setSession')) {
+                $request->setSession($session);
+            }
+
+            try {
+                $requestStack = new RequestStack($session);
+            } catch (\TypeError) {
+                $requestStack = new RequestStack();
+            }
+
+            if (method_exists($requestStack, 'push')) {
+                $requestStack->push($request);
+            }
+
+            $twig = new Environment();
+            $pwa  = new PWA($container, $requestStack, $twig);
 
             $response = $pwa->mainJS($request);
 
