@@ -276,15 +276,8 @@ jobs:
     update-badges-after-merge:
         name: "Update badges after auto-merge"
         runs-on: ubuntu-22.04
-        needs: build
-        # Se execută doar dacă:
-        # 1. Era un PR pe branch codex care a fost auto-merged
-        # 2. Branch-ul țintă (7.3) necesită commit de badges
-        # 3. Evenimentul este push (adică merge-ul s-a efectuat)
-        if: |
-            github.event_name == 'push' &&
-            github.ref == 'refs/heads/7.3' &&
-            needs.build.outputs.is_codex_branch == 'true'
+        # Se execută doar pentru push-uri pe branch-ul 7.3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/7.3'
 
         env:
             BUILD_DIR: "${{ github.workspace }}/build"
@@ -360,13 +353,24 @@ jobs:
 
             -   name: "Commit updated badges"
                 run: |
-                    git config user.name "github-actions[bot]"
-                    git config user.email "github-actions[bot]@users.noreply.github.com"
-                    git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
-                    if git diff --staged --quiet; then
-                        echo "No badge changes to commit"
+                    # Verifică dacă commit-ul provine dintr-un auto-merge de la branch codex/
+                    COMMIT_MESSAGE=$(git log -1 --pretty=format:"%s")
+                    echo "Last commit message: $COMMIT_MESSAGE"
+
+                    # Verifică dacă este auto-merge sau push direct pe 7.3
+                    if [[ $COMMIT_MESSAGE =~ ^Merge\ pull\ request.*codex/ ]] || [[ "${{ github.event.forced }}" == "false" ]]; then
+                        echo "Updating badges for branch 7.3"
+
+                        git config user.name "github-actions[bot]"
+                        git config user.email "github-actions[bot]@users.noreply.github.com"
+                        git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
+                        if git diff --staged --quiet; then
+                            echo "No badge changes to commit"
+                        else
+                            git commit -m "Update PHPUnit badges"
+                            git push origin HEAD:7.3
+                            echo "PHPUnit badges updated successfully"
+                        fi
                     else
-                        git commit -m "Update PHPUnit badges after auto-merge"
-                        git push origin HEAD:7.3
-                        echo "PHPUnit badges updated successfully"
+                        echo "Skipping badge update - not a relevant push"
                     fi
