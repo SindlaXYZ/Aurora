@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCryptor;
 
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCryptor\AuroraCryptor;
 
@@ -37,6 +38,31 @@ class AuroraCryptorTest extends TestCase
         $second = $cryptor->setEncryptionKey($key)->encrypt($data);
 
         $this->assertNotSame($first, $second);
+    }
+
+    public function testDecryptSupportsInitializationVectorsContainingDelimiter(): void
+    {
+        $cryptor = new AuroraCryptor();
+        $key     = 'myPa$$worD123';
+        $vector  = str_repeat(':', openssl_cipher_iv_length('AES-128-CTR'));
+        $data    = 'megaSecretKey';
+
+        $encrypted = openssl_encrypt($data, 'AES-128-CTR', $key, 0, $vector);
+        $payload   = base64_encode($encrypted . '::' . $vector);
+
+        $decrypted = $cryptor->setEncryptionKey($key)->decrypt($payload);
+
+        $this->assertSame($data, $decrypted);
+    }
+
+    public function testDecryptRejectsInvalidBase64Payload(): void
+    {
+        $cryptor = new AuroraCryptor();
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Encrypted payload must be valid base64.');
+
+        $cryptor->setEncryptionKey('test')->decrypt('not-base64');
     }
 
     public function testSha256To32BitUnsigned(): void
