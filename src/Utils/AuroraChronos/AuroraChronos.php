@@ -43,8 +43,18 @@ class AuroraChronos
      */
     public function dateToMachineDate(string $datetime, string $humanFormat): string
     {
-        $parsedDate = date_parse_from_format($humanFormat, $datetime);
-        return $parsedDate['year'] . '-' . str_pad($parsedDate['month'], 2, 0, STR_PAD_LEFT) . '-' . str_pad($parsedDate['day'], 2, 0, STR_PAD_LEFT);
+        $date = \DateTime::createFromFormat('!' . $humanFormat, $datetime);
+
+        if (!$date) {
+            return date('Y-m-d', strtotime($datetime));
+        }
+
+        $errors = \DateTime::getLastErrors();
+        if (($errors['error_count'] ?? 0) > 0) {
+            return date('Y-m-d', strtotime($datetime));
+        }
+
+        return $date->format('Y-m-d');
     }
 
     /**

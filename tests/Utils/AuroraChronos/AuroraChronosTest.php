@@ -4,13 +4,13 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraChronos;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php --no-coverage
  */
-class AuroraChronosTest extends KernelTestCase
+class AuroraChronosTest extends TestCase
 {
     /**
      * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraChronosTest.php --no-coverage --filter testMinutesBetweenTwoDates
@@ -162,6 +162,24 @@ class AuroraChronosTest extends KernelTestCase
                  ] as $test) {
             $this->assertEquals($test['expected'], $Chronos->dateToHuman($test['date'], $test['humanFormat']), json_encode($test));
         }
+    }
+
+    #[DataProvider('dataDateToMachineDate')]
+    /** @dataProvider dataDateToMachineDate */
+    public function testDateToMachineDate(string $expected, array $given): void
+    {
+        $this->assertSame(
+            $expected,
+            (new AuroraChronos())->dateToMachineDate($given[0], $given[1])
+        );
+    }
+
+    public static function dataDateToMachineDate(): array
+    {
+        return [
+            ['2013-09-28', ['28.09.2013', 'd.m.Y']],
+            ['2020-03-02', ['31.02.2020', 'd.m.Y']],
+        ];
     }
 
     #[DataProvider('dataDateToMachineDateTime')]
