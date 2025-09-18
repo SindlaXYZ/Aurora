@@ -215,7 +215,7 @@ namespace Twig {
             /** @var array<string, mixed>|null */
             public ?array $lastContext = null;
 
-            public function render(string $template, array $context = []): string
+            public function render($template, array $context = []): string
             {
                 $this->lastContext = $context;
 
@@ -326,14 +326,56 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                 $session->replace(['PHPSESSID' => 'session-value']);
             }
 
-            $request = new Request(
-                [],
-                [],
-                [],
-                ['PHPSESSID' => 'cookie-session'],
-                [],
-                ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js']
-            );
+            $serverParameters = ['HTTP_HOST' => 'example.com', 'REQUEST_URI' => '/pwa/main.js'];
+
+            if (!method_exists(Request::class, 'getHost') || !method_exists(Request::class, 'getRequestUri')) {
+                $request = new class (
+                    [],
+                    [],
+                    [],
+                    ['PHPSESSID' => 'cookie-session'],
+                    [],
+                    $serverParameters
+                ) extends Request {
+                    private string $host;
+
+                    private string $requestUri;
+
+                    public function __construct(
+                        array $query = [],
+                        array $request = [],
+                        array $attributes = [],
+                        array $cookies = [],
+                        array $files = [],
+                        array $server = [],
+                        $content = null
+                    ) {
+                        parent::__construct($query, $request, $attributes, $cookies, $files, $server, $content);
+
+                        $this->host       = (string) ($server['HTTP_HOST'] ?? 'localhost');
+                        $this->requestUri = (string) ($server['REQUEST_URI'] ?? '/');
+                    }
+
+                    public function getHost(): string
+                    {
+                        return $this->host;
+                    }
+
+                    public function getRequestUri(): string
+                    {
+                        return $this->requestUri;
+                    }
+                };
+            } else {
+                $request = new Request(
+                    [],
+                    [],
+                    [],
+                    ['PHPSESSID' => 'cookie-session'],
+                    [],
+                    $serverParameters
+                );
+            }
 
             if (property_exists($request, 'cookies') && is_object($request->cookies)) {
                 if (method_exists($request->cookies, 'replace')) {
@@ -368,7 +410,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
                         ]));
                     }
 
-                    public function render(string $name, array $context = []): string
+                    public function render($name, array $context = []): string
                     {
                         $this->lastContext = $context;
 
