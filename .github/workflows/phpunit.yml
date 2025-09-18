@@ -274,7 +274,7 @@ jobs:
             - name: "Auto-merge codex Pull Request"
               if: steps.check_codex_branch.outputs.is_codex_branch == 'true' && github.event_name == 'pull_request'
               env:
-                  GH_TOKEN: ${{ secrets.CI_GH_PAT }}   # <<< PAT cu repo+workflow
+                  GH_TOKEN: ${{ secrets.CI_GH_PAT }}
               run: |
                   PR_NUMBER=${{ github.event.number }}
                   echo "Merging PR #${PR_NUMBER} for codex branch"
