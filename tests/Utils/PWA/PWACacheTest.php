@@ -614,6 +614,10 @@ final class PWACacheTest extends TestCase
             $requestStack = new RequestStack();
         }
 
+        if (method_exists($request, 'setSession')) {
+            $request->setSession($session);
+        }
+
         if (method_exists($requestStack, 'push')) {
             $requestStack->push($request);
         }
