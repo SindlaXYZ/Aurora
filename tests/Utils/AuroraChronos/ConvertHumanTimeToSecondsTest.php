@@ -23,6 +23,7 @@ class ConvertHumanTimeToSecondsTest extends TestCase
     public static function dataConvertHumanTimeToSeconds(): array
     {
         return [
+            [30, '30s'],
             [3600, '1h'],
             [7200, '2H'],
             [10800, ' 3h '],

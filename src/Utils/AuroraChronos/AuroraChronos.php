@@ -437,11 +437,12 @@ class AuroraChronos
 
     /**
      * Convert a time string to seconds
-     *   eg: 1h => 3600, 2d => 172800, 3w => 1814400, 4m => 10368000, 5y => 157680000
+     *   eg: 30s => 30, 1h => 3600, 2d => 172800, 3w => 1814400, 4m => 10368000, 5y => 157680000
      */
     function convertHumanTimeToSeconds(string $timeStr): int
     {
         $timeUnits = [
+            's' => 1,             // 1 second = 1 second
             'h' => 3600,          // 1 hour = 3600 seconds
             'd' => 86400,         // 1 day = 86400 seconds
             'w' => 604800,        // 1 week = 604800 seconds
@@ -451,7 +452,7 @@ class AuroraChronos
 
         $timeStr = strtolower(trim($timeStr));
 
-        if (!preg_match('/^(\d+)\s*([hdwmy])$/', $timeStr, $matches)) {
+        if (!preg_match('/^(\d+)\s*([shdwmy])$/', $timeStr, $matches)) {
             return 0;
         }
 
