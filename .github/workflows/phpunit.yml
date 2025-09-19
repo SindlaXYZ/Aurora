@@ -207,19 +207,8 @@ jobs:
                     -c ${{ env.BUILD_DIR }}/phpunit.xml.dist \
                     ${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests/
 
-            -   name: "Generate PHPUnit badges"
-                working-directory: ${{ env.BUILD_DIR }}
-                run: |
-                    /usr/bin/php bin/console aurora:php-unit \
-                    --action=generatePHPUnitPassingBadge \
-                    --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
-                    --outputPassingSVGFilePath=../.github/badges/phpunit.svg
-
-                    /usr/bin/php bin/console aurora:php-unit \
-                    --action=generatePHPUnitCodeCoverageBadge \
-                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml \
-                    --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
-                    --outputStatementsSVGFilePath=../.github/badges/statements.svg
+            #########################################################################################################################################
+            ###   Generate and commit PHPUnit badges   ##############################################################################################
 
             -   name: "Check if branch matches version pattern"
                 id: check_branch
@@ -244,6 +233,21 @@ jobs:
                         echo "Branch $BRANCH_NAME does not match version pattern X.Y"
                     fi
 
+            -   name: "Generate PHPUnit badges"
+                if: steps.check_branch.outputs.should_commit == 'true'
+                working-directory: ${{ env.BUILD_DIR }}
+                run: |
+                    /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitPassingBadge \
+                    --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
+                    --outputPassingSVGFilePath=../.github/badges/phpunit.svg
+
+                    /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitCodeCoverageBadge \
+                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml \
+                    --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
+                    --outputStatementsSVGFilePath=../.github/badges/statements.svg
+
             -   name: "Commit PHPUnit badges"
                 if: steps.check_branch.outputs.should_commit == 'true'
                 run: |
@@ -256,6 +260,9 @@ jobs:
                     git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
                     git push origin "HEAD:${BRANCH}"
+
+            #########################################################################################################################################
+            ###   Auto-merge codex Pull Requests   ##################################################################################################
 
             -   name: "Check if branch is codex branch"
                 id: check_codex_branch
