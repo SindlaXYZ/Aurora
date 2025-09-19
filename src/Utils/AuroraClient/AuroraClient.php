@@ -135,7 +135,35 @@ class AuroraClient
     {
         // Reverse proxy
         if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO'])) {
-            return $_SERVER['HTTP_X_FORWARDED_PROTO'] . '://';
+            $forwardedProto = $_SERVER['HTTP_X_FORWARDED_PROTO'];
+
+            if (is_string($forwardedProto)) {
+                $candidates = explode(',', $forwardedProto);
+
+                foreach ($candidates as $candidate) {
+                    $candidate = trim($candidate);
+
+                    if ($candidate === '') {
+                        continue;
+                    }
+
+                    $normalized = strtolower($candidate);
+
+                    if (str_contains($normalized, '://')) {
+                        [$normalized] = explode('://', $normalized, 2);
+                    }
+
+                    if ($normalized === 'https') {
+                        return 'https://';
+                    }
+
+                    if ($normalized === 'http') {
+                        return 'http://';
+                    }
+
+                    return $normalized . '://';
+                }
+            }
         }
 
         if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
