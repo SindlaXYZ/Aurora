@@ -55,6 +55,44 @@ class IOTest extends TestCase
         rmdir($dir);
     }
 
+    public function testRecursiveDeleteReturnsFalseWhenDeletionFails(): void
+    {
+        if (!function_exists('posix_geteuid') || !function_exists('posix_seteuid')) {
+            $this->markTestSkipped('POSIX functions are required for this test.');
+        }
+
+        if (posix_geteuid() !== 0) {
+            $this->markTestSkipped('This test requires root privileges to drop permissions temporarily.');
+        }
+
+        $nobody = posix_getpwnam('nobody');
+        if (false === $nobody) {
+            $this->markTestSkipped('User "nobody" is required for this test.');
+        }
+
+        $IO           = new IO();
+        $dir          = sys_get_temp_dir() . '/aurora_' . uniqid();
+        $file         = $dir . '/file.txt';
+        $originalEuid = posix_geteuid();
+
+        mkdir($dir, 0700);
+        file_put_contents($file, 'content');
+
+        try {
+            $this->assertTrue(posix_seteuid((int) $nobody['uid']));
+            $this->assertFalse($IO->recursiveDelete($dir, false));
+        } finally {
+            posix_seteuid($originalEuid);
+        }
+
+        try {
+            $this->assertFileExists($file);
+        } finally {
+            unlink($file);
+            rmdir($dir);
+        }
+    }
+
     public function testDirIsEmptyHandlesMissingDirectory(): void
     {
         $IO          = new IO();
