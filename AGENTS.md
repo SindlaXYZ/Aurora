@@ -18,7 +18,7 @@
 
 ## Testing
 
-- Install dependencies with `composer install`. The composer.json file must never be added to git.
+- Install dependencies with `composer install`. The `composer.lock` file must never be added to git.
 - Run static analysis using `vendor/bin/phpstan analyse`.
 - Execute unit tests using `vendor/bin/phpunit --no-coverage -c phpunit.xml.dist`.
   For coverage reports, replace `--no-coverage` with `--coverage-clover coverage.xml`.
