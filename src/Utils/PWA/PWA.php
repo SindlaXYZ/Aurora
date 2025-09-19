@@ -43,7 +43,7 @@ class PWA
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () use ($request) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
 
             $appName        = $this->container->getParameter('aurora.pwa.app_name');
             $appShortName   = $this->container->getParameter('aurora.pwa.app_short_name');
@@ -130,7 +130,7 @@ class PWA
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) {
             $encoder       = new XmlEncoder();
             $browserConfig = [
                 'msapplication' => [
@@ -292,7 +292,7 @@ class PWA
     {
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function () use ($request) {
+        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $request->getRequestUri();
 
             if (!file_exists($iconPath)) {
