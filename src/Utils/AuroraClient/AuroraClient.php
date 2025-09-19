@@ -164,16 +164,22 @@ class AuroraClient
             return $_SERVER['HTTP_CF_CONNECTING_IP'];
         }
 
-        if (
-            isset($_SERVER['HTTP_X_FORWARDED_FOR'])
-            && false === strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',')
-            && $this->ipIsValid($_SERVER['HTTP_X_FORWARDED_FOR'])
-        ) {
-            return $_SERVER['HTTP_X_FORWARDED_FOR'];
+        $forwardedForHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+
+        if (is_string($forwardedForHeader)) {
+            $forwardedForSingleIp = trim($forwardedForHeader);
+
+            if (
+                $forwardedForSingleIp !== ''
+                && false === strpos($forwardedForHeader, ',')
+                && $this->ipIsValid($forwardedForSingleIp)
+            ) {
+                return $forwardedForSingleIp;
+            }
         }
 
-        if (isset($_SERVER['HTTP_X_FORWARDED_FOR']) && strpos($_SERVER['HTTP_X_FORWARDED_FOR'], ',') !== false) {
-            foreach (explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']) as $ip) {
+        if (is_string($forwardedForHeader) && strpos($forwardedForHeader, ',') !== false) {
+            foreach (explode(',', $forwardedForHeader) as $ip) {
                 $ip = trim($ip);
                 if ($this->ipIsValid($ip)) {
                     return $ip;
