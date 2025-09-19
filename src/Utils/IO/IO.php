@@ -35,22 +35,29 @@ class IO
             return @unlink($str);
         }
 
-        if (is_dir($str)) {
-            $items = @scandir($str);
-            if (is_array($items)) {
-                foreach (array_diff($items, ['.', '..']) as $item) {
-                    $this->recursiveDelete($str . '/' . $item);
-                }
-            }
-
-            if ($removeGivenDir) {
-                return @rmdir($str);
-            }
-
-            return true;
+        if (!is_dir($str)) {
+            return false;
         }
 
-        return false;
+        $items  = @scandir($str);
+        $result = true;
+
+        if ($items === false) {
+            $result = false;
+            $items  = [];
+        }
+
+        foreach (array_diff($items, ['.', '..']) as $item) {
+            if (!$this->recursiveDelete($str . '/' . $item)) {
+                $result = false;
+            }
+        }
+
+        if ($removeGivenDir) {
+            return $result && @rmdir($str);
+        }
+
+        return $result;
     }
 
     public function dirIsEmpty(string $directory): bool
