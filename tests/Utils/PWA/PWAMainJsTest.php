@@ -241,33 +241,36 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
      */
     final class PWAMainJsTest extends TestCase
     {
-        public function testTranslationsUseExpectedKeys(): void
+        /**
+         * @return array{0:PWA,1:Request,2:Environment}
+         */
+        private function createMainJsScenario(array $parameterOverrides = []): array
         {
-            $container = new class implements ContainerInterface {
+            $container = new class ($parameterOverrides) implements ContainerInterface {
                 /** @var array<string, mixed> */
-                private array $parameters
-                    = [
-                        'aurora.pwa.enabled'              => true,
-                        'aurora.pwa.debug'                => false,
-                        'aurora.pwa.automatically_prompt' => true,
-                        'aurora.pwa.version_append'       => '',
-                        'kernel.environment'              => 'dev',
-                    ];
+                private array $parameters = [
+                    'aurora.pwa.enabled'              => true,
+                    'aurora.pwa.debug'                => false,
+                    'aurora.pwa.automatically_prompt' => true,
+                    'aurora.pwa.version_append'       => '',
+                    'kernel.environment'              => 'dev',
+                ];
 
                 /** @var array<string, mixed> */
-                private array $services
-                    = [
-                        'aurora.git' => null,
-                    ];
+                private array $services = [];
 
-                public function __construct()
+                public function __construct(array $overrides = [])
                 {
-                    $this->services['aurora.git'] = new class {
-                        public function getHash(): string
-                        {
-                            return 'hash-value';
-                        }
-                    };
+                    $this->parameters = array_merge($this->parameters, $overrides);
+
+                    $this->services = [
+                        'aurora.git' => new class {
+                            public function getHash(): string
+                            {
+                                return 'hash-value';
+                            }
+                        },
+                    ];
                 }
 
                 public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object
@@ -421,7 +424,15 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
             } else {
                 $twig = new Environment();
             }
-            $pwa  = new PWA($container, $requestStack, $twig);
+
+            $pwa = new PWA($container, $requestStack, $twig);
+
+            return [$pwa, $request, $twig];
+        }
+
+        public function testTranslationsUseExpectedKeys(): void
+        {
+            [$pwa, $request, $twig] = $this->createMainJsScenario();
 
             $response = $pwa->mainJS($request);
 
@@ -436,6 +447,19 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\PWA {
             self::assertArrayHasKey('notificationInstallTheApp', $translations);
             self::assertArrayNotHasKey('nnotificationInstallTheApp', $translations);
             self::assertSame('Install the App', $translations['notificationInstallTheApp']);
+        }
+
+        public function testAutomaticallyPromptRespectsBooleanStrings(): void
+        {
+            [$pwa, $request, $twig] = $this->createMainJsScenario([
+                'aurora.pwa.automatically_prompt' => 'false',
+            ]);
+
+            $pwa->mainJS($request);
+
+            self::assertIsArray($twig->lastContext);
+            self::assertArrayHasKey('automatically_prompt', $twig->lastContext);
+            self::assertFalse($twig->lastContext['automatically_prompt']);
         }
     }
 }
