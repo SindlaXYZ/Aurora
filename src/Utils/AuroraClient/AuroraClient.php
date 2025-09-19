@@ -218,13 +218,43 @@ class AuroraClient
         $prefLanguages = [];
 
         if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $prefLanguages = array_reduce(
-                explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']),
-                function ($res, $el) {
-                    [$l, $q] = array_merge(explode(';q=', trim($el)), [1]);
-                    $res[trim($l)] = (float) $q;
-                    return $res;
-                }, []);
+            $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+
+            foreach ($languages as $language) {
+                $language = trim($language);
+
+                if ($language === '') {
+                    continue;
+                }
+
+                $parts   = array_map('trim', explode(';', $language));
+                $locale  = array_shift($parts);
+                $quality = 1.0;
+
+                if ($locale === '' || $locale === null) {
+                    continue;
+                }
+
+                foreach ($parts as $part) {
+                    if ($part === '') {
+                        continue;
+                    }
+
+                    if (!str_contains($part, '=')) {
+                        continue;
+                    }
+
+                    [$key, $value] = array_map('trim', explode('=', $part, 2));
+
+                    if (strcasecmp($key, 'q') === 0 && is_numeric($value)) {
+                        $quality = (float) $value;
+                        break;
+                    }
+                }
+
+                $prefLanguages[$locale] = $quality;
+            }
+
             arsort($prefLanguages);
         }
 
