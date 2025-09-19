@@ -11,12 +11,6 @@ use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
  */
 class IOTest extends TestCase
 {
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testFileIsOlderThan(): void
     {
         $IO = new IO();
@@ -51,5 +45,29 @@ class IOTest extends TestCase
         $this->assertTrue($IO->recursiveDelete($dir, false));
         $this->assertDirectoryExists($dir);
         rmdir($dir);
+    }
+
+    public function testDirIsEmptyHandlesMissingDirectory(): void
+    {
+        $IO          = new IO();
+        $missingPath = sys_get_temp_dir() . '/aurora_missing_' . uniqid();
+
+        $this->assertTrue($IO->dirIsEmpty($missingPath));
+    }
+
+    public function testDirIsEmptyDetectsContents(): void
+    {
+        $IO  = new IO();
+        $dir = sys_get_temp_dir() . '/aurora_' . uniqid();
+
+        mkdir($dir);
+        file_put_contents($dir . '/file.txt', 'content');
+
+        try {
+            $this->assertFalse($IO->dirIsEmpty($dir));
+        } finally {
+            unlink($dir . '/file.txt');
+            rmdir($dir);
+        }
     }
 }
