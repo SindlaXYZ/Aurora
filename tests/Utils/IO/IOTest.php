@@ -23,6 +23,14 @@ class IOTest extends TestCase
         unlink($tmpFile);
     }
 
+    public function testFileIsOlderThanReturnsFalseForMissingFile(): void
+    {
+        $IO         = new IO();
+        $missingPath = sys_get_temp_dir() . '/aurora_missing_' . uniqid();
+
+        $this->assertFalse($IO->fileIsOlderThan($missingPath, 1, IO::TIME_UNIT_SECONDS));
+    }
+
     public function testRecursiveDeleteHandlesHiddenFiles(): void
     {
         $IO  = new IO();
