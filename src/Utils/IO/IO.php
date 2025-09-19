@@ -84,11 +84,18 @@ class IO
 
     public function fileIsOlderThan(string $file, int $timeUnit, int $timeUnitType): bool
     {
-        $Chronos = new AuroraChronos();
+        if (!is_file($file)) {
+            return false;
+        }
 
-        $lastModifiedTimestamp = filemtime($file);
-        $startDate             = new \DateTime("@{$lastModifiedTimestamp}");
-        $endDate               = new \DateTime();
+        $lastModifiedTimestamp = @filemtime($file);
+        if ($lastModifiedTimestamp === false) {
+            return false;
+        }
+
+        $Chronos   = new AuroraChronos();
+        $startDate = new \DateTime("@{$lastModifiedTimestamp}");
+        $endDate   = new \DateTime();
 
         return $Chronos->diffIsHigherThan($startDate, $endDate, $timeUnit, $timeUnitType);
     }
