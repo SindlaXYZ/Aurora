@@ -13,7 +13,8 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Yaml\Yaml;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
@@ -27,13 +28,49 @@ use MatthiasMullie\Minify;
 #[AllowDynamicProperties]
 class PWA
 {
+    private ?SessionInterface $session = null;
+
     public function __construct(
         private ContainerInterface $container,
         private RequestStack       $requestStack,
         private Environment        $twig
     )
     {
-        $this->session = $requestStack->getSession();
+        if (method_exists($requestStack, 'getSession')) {
+            try {
+                $session = $requestStack->getSession();
+            } catch (SessionNotFoundException) {
+                $session = null;
+            }
+
+            if ($session instanceof SessionInterface) {
+                $this->session = $session;
+            }
+        }
+
+        if (null === $this->session) {
+            $requestFromStack = null;
+
+            if (method_exists($requestStack, 'getMainRequest')) {
+                $requestFromStack = $requestStack->getMainRequest();
+            } elseif (method_exists($requestStack, 'getMasterRequest')) {
+                $requestFromStack = $requestStack->getMasterRequest();
+            } elseif (method_exists($requestStack, 'getCurrentRequest')) {
+                $requestFromStack = $requestStack->getCurrentRequest();
+            }
+
+            if ($requestFromStack instanceof Request && method_exists($requestFromStack, 'getSession')) {
+                try {
+                    $session = $requestFromStack->getSession();
+                } catch (SessionNotFoundException) {
+                    $session = null;
+                }
+
+                if ($session instanceof SessionInterface) {
+                    $this->session = $session;
+                }
+            }
+        }
     }
 
     /**
@@ -266,7 +303,7 @@ class PWA
             }
         }
 
-        if ($cookieSessionId && is_object($this->session) && method_exists($this->session, 'get')) {
+        if ($cookieSessionId && $this->session instanceof SessionInterface) {
             $sessionIdentifier = $this->session->get('PHPSESSID');
             if (null !== $sessionIdentifier && '' !== (string) $sessionIdentifier) {
                 $version .= '_' . (string) $sessionIdentifier;
