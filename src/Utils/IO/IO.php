@@ -55,20 +55,35 @@ class IO
 
     public function dirIsEmpty(string $directory): bool
     {
-        $handle = opendir($directory);
-        while (false !== ($entry = readdir($handle))) {
-            if ($entry != "." && $entry != "..") {
-                closedir($handle);
-                return false;
-            }
+        if (!is_dir($directory)) {
+            return true;
         }
-        closedir($handle);
+
+        if (!is_readable($directory)) {
+            return false;
+        }
+
+        $handle = opendir($directory);
+
+        if ($handle === false) {
+            return false;
+        }
+
+        try {
+            while (($entry = readdir($handle)) !== false) {
+                if ($entry !== '.' && $entry !== '..') {
+                    return false;
+                }
+            }
+        } finally {
+            closedir($handle);
+        }
+
         return true;
     }
 
     public function fileIsOlderThan(string $file, int $timeUnit, int $timeUnitType): bool
     {
-        /** @var Cronos $Chronos */
         $Chronos = new AuroraChronos();
 
         $lastModifiedTimestamp = filemtime($file);
