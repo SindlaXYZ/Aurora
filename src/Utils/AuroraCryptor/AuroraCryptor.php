@@ -97,7 +97,11 @@ class AuroraCryptor
         $decrypted = openssl_decrypt($data, $this->cipher, $this->encryptionKey, $this->options, $vector);
         $this->encryptionKey = null;
 
-        return (string) $decrypted;
+        if ($decrypted === false) {
+            throw new \RuntimeException('Unable to decrypt the provided data.');
+        }
+
+        return $decrypted;
     }
 
     /**
