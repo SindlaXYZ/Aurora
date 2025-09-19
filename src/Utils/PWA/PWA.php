@@ -221,11 +221,28 @@ class PWA
             }
         }
 
+        $automaticallyPrompt = true;
+
+        if ($this->container->hasParameter('aurora.pwa.automatically_prompt')) {
+            $rawAutomaticallyPrompt = $this->container->getParameter('aurora.pwa.automatically_prompt');
+            $parsedAutomaticallyPrompt = filter_var(
+                $rawAutomaticallyPrompt,
+                FILTER_VALIDATE_BOOLEAN,
+                FILTER_NULL_ON_FAILURE
+            );
+
+            if (null !== $parsedAutomaticallyPrompt) {
+                $automaticallyPrompt = $parsedAutomaticallyPrompt;
+            } else {
+                $automaticallyPrompt = (bool) $rawAutomaticallyPrompt;
+            }
+        }
+
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
             'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'           => $this->version($request),
             'hostName'             => $request->getHost(),
-            'automatically_prompt' => ($this->container->hasParameter('aurora.pwa.automatically_prompt') ? boolval($this->container->getParameter('aurora.pwa.automatically_prompt')) : true),
+            'automatically_prompt' => $automaticallyPrompt,
             'translations'         => [
                 'notificationInstallTheApp' => addslashes($notificationInstallTheApp),
                 'notificationNewVersion'     => addslashes($notificationNewVersion),
