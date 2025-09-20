@@ -23,10 +23,12 @@ class ConvertHumanTimeToSecondsTest extends TestCase
     {
         return [
             [30, '30s'],
+            [300, '5m'],
             [3600, '1h'],
             [7200, '2H'],
             [10800, ' 3h '],
             [432000, '5 d'],
+            [5184000, '2mo'],
             [0, '10Z'],
         ];
     }
