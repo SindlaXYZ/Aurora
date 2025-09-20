@@ -44,7 +44,25 @@ class Strink
      */
     public function compressSlashes(): self
     {
-        $this->string = preg_replace('~(^|[^:])//+~', '\1/', $this->string);
+        $workingString           = $this->string;
+        $preserveProtocolPrefix = false;
+
+        if (str_starts_with($workingString, '//') && (strlen($workingString) === 2 || $workingString[2] !== '/')) {
+            $preserveProtocolPrefix = true;
+            $workingString          = '__AURORA_PROTOCOL_RELATIVE__' . substr($workingString, 2);
+        }
+
+        $collapsed = preg_replace('~(^|[^:])//+~', '\1/', $workingString);
+
+        if ($collapsed === null) {
+            $collapsed = $workingString;
+        }
+
+        if ($preserveProtocolPrefix) {
+            $collapsed = preg_replace('/^__AURORA_PROTOCOL_RELATIVE__/', '//', $collapsed, 1) ?? $collapsed;
+        }
+
+        $this->string = $collapsed;
         return $this;
     }
 

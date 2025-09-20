@@ -135,6 +135,8 @@ class StrinkTest extends TestCase
         $Strink = new Strink();
         $this->assertEquals('http://example.com/foo/bar', $Strink->string('http://example.com//foo///bar')->compressSlashes());
         $this->assertEquals('/foo/bar', $Strink->string('////foo//bar')->compressSlashes());
+        $this->assertEquals('//example.com/path', $Strink->string('//example.com/path')->compressSlashes());
+        $this->assertEquals('//example.com/path', $Strink->string('//example.com//path')->compressSlashes());
     }
 
     public function testCompressDoubleQuotes(): void
