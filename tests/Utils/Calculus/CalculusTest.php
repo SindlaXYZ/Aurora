@@ -10,9 +10,6 @@ use Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus;
 class CalculusTest extends TestCase
 {
     #[DataProvider('providePercentageChange')]
-    /**
-     * @dataProvider providePercentageChange
-     */
     public function testPercentageChange(float $expected, float $new, float $original): void
     {
         $Calculus = new Calculus();

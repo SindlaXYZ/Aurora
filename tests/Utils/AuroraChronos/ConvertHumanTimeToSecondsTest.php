@@ -10,7 +10,6 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 class ConvertHumanTimeToSecondsTest extends TestCase
 {
     #[DataProvider('dataConvertHumanTimeToSeconds')]
-    /** @dataProvider dataConvertHumanTimeToSeconds */
     public function testConvertHumanTimeToSeconds(int $expected, string $input): void
     {
         $chronos = new AuroraChronos();

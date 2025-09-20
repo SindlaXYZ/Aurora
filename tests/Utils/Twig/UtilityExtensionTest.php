@@ -24,10 +24,7 @@ class UtilityExtensionTest extends TestCase
         $this->assertTrue(true);
         $this->assertFalse(false);
     }
-  
-    /**
-     * @dataProvider dataFilterAge
-     */
+
     #[DataProvider('dataFilterAge')]
     public function testFilterAge(\DateTime $given, int $expected): void
     {
@@ -67,10 +64,7 @@ class UtilityExtensionTest extends TestCase
 
         return $data;
     }
-
-    /**
-     * @dataProvider dataGetBuild
-     */
+    
     #[DataProvider('dataGetBuild')]
     public function testGetBuild(?int $limit, string $expected): void
     {
@@ -90,9 +84,6 @@ class UtilityExtensionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataGetHash
-     */
     #[DataProvider('dataGetHash')]
     public function testGetHash(int $size, int $expectedLength): void
     {

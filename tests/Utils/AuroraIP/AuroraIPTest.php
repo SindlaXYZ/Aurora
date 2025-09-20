@@ -19,9 +19,6 @@ class AuroraIPTest extends TestCase
         $this->assertFalse(false);
     }
 
-    /**
-     * @dataProvider dataIsGoogleBot
-     */
     #[DataProvider('dataIsGoogleBot')]
     public function testIsGoogleBot(string $given, bool $expected): void
     {
@@ -46,9 +43,6 @@ class AuroraIPTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataIsPrivate
-     */
     #[DataProvider('dataIsPrivate')]
     public function testIsPrivate(string $given, bool $expected): void
     {
@@ -67,9 +61,6 @@ class AuroraIPTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataIsIPInSubnet
-     */
     #[DataProvider('dataIsIPInSubnet')]
     public function testIsIPInSubnet(string $ip, string $cidr, bool $expected): void
     {

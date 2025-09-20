@@ -10,9 +10,6 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 class GuessDateTimeFormatTest extends TestCase
 {
     #[DataProvider('provideGuessableFormats')]
-    /**
-     * @dataProvider provideGuessableFormats
-     */
     public function testGuessDateTimeFormat(?string $expected, string $input): void
     {
         $chronos = new AuroraChronos();

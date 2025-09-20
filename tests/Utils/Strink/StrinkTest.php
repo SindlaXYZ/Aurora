@@ -223,9 +223,6 @@ class StrinkTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider dataObfuscateString
-     */
     #[DataProvider('dataObfuscateString')]
     public function testObfuscateString(mixed $input, int $margins, string $expected): void
     {
@@ -277,9 +274,6 @@ class StrinkTest extends TestCase
         $this->assertEquals(50.0, $Strink->string('Șș')->upperCharactersPercentage());
     }
 
-    /**
-     * @dataProvider dataStrStartsWithAny
-     */
     #[DataProvider('dataStrStartsWithAny')]
     public function testStrStartsWithAny(string $haystack, array $needles, bool $expected): void
     {
@@ -301,9 +295,6 @@ class StrinkTest extends TestCase
 
     ##########################################################################################################################################################################################
 
-    /**
-     * @dataProvider dataStrEndsWithAny
-     */
     #[DataProvider('dataStrEndsWithAny')]
     public function testStrEndsWithAny(string $haystack, array $needles, bool $expected): void
     {
