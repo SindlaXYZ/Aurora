@@ -437,27 +437,32 @@ class AuroraChronos
 
     /**
      * Convert a time string to seconds
-     *   eg: 30s => 30, 1h => 3600, 2d => 172800, 3w => 1814400, 4m => 10368000, 5y => 157680000
+     *   eg: 30s => 30, 15m => 900, 1h => 3600, 2d => 172800, 3w => 1814400, 4mo => 10368000, 5y => 157680000
      */
     function convertHumanTimeToSeconds(string $timeStr): int
     {
         $timeUnits = [
-            's' => 1,             // 1 second = 1 second
-            'h' => 3600,          // 1 hour = 3600 seconds
-            'd' => 86400,         // 1 day = 86400 seconds
-            'w' => 604800,        // 1 week = 604800 seconds
-            'm' => 2592000,       // 1 month (30 days) = 2592000 seconds
-            'y' => 31536000       // 1 year (365 days) = 31536000 seconds
+            's'  => 1,             // 1 second = 1 second
+            'm'  => 60,            // 1 minute = 60 seconds
+            'h'  => 3600,          // 1 hour = 3600 seconds
+            'd'  => 86400,         // 1 day = 86400 seconds
+            'w'  => 604800,        // 1 week = 604800 seconds
+            'mo' => 2592000,       // 1 month (30 days) = 2592000 seconds
+            'y'  => 31536000       // 1 year (365 days) = 31536000 seconds
         ];
 
         $timeStr = strtolower(trim($timeStr));
 
-        if (!preg_match('/^(\d+)\s*([shdwmy])$/', $timeStr, $matches)) {
+        if (!preg_match('/^(\d+)\s*([a-z]+)$/', $timeStr, $matches)) {
             return 0;
         }
 
-        $number = (int)$matches[1];
+        $number = (int) $matches[1];
         $unit   = $matches[2];
+
+        if (!array_key_exists($unit, $timeUnits)) {
+            return 0;
+        }
 
         return $number * $timeUnits[$unit];
     }
