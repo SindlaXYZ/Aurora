@@ -3,24 +3,19 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
 use AllowDynamicProperties;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use MatthiasMullie\Minify;
+use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
+use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\Yaml\Yaml;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Serializer\Encoder\XmlEncoder;
-use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Contracts\Cache\ItemInterface;
-use Twig\Extension\AbstractExtension;
-use Twig\TwigFilter;
-use Twig\TwigFunction;
 use Twig\Environment;
-use MatthiasMullie\Minify;
 
 /**
  * Debug: php bin/console debug:container aurora.pwa
@@ -53,9 +48,9 @@ class PWA
 
             if (method_exists($requestStack, 'getMainRequest')) {
                 $requestFromStack = $requestStack->getMainRequest();
-            } elseif (method_exists($requestStack, 'getMasterRequest')) {
+            } else if (method_exists($requestStack, 'getMasterRequest')) {
                 $requestFromStack = $requestStack->getMasterRequest();
-            } elseif (method_exists($requestStack, 'getCurrentRequest')) {
+            } else if (method_exists($requestStack, 'getCurrentRequest')) {
                 $requestFromStack = $requestStack->getCurrentRequest();
             }
 
@@ -141,7 +136,8 @@ class PWA
             }
 
             $maskableIcon = $this->container->getParameter('aurora.pwa.icons') . '/android-icon-maskable.png';
-            if (file_exists($maskableIcon)) {
+
+            if (file_exists($maskableIcon) && 0 !== filesize($maskableIcon)) {
                 [$maskableWidth, $maskableHeight] = (function_exists('getimagesize') ? getimagesize($maskableIcon) : [196, 196]);
 
                 $manifest['icons'][] = [
@@ -151,7 +147,7 @@ class PWA
                     'purpose' => 'maskable'
                 ];
             } else {
-                trigger_error(sprintf('File %s not found.', 'android-icon-maskable.png'), E_USER_NOTICE);
+                trigger_error(sprintf('File %s not found or size equals zero.', 'android-icon-maskable.png'), E_USER_NOTICE);
             }
 
             $Response = new JsonResponse($manifest);
@@ -224,7 +220,7 @@ class PWA
         $automaticallyPrompt = true;
 
         if ($this->container->hasParameter('aurora.pwa.automatically_prompt')) {
-            $rawAutomaticallyPrompt = $this->container->getParameter('aurora.pwa.automatically_prompt');
+            $rawAutomaticallyPrompt    = $this->container->getParameter('aurora.pwa.automatically_prompt');
             $parsedAutomaticallyPrompt = filter_var(
                 $rawAutomaticallyPrompt,
                 FILTER_VALIDATE_BOOLEAN,
@@ -234,7 +230,7 @@ class PWA
             if (null !== $parsedAutomaticallyPrompt) {
                 $automaticallyPrompt = $parsedAutomaticallyPrompt;
             } else {
-                $automaticallyPrompt = (bool) $rawAutomaticallyPrompt;
+                $automaticallyPrompt = (bool)$rawAutomaticallyPrompt;
             }
         }
 
@@ -245,8 +241,8 @@ class PWA
             'automatically_prompt' => $automaticallyPrompt,
             'translations'         => [
                 'notificationInstallTheApp' => addslashes($notificationInstallTheApp),
-                'notificationNewVersion'     => addslashes($notificationNewVersion),
-                'notificationReload'         => addslashes($notificationReload)
+                'notificationNewVersion'    => addslashes($notificationNewVersion),
+                'notificationReload'        => addslashes($notificationReload)
             ]
         ]);
 
@@ -313,7 +309,7 @@ class PWA
             if (method_exists($request->cookies, 'get')) {
                 $cookieSessionId = $request->cookies->get('PHPSESSID');
             }
-        } elseif (method_exists($request, 'cookies')) {
+        } else if (method_exists($request, 'cookies')) {
             $cookiesBag = $request->cookies();
             if (is_object($cookiesBag) && method_exists($cookiesBag, 'get')) {
                 $cookieSessionId = $cookiesBag->get('PHPSESSID');
@@ -322,8 +318,8 @@ class PWA
 
         if ($cookieSessionId && $this->session instanceof SessionInterface) {
             $sessionIdentifier = $this->session->get('PHPSESSID');
-            if (null !== $sessionIdentifier && '' !== (string) $sessionIdentifier) {
-                $version .= '_' . (string) $sessionIdentifier;
+            if (null !== $sessionIdentifier && '' !== (string)$sessionIdentifier) {
+                $version .= '_' . (string)$sessionIdentifier;
             }
         }
 
