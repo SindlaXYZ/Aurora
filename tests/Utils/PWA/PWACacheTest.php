@@ -483,7 +483,12 @@ final class PWACacheTest extends TestCase
             file_put_contents($directory . DIRECTORY_SEPARATOR . "android-icon-{$size}x{$size}.png", '');
         }
 
-        file_put_contents($directory . DIRECTORY_SEPARATOR . 'android-icon-maskable.png', '');
+        $minimalPng = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HwAFgwJ/lXzyNwAAAABJRU5ErkJggg==', true);
+        if (false === $minimalPng) {
+            self::fail('Unable to decode the minimal PNG used for testing.');
+        }
+
+        file_put_contents($directory . DIRECTORY_SEPARATOR . 'android-icon-maskable.png', $minimalPng);
 
         $this->tempDirectories[] = $directory;
 
