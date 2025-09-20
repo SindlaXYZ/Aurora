@@ -20,7 +20,7 @@ class AuroraClientIpTest extends TestCase
             ['REMOTE_ADDR' => '198.51.100.5']
         );
 
-        $originalServer = $_SERVER;
+        $originalServer                  = $_SERVER;
         $_SERVER['HTTP_X_FORWARDED_FOR'] = ' 203.0.113.10 ';
 
         $client = new AuroraClient();
