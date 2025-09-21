@@ -180,6 +180,18 @@ class AuroraCryptor
      */
     function sha256To32BitUnsigned(string $data): string
     {
-        return (string) ((int) $this->sha256To32Bit($data) % 2147483647);
+        $hash32Hex = substr(hash('sha256', $data), 0, 8);
+
+        if (function_exists('gmp_init')) {
+            return gmp_strval(gmp_init($hash32Hex, 16));
+        }
+
+        $decimal = hexdec($hash32Hex);
+
+        if (is_float($decimal)) {
+            return sprintf('%.0f', $decimal);
+        }
+
+        return (string) $decimal;
     }
 }

@@ -5,6 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCryptor;
 
 use InvalidArgumentException;
 use RuntimeException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCryptor\AuroraCryptor;
 
@@ -85,15 +86,33 @@ class AuroraCryptorTest extends TestCase
         $cryptor->setEncryptionKey($key)->decrypt($tamperedPayload);
     }
 
-    public function testSha256To32BitUnsigned(): void
+    #[DataProvider('dataSha256To32BitUnsigned')]
+    public function testSha256To32BitUnsigned(string $input, string $expected, bool $exceedsSignedLimit): void
     {
         $cryptor = new AuroraCryptor();
-        $result  = $cryptor->sha256To32BitUnsigned('example');
+        $result  = $cryptor->sha256To32BitUnsigned($input);
 
-        $this->assertIsString($result);
-        $value = (int) $result;
-        $this->assertGreaterThanOrEqual(0, $value);
-        $this->assertLessThanOrEqual(2147483647, $value);
+        $this->assertSame($expected, $result);
+        $this->assertSame($expected, $cryptor->sha256To32Bit($input));
+        $this->assertTrue(ctype_digit($result));
+
+        $numericResult = (float) $result;
+        $this->assertGreaterThanOrEqual(0.0, $numericResult);
+        $this->assertLessThanOrEqual(4294967295.0, $numericResult);
+
+        if ($exceedsSignedLimit) {
+            $this->assertGreaterThan(2147483647.0, $numericResult);
+        } else {
+            $this->assertLessThanOrEqual(2147483647.0, $numericResult);
+        }
+    }
+
+    public static function dataSha256To32BitUnsigned(): array
+    {
+        return [
+            ['example', '1356355808', false],
+            ['test', '2676412545', true],
+        ];
     }
 
     public function testSetCipherRegeneratesInitializationVector(): void
