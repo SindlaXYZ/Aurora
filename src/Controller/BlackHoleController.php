@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
