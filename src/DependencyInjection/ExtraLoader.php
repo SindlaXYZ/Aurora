@@ -3,13 +3,8 @@
 namespace Sindla\Bundle\AuroraBundle\DependencyInjection;
 
 use Symfony\Component\Config\Loader\Loader;
-use Symfony\Component\Config\FileLocator;
-use Symfony\Component\DependencyInjection\ContainerBuilder;
-use Symfony\Component\DependencyInjection\Extension\Extension;
-use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
-use Symfony\Component\Routing\RouteCollection;
 use Symfony\Component\Routing\Route;
-use Psr\Container\ContainerInterface;
+use Symfony\Component\Routing\RouteCollection;
 
 // https://symfony.com/doc/current/routing/custom_route_loader.html#creating-a-custom-loader
 

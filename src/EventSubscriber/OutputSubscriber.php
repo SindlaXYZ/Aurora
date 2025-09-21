@@ -4,16 +4,13 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-// Symfony
+use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
-
-// Aurora
-use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
 
 /**
  * https://symfony.com/doc/current/session/locale_sticky_session.html

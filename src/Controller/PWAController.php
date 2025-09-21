@@ -2,18 +2,13 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-// Symfony
+use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Environment;
-
-// Aurora
-use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
 
 class PWAController extends AbstractController
 {

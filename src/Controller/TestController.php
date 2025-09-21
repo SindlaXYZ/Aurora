@@ -2,13 +2,10 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-// Symfony
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\Client as AuroraClient;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-
-// Aurora
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\Client as AuroraClient;
 
 class TestController extends AbstractController
 {
