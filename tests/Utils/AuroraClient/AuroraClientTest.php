@@ -83,6 +83,22 @@ class AuroraClientTest extends KernelTestCase
         unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
     }
 
+    public function testPreferredLanguagesKeepsHighestQualityForDuplicateLocales(): void
+    {
+        $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en-US,en;q=0.8,en-US;q=0.4';
+        $client                          = new AuroraClient($this->containerTest);
+
+        $this->assertSame(
+            [
+                'en-US' => 1.0,
+                'en'    => 0.8,
+            ],
+            $client->preferredLanguages()
+        );
+
+        unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+    }
+
     public function __SKIP__testIP2CountryCode()
     {
         $Client = new AuroraClient($this->containerTest);
