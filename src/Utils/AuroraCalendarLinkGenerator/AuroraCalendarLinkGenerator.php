@@ -14,14 +14,25 @@ class AuroraCalendarLinkGenerator
     {
     }
 
+    private function toUtcImmutable(\DateTimeInterface $date): \DateTimeImmutable
+    {
+        if ($date instanceof \DateTimeImmutable) {
+            $immutable = $date;
+        } else {
+            $immutable = \DateTimeImmutable::createFromInterface($date);
+        }
+
+        return $immutable->setTimezone(new \DateTimeZone('UTC'));
+    }
+
     private function formatDateForGoogle(\DateTimeInterface $date): string
     {
-        return $date->format('Ymd\THis');
+        return $this->toUtcImmutable($date)->format('Ymd\THis\Z');
     }
 
     private function formatDateForOutlook(\DateTimeInterface $date): string
     {
-        return $date->format('Y-m-d\TH:i:s');
+        return $this->toUtcImmutable($date)->format('Y-m-d\TH:i:s\Z');
     }
 
     public function getGoogleCalendarLink(): string
