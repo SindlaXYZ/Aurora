@@ -160,34 +160,67 @@ class AuroraChronos
 
         // Minutes
         if (self::TIME_UNIT_MINUTES == $timeUnit) {
+            $minutes = $this->minutesBetweenTwoDates($startDate, $endDate);
+
+            if ($minutes > $intervalUnit) {
+                return true;
+            }
+
             return (
-                $this->minutesBetweenTwoDates($startDate, $endDate) > $intervalUnit
-                ||
-                ($this->minutesBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+                $minutes === $intervalUnit
+                && 0 === $interval->invert
+                && ($interval->s > 0 || $interval->f > 0)
             );
         }
 
         if (self::TIME_UNIT_HOURS == $timeUnit) {
+            $hours = $this->hoursBetweenTwoDates($startDate, $endDate);
+
+            if ($hours > $intervalUnit) {
+                return true;
+            }
+
             return (
-                $this->hoursBetweenTwoDates($startDate, $endDate) > $intervalUnit
-                ||
-                ($this->hoursBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+                $hours === $intervalUnit
+                && 0 === $interval->invert
+                && ($interval->i > 0 || $interval->s > 0 || $interval->f > 0)
             );
         }
 
         if (self::TIME_UNIT_DAYS == $timeUnit) {
+            $days = (int) $this->daysBetweenTwoDates($startDate, $endDate);
+
+            if ($days > $intervalUnit) {
+                return true;
+            }
+
             return (
-                $this->daysBetweenTwoDates($startDate, $endDate) > $intervalUnit
-                ||
-                ($this->daysBetweenTwoDates($startDate, $endDate) == $intervalUnit && $interval->format('%r%s') > 0)
+                $days === $intervalUnit
+                && 0 === $interval->invert
+                && ($interval->h > 0 || $interval->i > 0 || $interval->s > 0 || $interval->f > 0)
             );
         }
 
         if (self::TIME_UNIT_WEEKS == $timeUnit) {
+            $totalDays = (int) $this->daysBetweenTwoDates($startDate, $endDate);
+            $weeks     = intdiv($totalDays, 7);
+
+            if ($weeks > $intervalUnit) {
+                return true;
+            }
+
+            $remainingDays = abs($totalDays % 7);
+
             return (
-                ($this->daysBetweenTwoDates($startDate, $endDate) / 7) > $intervalUnit
-                ||
-                (($this->daysBetweenTwoDates($startDate, $endDate) / 7) == $intervalUnit && $interval->format('%r%s') > 0)
+                $weeks === $intervalUnit
+                && 0 === $interval->invert
+                && (
+                    $remainingDays > 0
+                    || $interval->h > 0
+                    || $interval->i > 0
+                    || $interval->s > 0
+                    || $interval->f > 0
+                )
             );
         }
 

@@ -122,6 +122,27 @@ class AuroraChronosTest extends TestCase
                      ],
                      [
                          'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-01 12:13:13',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_HOURS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-02 11:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_DAYS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-02 12:12:13',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_DAYS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
                          'endDate'      => '2010-01-08 11:12:13',
                          'interval'     => 1,
                          'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
@@ -130,6 +151,13 @@ class AuroraChronosTest extends TestCase
                      [
                          'startDate'    => '2010-01-01 11:12:13',
                          'endDate'      => '2010-01-08 11:12:14',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
+                         'expected'     => true
+                     ],
+                     [
+                         'startDate'    => '2010-01-01 11:12:13',
+                         'endDate'      => '2010-01-08 12:12:13',
                          'interval'     => 1,
                          'intervalUnit' => AuroraChronos::TIME_UNIT_WEEKS,
                          'expected'     => true
