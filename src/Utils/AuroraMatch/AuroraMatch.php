@@ -7,14 +7,25 @@ class AuroraMatch
     public function matchDomain(string $needle, string $domain): bool
     {
         $parsedNeedle = parse_url($needle);
-        if ($parsedNeedle !== false && isset($parsedNeedle['scheme'], $parsedNeedle['host'])) {
-            $needle = $parsedNeedle['host'];
+        if (false !== $parsedNeedle) {
+            if (isset($parsedNeedle['host'])) {
+                $needle = $parsedNeedle['host'];
+            } elseif (!isset($parsedNeedle['scheme']) && isset($parsedNeedle['path'])) {
+                $needle = $parsedNeedle['path'];
+            }
         }
 
         $parsedDomain = parse_url($domain);
-        if ($parsedDomain !== false && isset($parsedDomain['scheme'], $parsedDomain['host'])) {
-            $domain = $parsedDomain['host'];
+        if (false !== $parsedDomain) {
+            if (isset($parsedDomain['host'])) {
+                $domain = $parsedDomain['host'];
+            } elseif (!isset($parsedDomain['scheme']) && isset($parsedDomain['path'])) {
+                $domain = $parsedDomain['path'];
+            }
         }
+
+        $needle = rtrim($needle, '.');
+        $domain = rtrim($domain, '.');
 
         $needle = strtolower($needle);
         $domain = strtolower($domain);
