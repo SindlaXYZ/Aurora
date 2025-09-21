@@ -26,7 +26,7 @@ class UtilityExtensionTest extends TestCase
     }
 
     #[DataProvider('dataFilterAge')]
-    public function testFilterAge(\DateTime $given, int $expected): void
+    public function testFilterAge(\DateTimeInterface $given, int $expected): void
     {
         $extension = new UtilityExtension(
             new Container(),
@@ -52,14 +52,21 @@ class UtilityExtensionTest extends TestCase
         foreach (range(1, 12) as $month) {
             foreach ([1, 10, 20, 28] as $day) {
                 $year = $years[$index++];
-                $date = new \DateTime(sprintf('%04d-%02d-%02d', $year, $month, $day));
-                $data[] = [$date, $reference->diff($date)->y];
+                $dateString = sprintf('%04d-%02d-%02d', $year, $month, $day);
+                $date       = new \DateTime($dateString);
+                $expected   = $reference->diff($date)->y;
+
+                $data[] = [$date, $expected];
+                $data[] = [new \DateTimeImmutable($dateString), $expected];
             }
         }
 
         foreach (['2000-02-29', '2024-02-29'] as $extra) {
-            $date   = new \DateTime($extra);
-            $data[] = [$date, $reference->diff($date)->y];
+            $date     = new \DateTime($extra);
+            $expected = $reference->diff($date)->y;
+
+            $data[] = [$date, $expected];
+            $data[] = [new \DateTimeImmutable($extra), $expected];
         }
 
         return $data;
