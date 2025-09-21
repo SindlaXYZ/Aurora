@@ -31,8 +31,9 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getGoogleCalendarLink();
 
-        $expectedStart = $start->format('Ymd\THis');
-        $expectedEnd   = $end->format('Ymd\THis');
+        $utcTimezone   = new \DateTimeZone('UTC');
+        $expectedStart = (clone $start)->setTimezone($utcTimezone)->format('Ymd\THis\Z');
+        $expectedEnd   = (clone $end)->setTimezone($utcTimezone)->format('Ymd\THis\Z');
 
         $this->assertStringContainsString('https://calendar.google.com/calendar/render?', $link);
         $this->assertStringContainsString("action=TEMPLATE", $link);
@@ -55,8 +56,9 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getYahooCalendarLink();
 
-        $expectedStart = $start->format('Ymd\THis');
-        $expectedEnd   = $end->format('Ymd\THis');
+        $utcTimezone   = new \DateTimeZone('UTC');
+        $expectedStart = (clone $start)->setTimezone($utcTimezone)->format('Ymd\THis\Z');
+        $expectedEnd   = (clone $end)->setTimezone($utcTimezone)->format('Ymd\THis\Z');
 
         $this->assertStringContainsString('https://calendar.yahoo.com/?', $link);
         $this->assertStringContainsString("v=60", $link);
@@ -80,8 +82,9 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getOutlookLiveCalendarLink();
 
-        $expectedStart = $start->format('Y-m-d\TH:i:s');
-        $expectedEnd   = $end->format('Y-m-d\TH:i:s');
+        $utcTimezone   = new \DateTimeZone('UTC');
+        $expectedStart = (clone $start)->setTimezone($utcTimezone)->format('Y-m-d\TH:i:s\Z');
+        $expectedEnd   = (clone $end)->setTimezone($utcTimezone)->format('Y-m-d\TH:i:s\Z');
 
         $this->assertStringContainsString('https://outlook.live.com/owa/?', $link);
         $this->assertStringContainsString("rru=addevent", $link);
@@ -105,8 +108,9 @@ class AuroraCalendarLinkGeneratorTest extends KernelTestCase
         $generator = new AuroraCalendarLinkGenerator($title, $start, $end, $description, $location);
         $link      = $generator->getOutlookOfficeCalendarLink();
 
-        $expectedStart = $start->format('Y-m-d\TH:i:s');
-        $expectedEnd   = $end->format('Y-m-d\TH:i:s');
+        $utcTimezone   = new \DateTimeZone('UTC');
+        $expectedStart = (clone $start)->setTimezone($utcTimezone)->format('Y-m-d\TH:i:s\Z');
+        $expectedEnd   = (clone $end)->setTimezone($utcTimezone)->format('Y-m-d\TH:i:s\Z');
 
         $this->assertStringContainsString('https://outlook.office.com/calendar/0/deeplink/compose?', $link);
         $this->assertStringContainsString("subject=" . urlencode($title), $link);
