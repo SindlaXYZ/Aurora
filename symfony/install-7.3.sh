@@ -26,5 +26,6 @@ cd vendor/sindla/aurora/
 composer install
 cd ../../../
 php bin/console cache:clear --env=dev
+clear; KERNEL_CLASS=App\\Kernel APP_ENV=test php vendor/bin/phpunit --no-coverage -c vendor/sindla/aurora/phpunit.xml.dist vendor/sindla/aurora/tests/
 echo -e "\n\nSymfony 7.3 installation completed.\n"
 read -n 1 -s -r -p "Press any key to continue"

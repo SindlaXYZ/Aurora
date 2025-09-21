@@ -18,6 +18,7 @@
 
 ## Testing
 
+- To install the application follow all the steps from the `symfony/install-7.3.sh` file.
 - Install dependencies with `composer install`. The `composer.lock` file must never be added to git.
 - Run static analysis using `vendor/bin/phpstan analyse`.
 - Execute unit tests using `vendor/bin/phpunit --no-coverage -c phpunit.xml.dist`.
