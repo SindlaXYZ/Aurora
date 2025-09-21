@@ -7,16 +7,17 @@ namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class BlackHoleSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private AuroraClient $auroraClient
+        private AuroraClient $auroraClient,
+        private HttpClientInterface $httpClient
     )
     {
     }
@@ -46,7 +47,6 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
             ) {
                 $exception = $event->getThrowable();
                 if ($exception instanceof NotFoundHttpException) {
-                    $client = HttpClient::create();
                     try {
                         $payload = [
                             'method'    => $request->getMethod(),
@@ -64,7 +64,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             'headers'   => $request->headers->all(),
                         ];
 
-                        $client->request(
+                        $this->httpClient->request(
                             'POST',
                             new Strink()->string(sprintf(
                                 '%s/%s/%s',
@@ -75,7 +75,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             [
                                 'headers' => [
                                     'Content-Type'  => 'application/json',
-                                    'Authorization' => 'Bearer ' . $_ENV['BLACK_HOLE_API_VERSION']
+                                    'Authorization' => 'Bearer ' . $_ENV['BLACK_HOLE_API_BEARER']
                                 ],
                                 'json'    => $payload,
                             ]
