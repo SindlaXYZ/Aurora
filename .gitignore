@@ -1,4 +1,5 @@
 .idea/
 .phpunit.cache/
 composer.lock
+/symfony/[0-9]*.[0-9]*/
 /vendor
