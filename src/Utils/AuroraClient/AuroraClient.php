@@ -3,6 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
 use GeoIp2\Database\Reader;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
@@ -388,6 +389,12 @@ class AuroraClient
             $IP = $this->ip($IP);
         }
 
+        $ipString = trim((string) $IP);
+
+        if (!$this->ipIsValid($ipString)) {
+            return false;
+        }
+
         /**
          * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
          *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
@@ -396,11 +403,19 @@ class AuroraClient
          *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json
          */
 
-        $hostname = gethostbyaddr(trim($IP));
+        $hostname = gethostbyaddr($ipString);
 
         $AuroraMatch = new AuroraMatch();
 
-        return $AuroraMatch->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com']);
+        if (is_string($hostname) && $hostname !== '' && $hostname !== $ipString) {
+            if ($AuroraMatch->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com'])) {
+                return true;
+            }
+        }
+
+        $auroraIP = new AuroraIP();
+
+        return $auroraIP->isGoogle($ipString);
     }
 
     /**
@@ -422,12 +437,26 @@ class AuroraClient
          *      https://www.bing.com/toolbox/bingbot.json
          */
 
-        $hostname = gethostbyaddr(trim($IP));
+        $ipString = trim((string) $IP);
+
+        if (!$this->ipIsValid($ipString)) {
+            return false;
+        }
+
+        $hostname = gethostbyaddr($ipString);
 
         /** @var AuroraMatch $AuroraMatch */
         $AuroraMatch = new AuroraMatch();
 
-        return $AuroraMatch->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com']);
+        if (is_string($hostname) && $hostname !== '' && $hostname !== $ipString) {
+            if ($AuroraMatch->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com'])) {
+                return true;
+            }
+        }
+
+        $auroraIP = new AuroraIP();
+
+        return $auroraIP->isBing($ipString);
     }
 
     /**
