@@ -369,6 +369,14 @@ class AuroraClient
                     }
                 }
 
+                if ($quality <= 0) {
+                    continue;
+                }
+
+                if ($quality > 1) {
+                    $quality = 1.0;
+                }
+
                 if (!isset($prefLanguages[$locale]) || $quality > $prefLanguages[$locale]) {
                     $prefLanguages[$locale] = $quality;
                 }
