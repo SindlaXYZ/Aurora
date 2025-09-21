@@ -26,6 +26,30 @@ class AuroraChronos
             return strlen($matches[1]) <= 3 ? 'Y-m-d H:i:s.v' : 'Y-m-d H:i:s.u';
         }
 
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}Z$/', $datetime)) {
+            return 'Y-m-d H:i:s\\Z';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.(\d{1,6})Z$/', $datetime, $matches)) {
+            return strlen($matches[1]) <= 3 ? 'Y-m-d H:i:s.v\\Z' : 'Y-m-d H:i:s.u\\Z';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[+\-]\d{2}:\d{2}$/', $datetime)) {
+            return 'Y-m-d H:i:sP';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.(\d{1,6})[+\-]\d{2}:\d{2}$/', $datetime, $matches)) {
+            return strlen($matches[1]) <= 3 ? 'Y-m-d H:i:s.vP' : 'Y-m-d H:i:s.uP';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}[+\-]\d{4}$/', $datetime)) {
+            return 'Y-m-d H:i:sO';
+        }
+
+        if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.(\d{1,6})[+\-]\d{4}$/', $datetime, $matches)) {
+            return strlen($matches[1]) <= 3 ? 'Y-m-d H:i:s.vO' : 'Y-m-d H:i:s.uO';
+        }
+
         if (preg_match('/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/', $datetime)) {
             return 'Y-m-d\TH:i:s';
         }
