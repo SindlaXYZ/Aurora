@@ -12,6 +12,11 @@ class AuroraMatch
                 $needle = $parsedNeedle['host'];
             } elseif (!isset($parsedNeedle['scheme']) && isset($parsedNeedle['path'])) {
                 $needle = $parsedNeedle['path'];
+
+                $fallbackNeedle = parse_url('http://' . ltrim($needle, '/'));
+                if (false !== $fallbackNeedle && isset($fallbackNeedle['host'])) {
+                    $needle = $fallbackNeedle['host'];
+                }
             }
         }
 
@@ -21,6 +26,11 @@ class AuroraMatch
                 $domain = $parsedDomain['host'];
             } elseif (!isset($parsedDomain['scheme']) && isset($parsedDomain['path'])) {
                 $domain = $parsedDomain['path'];
+
+                $fallbackDomain = parse_url('http://' . ltrim($domain, '/'));
+                if (false !== $fallbackDomain && isset($fallbackDomain['host'])) {
+                    $domain = $fallbackDomain['host'];
+                }
             }
         }
 

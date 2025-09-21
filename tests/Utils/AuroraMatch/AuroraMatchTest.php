@@ -82,6 +82,16 @@ class AuroraMatchTest extends TestCase
                 'expected' => true,
             ],
             [
+                'needle'   => 'www.sindla.com/some/path',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
+                'needle'   => 'sindla.com/another/path?foo=bar',
+                'domain'   => 'sindla.com',
+                'expected' => true,
+            ],
+            [
                 'needle'   => 'sindla.com:8080',
                 'domain'   => 'sindla.com',
                 'expected' => true,
