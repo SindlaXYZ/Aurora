@@ -278,9 +278,30 @@ class Strink
      */
     public function camelCaseToSnakeCase(): self
     {
-        $encoding     = $this->detectEncoding();
-        $this->string = preg_replace('/(?<!^)\p{Lu}/u', '_$0', $this->string);
+        $encoding = $this->detectEncoding();
+
+        $converted = preg_replace(
+            '/(?<=\p{Lu})(\p{Lu})(?=\p{Ll})/u',
+            '_$1',
+            $this->string
+        );
+
+        if ($converted !== null) {
+            $this->string = $converted;
+        }
+
+        $converted = preg_replace(
+            '/(?<=\p{Ll}|\p{Nd})(\p{Lu})/u',
+            '_$1',
+            $this->string
+        );
+
+        if ($converted !== null) {
+            $this->string = $converted;
+        }
+
         $this->string = mb_strtolower($this->string, $encoding);
+
         return $this;
     }
 

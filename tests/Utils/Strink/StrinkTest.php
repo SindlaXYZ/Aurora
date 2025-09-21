@@ -44,6 +44,16 @@ class StrinkTest extends TestCase
             }
         }
 
+        foreach ([
+                     'xml_http_request' => ['XMLHttpRequest', 'XmlHTTPRequest'],
+                     'api_response'     => ['APIResponse'],
+                     'json_rpc'         => ['JsonRPC']
+                 ] as $expected => $givens) {
+            foreach ($givens as $given) {
+                $this->assertEquals($expected, $Strink->string($given)->camelCaseToSnakeCase());
+            }
+        }
+
         // UTF-8 support
         $this->assertEquals('denumire_șarpe', $Strink->string('DenumireȘarpe')->camelCaseToSnakeCase());
     }
