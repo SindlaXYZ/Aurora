@@ -288,11 +288,14 @@ class AuroraClient
 
         [$subnet, $prefixLength] = explode('/', $cidr, 2);
 
-        if ($subnet === '') {
+        $subnet       = trim($subnet);
+        $prefixLength = trim($prefixLength);
+
+        if ($subnet === '' || $prefixLength === '' || !ctype_digit($prefixLength)) {
             return false;
         }
 
-        $prefixLength = (int) trim($prefixLength);
+        $prefixLength = (int) $prefixLength;
         $ipBinary     = inet_pton($ip);
         $subnetBinary = inet_pton($subnet);
 
