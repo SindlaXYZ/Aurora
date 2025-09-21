@@ -2,12 +2,18 @@
 
 use Symfony\Component\Dotenv\Dotenv;
 
-if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
+if (defined('PHPUNIT_COMPOSER_INSTALL') && is_file(PHPUNIT_COMPOSER_INSTALL)) {
+    require PHPUNIT_COMPOSER_INSTALL;
+} else if (is_file(dirname(__DIR__) . '/vendor/autoload.php')) {
     require dirname(__DIR__) . '/vendor/autoload.php';
+} else if (is_file(dirname(__DIR__, 3) . '/autoload.php')) {
+    require dirname(__DIR__, 3) . '/autoload.php';
 } else if (is_file(dirname(__DIR__) . '/../../../autoload.php')) {
     require dirname(__DIR__) . '/../../../autoload.php';
 } else if (is_file(__DIR__ . '/../vendor/autoload.php')) {
     require __DIR__ . '/../vendor/autoload.php';
+} else if (is_string(getcwd()) && is_file(getcwd() . '/vendor/autoload.php')) {
+    require getcwd() . '/vendor/autoload.php';
 } else {
     throw new \RuntimeException('Could not find the autoload.php file. Please run "composer install".');
 }
