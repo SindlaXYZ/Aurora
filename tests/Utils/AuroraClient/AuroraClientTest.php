@@ -99,6 +99,29 @@ class AuroraClientTest extends KernelTestCase
         unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
     }
 
+    public function testIpMatchesCidrRejectsInvalidPrefixes(): void
+    {
+        $client = new AuroraClient($this->containerTest);
+
+        $reflectionMethod = new \ReflectionMethod($client, 'ipMatchesCidr');
+        $reflectionMethod->setAccessible(true);
+
+        self::assertFalse(
+            $reflectionMethod->invoke($client, '198.51.100.23', '198.51.100.0/abc'),
+            'CIDR masks containing non-numeric characters must be rejected.'
+        );
+
+        self::assertFalse(
+            $reflectionMethod->invoke($client, '2001:db8::1', '2001:db8::/64bad'),
+            'IPv6 CIDR masks containing non-numeric characters must be rejected.'
+        );
+
+        self::assertTrue(
+            $reflectionMethod->invoke($client, '198.51.100.23', ' 198.51.100.0/24 '),
+            'Valid CIDR masks with surrounding whitespace should still be accepted.'
+        );
+    }
+
     public function __SKIP__testIP2CountryCode()
     {
         $Client = new AuroraClient($this->containerTest);
