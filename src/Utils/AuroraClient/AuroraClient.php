@@ -334,58 +334,105 @@ class AuroraClient
     {
         $prefLanguages = [];
 
-        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-            $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        if (!isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            return $prefLanguages;
+        }
 
-            foreach ($languages as $language) {
-                $language = trim($language);
+        $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $normalizedLanguages = [];
 
-                if ($language === '') {
+        foreach ($languages as $language) {
+            $language = trim($language);
+
+            if ($language === '') {
+                continue;
+            }
+
+            $parts   = array_map('trim', explode(';', $language));
+            $locale  = array_shift($parts);
+            $quality = 1.0;
+
+            if ($locale === '' || $locale === null) {
+                continue;
+            }
+
+            foreach ($parts as $part) {
+                if ($part === '') {
                     continue;
                 }
 
-                $parts   = array_map('trim', explode(';', $language));
-                $locale  = array_shift($parts);
-                $quality = 1.0;
-
-                if ($locale === '' || $locale === null) {
+                if (!str_contains($part, '=')) {
                     continue;
                 }
 
-                foreach ($parts as $part) {
-                    if ($part === '') {
-                        continue;
-                    }
+                [$key, $value] = array_map('trim', explode('=', $part, 2));
 
-                    if (!str_contains($part, '=')) {
-                        continue;
-                    }
-
-                    [$key, $value] = array_map('trim', explode('=', $part, 2));
-
-                    if (strcasecmp($key, 'q') === 0 && is_numeric($value)) {
-                        $quality = (float) $value;
-                        break;
-                    }
-                }
-
-                if ($quality <= 0) {
-                    continue;
-                }
-
-                if ($quality > 1) {
-                    $quality = 1.0;
-                }
-
-                if (!isset($prefLanguages[$locale]) || $quality > $prefLanguages[$locale]) {
-                    $prefLanguages[$locale] = $quality;
+                if (strcasecmp($key, 'q') === 0 && is_numeric($value)) {
+                    $quality = (float) $value;
+                    break;
                 }
             }
 
-            arsort($prefLanguages);
+            if ($quality <= 0) {
+                continue;
+            }
+
+            if ($quality > 1) {
+                $quality = 1.0;
+            }
+
+            $normalizedLocale = $this->normalizeLocale($locale);
+            $mapKey           = strtolower($normalizedLocale);
+
+            if (
+                !isset($normalizedLanguages[$mapKey])
+                || $quality > $normalizedLanguages[$mapKey]['quality']
+            ) {
+                $normalizedLanguages[$mapKey] = [
+                    'locale'  => $normalizedLocale,
+                    'quality' => $quality,
+                ];
+            }
+        }
+
+        foreach ($normalizedLanguages as $data) {
+            $prefLanguages[$data['locale']] = $data['quality'];
+        }
+
+        if ($prefLanguages !== []) {
+            arsort($prefLanguages, SORT_NUMERIC);
         }
 
         return $prefLanguages;
+    }
+
+    private function normalizeLocale(string $locale): string
+    {
+        $normalized = str_replace('_', '-', $locale);
+        $parts      = explode('-', $normalized);
+
+        foreach ($parts as $index => $part) {
+            if ($part === '') {
+                continue;
+            }
+
+            if ($index === 0) {
+                $parts[$index] = strtolower($part);
+                continue;
+            }
+
+            $length = strlen($part);
+
+            if ($length === 2) {
+                $parts[$index] = strtoupper($part);
+            } elseif ($length === 4) {
+                $parts[$index] = ucfirst(strtolower($part));
+            } else {
+                $parts[$index] = strtolower($part);
+            }
+        }
+
+        return implode('-', $parts);
     }
 
     /**
