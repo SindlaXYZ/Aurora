@@ -158,8 +158,9 @@ SVG;
 
     private function __statementsSVG(): string
     {
-        $width     = 160;
-        $leftBlock = 75;
+        $width           = 160;
+        $leftBlock       = 75;
+        $rightBlockWidth = $width - $leftBlock;
 
         return <<<SVG
 <?xml version="1.0" encoding="UTF-8"?>
@@ -173,7 +174,7 @@ SVG;
     </mask>
     <g mask="url(#a)">
         <path fill="#555" d="M0 0h{$leftBlock}v20H0z"/>
-        <path fill="{{ color }}" d="M{$leftBlock} 0h{$width}v20H{$leftBlock}z"/>
+        <path fill="{{ color }}" d="M{$leftBlock} 0h{$rightBlockWidth}v20H{$leftBlock}z"/>
         <path fill="url(#b)" d="M0 0h{$width}v20H0z"/>
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
