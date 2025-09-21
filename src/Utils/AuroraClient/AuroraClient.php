@@ -366,7 +366,9 @@ class AuroraClient
                     }
                 }
 
-                $prefLanguages[$locale] = $quality;
+                if (!isset($prefLanguages[$locale]) || $quality > $prefLanguages[$locale]) {
+                    $prefLanguages[$locale] = $quality;
+                }
             }
 
             arsort($prefLanguages);
