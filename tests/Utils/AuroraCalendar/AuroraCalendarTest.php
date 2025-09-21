@@ -223,4 +223,27 @@ class AuroraCalendarTest extends KernelTestCase
     }
 
     ###################################################################################################################################################################################################
+
+    public function testGenerateCalendarRespectsTimezoneForTodayMarkers(): void
+    {
+        $previousTz = date_default_timezone_get();
+        date_default_timezone_set('UTC');
+
+        try {
+            $calendar    = new AuroraCalendar();
+            $timezone    = new \DateTimeZone('Pacific/Kiritimati');
+            $start       = new \DateTimeImmutable('2024-01-02 08:00:00', $timezone);
+            $reference   = new \DateTimeImmutable('2024-01-02 09:00:00', $timezone);
+            $result      = $calendar->generateCalendar($start, null, 1, 0, 0, $reference);
+            $expectedKey = $start->format('Y-m-d');
+
+            self::assertArrayHasKey($expectedKey, $result);
+            self::assertTrue($result[$expectedKey]['isToday']);
+            self::assertFalse($result[$expectedKey]['isYesterday']);
+            self::assertFalse($result[$expectedKey]['isTomorrow']);
+        } finally {
+            date_default_timezone_set($previousTz);
+        }
+    }
+
 }

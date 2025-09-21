@@ -47,12 +47,16 @@ class AuroraCalendar
      *  - 'isToday': true if the date is today
      *  - 'isTomorrow': true if the date is tomorrow
      */
+    /**
+     * @return array<string, array{date: \DateTimeImmutable, dayOfTheWeek: int, isYesterday: bool, isToday: bool, isTomorrow: bool}>
+     */
     function generateCalendar(
         \DateTimeInterface  $startDate,
         ?\DateTimeInterface $endDate = null,
         int                 $firstDayOfTheWeek = 1,
         int                 $weeksBeforeFirstDay = 0,
-        int                 $weeksAfterLastDay = 0
+        int                 $weeksAfterLastDay = 0,
+        ?\DateTimeInterface $referenceDate = null
     ): array
     {
         // Ensure positive values for weeksBeforeFirstDay and weeksAfterLastDay
@@ -63,6 +67,21 @@ class AuroraCalendar
         $startDateImmutable = ($startDate instanceof \DateTimeImmutable)
             ? $startDate
             : \DateTimeImmutable::createFromInterface($startDate);
+
+        $referenceTimezone = $startDateImmutable->getTimezone();
+
+        if (null !== $referenceDate) {
+            $referenceDateTime = ($referenceDate instanceof \DateTimeImmutable)
+                ? $referenceDate
+                : \DateTimeImmutable::createFromInterface($referenceDate);
+            $referenceDateTime = $referenceDateTime->setTimezone($referenceTimezone);
+        } else {
+            $referenceDateTime = new \DateTimeImmutable('now', $referenceTimezone);
+        }
+
+        $todayStr     = $referenceDateTime->format('Y-m-d');
+        $yesterdayStr = $referenceDateTime->modify('-1 day')->format('Y-m-d');
+        $tomorrowStr  = $referenceDateTime->modify('+1 day')->format('Y-m-d');
 
         // Get the day number for $startDate (1 = Monday, 7 = Sunday)
         $currentDayNumber = (int)$startDateImmutable->format('N');
@@ -79,9 +98,6 @@ class AuroraCalendar
 
         // Adjust the start of the calendar by subtracting additional weeks before the current week
         $calendarStart = $weekStart->modify("-{$weeksBeforeFirstDay} weeks");
-
-        // Get today's date string for comparison
-        $todayStr = new \DateTimeImmutable('today')->format('Y-m-d');
 
         // If $endDate is provided, generate the calendar between startDate and endDate (with adjustments)
         if ($endDate !== null) {
@@ -112,7 +128,7 @@ class AuroraCalendar
             // Generate the calendar from $calendarStart to $calendarEnd (inclusive)
             $calendar = [];
             for ($currentDate = $calendarStart; $currentDate <= $calendarEnd; $currentDate = $currentDate->modify('+1 day')) {
-                $calendar = $this->_calendarArray($currentDate, $todayStr, $calendar);
+                $calendar = $this->_calendarArray($currentDate, $todayStr, $yesterdayStr, $tomorrowStr, $calendar);
             }
 
             return $calendar;
@@ -123,23 +139,33 @@ class AuroraCalendar
             $calendar    = [];
             $currentDate = $calendarStart;
             for ($i = 0; $i < $totalDays; $i++) {
-                $calendar    = $this->_calendarArray($currentDate, $todayStr, $calendar);
+                $calendar    = $this->_calendarArray($currentDate, $todayStr, $yesterdayStr, $tomorrowStr, $calendar);
                 $currentDate = $currentDate->modify('+1 day');
             }
             return $calendar;
         }
     }
 
-    private function _calendarArray(\DateTimeImmutable $currentDate, string $todayStr, array $calendar): array
+    /**
+     * @param array<string, array{date: \DateTimeImmutable, dayOfTheWeek: int, isYesterday: bool, isToday: bool, isTomorrow: bool}> $calendar
+     * @return array<string, array{date: \DateTimeImmutable, dayOfTheWeek: int, isYesterday: bool, isToday: bool, isTomorrow: bool}>
+     */
+    private function _calendarArray(
+        \DateTimeImmutable $currentDate,
+        string $todayStr,
+        string $yesterdayStr,
+        string $tomorrowStr,
+        array $calendar
+    ): array
     {
         $key            = $currentDate->format('Y-m-d');
         $dayOfTheWeek   = (int)$currentDate->format('N');
         $calendar[$key] = [
             'date'         => $currentDate,
             'dayOfTheWeek' => $dayOfTheWeek,
-            'isYesterday'  => $currentDate->format('Y-m-d') === new \DateTimeImmutable('yesterday')->format('Y-m-d'),
+            'isYesterday'  => $key === $yesterdayStr,
             'isToday'      => $key === $todayStr,
-            'isTomorrow'   => $currentDate->format('Y-m-d') === new \DateTimeImmutable('tomorrow')->format('Y-m-d'),
+            'isTomorrow'   => $key === $tomorrowStr,
         ];
         return $calendar;
     }
