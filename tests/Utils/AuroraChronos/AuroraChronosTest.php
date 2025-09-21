@@ -398,6 +398,43 @@ class AuroraChronosTest extends TestCase
         ];
     }
 
+    public function testGetUniqueWeeksInRangeClampsStartAndEndOfFirstWeek(): void
+    {
+        $chronos = new AuroraChronos();
+
+        $start = new \DateTimeImmutable('2024-01-31');
+        $end   = new \DateTimeImmutable('2024-02-01');
+
+        $weeks = $chronos->getUniqueWeeksInRange($start, $end);
+
+        self::assertCount(1, $weeks);
+        self::assertSame('2024-01-31', $weeks[0]['firstDayOfWeek']);
+        self::assertSame('2024-02-01', $weeks[0]['lastDayOfWeek']);
+    }
+
+    public function testGetUniqueWeeksInRangeKeepsFinalWeekWithinBounds(): void
+    {
+        $chronos = new AuroraChronos();
+
+        $start = new \DateTimeImmutable('2024-03-01');
+        $end   = new \DateTimeImmutable('2024-03-12');
+
+        $weeks = $chronos->getUniqueWeeksInRange($start, $end);
+
+        self::assertNotEmpty($weeks);
+        self::assertSame('2024-03-01', $weeks[0]['firstDayOfWeek']);
+
+        $lastWeek = end($weeks);
+
+        self::assertIsArray($lastWeek);
+        self::assertSame('2024-03-12', $lastWeek['lastDayOfWeek']);
+
+        foreach ($weeks as $week) {
+            self::assertGreaterThanOrEqual($start->format('Y-m-d'), $week['firstDayOfWeek']);
+            self::assertLessThanOrEqual($end->format('Y-m-d'), $week['lastDayOfWeek']);
+        }
+    }
+
     public function testSeconds2HMS(): void
     {
         $Chronos = new AuroraChronos();

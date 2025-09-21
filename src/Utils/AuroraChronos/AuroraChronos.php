@@ -401,11 +401,21 @@ class AuroraChronos
             $weekYear = sprintf('%d-%02d', $year, $week);
 
             if (!isset($weeks[$weekYear])) {
+                $weekStartDate = ('1' === $date->format('N')) ? $date : $date->modify('previous Monday');
+                if ($weekStartDate < $start) {
+                    $weekStartDate = $start;
+                }
+
+                $weekEndDate = ('7' === $date->format('N')) ? $date : $date->modify('next Sunday');
+                if ($weekEndDate > $end) {
+                    $weekEndDate = $end;
+                }
+
                 $weeks[$weekYear] = [
                     'week'           => $week,
                     'year'           => $year,
-                    'firstDayOfWeek' => (1 == (intval($date->format('N'))) ? $date->format('Y-m-d') : $date->modify('previous Monday')->format('Y-m-d')),
-                    'lastDayOfWeek'  => (7 == (intval($date->format('N'))) ? $date->format('Y-m-d') : $date->modify('next Sunday')->format('Y-m-d')),
+                    'firstDayOfWeek' => $weekStartDate->format('Y-m-d'),
+                    'lastDayOfWeek'  => $weekEndDate->format('Y-m-d'),
                 ];
             }
         }
