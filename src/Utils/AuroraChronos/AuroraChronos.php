@@ -196,18 +196,22 @@ class AuroraChronos
                 return false;
             }
 
-            $monthsDiff = abs($this->monthsBetweenTwoDates($startDate, $endDate));
+            $monthsDiff = ($interval->y * 12) + $interval->m;
             $hasRemainder = $interval->d > 0
                 || $interval->h > 0
                 || $interval->i > 0
                 || $interval->s > 0
                 || $interval->f > 0;
 
-            return (
-                $monthsDiff > $intervalUnit
-                ||
-                ($monthsDiff === $intervalUnit && $hasRemainder)
-            );
+            if ($monthsDiff > $intervalUnit) {
+                return true;
+            }
+
+            if ($monthsDiff === $intervalUnit) {
+                return $hasRemainder;
+            }
+
+            return false;
         }
 
         if (self::TIME_UNIT_YEARS == $timeUnit) {

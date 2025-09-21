@@ -156,6 +156,20 @@ class AuroraChronosTest extends TestCase
                          'expected'     => true
                      ],
                      [
+                         'startDate'    => '2024-01-31 00:00:00',
+                         'endDate'      => '2024-02-28 00:00:00',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                         'expected'     => false
+                     ],
+                     [
+                         'startDate'    => '2024-01-31 00:00:00',
+                         'endDate'      => '2024-03-02 00:00:01',
+                         'interval'     => 1,
+                         'intervalUnit' => AuroraChronos::TIME_UNIT_MONTHS,
+                         'expected'     => true
+                     ],
+                     [
                          'startDate'    => '2024-02-01 00:00:00',
                          'endDate'      => '2024-01-01 00:00:00',
                          'interval'     => 1,
