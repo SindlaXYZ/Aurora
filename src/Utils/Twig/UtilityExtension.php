@@ -50,7 +50,7 @@ class UtilityExtension extends AbstractExtension
         ];
     }
 
-    public function filterAge(\DateTime $date): int
+    public function filterAge(\DateTimeInterface $date): int
     {
         $referenceDateTimeObject = new \DateTime();
 

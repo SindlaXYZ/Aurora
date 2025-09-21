@@ -22,6 +22,14 @@ if (!class_exists(\Symfony\Bundle\FrameworkBundle\Test\KernelTestCase::class)) {
     require __DIR__ . '/SymfonyKernelTestCaseStub.php';
 }
 
+if (!class_exists(\Twig\Extension\AbstractExtension::class)) {
+    require_once __DIR__ . '/Twig/AbstractExtensionStub.php';
+    class_alias(
+        \Sindla\Bundle\AuroraBundle\Tests\Twig\AbstractExtensionStub::class,
+        \Twig\Extension\AbstractExtension::class
+    );
+}
+
 if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
     require dirname(__DIR__) . '/config/bootstrap.php';
 } else if (method_exists(Dotenv::class, 'bootEnv')) {
