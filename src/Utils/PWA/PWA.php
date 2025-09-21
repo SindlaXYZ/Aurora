@@ -4,7 +4,10 @@ namespace Sindla\Bundle\AuroraBundle\Utils\PWA;
 
 use AllowDynamicProperties;
 use MatthiasMullie\Minify;
+use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Cache\Exception\CacheException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
@@ -73,7 +76,7 @@ class PWA
      */
     public function manifestJSON(Request $request): JsonResponse
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCacheAdapter();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
 
@@ -161,7 +164,7 @@ class PWA
      */
     public function browserConfig(Request $request): Response
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCacheAdapter();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) {
             $encoder       = new XmlEncoder();
@@ -340,7 +343,7 @@ class PWA
      */
     public function icon(Request $request): Response|BinaryFileResponse
     {
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
+        $cache = $this->createCacheAdapter();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
             $iconPath = $this->container->getParameter('aurora.pwa.icons') . $request->getRequestUri();
@@ -379,5 +382,20 @@ class PWA
         $response->headers->set('Content-Length', filesize($iconPath));
         $response->headers->set('X-Backend-Hit', true);
         return $response;
+    }
+
+    private function createCacheAdapter(): AdapterInterface
+    {
+        $defaultLifetime = 'prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1;
+
+        if (ApcuAdapter::isSupported()) {
+            try {
+                return new ApcuAdapter('', $defaultLifetime);
+            } catch (CacheException) {
+                // APCu support declared itself unavailable, fall back to an in-memory cache.
+            }
+        }
+
+        return new ArrayAdapter($defaultLifetime);
     }
 }
