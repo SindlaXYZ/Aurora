@@ -3,6 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\Monolog;
 
 use Monolog\Formatter\NormalizerFormatter;
+use Monolog\LogRecord;
 use Symfony\Bridge\Monolog\Logger;
 
 /**
@@ -70,49 +71,61 @@ class HtmlFormatter extends NormalizerFormatter
 
     /**
      * Formats a log record.
-     *
-     * @param  array $record A record to format
-     * @return mixed The formatted record
      */
-    public function format(array $record)
+    public function format(LogRecord $record): string
     {
-        $output = $this->addTitle($record['level_name'], $record['level']);
+        $normalizedRecord = parent::format($record);
+        if (!\is_array($normalizedRecord)) {
+            $normalizedRecord = $record->toArray();
+        }
+
+        $levelName = $normalizedRecord['level_name'] ?? $record->level->getName();
+        $levelValue = $normalizedRecord['level'] ?? $record->level->value;
+
+        $output = $this->addTitle($levelName, $levelValue);
         $output .= '<table cellspacing="1" width="100%" class="monolog-output">';
 
-        $output .= $this->addRow('Message', (string) $record['message']);
-        $output .= $this->addRow('Time', $record['datetime']->format($this->dateFormat));
-        $output .= $this->addRow('Channel', $record['channel']);
+        $message = $normalizedRecord['message'] ?? $record->message;
+        $output .= $this->addRow('Message', (string) $message);
 
-        if (isset($record['misc']) && is_array($record['misc'])) {
-            foreach ($record['misc'] as $miscKey => $miscValue) {
+        $dateTime = $record->datetime->format($this->dateFormat);
+        $output .= $this->addRow('Time', $dateTime);
+
+        $channel = $normalizedRecord['channel'] ?? $record->channel;
+        $output .= $this->addRow('Channel', (string) $channel);
+
+        if (isset($normalizedRecord['misc']) && \is_array($normalizedRecord['misc'])) {
+            foreach ($normalizedRecord['misc'] as $miscKey => $miscValue) {
                 $output .= $this->addRow($miscKey, (string) $miscValue);
             }
         }
 
-        if ($record['context']) {
+        if ($record->context) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
-            foreach ($record['context'] as $key => $value) {
+            foreach ($record->context as $key => $value) {
                 $embeddedTable .= $this->addRow($key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
             $output .= $this->addRow('Context', $embeddedTable, false);
         }
-        if ($record['extra']) {
+
+        if ($record->extra) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
-            foreach ($record['extra'] as $key => $value) {
+            foreach ($record->extra as $key => $value) {
                 $embeddedTable .= $this->addRow($key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
             $output .= $this->addRow('Extra', $embeddedTable, false);
         }
+
         return $output.'</table>';
     }
 
     /**
      * Formats a set of log records.
      *
-     * @param  array $records A set of records to format
-     * @return mixed The formatted set of records
+     * @param  LogRecord[] $records A set of records to format
+     * @return string The formatted set of records
      */
     public function formatBatch(array $records)
     {
