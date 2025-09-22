@@ -193,6 +193,8 @@ class AuroraClient
      */
     public function ip(Request $request): string
     {
+        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->ip($request)` instead.', __METHOD__);
+
         // CloudFlare: The real visitor IP addresses
         // https://support.cloudflare.com/hc/en-us/articles/200170986-How-does-Cloudflare-handle-HTTP-Request-headers-
         if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {

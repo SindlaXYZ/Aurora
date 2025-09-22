@@ -2,6 +2,8 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
 
+use Symfony\Component\HttpFoundation\Request;
+
 /**
  * https://iplocation.io/ip/
  * https://db-ip.com/api/basic/
@@ -10,6 +12,60 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIP;
 class AuroraIP
 {
     use KnownBotsAndCrawlers;
+
+    /**
+     * Returns the client IP
+     */
+    public function ip(Request $request): string
+    {
+        // CloudFlare: The real visitor IP addresses
+        // https://support.cloudflare.com/hc/en-us/articles/200170986-How-does-Cloudflare-handle-HTTP-Request-headers-
+        if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
+            return $_SERVER['HTTP_CF_CONNECTING_IP'];
+        }
+
+        $forwardedForHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
+
+        if (is_string($forwardedForHeader)) {
+            $forwardedForSingleIp = trim($forwardedForHeader);
+
+            if (
+                $forwardedForSingleIp !== ''
+                && false === strpos($forwardedForHeader, ',')
+                && $this->ipIsValid($forwardedForSingleIp)
+            ) {
+                return $forwardedForSingleIp;
+            }
+        }
+
+        if (is_string($forwardedForHeader) && strpos($forwardedForHeader, ',') !== false) {
+            foreach (explode(',', $forwardedForHeader) as $ip) {
+                $ip = trim($ip);
+                if ($this->ipIsValid($ip)) {
+                    return $ip;
+                }
+            }
+        }
+
+        if ($this->ipIsValid($request->getClientIp())) {
+            return $request->getClientIp();
+        }
+
+        if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValid($_SERVER['HTTP_CLIENT_IP'])) {
+            return $_SERVER['HTTP_CLIENT_IP'];
+        }
+
+        if (isset($_SERVER['REMOTE_ADDR']) && $this->ipIsValid($_SERVER['REMOTE_ADDR'])) {
+            return $_SERVER['REMOTE_ADDR'];
+        }
+
+        return '127.0.0.1';
+    }
+
+    public function ipIsValid(string $ip): bool
+    {
+        return $this->isIPV4($ip) || $this->isIPV6($ip);
+    }
 
     public function isIPV4(string $ip): bool
     {
@@ -43,7 +99,7 @@ class AuroraIP
             return false;
         }
 
-        $prefixLength = (int) $prefixLength;
+        $prefixLength = (int)$prefixLength;
 
         $ipBin     = inet_pton($ip);
         $subnetBin = inet_pton($subnet);
@@ -59,7 +115,7 @@ class AuroraIP
             return false;
         }
 
-        $mask = str_repeat("\xff", (int) ($prefixLength / 8));
+        $mask = str_repeat("\xff", (int)($prefixLength / 8));
         $rest = $prefixLength % 8;
         if ($rest > 0) {
             $mask .= chr((0xff << (8 - $rest)) & 0xff);
