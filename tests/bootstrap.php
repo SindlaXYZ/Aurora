@@ -30,6 +30,14 @@ if (!class_exists(\Twig\Extension\AbstractExtension::class)) {
     );
 }
 
+if (!class_exists(\Monolog\Formatter\NormalizerFormatter::class)) {
+    require_once __DIR__ . '/Monolog/NormalizerFormatterStub.php';
+}
+
+if (!class_exists(\Symfony\Bridge\Monolog\Logger::class)) {
+    require_once __DIR__ . '/Monolog/LoggerStub.php';
+}
+
 if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
     require dirname(__DIR__) . '/config/bootstrap.php';
 } else if (method_exists(Dotenv::class, 'bootEnv')) {
