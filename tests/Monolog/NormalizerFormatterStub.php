@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Monolog\Formatter;
 
 use DateTimeInterface;
+use Monolog\LogRecord;
 
 if (!class_exists(NormalizerFormatter::class)) {
     class NormalizerFormatter
@@ -14,6 +15,11 @@ if (!class_exists(NormalizerFormatter::class)) {
         public function __construct(?string $dateFormat = null)
         {
             $this->dateFormat = $dateFormat ?? DateTimeInterface::RFC3339_EXTENDED;
+        }
+
+        public function format(LogRecord $record)
+        {
+            return $this->normalize($record->toArray());
         }
 
         protected function normalize(mixed $data): mixed

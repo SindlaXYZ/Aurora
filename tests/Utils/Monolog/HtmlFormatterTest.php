@@ -5,9 +5,10 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Monolog;
 
 use DateTimeImmutable;
+use Monolog\Level;
+use Monolog\LogRecord;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\Monolog\HtmlFormatter;
-use Symfony\Bridge\Monolog\Logger;
 
 final class TestableHtmlFormatter extends HtmlFormatter
 {
@@ -33,22 +34,21 @@ class HtmlFormatterTest extends TestCase
     {
         $formatter = new HtmlFormatter('Y-m-d H:i:s');
 
-        $record = [
-            'message'    => 'A <strong>message</strong>',
-            'context'    => [
+        $record = new LogRecord(
+            datetime: new DateTimeImmutable('2024-01-02 03:04:05'),
+            channel: 'app',
+            level: Level::Warning,
+            message: 'A <strong>message</strong>',
+            context: [
                 'payload' => ['nested' => 'value'],
             ],
-            'level'      => Logger::WARNING,
-            'level_name' => 'WARNING',
-            'channel'    => 'app',
-            'datetime'   => new DateTimeImmutable('2024-01-02 03:04:05'),
-            'extra'      => [
+            extra: [
                 'user' => 'alice',
+                'misc' => [
+                    'Custom' => '<tag>value</tag>',
+                ],
             ],
-            'misc'       => [
-                'Custom' => '<tag>value</tag>',
-            ],
-        ];
+        );
 
         $html = $formatter->format($record);
 
@@ -106,16 +106,13 @@ class HtmlFormatterTest extends TestCase
         $this->assertSame('42', $formatter->callConvertToString(42));
     }
 
-    private function createRecord(string $message): array
+    private function createRecord(string $message): LogRecord
     {
-        return [
-            'message'    => $message,
-            'context'    => [],
-            'level'      => Logger::INFO,
-            'level_name' => 'INFO',
-            'channel'    => 'app',
-            'datetime'   => new DateTimeImmutable(),
-            'extra'      => [],
-        ];
+        return new LogRecord(
+            datetime: new DateTimeImmutable(),
+            channel: 'app',
+            level: Level::Info,
+            message: $message,
+        );
     }
 }
