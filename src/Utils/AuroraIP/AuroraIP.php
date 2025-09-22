@@ -227,6 +227,15 @@ class AuroraIP
         return false;
     }
 
+    public function isBot(string $ip): bool
+    {
+        return $this->isGoogle($ip)
+            || $this->isBing($ip)
+            || $this->isApple($ip)
+            || $this->isOpenAI($ip)
+            || $this->isUpTimeRobot($ip);
+    }
+
     public function getCountryCode(): ?string
     {
         // @TODO: integrate with curl https://ipinfo.io/$this->ip/json?token=$_ENV['IPINFOIO_TOKEN']
