@@ -30,6 +30,14 @@ if (!class_exists(\Twig\Extension\AbstractExtension::class)) {
     );
 }
 
+if (!enum_exists(\Monolog\Level::class)) {
+    require_once __DIR__ . '/Monolog/LevelStub.php';
+}
+
+if (!class_exists(\Monolog\LogRecord::class)) {
+    require_once __DIR__ . '/Monolog/LogRecordStub.php';
+}
+
 if (!class_exists(\Monolog\Formatter\NormalizerFormatter::class)) {
     require_once __DIR__ . '/Monolog/NormalizerFormatterStub.php';
 }

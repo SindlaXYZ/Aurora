@@ -94,8 +94,23 @@ class HtmlFormatter extends NormalizerFormatter
         $channel = $normalizedRecord['channel'] ?? $record->channel;
         $output .= $this->addRow('Channel', (string) $channel);
 
+        $miscData = null;
         if (isset($normalizedRecord['misc']) && \is_array($normalizedRecord['misc'])) {
-            foreach ($normalizedRecord['misc'] as $miscKey => $miscValue) {
+            $miscData = $normalizedRecord['misc'];
+        }
+
+        $extra = $record->extra;
+        if (isset($extra['misc']) && \is_array($extra['misc'])) {
+            $miscData ??= $extra['misc'];
+            unset($extra['misc']);
+        }
+
+        if (isset($normalizedRecord['extra']['misc']) && \is_array($normalizedRecord['extra']['misc'])) {
+            $miscData ??= $normalizedRecord['extra']['misc'];
+        }
+
+        if (\is_array($miscData)) {
+            foreach ($miscData as $miscKey => $miscValue) {
                 $output .= $this->addRow($miscKey, (string) $miscValue);
             }
         }
@@ -109,9 +124,9 @@ class HtmlFormatter extends NormalizerFormatter
             $output .= $this->addRow('Context', $embeddedTable, false);
         }
 
-        if ($record->extra) {
+        if ($extra) {
             $embeddedTable = '<table cellspacing="1" width="100%">';
-            foreach ($record->extra as $key => $value) {
+            foreach ($extra as $key => $value) {
                 $embeddedTable .= $this->addRow($key, $this->convertToString($value));
             }
             $embeddedTable .= '</table>';
