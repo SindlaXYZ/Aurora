@@ -35,7 +35,27 @@ if (!class_exists(\Monolog\Formatter\NormalizerFormatter::class)) {
 }
 
 if (!class_exists(\Symfony\Bridge\Monolog\Logger::class)) {
-    require_once __DIR__ . '/Monolog/LoggerStub.php';
+    $monologLoggerStub = __DIR__ . '/Monolog/LoggerStub.php';
+
+    if (is_file($monologLoggerStub)) {
+        require_once $monologLoggerStub;
+    } else {
+        if (!class_exists('AuroraTestsMonologLoggerStubFallback', false)) {
+            class AuroraTestsMonologLoggerStubFallback
+            {
+                public const int DEBUG     = 100;
+                public const int INFO      = 200;
+                public const int NOTICE    = 250;
+                public const int WARNING   = 300;
+                public const int ERROR     = 400;
+                public const int CRITICAL  = 500;
+                public const int ALERT     = 550;
+                public const int EMERGENCY = 600;
+            }
+        }
+
+        class_alias('AuroraTestsMonologLoggerStubFallback', \Symfony\Bridge\Monolog\Logger::class);
+    }
 }
 
 if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
