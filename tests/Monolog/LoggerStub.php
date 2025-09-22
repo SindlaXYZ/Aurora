@@ -7,13 +7,13 @@ namespace Symfony\Bridge\Monolog;
 if (!class_exists(Logger::class)) {
     class Logger
     {
-        public const DEBUG = 100;
-        public const INFO = 200;
-        public const NOTICE = 250;
-        public const WARNING = 300;
-        public const ERROR = 400;
-        public const CRITICAL = 500;
-        public const ALERT = 550;
-        public const EMERGENCY = 600;
+        public const int DEBUG     = 100;
+        public const int INFO      = 200;
+        public const int NOTICE    = 250;
+        public const int WARNING   = 300;
+        public const int ERROR     = 400;
+        public const int CRITICAL  = 500;
+        public const int ALERT     = 550;
+        public const int EMERGENCY = 600;
     }
 }
