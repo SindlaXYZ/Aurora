@@ -3,10 +3,41 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar;
 
 use Sindla\Bundle\AuroraBundle\Enum\DayOfWeek;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 
 class AuroraCalendar
 {
+    /**
+     * Return the number of days for a full weeks calendar
+     * Month's days + the number of days before the first day of the month + the number of days after the last day of the month
+     * Always will return number divisible by 7 (because one full week has 7 days)
+     *
+     * eg:  For 2021-02-01, return 35
+     *      For 2024-09-XX, return 35 (31 days for the October + 1 day from August + 3 days from November)
+     *      For 2024-10-XX, return 35 (30 days for the November + 4 day from October + 1 days from December)
+     */
+    public function fullWeeksDaysNumber(\DateTimeInterface $date): int
+    {
+        $lastDayOfMonth     = intval($date->format('t'));
+        $lastDayYMD         = $date->format('Y-m-t');
+        $gapsBeforeFirstDay = $this->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($date);
+        $gapsAfterLastDay   = 7 - (int)date('N', strtotime($lastDayYMD));
+        return ($gapsBeforeFirstDay + $lastDayOfMonth + $gapsAfterLastDay);
+    }
+
+    /**
+     * Return the number of days from the previous month before the first day of the month
+     * Eg:  If the first day of the month is a Wednesday, return 2
+     *      If the first day of the month is a Monday, return 0
+     *      If the first day of the month is a Sunday, return 6
+     */
+    public function weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(\DateTimeInterface $date): int
+    {
+        $firstDayOfMonth      = \DateTimeImmutable::createFromInterface($date)->modify('first day of this month');
+        $firstDayWeekPosition = (int)$firstDayOfMonth->format('N'); // 1 = monday, 7 = sunday
+
+        return (DayOfWeek::MONDAY->value === $firstDayWeekPosition ? 0 : $firstDayWeekPosition - 1);
+    }
+
     /**
      * Returns the ordinal suffix for the provided calendar day.
      */
@@ -45,38 +76,6 @@ class AuroraCalendar
     }
 
     /**
-     * Return the number of days for a full weeks calendar
-     * Month's days + the number of days before the first day of the month + the number of days after the last day of the month
-     * Always will return number divisible by 7 (because one full week has 7 days)
-     *
-     * eg:  For 2021-02-01, return 35
-     *      For 2024-09-XX, return 35 (31 days for the October + 1 day from August + 3 days from November)
-     *      For 2024-10-XX, return 35 (30 days for the November + 4 day from October + 1 days from December)
-     */
-    public function fullWeeksDaysNumber(\DateTimeInterface $date): int
-    {
-        $lastDayOfMonth     = intval($date->format('t'));
-        $lastDayYMD         = $date->format('Y-m-t');
-        $gapsBeforeFirstDay = $this->weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth($date);
-        $gapsAfterLastDay   = 7 - (int)date('N', strtotime($lastDayYMD));
-        return ($gapsBeforeFirstDay + $lastDayOfMonth + $gapsAfterLastDay);
-    }
-
-    /**
-     * Return the number of days from the previous month before the first day of the month
-     * Eg:  If the first day of the month is a Wednesday, return 2
-     *      If the first day of the month is a Monday, return 0
-     *      If the first day of the month is a Sunday, return 6
-     */
-    public function weekDaysFromPreviousMonthBeforeFirstDayOfTheMonth(\DateTimeInterface $date): int
-    {
-        $firstDayOfMonth      = \DateTimeImmutable::createFromInterface($date)->modify('first day of this month');
-        $firstDayWeekPosition = (int)$firstDayOfMonth->format('N'); // 1 = monday, 7 = sunday
-
-        return (DayOfWeek::MONDAY->value === $firstDayWeekPosition ? 0 : $firstDayWeekPosition - 1);
-    }
-
-    /**
      * Generates a calendar as an associative array, where each key is a date formatted as "Y-m-d" and the value is an array containing:
      *  - 'date': the date as a DateTimeImmutable object
      *  - 'dayOfTheWeek': the day of the week (ISO-8601, 1 = Monday, ..., 7 = Sunday)
@@ -87,7 +86,7 @@ class AuroraCalendar
     /**
      * @return array<string, array{date: \DateTimeImmutable, dayOfTheWeek: int, isYesterday: bool, isToday: bool, isTomorrow: bool}>
      */
-    function generateCalendar(
+    public function generateCalendar(
         \DateTimeInterface  $startDate,
         ?\DateTimeInterface $endDate = null,
         int                 $firstDayOfTheWeek = 1,
@@ -189,10 +188,10 @@ class AuroraCalendar
      */
     private function _calendarArray(
         \DateTimeImmutable $currentDate,
-        string $todayStr,
-        string $yesterdayStr,
-        string $tomorrowStr,
-        array $calendar
+        string             $todayStr,
+        string             $yesterdayStr,
+        string             $tomorrowStr,
+        array              $calendar
     ): array
     {
         $key            = $currentDate->format('Y-m-d');
