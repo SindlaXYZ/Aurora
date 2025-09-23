@@ -190,6 +190,9 @@ class AuroraClient
 
     /**
      * Returns the client IP
+     *
+     * @deprecated 7.3.9
+     * @see AuroraIP::ip()
      */
     public function ip(Request $request): string
     {
@@ -443,11 +446,15 @@ class AuroraClient
      *  --------------------------------------------------------------------------------
      *
      * Check if an IPv4 is a Google Bot (by hostname)
+     *
+     * @deprecated 7.3.9
+     * @see AuroraIP::isGoogle()
      */
     public function ipIsGoogleBot(Request|string $IP): bool
     {
+        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isGoogle($ip)` instead.', __METHOD__);
+
         if ($IP instanceof Request) {
-            trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
             $IP = $this->ip($IP);
         }
 
@@ -486,11 +493,15 @@ class AuroraClient
      *  --------------------------------------------------------------------------------
      *
      * Check if an IPv4 is a Microsoft/Bing bot (by hostname)
+     *
+     * @deprecated 7.3.9
+     * @see AuroraIP::isBing()
      */
     public function ipIsBingBot(Request|string $IP): bool
     {
+        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isBing($ip)` instead.', __METHOD__);
+
         if ($IP instanceof Request) {
-            trigger_error('Method ' . __METHOD__ . ' with Request as parameter is deprecated. Use client Address IP (string) instead.', E_USER_DEPRECATED);
             $IP = $this->ip($IP);
         }
 
@@ -527,9 +538,14 @@ class AuroraClient
      *  --------------------------------------------------------------------------------
      *
      * Check if an IPv4 is a Google Bot or a Bing Bot (by hostname)
+     *
+     * @deprecated 7.3.9
+     * @see AuroraIP::isBot()
      */
     public function ipIsGoogleOrBingBot(Request|string $IP): bool
     {
+        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isBot($ip)` instead.', __METHOD__);
+
         return $this->ipIsGoogleBot($IP) || $this->ipIsBingBot($IP);
     }
 }
