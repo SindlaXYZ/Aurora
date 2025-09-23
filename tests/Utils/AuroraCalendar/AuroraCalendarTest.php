@@ -21,6 +21,56 @@ class AuroraCalendarTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
+    #[DataProvider('dataDateSuffix')]
+    public function testDateSuffix(string $expected, int|string $given): void
+    {
+        $auroraCalendar = new AuroraCalendar();
+
+        $this->assertSame($expected, $auroraCalendar->dateSuffix($given));
+    }
+
+    public static function dataDateSuffix(): array
+    {
+        return [
+            ['st', 1],
+            ['nd', 2],
+            ['rd', 3],
+            ['th', 4],
+            ['th', 11],
+            ['th', 12],
+            ['th', 13],
+            ['st', 21],
+            ['nd', 22],
+            ['rd', 23],
+            ['st', 31],
+            ['nd', '02'],
+            ['st', ' 21 '],
+        ];
+    }
+
+    #[DataProvider('dataInvalidDateSuffix')]
+    public function testDateSuffixWithInvalidValue(int|string $given): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        (new AuroraCalendar())->dateSuffix($given);
+    }
+
+    public static function dataInvalidDateSuffix(): array
+    {
+        return [
+            [0],
+            ['0'],
+            [32],
+            ['32'],
+            [''],
+            ['   '],
+            ['abc'],
+            ['-1'],
+            [-5],
+        ];
+    }
+
     ###################################################################################################################################################################################################
 
     #[DataProvider('dataWeekDaysFromPreviousMonthBeforeFirstDayOfTheMonth')]
