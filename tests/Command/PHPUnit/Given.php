@@ -7,9 +7,10 @@ use App\Entity\CompanyConfig;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Sindla\Bundle\AuroraBundle\Tests\Trait\PersistenceTrait;
+use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
 
 #[CoversClass(CompanyConfig::class)]
-class MyTest
+class MyTest extends WebTestCaseMiddleware
 {
     use PersistenceTrait;
 

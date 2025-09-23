@@ -152,7 +152,7 @@ final class PHPUnitCommand extends CommandMiddleware
         }
 
         $finder = new Finder();
-        $finder->files()->in($testDirectory)->name('*Test.php');
+        $finder->files()->in($testDirectory)->name('*.php');
 
         if (!$finder->hasResults()) {
             $this->io->warning('No test files found in /test/ directory.');
@@ -185,30 +185,40 @@ COMMENT;
             $relativeFilePath = trim($file->getRelativePathname(), '/');
 
             // Update comments at the class level
-            $patternWithCommentBlock    = '/(\/\*\*(?:[^*]|\*(?!\/))*\*\/)\s*class\s+(\w+) extends WebTestCaseMiddleware/s';
-            $patternWithoutCommentBlock = '/class\s+(\w+) extends WebTestCaseMiddleware/';
-            $newClassComment            = sprintf($classCommentBlock, $relativePath, $file->getFilename());
+            $classCommentPattern = '/(?P<comment>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?(?P<attributes>(?:(?:^[ \t]*\#\[[^\r\n]*\]\r?\n))*)(?P<indent>^[ \t]*)class\s+(?P<signature>\w+\s+(?:extends\s+\w+(?:\\\\\w+)*(?:\s+implements[^{\r\n]+)?|implements[^{\r\n]+|[^\r\n]*))/m';
+            $newClassComment      = sprintf($classCommentBlock, $relativePath, $file->getFilename());
+            $classUpdated         = false;
 
-            if (preg_match($patternWithCommentBlock, $content, $matches)) {
-                $existingComment = $matches[1];
-                $className       = $matches[2];
+            $content = preg_replace_callback(
+                $classCommentPattern,
+                function (array $matches) use ($newClassComment, &$updatedClass, &$createdClass, &$classUpdated) {
+                    if ($classUpdated) {
+                        return $matches[0];
+                    }
 
-                $content = preg_replace(
-                    $patternWithCommentBlock,
-                    $newClassComment . "\nclass $className extends WebTestCaseMiddleware",
-                    $content
-                );
-                $updatedClass++;
-            } else if (preg_match($patternWithoutCommentBlock, $content, $matches)) {
-                $className = $matches[1];
+                    if (!str_contains($matches['signature'], 'WebTestCaseMiddleware')) {
+                        return $matches[0];
+                    }
 
-                $content = preg_replace(
-                    $patternWithoutCommentBlock,
-                    $newClassComment . "\nclass $className extends WebTestCaseMiddleware",
-                    $content
-                );
-                $createdClass++;
-            } else {
+                    $classUpdated = true;
+
+                    if (!empty($matches['comment'])) {
+                        $updatedClass++;
+                    } else {
+                        $createdClass++;
+                    }
+
+                    $attributes = $matches['attributes'] ?? '';
+                    $indent     = $matches['indent'] ?? '';
+                    $signature  = $matches['signature'];
+
+                    return rtrim($newClassComment) . "\n" . $attributes . $indent . 'class ' . $signature;
+                },
+                $content,
+                1
+            );
+
+            if (!$classUpdated) {
                 $this->io->warning(sprintf('The test file %s does not contain a class that extends the WebTestCaseMiddleware.', $file->getRelativePathname()));
                 continue;
             }
@@ -262,22 +272,55 @@ COMMENT;
         $content = preg_replace($deletePattern, '', $content);
 
         // 2) Insert the correct comment before each test method
-        $insertPattern = '~(^[ \t]*)(public[ \t]+function[ \t]+(test\w+)[ \t]*\([^\r\n]*\))~m';
+        $lines               = explode("\n", $content);
+        $lineCount           = count($lines);
+        $endsWithNewLine     = str_ends_with($content, "\n");
+        $methodPattern       = '/^([ \t]*)public[ \t]+function[ \t]+(test\w+)[ \t]*\(/';
+        $attributeLinePattern = '/^[ \t]*\#\[[^\r\n]*\]$/';
 
-        $content = preg_replace_callback($insertPattern, function ($m) use ($relativeFilePath) {
-            $indent     = $m[1];
-            $fnHeader   = $m[2];
-            $methodName = $m[3];
+        for ($index = 0; $index < $lineCount; $index++) {
+            $line = $lines[$index];
+
+            if (!preg_match($methodPattern, $line, $methodMatch)) {
+                continue;
+            }
+
+            $indent      = $methodMatch[1];
+            $methodName  = $methodMatch[2];
+            $insertIndex = $index;
+
+            while ($insertIndex > 0) {
+                $previousLine = $lines[$insertIndex - 1];
+
+                if ($previousLine === '') {
+                    break;
+                }
+
+                if (preg_match($attributeLinePattern, $previousLine)) {
+                    $insertIndex--;
+                    continue;
+                }
+
+                break;
+            }
 
             $commentLine = sprintf(
-                "%s// clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s\n",
+                '%s// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s',
                 $indent,
                 $relativeFilePath,
                 $methodName
             );
 
-            return $commentLine . $indent . $fnHeader;
-        }, $content);
+            array_splice($lines, $insertIndex, 0, [$commentLine]);
+            $lineCount++;
+            $index++;
+        }
+
+        $content = implode("\n", $lines);
+
+        if ($endsWithNewLine && !str_ends_with($content, "\n")) {
+            $content .= "\n";
+        }
 
         return $content;
     }
