@@ -8,6 +8,43 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 class AuroraCalendar
 {
     /**
+     * Returns the ordinal suffix for the provided calendar day.
+     */
+    public function dateSuffix(int|string $day): string
+    {
+        if (is_string($day)) {
+            $day = trim($day);
+
+            if ($day === '') {
+                throw new \InvalidArgumentException('Day value cannot be empty.');
+            }
+
+            if (!preg_match('/^-?\d+$/', $day)) {
+                throw new \InvalidArgumentException('Day value must be an integer represented as a string.');
+            }
+
+            $day = (int)$day;
+        }
+
+        if ($day < 1 || $day > 31) {
+            throw new \InvalidArgumentException('Day value must be between 1 and 31.');
+        }
+
+        $dayModuloHundred = $day % 100;
+
+        if (in_array($dayModuloHundred, [11, 12, 13], true)) {
+            return 'th';
+        }
+
+        return match ($day % 10) {
+            1       => 'st',
+            2       => 'nd',
+            3       => 'rd',
+            default => 'th',
+        };
+    }
+
+    /**
      * Return the number of days for a full weeks calendar
      * Month's days + the number of days before the first day of the month + the number of days after the last day of the month
      * Always will return number divisible by 7 (because one full week has 7 days)
