@@ -4,6 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Doctrine\DQL;
 
 use Doctrine\ORM\Query;
 use Doctrine\ORM\Query\QueryException;
+use Doctrine\ORM\Query\AST\OrderByItem;
 
 /**
  * The SortableNullsWalker is a TreeWalker that walks over a DQL AST and constructs
@@ -25,9 +26,9 @@ use Doctrine\ORM\Query\QueryException;
  *     "p.id" => Webges\DoctrineExtensions\Query\SortableNullsWalker::NULLS_LAST
  * ));
  *
- * @see https://github.com/beberlei/DoctrineExtensions/blob/235b092e42697dcb3b2ebea3a85b79265d148a06/tests/Query/MysqlWalkerTest.php
- * @see https://www.doctrine-project.org/projects/doctrine-dbal/en/current/reference/query-builder.html#order-by-clause - is not working
- * @see http://www.doctrine-project.org/jira/browse/DDC-490
+ * @see    https://github.com/beberlei/DoctrineExtensions/blob/235b092e42697dcb3b2ebea3a85b79265d148a06/tests/Query/MysqlWalkerTest.php
+ * @see    https://www.doctrine-project.org/projects/doctrine-dbal/en/current/reference/query-builder.html#order-by-clause - is not working
+ * @see    http://www.doctrine-project.org/jira/browse/DDC-490
  *
  * @support: MySQL
  * @support: PostgreSQL
@@ -35,15 +36,14 @@ use Doctrine\ORM\Query\QueryException;
 class SortableNullsWalker extends Query\SqlWalker
 {
     public const NULLS_FIRST = 'NULLS FIRST';
-
-    public const NULLS_LAST = 'NULLS LAST';
+    public const NULLS_LAST  = 'NULLS LAST';
 
     /**
      * @param $orderByItem
      * @return array|string
      * @throws QueryException
      */
-    public function walkOrderByItem($orderByItem)
+    public function walkOrderByItem(OrderByItem $orderByItem): string
     {
         $sql  = parent::walkOrderByItem($orderByItem);
         $hint = $this->getQuery()->getHint('sortableNulls.fields');
