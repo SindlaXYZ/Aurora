@@ -4,7 +4,6 @@ namespace App\Tests\Integration;
 
 use App\Entity\Company;
 use App\Entity\CompanyConfig;
-use Doctrine\DBAL\Types\Types;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Sindla\Bundle\AuroraBundle\Tests\Trait\PersistenceTrait;
@@ -22,7 +21,7 @@ use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
  * clear; cd /srv/${DKZ_DOMAIN}/; SYMFONY_DEPRECATIONS_HELPER=disabled /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/Given.php --no-coverage --stop-on-failure
  */
 #[CoversClass(CompanyConfig::class)]
-class MyTest
+class MyTest extends WebTestCaseMiddleware
 {
     use PersistenceTrait;
 
