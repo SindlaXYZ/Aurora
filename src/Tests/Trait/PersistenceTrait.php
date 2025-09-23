@@ -66,6 +66,42 @@ trait PersistenceTrait
     }
 
     /**
+     * Disable DAMA transaction rollback.
+     *
+     * This method disables DAMA's automatic transaction rollback behavior.
+     * After calling this method, all database operations will be permanently
+     * persisted until DAMA is re-enabled or the test ends.
+     *
+     * @return bool The previous DAMA state (true if was enabled, false if was disabled)
+     *
+     * @example
+     * ```php
+     * public function testPersistentData(): void
+     * {
+     *     $previousState = $this->disableDAMA();
+     *
+     *     $entity = new MyEntity();
+     *     $this->em->persist($entity);
+     *     $this->em->flush();
+     *
+     *     // Data is now persisted in the database
+     *     $this->assertNotNull($entity->getId());
+     *
+     *     // Optionally restore previous state
+     *     if ($previousState) {
+     *         $this->enableDAMA();
+     *     }
+     * }
+     * ```
+     */
+    protected function disableDAMA(): bool
+    {
+        $previousState = StaticDriver::isKeepStaticConnections();
+        StaticDriver::setKeepStaticConnections(false);
+        return $previousState;
+    }
+
+    /**
      * Execute a callback with a guaranteed DAMA transaction rollback.
      *
      * This method ensures DAMA's automatic transaction rollback is enabled,
@@ -98,6 +134,73 @@ trait PersistenceTrait
         } finally {
             StaticDriver::setKeepStaticConnections($originalState);
         }
+    }
+
+    /**
+     * Enable DAMA transaction rollback.
+     *
+     * This method enables DAMA's automatic transaction rollback behavior.
+     * After calling this method, all database operations will be rolled back
+     * at the end of the test, ensuring test isolation.
+     *
+     * @return bool The previous DAMA state (true if was enabled, false if was disabled)
+     *
+     * @example
+     * ```php
+     * public function testIsolatedData(): void
+     * {
+     *     $previousState = $this->enableDAMA();
+     *
+     *     $entity = new MyEntity();
+     *     $this->em->persist($entity);
+     *     $this->em->flush();
+     *
+     *     // Data will be rolled back after test
+     *
+     *     // Optionally restore previous state
+     *     if (!$previousState) {
+     *         $this->disableDAMA();
+     *     }
+     * }
+     * ```
+     */
+    protected function enableDAMA(): bool
+    {
+        $previousState = StaticDriver::isKeepStaticConnections();
+        StaticDriver::setKeepStaticConnections(true);
+        return $previousState;
+    }
+
+    /**
+     * Set DAMA state to a specific value.
+     *
+     * This method allows you to explicitly set DAMA to enabled or disabled state.
+     * Useful when you need to restore a previously saved state.
+     *
+     * @param bool $enabled True to enable DAMA, false to disable it
+     * @return bool The previous DAMA state
+     *
+     * @example
+     * ```php
+     * public function testWithStateManagement(): void
+     * {
+     *     $originalState = $this->setDAMAState(false);
+     *
+     *     // Do operations without DAMA
+     *     $entity = new MyEntity();
+     *     $this->em->persist($entity);
+     *     $this->em->flush();
+     *
+     *     // Restore original state
+     *     $this->setDAMAState($originalState);
+     * }
+     * ```
+     */
+    protected function setDAMAState(bool $enabled): bool
+    {
+        $previousState = StaticDriver::isKeepStaticConnections();
+        StaticDriver::setKeepStaticConnections($enabled);
+        return $previousState;
     }
 
     /**
