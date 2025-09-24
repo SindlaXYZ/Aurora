@@ -97,7 +97,7 @@ if (!class_exists(Finder::class)) {
 
         private function refresh(): void
         {
-            if ($this->directory === null || !is_dir($this->directory)) {
+            if ($this->directory === null || !\is_dir($this->directory)) {
                 $this->files = [];
                 return;
             }
@@ -192,7 +192,7 @@ final class PHPUnitCommandTest extends TestCase
         $fixture    = __DIR__ . '/PHPUnit/GivenTest.php';
         $expected   = __DIR__ . '/PHPUnit/ExpectedTest.php';
 
-        $original = file_get_contents($fixture);
+        $original = \file_get_contents($fixture);
         self::assertNotFalse($original, 'Fixture content could not be read.');
         self::assertTrue(file_put_contents($sourceFile, $original) !== false, 'Could not create the working test file.');
 
@@ -217,8 +217,8 @@ final class PHPUnitCommandTest extends TestCase
                 'The command should finish successfully.'
             );
 
-            $result          = stri_replace('Given', 'Expected', file_get_contents($sourceFile));
-            $expectedContent = file_get_contents($expected);
+            $result          = \str_ireplace('Given', 'Expected', \file_get_contents($sourceFile));
+            $expectedContent = \file_get_contents($expected);
 
             self::assertNotFalse($result, 'The updated file could not be read.');
             self::assertNotFalse($expectedContent, 'The expected file could not be read.');
@@ -230,11 +230,11 @@ final class PHPUnitCommandTest extends TestCase
 
     private function removeDirectory(string $directory): void
     {
-        if (!is_dir($directory)) {
+        if (!\is_dir($directory)) {
             return;
         }
 
-        $items = scandir($directory);
+        $items = \scandir($directory);
         if ($items === false) {
             return;
         }
@@ -246,7 +246,7 @@ final class PHPUnitCommandTest extends TestCase
 
             $path = $directory . DIRECTORY_SEPARATOR . $item;
 
-            if (is_dir($path)) {
+            if (\is_dir($path)) {
                 $this->removeDirectory($path);
             } else {
                 @unlink($path);
