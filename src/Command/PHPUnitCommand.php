@@ -185,10 +185,6 @@ COMMENT;
             $relativePath     = trim(str_replace($fileName, '', $file->getRelativePathname()), '/');
             $relativeFilePath = trim($file->getRelativePathname(), '/');
 
-//            if (!str_ends_with($fileName, 'Test.php')) {
-//                continue;
-//            }
-
             // Update comments at the class level
             $classCommentPattern = '/(?P<comment>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?(?P<attributes>(?:(?:^[ \t]*\#\[[^\r\n]*\]\r?\n))*)(?P<indent>^[ \t]*)class\s+(?P<signature>\w+\s+(?:extends\s+\w+(?:\\\\\w+)*(?:\s+implements[^{\r\n]+)?|implements[^{\r\n]+|[^\r\n]*))/m';
             $newClassComment     = sprintf($classCommentBlock, $relativePath, $fileName);

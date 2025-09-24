@@ -217,7 +217,8 @@ final class PHPUnitCommandTest extends TestCase
                 'The command should finish successfully.'
             );
 
-            $result          = \str_ireplace('Given', 'Expected', \file_get_contents($sourceFile));
+            $result          = \file_get_contents($sourceFile);
+            //$result          = \str_ireplace('Given', 'Expected', $result);
             $expectedContent = \file_get_contents($expected);
 
             self::assertNotFalse($result, 'The updated file could not be read.');
