@@ -3,8 +3,6 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCookiesExtractor;
 
-use DateTimeImmutable;
-use DateTimeZone;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor;
 use Symfony\Contracts\HttpClient\ResponseInterface;
@@ -14,6 +12,26 @@ class AuroraCookiesExtractorExtractTest extends TestCase
     public function testMaxAgeSetsRelativeExpiry(): void
     {
         $response = new class implements ResponseInterface {
+            public function getStatusCode(): int
+            {
+            }
+
+            public function getHeaders(bool $throw = true): array
+            {
+            }
+
+            public function getContent(bool $throw = true): string
+            {
+            }
+
+            public function toArray(bool $throw = true): array
+            {
+            }
+
+            public function cancel(): void
+            {
+            }
+
             public function getInfo(?string $type = null): mixed
             {
                 return [
@@ -27,8 +45,8 @@ class AuroraCookiesExtractorExtractTest extends TestCase
 
         $this->assertCount(1, $cookies);
         $expires = $cookies[0]->getExpires();
-        $this->assertInstanceOf(DateTimeImmutable::class, $expires);
-        $diff = $expires->getTimestamp() - (new DateTimeImmutable('now', new DateTimeZone('UTC')))->getTimestamp();
+        $this->assertInstanceOf(\DateTimeImmutable::class, $expires);
+        $diff = $expires->getTimestamp() - (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->getTimestamp();
         $this->assertGreaterThanOrEqual(59, $diff);
         $this->assertLessThanOrEqual(60, $diff);
     }
