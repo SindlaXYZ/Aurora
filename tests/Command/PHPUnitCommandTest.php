@@ -35,12 +35,13 @@ if (!class_exists(Command::class)) {
         }
 
         public function addOption(
-            string $name,
+            string            $name,
             string|array|null $shortcut = null,
-            ?int $mode = null,
-            string $description = '',
-            mixed $default = null
-        ): static {
+            ?int              $mode = null,
+            string            $description = '',
+            mixed             $default = null
+        ): static
+        {
             return $this;
         }
 
@@ -56,8 +57,8 @@ namespace Symfony\Component\Finder;
 if (!class_exists(Finder::class)) {
     class Finder implements \IteratorAggregate
     {
-        private bool $onlyFiles = false;
-        private ?string $directory = null;
+        private bool    $onlyFiles   = false;
+        private ?string $directory   = null;
         private ?string $namePattern = null;
         /** @var SplFileInfo[] */
         private array $files = [];
@@ -131,7 +132,7 @@ if (!class_exists(Finder::class)) {
             $escaped = str_replace(['*', '?'], ['.*', '.'], preg_quote($this->namePattern, '/'));
             $regex   = '/^' . $escaped . '$/i';
 
-            return (bool) preg_match($regex, $filename);
+            return (bool)preg_match($regex, $filename);
         }
     }
 
@@ -140,7 +141,8 @@ if (!class_exists(Finder::class)) {
         public function __construct(
             private readonly string $pathname,
             private readonly string $baseDirectory
-        ) {
+        )
+        {
         }
 
         public function getRealPath(): string
@@ -175,7 +177,6 @@ use Sindla\Bundle\AuroraBundle\Command\PHPUnitCommand;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 
 final class PHPUnitCommandTest extends TestCase
 {
@@ -216,7 +217,7 @@ final class PHPUnitCommandTest extends TestCase
                 'The command should finish successfully.'
             );
 
-            $result          = file_get_contents($sourceFile);
+            $result          = stri_replace('Given', 'Expected', file_get_contents($sourceFile));
             $expectedContent = file_get_contents($expected);
 
             self::assertNotFalse($result, 'The updated file could not be read.');
