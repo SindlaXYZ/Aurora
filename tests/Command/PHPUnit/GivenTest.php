@@ -2,7 +2,6 @@
 
 namespace App\Tests\Integration;
 
-
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\Test;
 use Sindla\Bundle\AuroraBundle\Attribute\FormElement;
