@@ -12,13 +12,6 @@ use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
  */
 class StrinkTest extends TestCase
 {
-
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testFixDiacritics(): void
     {
         $Strink = new Strink();

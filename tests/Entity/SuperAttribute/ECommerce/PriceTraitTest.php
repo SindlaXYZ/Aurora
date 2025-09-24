@@ -20,12 +20,6 @@ class PriceTraitTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testCalculatePriceVatAmount(): void
     {
         $priceTrait = new PriceTraitMock()

@@ -20,12 +20,6 @@ class TimestampableCreatedTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testTimestampableCreated(): void
     {
         $datetime = new \DateTimeImmutable('2021-01-12 01:02:03');

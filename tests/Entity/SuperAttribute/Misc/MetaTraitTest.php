@@ -22,10 +22,4 @@ class MetaTraitTest extends KernelTestCase
         $this->kernelTest    = self::bootKernel();
         $this->containerTest = $this->kernelTest->getContainer();
     }
-
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
 }

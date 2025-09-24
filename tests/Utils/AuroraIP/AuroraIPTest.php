@@ -12,13 +12,6 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
  */
 class AuroraIPTest extends TestCase
 {
-
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     #[DataProvider('dataIsGoogleBot')]
     public function testIsGoogleBot(string $given, bool $expected): void
     {

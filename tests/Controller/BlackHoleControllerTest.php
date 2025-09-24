@@ -16,12 +16,6 @@ class BlackHoleControllerTest extends WebTestCaseMiddleware
         parent::setUp();
     }
 
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testBlackholeRoutes(): void
     {
         $this->client->request('GET', '/.env');

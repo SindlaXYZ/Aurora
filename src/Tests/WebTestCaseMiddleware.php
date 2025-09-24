@@ -78,15 +78,6 @@ class WebTestCaseMiddleware extends WebTestCase
         static::getContainer()->get("security.token_storage")->setToken($token);
     }
 
-    /**
-     * Fake test. Do not delete this, otherwise Bitbucket Pipeline will fail
-     */
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function progressStart(int $count): void
     {
         $this->progressTotal = $count;

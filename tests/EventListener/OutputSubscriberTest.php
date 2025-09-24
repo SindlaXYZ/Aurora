@@ -25,12 +25,6 @@ class OutputSubscriberTest extends KernelTestCase
         $this->containerTest = $this->kernelTest->getContainer();
     }
 
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testXRobotsTag(): void
     {
         // Test domain prefix

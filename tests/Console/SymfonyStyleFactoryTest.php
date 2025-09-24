@@ -9,12 +9,6 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 
 class SymfonyStyleFactoryTest extends TestCase
 {
-    public function testFake(): void
-    {
-        self::assertTrue(true);
-        self::assertFalse(false);
-    }
-
     public function testSymfonyStyle(): void
     {
         $symfonyStyleFactory = new SymfonyStyleFactory();

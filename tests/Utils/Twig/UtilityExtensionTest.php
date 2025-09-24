@@ -16,15 +16,6 @@ use Twig\Environment;
  */
 class UtilityExtensionTest extends TestCase
 {
-    /**
-     * Fake test. Do not delete this, otherwise Bitbucket Pipeline will fail
-     */
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     #[DataProvider('dataFilterAge')]
     public function testFilterAge(\DateTimeInterface $given, int $expected): void
     {

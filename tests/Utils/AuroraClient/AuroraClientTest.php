@@ -25,12 +25,6 @@ class AuroraClientTest extends KernelTestCase
         $this->client        = $this->containerTest->get('test.client');
     }
 
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     public function testIpIsValidAcceptsIpv6(): void
     {
         $client = new AuroraClient($this->containerTest);

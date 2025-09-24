@@ -14,13 +14,6 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
  */
 class AuroraMatchTest extends TestCase
 {
-
-    public function testFake(): void
-    {
-        $this->assertTrue(true);
-        $this->assertFalse(false);
-    }
-
     private function _matchDomain(): array
     {
         return [
