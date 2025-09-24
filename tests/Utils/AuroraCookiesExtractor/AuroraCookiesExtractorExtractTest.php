@@ -1,12 +1,6 @@
 <?php
 declare(strict_types=1);
 
-namespace Symfony\Contracts\HttpClient {
-    interface ResponseInterface {
-        public function getInfo(?string $type = null): mixed;
-    }
-}
-
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraCookiesExtractor {
     use DateTimeImmutable;
     use DateTimeZone;
