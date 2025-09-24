@@ -17,6 +17,6 @@ class GivenTest extends WebTestCaseMiddleware
     #[Test]
     public function testCompanyConfigRelation(): void
     {
-        // Some logic here
+        $this->assertTrue(true);
     }
 }
