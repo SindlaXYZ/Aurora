@@ -54,6 +54,26 @@ class AuroraCookiesExtractorExtractTest extends TestCase
     public function testHeaderCaseInsensitive(): void
     {
         $response = new class implements ResponseInterface {
+            public function getStatusCode(): int
+            {
+            }
+
+            public function getHeaders(bool $throw = true): array
+            {
+            }
+
+            public function getContent(bool $throw = true): string
+            {
+            }
+
+            public function toArray(bool $throw = true): array
+            {
+            }
+
+            public function cancel(): void
+            {
+            }
+
             public function getInfo(?string $type = null): mixed
             {
                 return [
@@ -73,6 +93,26 @@ class AuroraCookiesExtractorExtractTest extends TestCase
     public function testInvalidExpiresStringPreservesAttribute(): void
     {
         $response = new class implements ResponseInterface {
+            public function getStatusCode(): int
+            {
+            }
+
+            public function getHeaders(bool $throw = true): array
+            {
+            }
+
+            public function getContent(bool $throw = true): string
+            {
+            }
+
+            public function toArray(bool $throw = true): array
+            {
+            }
+
+            public function cancel(): void
+            {
+            }
+
             public function getInfo(?string $type = null): mixed
             {
                 return [
