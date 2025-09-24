@@ -10,7 +10,7 @@ use Sindla\Bundle\AuroraBundle\Tests\Trait\PersistenceTrait;
 use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
 
 #[CoversClass(CompanyConfig::class)]
-class MyTest extends WebTestCaseMiddleware
+class GivenTest extends WebTestCaseMiddleware
 {
     use PersistenceTrait;
 

@@ -21,7 +21,7 @@ use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
  * clear; cd /srv/${DKZ_DOMAIN}/; SYMFONY_DEPRECATIONS_HELPER=disabled /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/Given.php --no-coverage --stop-on-failure
  */
 #[CoversClass(CompanyConfig::class)]
-class MyTest extends WebTestCaseMiddleware
+class ExpectedTest extends WebTestCaseMiddleware
 {
     use PersistenceTrait;
 
