@@ -187,9 +187,9 @@ final class PHPUnitCommandTest extends TestCase
 
         self::assertTrue(mkdir($testsRoot, 0777, true), 'Failed to create the temporary tests directory.');
 
-        $sourceFile = $testsRoot . '/Given.php';
-        $fixture    = __DIR__ . '/PHPUnit/Given.php';
-        $expected   = __DIR__ . '/PHPUnit/Expected.php';
+        $sourceFile = $testsRoot . '/GivenTest.php';
+        $fixture    = __DIR__ . '/PHPUnit/GivenTest.php';
+        $expected   = __DIR__ . '/PHPUnit/ExpectedTest.php';
 
         $original = file_get_contents($fixture);
         self::assertNotFalse($original, 'Fixture content could not be read.');
