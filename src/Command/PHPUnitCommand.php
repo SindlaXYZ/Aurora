@@ -152,7 +152,7 @@ final class PHPUnitCommand extends CommandMiddleware
         }
 
         $finder = new Finder();
-        $finder->files()->in($testDirectory)->name('*.php');
+        $finder->files()->in($testDirectory)->name('*Test.php');
 
         if (!$finder->hasResults()) {
             $this->io->warning('No test files found in /test/ directory.');
@@ -179,15 +179,20 @@ COMMENT;
         $updatedMethods = 0;
 
         foreach ($finder as $file) {
+            $fileName         = $file->getFilename();
             $filePath         = $file->getRealPath();
             $content          = file_get_contents($filePath);
-            $relativePath     = trim(str_replace($file->getFilename(), '', $file->getRelativePathname()), '/');
+            $relativePath     = trim(str_replace($fileName, '', $file->getRelativePathname()), '/');
             $relativeFilePath = trim($file->getRelativePathname(), '/');
+
+//            if (!str_ends_with($fileName, 'Test.php')) {
+//                continue;
+//            }
 
             // Update comments at the class level
             $classCommentPattern = '/(?P<comment>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?(?P<attributes>(?:(?:^[ \t]*\#\[[^\r\n]*\]\r?\n))*)(?P<indent>^[ \t]*)class\s+(?P<signature>\w+\s+(?:extends\s+\w+(?:\\\\\w+)*(?:\s+implements[^{\r\n]+)?|implements[^{\r\n]+|[^\r\n]*))/m';
-            $newClassComment      = sprintf($classCommentBlock, $relativePath, $file->getFilename());
-            $classUpdated         = false;
+            $newClassComment     = sprintf($classCommentBlock, $relativePath, $fileName);
+            $classUpdated        = false;
 
             $content = preg_replace_callback(
                 $classCommentPattern,
@@ -272,10 +277,10 @@ COMMENT;
         $content = preg_replace($deletePattern, '', $content);
 
         // 2) Insert the correct comment before each test method
-        $lines               = explode("\n", $content);
-        $lineCount           = count($lines);
-        $endsWithNewLine     = str_ends_with($content, "\n");
-        $methodPattern       = '/^([ \t]*)public[ \t]+function[ \t]+(test\w+)[ \t]*\(/';
+        $lines                = explode("\n", $content);
+        $lineCount            = count($lines);
+        $endsWithNewLine      = str_ends_with($content, "\n");
+        $methodPattern        = '/^([ \t]*)public[ \t]+function[ \t]+(test\w+)[ \t]*\(/';
         $attributeLinePattern = '/^[ \t]*\#\[[^\r\n]*\]$/';
 
         for ($index = 0; $index < $lineCount; $index++) {
