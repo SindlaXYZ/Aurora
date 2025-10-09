@@ -56,7 +56,7 @@ final class CloudflareR2Command extends CommandMiddleware
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int
+    protected function execute(InputInterface $input, OutputInterface $output): int|\Aws\Result
     {
         return $this->try($input, $output, $this);
     }
@@ -78,16 +78,14 @@ final class CloudflareR2Command extends CommandMiddleware
     /**
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list
      */
-    protected function list(): int
+    protected function list(): \Aws\Result
     {
         $s3Client = $this->cloudflareR2->createClient();
         $contents = $s3Client->listObjectsV2([
             'Bucket' => $this->cloudflareR2->getBucket()
         ]);
 
-        print_r($contents);
-
-        return self::SUCCESS;
+        return $contents;
     }
 
     /**
