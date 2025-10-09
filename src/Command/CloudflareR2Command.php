@@ -83,6 +83,8 @@ final class CloudflareR2Command extends CommandMiddleware
 
     /**
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list
+     * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list --orderBy=Size --orderDir=desc
+     * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list --orderBy=LastModified --orderDir=asc
      */
     protected function list(): int
     {
@@ -96,9 +98,52 @@ final class CloudflareR2Command extends CommandMiddleware
             'Bucket' => $this->cloudflareR2->getBucket()
         ]);
 
+        // Prepare and sort rows according to orderBy/orderDir
+        $rows = $contents->toArray()['Contents'] ?? [];
+
+        // Normalize and validate ordering
+        $validOrderBy = ['Key', 'LastModified', 'ETag', 'Size', 'Bytes', 'StorageClass'];
+        if (!in_array($orderBy, $validOrderBy, true)) {
+            $orderBy = 'Key';
+        }
+        // Treat 'Bytes' as 'Size' since source data uses 'Size'
+        $orderKey = $orderBy === 'Bytes' ? 'Size' : $orderBy;
+        $orderDir = $orderDir === 'desc' ? 'desc' : 'asc';
+
+        // Apply sorting if there are rows
+        if (is_array($rows) && count($rows) > 1) {
+            usort($rows, function (array $a, array $b) use ($orderKey, $orderDir): int {
+                $va = $a[$orderKey] ?? null;
+                $vb = $b[$orderKey] ?? null;
+
+                // Convert values for consistent comparison
+                if ($orderKey === 'LastModified') {
+                    $va = $va instanceof \DateTimeInterface ? $va->getTimestamp() : 0;
+                    $vb = $vb instanceof \DateTimeInterface ? $vb->getTimestamp() : 0;
+                } elseif ($orderKey === 'Size') {
+                    $va = (int)($va ?? 0);
+                    $vb = (int)($vb ?? 0);
+                } else {
+                    $va = strtolower((string)($va ?? ''));
+                    $vb = strtolower((string)($vb ?? ''));
+                }
+
+                $cmp = 0;
+                if ($va === $vb) {
+                    $cmp = 0;
+                } elseif ($va < $vb) {
+                    $cmp = -1;
+                } else {
+                    $cmp = 1;
+                }
+
+                return $orderDir === 'desc' ? -$cmp : $cmp;
+            });
+        }
+
         $table = new Table($this->output)->setHeaders(['Key', 'LastModified', 'ETag', 'Bytes', 'Size', 'StorageClass']);
 
-        foreach ($contents->toArray()['Contents'] ?? [] as $data) {
+        foreach ($rows as $data) {
             $table->addRow([
                 $data['Key'],
                 $data['LastModified']->format('Y-m-d H:i:s'),
