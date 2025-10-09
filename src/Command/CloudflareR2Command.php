@@ -120,7 +120,7 @@ final class CloudflareR2Command extends CommandMiddleware
                 if ($orderKey === 'LastModified') {
                     $va = $va instanceof \DateTimeInterface ? $va->getTimestamp() : 0;
                     $vb = $vb instanceof \DateTimeInterface ? $vb->getTimestamp() : 0;
-                } elseif ($orderKey === 'Size') {
+                } else if ($orderKey === 'Size') {
                     $va = (int)($va ?? 0);
                     $vb = (int)($vb ?? 0);
                 } else {
@@ -131,7 +131,7 @@ final class CloudflareR2Command extends CommandMiddleware
                 $cmp = 0;
                 if ($va === $vb) {
                     $cmp = 0;
-                } elseif ($va < $vb) {
+                } else if ($va < $vb) {
                     $cmp = -1;
                 } else {
                     $cmp = 1;
@@ -141,12 +141,14 @@ final class CloudflareR2Command extends CommandMiddleware
             });
         }
 
-        $table = new Table($this->output)->setHeaders(['Key', 'LastModified', 'ETag', 'Bytes', 'Size', 'StorageClass']);
+        $table = new Table($this->output)->setHeaders(['Key', 'LastModified', 'Ago', 'ETag', 'Bytes', 'Size', 'StorageClass']);
 
+        $now = new \DateTimeImmutable('now');
         foreach ($rows as $data) {
             $table->addRow([
                 $data['Key'],
                 $data['LastModified']->format('Y-m-d H:i:s'),
+                $this->formatRelativeTime($data['LastModified'], $now),
                 $data['ETag'],
                 new TableCell(
                     $data['Size'],
@@ -230,5 +232,69 @@ final class CloudflareR2Command extends CommandMiddleware
         $sz     = 'BKMGTP';
         $factor = (int)floor((strlen((string)$bytes) - 1) / 3);
         return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
+    }
+
+    private function formatRelativeTime(\DateTimeInterface $when, ?\DateTimeInterface $now = null): string
+    {
+        $now  = $now ?? new \DateTimeImmutable('now');
+        $diff = $when->diff($now);
+
+        $units = [
+            'y' => 'year',
+            'm' => 'month',
+            'd' => 'day',
+            'h' => 'hour',
+            'i' => 'minute',
+            's' => 'second',
+        ];
+
+        $valueByUnit = [
+            'y' => $diff->y,
+            'm' => $diff->m,
+            'd' => $diff->d,
+            'h' => $diff->h,
+            'i' => $diff->i,
+            's' => $diff->s,
+        ];
+
+        $firstKey = null;
+        foreach (['y', 'm', 'd', 'h', 'i', 's'] as $k) {
+            if ($valueByUnit[$k] > 0) {
+                $firstKey = $k;
+                break;
+            }
+        }
+
+        if ($firstKey === null) {
+            return 'just now';
+        }
+
+        $firstVal  = $valueByUnit[$firstKey];
+        $firstUnit = $units[$firstKey] . ($firstVal === 1 ? '' : 's');
+
+        $parts = [sprintf('%d %s', $firstVal, $firstUnit)];
+
+        // For units larger than minutes, include only one subunit (and never seconds)
+        $secondKey = null;
+        if ($firstKey === 'y') {
+            $secondKey = 'm';
+        } else if ($firstKey === 'm') {
+            $secondKey = 'd';
+        } else if ($firstKey === 'd') {
+            $secondKey = 'h';
+        } else if ($firstKey === 'h') {
+            $secondKey = 'i';
+        }
+
+        if ($secondKey !== null && ($valueByUnit[$secondKey] ?? 0) > 0) {
+            $secondVal  = $valueByUnit[$secondKey];
+            $secondUnit = $units[$secondKey] . ($secondVal === 1 ? '' : 's');
+            $parts[]    = sprintf('and %d %s', $secondVal, $secondUnit);
+        }
+
+        $suffix = $diff->invert === 1 ? '' : ' ago';
+        $prefix = $diff->invert === 1 ? 'in ' : '';
+
+        return $prefix . implode(' ', $parts) . $suffix;
     }
 }
