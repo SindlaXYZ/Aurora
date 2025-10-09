@@ -2,9 +2,13 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
+use Aws\Result;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2;
 use Symfony\Component\Console\Attribute\AsCommand;
+use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\TableCell;
+use Symfony\Component\Console\Helper\TableCellStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -32,7 +36,9 @@ final class CloudflareR2Command extends CommandMiddleware
             // Mandatory
             ->addOption('action', null, InputOption::VALUE_REQUIRED)
             ->addOption('localFile', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('remoteFile', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('remoteFile', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('orderBy', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('orderDir', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -56,7 +62,7 @@ final class CloudflareR2Command extends CommandMiddleware
     /**
      * {@inheritdoc}
      */
-    protected function execute(InputInterface $input, OutputInterface $output): int|\Aws\Result
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         return $this->try($input, $output, $this);
     }
@@ -78,14 +84,46 @@ final class CloudflareR2Command extends CommandMiddleware
     /**
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list
      */
-    protected function list(): \Aws\Result
+    protected function list(): int
     {
+        $orderBy  = $this->input->getOption('orderBy') ?? 'Key';
+        $orderDir = strtolower($this->input->getOption('orderDir') ?? 'asc');
+
         $s3Client = $this->cloudflareR2->createClient();
+
+        /** @var Result $contents */
         $contents = $s3Client->listObjectsV2([
             'Bucket' => $this->cloudflareR2->getBucket()
         ]);
 
-        print_r($contents);
+        $table = new Table($this->output)->setHeaders(['Key', 'LastModified', 'ETag', 'Bytes', 'Size', 'StorageClass']);
+
+        foreach ($contents->toArray()['Contents'] ?? [] as $data) {
+            $table->addRow([
+                $data['Key'],
+                $data['LastModified']->format('Y-m-d H:i:s'),
+                $data['ETag'],
+                new TableCell(
+                    $data['Size'],
+                    [
+                        'style' => new TableCellStyle([
+                            'align' => 'right'
+                        ])
+                    ]
+                ),
+                new TableCell(
+                    $this->humanFilesize($data['Size']),
+                    [
+                        'style' => new TableCellStyle([
+                            'align' => 'right'
+                        ])
+                    ]
+                ),
+                $data['StorageClass'],
+            ]);
+        }
+
+        $table->render();
 
         return self::SUCCESS;
     }
@@ -140,5 +178,12 @@ final class CloudflareR2Command extends CommandMiddleware
         ]);
 
         return self::SUCCESS;
+    }
+
+    private function humanFilesize(int $bytes, int $decimals = 2): string
+    {
+        $sz     = 'BKMGTP';
+        $factor = (int)floor((strlen((string)$bytes) - 1) / 3);
+        return sprintf("%.{$decimals}f", $bytes / pow(1024, $factor)) . @$sz[$factor];
     }
 }
