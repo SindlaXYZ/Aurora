@@ -63,7 +63,7 @@ class CommandMiddleware extends Command
         }
     }
 
-    protected function try(InputInterface $input, OutputInterface $output, Command $command): int
+    protected function try(InputInterface $input, OutputInterface $output, Command $command): mixed
     {
         $action = trim($input->getOption('action'));
 

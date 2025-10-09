@@ -85,7 +85,9 @@ final class CloudflareR2Command extends CommandMiddleware
             'Bucket' => $this->cloudflareR2->getBucket()
         ]);
 
-        return $contents;
+        print_r($contents);
+
+        return self::SUCCESS;
     }
 
     /**
