@@ -212,7 +212,7 @@ class AuroraChronos
         }
 
         if (self::TIME_UNIT_DAYS == $timeUnit) {
-            $days = (int) $this->daysBetweenTwoDates($startDate, $endDate);
+            $days = (int)$this->daysBetweenTwoDates($startDate, $endDate);
 
             if ($days > $intervalUnit) {
                 return true;
@@ -226,7 +226,7 @@ class AuroraChronos
         }
 
         if (self::TIME_UNIT_WEEKS == $timeUnit) {
-            $totalDays = (int) $this->daysBetweenTwoDates($startDate, $endDate);
+            $totalDays = (int)$this->daysBetweenTwoDates($startDate, $endDate);
             $weeks     = intdiv($totalDays, 7);
 
             if ($weeks > $intervalUnit) {
@@ -253,7 +253,7 @@ class AuroraChronos
                 return false;
             }
 
-            $monthsDiff = ($interval->y * 12) + $interval->m;
+            $monthsDiff   = ($interval->y * 12) + $interval->m;
             $hasRemainder = $interval->d > 0
                 || $interval->h > 0
                 || $interval->i > 0
@@ -276,7 +276,7 @@ class AuroraChronos
                 return false;
             }
 
-            $yearsDiff = $this->yearsBetweenTwoDates($startDate, $endDate);
+            $yearsDiff    = $this->yearsBetweenTwoDates($startDate, $endDate);
             $hasRemainder = $interval->m > 0
                 || $interval->d > 0
                 || $interval->h > 0
@@ -510,7 +510,7 @@ class AuroraChronos
      * Convert a time string to seconds
      *   eg: 30s => 30, 15m => 900, 1h => 3600, 2d => 172800, 3w => 1814400, 4mo => 10368000, 5y => 157680000
      */
-    function convertHumanTimeToSeconds(string $timeStr): int
+    public function convertHumanTimeToSeconds(string $timeStr): int
     {
         $timeUnits = [
             's'  => 1,             // 1 second = 1 second
@@ -528,7 +528,7 @@ class AuroraChronos
             return 0;
         }
 
-        $number = (int) $matches[1];
+        $number = (int)$matches[1];
         $unit   = $matches[2];
 
         if (!array_key_exists($unit, $timeUnits)) {
@@ -536,5 +536,21 @@ class AuroraChronos
         }
 
         return $number * $timeUnits[$unit];
+    }
+
+    /**
+     * Check if $date is between (today - $pastDays) 00:00:00 and (today + $futureDays) 23:59:59, inclusive
+     */
+    public function inDaysRange(\DateTimeInterface $date, int $pastDays, int $futureDays): bool
+    {
+        $now        = new \DateTimeImmutable();
+        $startToday = $now->setTime(0, 0, 0);
+        $endToday   = $now->setTime(23, 59, 59);
+
+        $timestamp = $date->getTimestamp();
+        $lower     = $startToday->modify("-{$pastDays} days")->getTimestamp();
+        $upper     = $endToday->modify("+{$futureDays} days")->getTimestamp();
+
+        return $timestamp >= $lower && $timestamp <= $upper;
     }
 }
