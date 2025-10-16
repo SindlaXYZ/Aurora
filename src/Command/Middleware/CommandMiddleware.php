@@ -15,14 +15,15 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
+use Symfony\Contracts\Service\Attribute\Required;
 
 class CommandMiddleware extends Command
 {
-    protected string                 $commandName;
     protected ?ContainerInterface    $container   = null;
     protected InputInterface         $input;
     protected OutputInterface        $output;
@@ -31,14 +32,47 @@ class CommandMiddleware extends Command
     protected                        $kernelRootDir;
     protected ManagerRegistry        $managerRegistry;
     protected EntityManagerInterface $em;
-    private ?ProgressBar             $progressBar = null;
+    protected ?ProgressBar           $progressBar = null;
     private \DateTimeInterface       $progressBarPreviousDisplay;
 
     public function __construct()
     {
-        $this->commandName                = strtolower(str_replace('Command', '', new \ReflectionClass($this)->getShortName()));
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
         parent::__construct();
+    }
+
+    /**
+     * Inject container using setter injection
+     * This method will be automatically called by Symfony's service container
+     */
+    #[Required]
+    public function setContainer(
+        #[Autowire(service: 'service_container')]
+        ContainerInterface $container
+    ): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * Inject ManagerRegistry using setter injection
+     */
+    #[Required]
+    public function setManagerRegistry(ManagerRegistry $managerRegistry): void
+    {
+        $this->managerRegistry = $managerRegistry;
+    }
+
+    /**
+     * Inject EntityManager using setter injection
+     */
+    #[Required]
+    public function setEntityManager(
+        #[Autowire(service: 'doctrine.orm.entity_manager')]
+        EntityManagerInterface $em
+    ): void
+    {
+        $this->em = $em;
     }
 
     /**
@@ -55,11 +89,14 @@ class CommandMiddleware extends Command
         /** @var SymfonyStyle io */
         $this->io = new SymfonyStyle($this->input, $this->output);
 
-        if (isset($this->entityManager) && $this->entityManager instanceof EntityManagerInterface) {
-            $this->em = $this->entityManager;
-        } else if (isset($this->container) && $this->container instanceof ContainerInterface) {
-            /** @var EntityManager em */
-            $this->em = $this->container->get('doctrine')->getManager();
+        // Fallback for EntityManager if not already set
+        if (!isset($this->em)) {
+            if (isset($this->entityManager) && $this->entityManager instanceof EntityManagerInterface) {
+                $this->em = $this->entityManager;
+            } else if (isset($this->container) && $this->container instanceof ContainerInterface) {
+                /** @var EntityManager em */
+                $this->em = $this->container->get('doctrine')->getManager();
+            }
         }
     }
 
@@ -103,6 +140,9 @@ class CommandMiddleware extends Command
         $this->output->writeln((($appendTab) ? "\n" : '') . "[" . date('H:i:s') . "] " . preg_replace('/[\r\n]+/', '', strip_tags($message)));
     }
 
+    ###################################################################################################################################################################################################
+    ###   YAML parser   ###############################################################################################################################################################################
+
     /**
      * @throws \Exception
      */
@@ -111,6 +151,18 @@ class CommandMiddleware extends Command
         $yamlContent = $this->readFile($yamlFileName);
 
         return $this->parseYamlContent($yamlContent);
+    }
+
+    /**
+     * @throws \Exception
+     */
+    protected function readFile(string $absoluteFilePath): string
+    {
+        if (!file_exists($absoluteFilePath)) {
+            throw new \Exception(sprintf('File %s does not exists.', $absoluteFilePath));
+        }
+
+        return file_get_contents($absoluteFilePath);
     }
 
     private function parseYamlContent(string $yamlContent): array
@@ -189,16 +241,16 @@ class CommandMiddleware extends Command
                 }
 
                 if ($valuePart === '') {
-                    $current[] = [];
-                    $lastIndex = array_key_last($current);
-                    $stack[]   =& $current[$lastIndex];
+                    $current[]     = [];
+                    $lastIndex     = array_key_last($current);
+                    $stack[]       =& $current[$lastIndex];
                     $indentStack[] = $indent;
                     continue;
                 }
 
                 if ($this->looksLikeInlineMap($valuePart)) {
                     [$inlineKey, $inlineValue] = array_map('trim', explode(':', $valuePart, 2));
-                    $item                      = [];
+                    $item = [];
 
                     if ($inlineValue === '') {
                         $item[$inlineKey] = [];
@@ -219,7 +271,7 @@ class CommandMiddleware extends Command
             }
 
             [$key, $valuePart] = array_pad(explode(':', $line, 2), 2, null);
-            $key                = trim((string)$key);
+            $key = trim((string)$key);
 
             if ($valuePart === null) {
                 $current[$key] = null;
@@ -308,17 +360,30 @@ class CommandMiddleware extends Command
         return $value;
     }
 
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
+
     /**
-     * @throws \Exception
+     * Returns true if run from CLI (terminal), false if run from CRON/cronjob/background process
      */
-    protected function readFile(string $absoluteFilePath): string
+    protected function hasTty(): bool
     {
-        if (!file_exists($absoluteFilePath)) {
-            throw new \Exception(sprintf('File %s does not exists.', $absoluteFilePath));
+        // Check if STDIN is defined and is a TTY
+        if (!defined('STDIN')) {
+            return false;
         }
 
-        return file_get_contents($absoluteFilePath);
+        // Check if posix functions are available
+        if (!function_exists('posix_isatty')) {
+            // Fallback: assume it's not TTY if we can't check
+            return false;
+        }
+
+        return posix_isatty(STDIN);
     }
+
+    ###################################################################################################################################################################################################
+    ###   Progress bar   ##############################################################################################################################################################################
 
     protected function createProgressBar(int $max): ProgressBar
     {
@@ -404,19 +469,23 @@ class CommandMiddleware extends Command
         return $this->progressBar->getProgress() == $this->progressBar->getMaxSteps();
     }
 
+    ###################################################################################################################################################################################################
+    ###   Database   ##################################################################################################################################################################################
+
     /**
      * @throws Exception
      */
-    protected function databaseTableTruncate(string $tableName): void
+    protected function databaseTableTruncate(string $tableName, bool $cascade = false): void
     {
         $connection = $this->em->getConnection();
         $platform   = $connection->getDatabasePlatform();
-        $connection->executeStatement($platform->getTruncateTableSQL($tableName, false /* whether to cascade */));
+        $connection->executeStatement($platform->getTruncateTableSQL($tableName, $cascade));
     }
 
     protected function databaseDrop(): void
     {
-        ($this->getApplication()->find('doctrine:schema:drop'))->run(new ArrayInput(['--full-database' => true, '--force' => true]), $this->output);
+        ($this->getApplication()->find('doctrine:schema:drop'))
+            ->run(new ArrayInput(['--full-database' => true, '--force' => true]), $this->output);
     }
 
     protected function databaseMigrate(): void
@@ -443,4 +512,7 @@ class CommandMiddleware extends Command
         $query     = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlCreate);
         $query->executeQuery();
     }
+
+    ###################################################################################################################################################################################################
+    ###################################################################################################################################################################################################
 }
