@@ -9,8 +9,6 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
@@ -21,8 +19,7 @@ use Symfony\Component\Finder\Finder;
 final class PHPUnitCommand extends CommandMiddleware
 {
     public function __construct(
-        #[Autowire(service: 'service_container')]
-        protected ?ContainerInterface            $container,
+        private readonly ParameterBagInterface $parameterBag,
     )
     {
         parent::__construct();
@@ -72,8 +69,8 @@ final class PHPUnitCommand extends CommandMiddleware
     protected function test(): int
     {
         $this->outputWithTime(sprintf("Command: %s", $this->commandName));
-        $this->outputWithTime(sprintf("Application environment: %s", $this->container->getParameter('kernel.environment')));
-        $this->outputWithTime(sprintf("Project directory: %s", $this->container->getParameter('kernel.project_dir')));
+        $this->outputWithTime(sprintf("Application environment: %s", $this->parameterBag->get('kernel.environment')));
+        $this->outputWithTime(sprintf("Project directory: %s", $this->parameterBag->get('kernel.project_dir')));
         return self::SUCCESS;
     }
 
@@ -92,11 +89,11 @@ final class PHPUnitCommand extends CommandMiddleware
         }
 
         if (!file_exists($junitXMLFilePath)) {
-            $junitXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $junitXMLFilePath;
+            $junitXMLFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $junitXMLFilePath;
         }
 
         if (!file_exists($outputPassingSVGFilePath)) {
-            $outputPassingSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
+            $outputPassingSVGFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $outputPassingSVGFilePath;
         }
 
         new AuroraPHPUnitCodeCoverageBadge()->generatePHPUnitPassingBadge($junitXMLFilePath, $outputPassingSVGFilePath);
@@ -120,15 +117,15 @@ final class PHPUnitCommand extends CommandMiddleware
         }
 
         if (!file_exists($cloverXMLFilePath)) {
-            $cloverXMLFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $cloverXMLFilePath;
+            $cloverXMLFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $cloverXMLFilePath;
         }
 
         if (!file_exists($outputCoverageSVGFilePath)) {
-            $outputCoverageSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputCoverageSVGFilePath;
+            $outputCoverageSVGFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $outputCoverageSVGFilePath;
         }
 
         if (!file_exists($outputStatementsSVGFilePath)) {
-            $outputStatementsSVGFilePath = $this->container->getParameter('kernel.project_dir') . '/' . $outputStatementsSVGFilePath;
+            $outputStatementsSVGFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $outputStatementsSVGFilePath;
         }
 
         new AuroraPHPUnitCodeCoverageBadge()->generateCoverageBadges($cloverXMLFilePath, $outputCoverageSVGFilePath, $outputStatementsSVGFilePath);
