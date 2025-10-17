@@ -82,7 +82,7 @@ services:
     # Register PHPUnit command (see the class file for the command name)
     aurora.command.php_unit:
         class: Sindla\Bundle\AuroraBundle\Command\PHPUnitCommand
-        arguments: ['@service_container']
+        arguments: ['@parameter_bag']
         tags:
             - { name: console.command }
 
