@@ -199,7 +199,7 @@ final class PHPUnitCommandTest extends TestCase
         $parameterBag = new ParameterBag(['kernel.project_dir' => $temporaryRoot]);
 
         try {
-            $command = new PHPUnitCommand(null, $parameterBag);
+            $command = new PHPUnitCommand($parameterBag);
 
             $input  = new ArrayInput([]);
             $output = new BufferedOutput();
