@@ -15,6 +15,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
@@ -28,11 +29,7 @@ class CommandMiddleware extends Command
     protected SymfonyStyle    $io;
 
     #[Required]
-    protected ParameterBagInterface $parameterBag;
-
-    // Private properties injected by Symfony's service container
-//    #[Required]
-//    private ?ContainerInterface    $container   = null;
+    private ParameterBagInterface  $parameterBag;
     private BufferedOutput         $bufferedOutput;
     private                        $kernelRootDir;
     #[Required]
