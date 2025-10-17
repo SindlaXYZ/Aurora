@@ -11,7 +11,6 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Finder\Finder;
 
 #[AsCommand(
@@ -24,7 +23,6 @@ final class PHPUnitCommand extends CommandMiddleware
     public function __construct(
         #[Autowire(service: 'service_container')]
         protected ?ContainerInterface            $container,
-        protected readonly ParameterBagInterface $parameterBag
     )
     {
         parent::__construct();

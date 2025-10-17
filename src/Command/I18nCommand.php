@@ -13,7 +13,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Translation\LocaleSwitcher;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -27,7 +26,6 @@ final class I18nCommand extends CommandMiddleware
     public function __construct(
         #[Autowire(service: 'service_container')]
         protected ?ContainerInterface            $container,
-        protected readonly ParameterBagInterface $parameterBag,
         protected TranslatorInterface            $translator,
         protected LocaleSwitcher                 $localeSwitcher
     )

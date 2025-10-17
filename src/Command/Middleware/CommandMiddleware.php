@@ -5,7 +5,6 @@ namespace Sindla\Bundle\AuroraBundle\Command\Middleware;
 use Brick\Math\BigDecimal;
 use Brick\Math\RoundingMode;
 use Doctrine\DBAL\Exception;
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Component\Console\Command\Command;
@@ -16,7 +15,6 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
@@ -24,16 +22,25 @@ use Symfony\Contracts\Service\Attribute\Required;
 
 class CommandMiddleware extends Command
 {
-    protected ?ContainerInterface    $container   = null;
-    protected InputInterface         $input;
-    protected OutputInterface        $output;
-    protected BufferedOutput         $bufferedOutput;
-    protected SymfonyStyle           $io;
-    protected                        $kernelRootDir;
-    protected ManagerRegistry        $managerRegistry;
-    protected EntityManagerInterface $em;
-    protected ?ProgressBar           $progressBar = null;
-    private \DateTimeInterface       $progressBarPreviousDisplay;
+    // Protected properties
+    protected InputInterface  $input;
+    protected OutputInterface $output;
+    protected SymfonyStyle    $io;
+
+    #[Required]
+    protected ParameterBagInterface $parameterBag;
+
+    // Private properties injected by Symfony's service container
+//    #[Required]
+//    private ?ContainerInterface    $container   = null;
+    private BufferedOutput         $bufferedOutput;
+    private                        $kernelRootDir;
+    #[Required]
+    private ManagerRegistry        $managerRegistry;
+    #[Required]
+    private EntityManagerInterface $em;
+    private ?ProgressBar           $progressBar = null;
+    private \DateTimeInterface     $progressBarPreviousDisplay;
 
     public function __construct()
     {
@@ -41,18 +48,18 @@ class CommandMiddleware extends Command
         parent::__construct();
     }
 
-    /**
-     * Inject container using setter injection
-     * This method will be automatically called by Symfony's service container
-     */
-    #[Required]
-    public function setContainer(
-        #[Autowire(service: 'service_container')]
-        ContainerInterface $container
-    ): void
-    {
-        $this->container = $container;
-    }
+//    /**
+//     * Inject container using setter injection
+//     * This method will be automatically called by Symfony's service container
+//     */
+//    #[Required]
+//    public function setContainer(
+//        #[Autowire(service: 'service_container')]
+//        ContainerInterface $container
+//    ): void
+//    {
+//        $this->container = $container;
+//    }
 
     /**
      * Inject ManagerRegistry using setter injection
@@ -88,16 +95,6 @@ class CommandMiddleware extends Command
 
         /** @var SymfonyStyle io */
         $this->io = new SymfonyStyle($this->input, $this->output);
-
-        // Fallback for EntityManager if not already set
-        if (!isset($this->em)) {
-            if (isset($this->entityManager) && $this->entityManager instanceof EntityManagerInterface) {
-                $this->em = $this->entityManager;
-            } else if (isset($this->container) && $this->container instanceof ContainerInterface) {
-                /** @var EntityManager em */
-                $this->em = $this->container->get('doctrine')->getManager();
-            }
-        }
     }
 
     protected function try(InputInterface $input, OutputInterface $output, Command $command): int
@@ -495,7 +492,7 @@ class CommandMiddleware extends Command
         $phpBinaryPath   = $phpBinaryFinder->find();
         $process         = new Process([
             $phpBinaryPath,
-            sprintf('%s/bin/console', $this->container->getParameter('root')),
+            sprintf('%s/bin/console', $this->parameterBag->get('root')),
             'doctrine:migrations:migrate',
             '-n'
         ]);
