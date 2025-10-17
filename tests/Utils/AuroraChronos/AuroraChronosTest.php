@@ -289,6 +289,67 @@ class AuroraChronosTest extends TestCase
         ];
     }
 
+    #[DataProvider('dataInDaysRange')]
+    public function testInDaysRange(
+        \DateTimeImmutable $date,
+        int                $pastDays,
+        int                $futureDays,
+        bool               $expected
+    ): void
+    {
+        $chronos = new AuroraChronos();
+
+        $this->assertSame(
+            $expected,
+            $chronos->inDaysRange($date, $pastDays, $futureDays)
+        );
+    }
+
+    public static function dataInDaysRange(): iterable
+    {
+        $now          = new \DateTimeImmutable();
+        $startOfToday = $now->setTime(0, 0, 0);
+        $endOfToday   = $now->setTime(23, 59, 59);
+
+        $defaultPastDays   = 2;
+        $defaultFutureDays = 3;
+
+        yield 'inside range' => [
+            $now->modify('-1 day'),
+            $defaultPastDays,
+            $defaultFutureDays,
+            true,
+        ];
+
+        yield 'at lower bound' => [
+            $startOfToday->modify("-{$defaultPastDays} days"),
+            $defaultPastDays,
+            $defaultFutureDays,
+            true,
+        ];
+
+        yield 'before lower bound' => [
+            $startOfToday->modify("-{$defaultPastDays} days -1 second"),
+            $defaultPastDays,
+            $defaultFutureDays,
+            false,
+        ];
+
+        yield 'at upper bound' => [
+            $endOfToday->modify("+{$defaultFutureDays} days"),
+            $defaultPastDays,
+            $defaultFutureDays,
+            true,
+        ];
+
+        yield 'after upper bound' => [
+            $endOfToday->modify("+{$defaultFutureDays} days +1 second"),
+            $defaultPastDays,
+            $defaultFutureDays,
+            false,
+        ];
+    }
+
     public function testSecondsBetweenTwoDates()
     {
         $Chronos = new AuroraChronos();
