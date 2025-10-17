@@ -20,7 +20,7 @@ use Symfony\Component\Finder\Finder;
 final class PHPUnitCommand extends CommandMiddleware
 {
     public function __construct(
-        private readonly ParameterBagInterface $parameterBag,
+        private readonly ParameterBagInterface $parameterBag
     )
     {
         parent::__construct();
