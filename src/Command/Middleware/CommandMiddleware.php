@@ -403,6 +403,26 @@ class CommandMiddleware extends Command
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
     }
 
+    protected function progressBarGetElapsedSeconds(): int
+    {
+        return new \DateTimeImmutable()->getTimestamp() - $this->progressBar->getStartTime();
+    }
+
+    protected function progressBarGetElapsedMinutes(): int|float
+    {
+        return new \DateTimeImmutable()->getTimestamp() - $this->progressBar->getStartTime() / 60;
+    }
+
+    protected function progressBarGetElapsedHours(): int|float
+    {
+        return new \DateTimeImmutable()->getTimestamp() - $this->progressBar->getStartTime() / 3600;
+    }
+
+    protected function progressBarGetElapsedDays(): int|float
+    {
+        return new \DateTimeImmutable()->getTimestamp() - $this->progressBar->getStartTime() / 86400;
+    }
+
     protected function progressBarComment(string $comment, int $step = 0): void
     {
         $this->progressBar->clear();
