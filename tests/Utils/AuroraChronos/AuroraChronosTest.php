@@ -524,4 +524,28 @@ class AuroraChronosTest extends TestCase
 
         date_default_timezone_set($previousTz);
     }
+
+    #[DataProvider('providerMonthFromYearAndWeek')]
+    public function testMonthFromYearAndWeek(int $year, int $week, int $expectedMonth): void
+    {
+        $chronos = new AuroraChronos();
+
+        self::assertSame($expectedMonth, $chronos->monthFromYearAndWeek($year, $week));
+    }
+
+    public static function providerMonthFromYearAndWeek(): array
+    {
+        return [
+            // ISO week 1 of 2024 starts on 2024-01-01 (Monday) => January
+            [2024, 1, 1],
+            // ISO week 1 of 2020 starts on 2019-12-30 (Monday) => December
+            [2020, 1, 12],
+            // Week 52 of 2021 spans 2021-12-27..2022-01-02 => December
+            [2021, 52, 12],
+            // ISO week 1 of 2022 starts on 2022-01-03 => January
+            [2022, 1, 1],
+            // ISO week 53 of 2015 spans 2015-12-28..2016-01-03 => December
+            [2015, 53, 12],
+        ];
+    }
 }
