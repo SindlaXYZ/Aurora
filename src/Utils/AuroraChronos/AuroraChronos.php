@@ -394,7 +394,7 @@ class AuroraChronos
         $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
 
         if ($date === false) {
-            throw new \InvalidArgumentException("Invalid year or week number");
+            throw new \InvalidArgumentException("Invalid year ({$year}) or week number ({$week})");
         }
 
         // Return the month number (1-12)
