@@ -390,15 +390,14 @@ class AuroraChronos
 
     public function monthFromYearAndWeek(int $year, int $week): int
     {
-        // Create a DateTime object from ISO week date format (Y-W)
-        $date = \DateTime::createFromFormat('o-W-N', sprintf('%d-%02d-4', $year, $week));
+        try {
+            $date = new \DateTime();
+            $date->setISODate($year, $week, 1); // 1 = Monday
 
-        if ($date === false) {
-            throw new \InvalidArgumentException("Invalid year ({$year}) or week number ({$week})");
+            return (int)$date->format('n');
+        } catch (\Exception $e) {
+            throw new \InvalidArgumentException("Invalid year ({$year}) or week number ({$week})", 0, $e);
         }
-
-        // Return the month number (1-12)
-        return (int)$date->format('n');
     }
 
     /**
