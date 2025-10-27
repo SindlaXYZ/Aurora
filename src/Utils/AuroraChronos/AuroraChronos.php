@@ -4,13 +4,21 @@ namespace Sindla\Bundle\AuroraBundle\Utils\AuroraChronos;
 
 class AuroraChronos
 {
-    const int TIME_UNIT_SECONDS = 1;
-    const int TIME_UNIT_MINUTES = 2;
-    const int TIME_UNIT_HOURS   = 3;
-    const int TIME_UNIT_DAYS    = 4;
-    const int TIME_UNIT_WEEKS   = 5;
-    const int TIME_UNIT_MONTHS  = 6;
-    const int TIME_UNIT_YEARS   = 7;
+    final const int TIME_UNIT_SECONDS = 1;
+    final const int TIME_UNIT_MINUTES = 2;
+    final const int TIME_UNIT_HOURS   = 3;
+    final const int TIME_UNIT_DAYS    = 4;
+    final const int TIME_UNIT_WEEKS   = 5;
+    final const int TIME_UNIT_MONTHS  = 6;
+    final const int TIME_UNIT_YEARS   = 7;
+
+    final const string DAY_MONDAY    = 'monday';
+    final const string DAY_TUESDAY   = 'tuesday';
+    final const string DAY_WEDNESDAY = 'wednesday';
+    final const string DAY_THURSDAY  = 'thursday';
+    final const string DAY_FRIDAY    = 'friday';
+    final const string DAY_SATURDAY  = 'saturday';
+    final const string DAY_SUNDAY    = 'sunday';
 
     public function guessDateTimeFormat($datetime): ?string
     {
@@ -388,11 +396,24 @@ class AuroraChronos
             ) * -1;
     }
 
-    public function monthFromYearAndWeek(int $year, int $week): int
+    public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MONDAY): int
     {
         try {
-            $date = new \DateTime();
-            $date->setISODate($year, $week, 1); // 1 = Monday
+            // Create \DateTime for the specified day of the week
+            $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
+
+            $daysToAdd = match (strtolower($day)) {
+                self::DAY_MONDAY    => 0,
+                self::DAY_TUESDAY   => 1,
+                self::DAY_WEDNESDAY => 2,
+                self::DAY_THURSDAY  => 3,
+                self::DAY_FRIDAY    => 4,
+                self::DAY_SATURDAY  => 5,
+                self::DAY_SUNDAY    => 6,
+                default             => throw new \InvalidArgumentException("Invalid day name")
+            };
+
+            $date->modify("+$daysToAdd days");
 
             return (int)$date->format('n');
         } catch (\Exception $e) {
