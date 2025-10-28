@@ -525,23 +525,14 @@ class AuroraChronosTest extends TestCase
         date_default_timezone_set($previousTz);
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
     #[DataProvider('providerMonthFromYearAndWeek')]
     public function testMonthFromYearAndWeek(int $year, int $week, int $expectedMonth): void
     {
         $chronos = new AuroraChronos();
 
         self::assertSame($expectedMonth, $chronos->monthFromYearAndWeek($year, $week));
-    }
-
-    #[DataProvider('providerMonthFromYearAndWeekMost')]
-    public function testMonthFromYearAndWeekWithMostDay(int $year, int $week, int $expectedMonth): void
-    {
-        $chronos = new AuroraChronos();
-
-        self::assertSame(
-            $expectedMonth,
-            $chronos->monthFromYearAndWeek($year, $week, AuroraChronos::DAY_MOST)
-        );
     }
 
     public static function providerMonthFromYearAndWeek(): array
@@ -560,6 +551,19 @@ class AuroraChronosTest extends TestCase
         ];
     }
 
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+    #[DataProvider('providerMonthFromYearAndWeekMost')]
+    public function testMonthFromYearAndWeekWithMostDay(int $year, int $week, int $expectedMonth): void
+    {
+        $chronos = new AuroraChronos();
+
+        self::assertSame(
+            $expectedMonth,
+            $chronos->monthFromYearAndWeek($year, $week, AuroraChronos::DAY_MOST)
+        );
+    }
+
     public static function providerMonthFromYearAndWeekMost(): array
     {
         return [
@@ -571,4 +575,6 @@ class AuroraChronosTest extends TestCase
             [2015, 53, 12],
         ];
     }
+
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }

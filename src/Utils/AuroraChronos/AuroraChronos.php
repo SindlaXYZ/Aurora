@@ -576,7 +576,6 @@ class AuroraChronos
         return $datetime && $datetime->format($format) == $date;
     }
 
-
     /**
      * Convert a time string to seconds
      *   eg: 30s => 30, 15m => 900, 1h => 3600, 2d => 172800, 3w => 1814400, 4mo => 10368000, 5y => 157680000
