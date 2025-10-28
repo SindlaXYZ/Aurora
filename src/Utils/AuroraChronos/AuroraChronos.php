@@ -19,6 +19,7 @@ class AuroraChronos
     final const string DAY_FRIDAY    = 'friday';
     final const string DAY_SATURDAY  = 'saturday';
     final const string DAY_SUNDAY    = 'sunday';
+    final const string DAY_MOST      = 'most';
 
     public function guessDateTimeFormat($datetime): ?string
     {
@@ -399,9 +400,15 @@ class AuroraChronos
     public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MONDAY): int
     {
         try {
-            // Create \DateTime for the specified day of the week
+            // Create \DateTime for Monday of the specified week
             $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
 
+            // If $day is 'most' or 'auto', calculate which month has most days in this week
+            if (strtolower($day) === 'most' || strtolower($day) === 'auto') {
+                return $this->getMonthWithMostDays($date);
+            }
+
+            // Otherwise, use the specific day as before
             $daysToAdd = match (strtolower($day)) {
                 self::DAY_MONDAY    => 0,
                 self::DAY_TUESDAY   => 1,
@@ -413,12 +420,43 @@ class AuroraChronos
                 default             => throw new \InvalidArgumentException("Invalid day name")
             };
 
-            $date->modify("+$daysToAdd days");
+            $date->modify("+{$daysToAdd} days");
 
             return (int)$date->format('n');
         } catch (\Exception $e) {
             throw new \InvalidArgumentException("Invalid year ({$year}) or week number ({$week})", 0, $e);
         }
+    }
+
+    private function getMonthWithMostDays(\DateTime $startDate): int
+    {
+        $monthCount  = [];
+        $currentDate = clone $startDate;
+
+        // Count days in each month for all 7 days of the week
+        for ($i = 0; $i < 7; $i++) {
+            $month = (int)$currentDate->format('n');
+
+            if (!isset($monthCount[$month])) {
+                $monthCount[$month] = 0;
+            }
+
+            $monthCount[$month]++;
+            $currentDate->modify('+1 day');
+        }
+
+        // Find the month with the maximum number of days
+        $maxDays           = 0;
+        $monthWithMostDays = 0;
+
+        foreach ($monthCount as $month => $days) {
+            if ($days > $maxDays) {
+                $maxDays           = $days;
+                $monthWithMostDays = $month;
+            }
+        }
+
+        return $monthWithMostDays;
     }
 
     /**
