@@ -403,8 +403,8 @@ class AuroraChronos
             // Create \DateTime for Monday of the specified week
             $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
 
-            // If $day is 'most' or 'auto', calculate which month has most days in this week
-            if (strtolower($day) === 'most' || strtolower($day) === 'auto') {
+            // If $day is 'most' calculate which month has most days in this week
+            if (strtolower($day) === self::DAY_MOST) {
                 return $this->getMonthWithMostDays($date);
             }
 
@@ -417,7 +417,7 @@ class AuroraChronos
                 self::DAY_FRIDAY    => 4,
                 self::DAY_SATURDAY  => 5,
                 self::DAY_SUNDAY    => 6,
-                default             => throw new \InvalidArgumentException("Invalid day name")
+                default             => throw new \InvalidArgumentException('Invalid day name')
             };
 
             $date->modify("+{$daysToAdd} days");
