@@ -397,7 +397,7 @@ class AuroraChronos
             ) * -1;
     }
 
-    public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MONDAY): int
+    public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MOST): int
     {
         try {
             // Create \DateTime for Monday of the specified week
