@@ -401,7 +401,8 @@ class AuroraChronos
     {
         try {
             // Create \DateTime for Monday of the specified week
-            $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
+            // Format: 'o-W-N' where N is day of week (1=Monday, 7=Sunday)
+            $date = \DateTime::createFromFormat('o-W-N', sprintf('%d-%02d-1', $year, $week));
 
             // If $day is 'most' calculate which month has most days in this week
             if (strtolower($day) === self::DAY_MOST) {
