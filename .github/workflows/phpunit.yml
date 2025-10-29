@@ -106,6 +106,7 @@ jobs:
 
                     echo -e "\033[0;35m * sync files \033[0m"
                     cp -rf "${{ env.WORKSPACE }}/src/"* "${{ env.BUILD_DIR }}/vendor/sindla/aurora/src"
+                    cp -rf "${{ env.WORKSPACE }}/tests/"* "${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests"
                     cp -f ${{ env.WORKSPACE }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ env.WORKSPACE }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ env.WORKSPACE }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php

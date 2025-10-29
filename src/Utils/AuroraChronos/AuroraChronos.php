@@ -397,11 +397,18 @@ class AuroraChronos
             ) * -1;
     }
 
-    public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MONDAY): int
+    public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MOST): int
     {
         try {
-            // Create \DateTime for Monday of the specified week
-            $date = \DateTime::createFromFormat('o-W', sprintf('%d-%02d', $year, $week));
+            // Create \DateTime for Monday of the specified week using setISODate
+            $date = new \DateTime();
+            $date->setISODate($year, $week, 1); // 1 = Monday
+            $date->setTime(0, 0, 0); // Reset time to midnight
+
+            // DEBUG: Remove after testing
+            var_dump("After setISODate: " . $date->format('Y-m-d'));
+            var_dump("Day parameter: " . $day);
+            var_dump("DAY_MOST constant: " . self::DAY_MOST);
 
             // If $day is 'most' calculate which month has most days in this week
             if (strtolower($day) === self::DAY_MOST) {
@@ -421,6 +428,10 @@ class AuroraChronos
             };
 
             $date->modify("+{$daysToAdd} days");
+
+            // DEBUG: Remove after testing
+            var_dump("After modify: " . $date->format('Y-m-d'));
+            var_dump("Returning month: " . $date->format('n'));
 
             return (int)$date->format('n');
         } catch (\Exception $e) {
@@ -575,7 +586,6 @@ class AuroraChronos
         $datetime = \DateTime::createFromFormat($format, $date);
         return $datetime && $datetime->format($format) == $date;
     }
-
 
     /**
      * Convert a time string to seconds
