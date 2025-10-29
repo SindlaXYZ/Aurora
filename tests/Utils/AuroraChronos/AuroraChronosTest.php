@@ -539,6 +539,8 @@ class AuroraChronosTest extends TestCase
 
     public static function providerMonthFromYearAndWeek(): array
     {
+        echo "\n=== PROVIDER CALLED ===\n";
+
         $data = [
             // ISO week 1 of 2024 starts on 2024-01-01 (Monday) => January
             [2024, 1, AuroraChronos::DAY_MONDAY, 1],
