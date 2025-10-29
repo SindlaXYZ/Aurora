@@ -532,6 +532,9 @@ class AuroraChronosTest extends TestCase
     {
         $chronos = new AuroraChronos();
 
+        // DEBUG
+        var_dump("TEST: year=$year, week=$week, day=$day, expected=$expectedMonth");
+
         self::assertSame($expectedMonth, $chronos->monthFromYearAndWeek($year, $week, $day));
     }
 
