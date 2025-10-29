@@ -530,17 +530,12 @@ class AuroraChronosTest extends TestCase
     #[DataProvider('providerMonthFromYearAndWeek')]
     public function testMonthFromYearAndWeek(int $year, int $week, string $day, int $expectedMonth): void
     {
-        echo "\n=== TEST START ===\n";
-        echo "Received: year=$year, week=$week, day=$day, expected=$expectedMonth\n";
-
         $chronos = new AuroraChronos();
         self::assertSame($expectedMonth, $chronos->monthFromYearAndWeek($year, $week, $day));
     }
 
     public static function providerMonthFromYearAndWeek(): array
     {
-        echo "\n=== PROVIDER CALLED ===\n";
-
         $data = [
             // ISO week 1 of 2024 starts on 2024-01-01 (Monday) => January
             [2024, 1, AuroraChronos::DAY_MONDAY, 1],
@@ -554,38 +549,33 @@ class AuroraChronosTest extends TestCase
             [2015, 53, AuroraChronos::DAY_MONDAY, 12],
         ];
 
-        // DEBUG
-        foreach ($data as $key => $row) {
-            var_dump("Provider row $key: year={$row[0]}, week={$row[1]}, day={$row[2]}, expected={$row[3]}");
-        }
-
         return $data;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-//    #[DataProvider('providerMonthFromYearAndWeekMost')]
-//    public function testMonthFromYearAndWeekWithMostDay(int $year, int $week, int $expectedMonth): void
-//    {
-//        $chronos = new AuroraChronos();
-//
-//        self::assertSame(
-//            $expectedMonth,
-//            $chronos->monthFromYearAndWeek($year, $week, AuroraChronos::DAY_MOST)
-//        );
-//    }
-//
-//    public static function providerMonthFromYearAndWeekMost(): array
-//    {
-//        return [
-//            // ISO week 1 of 2020 spans 2019-12-30..2020-01-05 with 5 days in January => January
-//            [2020, 1, 1],
-//            // ISO week 10 of 2024 is entirely within March => March
-//            [2024, 10, 3],
-//            // ISO week 53 of 2015 spans 2015-12-28..2016-01-03 with 4 days in December => December
-//            [2015, 53, 12],
-//        ];
-//    }
+    #[DataProvider('providerMonthFromYearAndWeekMost')]
+    public function testMonthFromYearAndWeekWithMostDay(int $year, int $week, int $expectedMonth): void
+    {
+        $chronos = new AuroraChronos();
+
+        self::assertSame(
+            $expectedMonth,
+            $chronos->monthFromYearAndWeek($year, $week, AuroraChronos::DAY_MOST)
+        );
+    }
+
+    public static function providerMonthFromYearAndWeekMost(): array
+    {
+        return [
+            // ISO week 1 of 2020 spans 2019-12-30..2020-01-05 with 5 days in January => January
+            [2020, 1, 1],
+            // ISO week 10 of 2024 is entirely within March => March
+            [2024, 10, 3],
+            // ISO week 53 of 2015 spans 2015-12-28..2016-01-03 with 4 days in December => December
+            [2015, 53, 12],
+        ];
+    }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }
