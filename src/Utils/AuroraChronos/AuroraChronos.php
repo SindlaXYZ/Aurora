@@ -400,9 +400,10 @@ class AuroraChronos
     public function monthFromYearAndWeek(int $year, int $week, string $day = self::DAY_MOST): int
     {
         try {
-            // Create \DateTime for Monday of the specified week
-            // Format: 'o-W-N' where N is day of week (1=Monday, 7=Sunday)
-            $date = \DateTime::createFromFormat('o-W-N', sprintf('%d-%02d-1', $year, $week));
+            // Create \DateTime for Monday of the specified week using setISODate
+            $date = new \DateTime();
+            $date->setISODate($year, $week, 1); // 1 = Monday
+            $date->setTime(0, 0, 0);   // Reset time to midnight
 
             // If $day is 'most' calculate which month has most days in this week
             if (strtolower($day) === self::DAY_MOST) {
