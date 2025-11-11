@@ -64,7 +64,7 @@ class LocaleSubscriber implements EventSubscriberInterface
         $set = false;
         foreach ($locales as $localeLangCode) {
             // If first two chars of route are the same as locale lang code (eg: route `ro/lorem/ipsum` means the locale is `ro`)
-            if (!$set && strtolower($localeLangCode) == strtolower(substr($routeName, -2))) {
+            if (!$set && strtolower($localeLangCode) == strtolower(substr($routeName, 0, 2))) {
                 $this->setLocale($localeLangCode, $request);
                 $set = true;
             }
