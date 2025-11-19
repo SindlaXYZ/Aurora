@@ -389,7 +389,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarAdvanceMessage(string $message, int $step = 1, bool $displayAllTimes = false): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -429,7 +429,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarComment(string $comment, int $step = 0): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -443,7 +443,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarInfo(string $info, int $step = 0): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -457,7 +457,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarWarning(string $warning, int $step = 0): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -471,7 +471,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarError(string $error, int $step = 0): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -485,7 +485,7 @@ class CommandMiddleware extends Command
 
     protected function progressBarSuccess(string $success, int $step = 0): void
     {
-        if(null === $this->progressBar) {
+        if (null === $this->progressBar) {
             return;
         }
 
@@ -504,11 +504,23 @@ class CommandMiddleware extends Command
 
     protected function isLastStep(): bool
     {
-        if(null === $this->progressBar) {
-            true;
+        if (null === $this->progressBar) {
+            return true;
         }
 
         return $this->progressBar->getProgress() == $this->progressBar->getMaxSteps();
+    }
+
+    protected function progressBarFinish(): void
+    {
+        if (null === $this->progressBar) {
+            return;
+        }
+
+        $this->progressBar->setMessage('');
+        $this->progressBar->clear();
+        $this->progressBar->finish();
+        $this->io->newLine();
     }
 
     ###################################################################################################################################################################################################
