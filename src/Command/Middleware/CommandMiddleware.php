@@ -389,6 +389,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarAdvanceMessage(string $message, int $step = 1, bool $displayAllTimes = false): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->setMessage($message);
         $this->progressBar->advance($step);
 
@@ -425,6 +429,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarComment(string $comment, int $step = 0): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->clear();
         $this->io->comment($comment);
         if ($step > 0) {
@@ -435,6 +443,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarInfo(string $info, int $step = 0): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->clear();
         $this->io->info($info);
         if ($step > 0) {
@@ -445,6 +457,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarWarning(string $warning, int $step = 0): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->clear();
         $this->io->warning($warning);
         if ($step > 0) {
@@ -455,6 +471,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarError(string $error, int $step = 0): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->clear();
         $this->io->error($error);
         if ($step > 0) {
@@ -465,6 +485,10 @@ class CommandMiddleware extends Command
 
     protected function progressBarSuccess(string $success, int $step = 0): void
     {
+        if(null === $this->progressBar) {
+            return;
+        }
+
         $this->progressBar->clear();
         $this->io->success($success);
         if ($step > 0) {
@@ -480,6 +504,10 @@ class CommandMiddleware extends Command
 
     protected function isLastStep(): bool
     {
+        if(null === $this->progressBar) {
+            true;
+        }
+
         return $this->progressBar->getProgress() == $this->progressBar->getMaxSteps();
     }
 
