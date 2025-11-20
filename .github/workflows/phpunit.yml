@@ -238,6 +238,8 @@ jobs:
                 if: steps.check_branch.outputs.should_commit == 'true'
                 working-directory: ${{ env.BUILD_DIR }}
                 run: |
+                    mkdir -p ../.github/badges
+
                     /usr/bin/php bin/console aurora:php-unit \
                     --action=generatePHPUnitPassingBadge \
                     --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
@@ -249,6 +251,10 @@ jobs:
                     --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
                     --outputStatementsSVGFilePath=../.github/badges/statements.svg
 
+                    curl -L \
+                    "https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg" \
+                    -o ../.github/badges/phpunit-tests.svg
+
             -   name: "Commit PHPUnit badges"
                 if: steps.check_branch.outputs.should_commit == 'true'
                 run: |
@@ -258,7 +264,7 @@ jobs:
                     git config --global pull.rebase true
                     git config --global rebase.autoStash true
                     git pull origin "HEAD:${BRANCH}"
-                    git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/statements.svg
+                    git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/phpunit-tests.svg .github/badges/statements.svg
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
                     git push origin "HEAD:${BRANCH}"
 
