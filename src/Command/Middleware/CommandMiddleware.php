@@ -409,21 +409,37 @@ class CommandMiddleware extends Command
 
     protected function progressBarGetElapsedSeconds(): int
     {
+        if (null === $this->progressBar) {
+            return 0;
+        }
+
         return new \DateTimeImmutable()->getTimestamp() - $this->progressBar->getStartTime();
     }
 
     protected function progressBarGetElapsedMinutes(): int|float
     {
+        if (null === $this->progressBar) {
+            return 0;
+        }
+
         return $this->progressBarGetElapsedSeconds() / 60;
     }
 
     protected function progressBarGetElapsedHours(): int|float
     {
+        if (null === $this->progressBar) {
+            return 0;
+        }
+
         return $this->progressBarGetElapsedSeconds() / 3600;
     }
 
     protected function progressBarGetElapsedDays(): int|float
     {
+        if (null === $this->progressBar) {
+            return 0;
+        }
+
         return $this->progressBarGetElapsedSeconds() / 86400;
     }
 
@@ -499,6 +515,10 @@ class CommandMiddleware extends Command
 
     protected function isFirstStep(): bool
     {
+        if (null === $this->progressBar) {
+            return true;
+        }
+
         return $this->progressBar->getProgress() == 0;
     }
 
