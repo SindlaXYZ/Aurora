@@ -44,7 +44,7 @@ parameters:
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
     aurora.pwa.enabled: '%env(bool:AURORA_PWA_ENABLED)%'
     aurora.pwa.debug: '%env(bool:AURORA_PWA_DEBUG)%'
-    aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersioAppend()`"
+    aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersionAppend()`"
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
     aurora.pwa.app_short_name: ''
