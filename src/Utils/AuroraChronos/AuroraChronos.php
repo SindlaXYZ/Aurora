@@ -403,7 +403,7 @@ class AuroraChronos
             // Create \DateTime for Monday of the specified week using setISODate
             $date = new \DateTime();
             $date->setISODate($year, $week, 1); // 1 = Monday
-            $date->setTime(0, 0, 0); // Reset time to midnight
+            $date->setTime(0, 0, 0);            // Reset time to midnight
 
             // If $day is 'most' calculate which month has most days in this week
             if (strtolower($day) === self::DAY_MOST) {
@@ -624,5 +624,14 @@ class AuroraChronos
         $upper     = $endToday->modify("+{$futureDays} days")->getTimestamp();
 
         return $timestamp >= $lower && $timestamp <= $upper;
+    }
+
+    public function isDateBetween(\DateTimeInterface $date, \DateTimeInterface $startDate, \DateTimeInterface $endDate): bool
+    {
+        $dateTimestamp  = $date->getTimestamp();
+        $startTimestamp = $startDate->getTimestamp();
+        $endTimestamp   = $endDate->getTimestamp();
+
+        return $dateTimestamp >= $startTimestamp && $dateTimestamp <= $endTimestamp;
     }
 }
