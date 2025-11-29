@@ -4,7 +4,7 @@ on:
     pull_request:
     push:
         branches:
-            - "7.3"
+            - "8.0"
 env:
     fail-fast: true
     WORKSPACE: "${{ github.workspace }}"
@@ -16,11 +16,11 @@ env:
     PHPUNIT_FLAGS_WITHOUT_COVERAGE: "--no-coverage"
     PHPUNIT_FLAGS_WITH_COVERAGE: "--coverage-clover ${{ github.workspace }}/build/.github/.test-results/clover.xml --log-junit ${{ github.workspace }}/build/.github/.test-results/junit.xml"
     # Symfony
-    SYMFONY_VERSION: "7.3.x-dev" # 7.3.* / 7.3.x-dev
+    SYMFONY_VERSION: "8.0.x-dev" # 8.0.* / 8.0.x-dev
     SYMFONY_PHPUNIT_DIR: "$HOME/symfony-bridge/.phpunit"
     SYMFONY_DEPRECATIONS_HELPER: 0
     # Aurora
-    AURORA_VERSION: "7.3"
+    AURORA_VERSION: "8.0"
 
 permissions:
     contents: write
