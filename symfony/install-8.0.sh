@@ -1,6 +1,6 @@
 parent=${PWD%/symfony*}
 win_parent=$(echo "$parent" | sed -E 's|^/([a-z])/(.*)|\u\1:/\2|')
-win_parent_installed="${win_parent}-symfony"
+win_parent_installed="${win_parent}-symfony8"
 read -p "sindla/aurora path (default $win_parent): " aurora_path
 aurora_path=${aurora_path:-$win_parent}
 
@@ -19,9 +19,11 @@ fi
 yes | composer create-project symfony/skeleton:8.0.x-dev . --no-cache
 yes | composer require symfony/webapp-pack -W --no-progress
 composer config repositories.aurora "{\"type\":\"path\",\"url\":\"$aurora_path\",\"options\":{\"symlink\":true}}"
+# composer config repositories.aurora alternative:
+# powershell -Command "New-Item -ItemType Junction -Path 'aurora' -Target 'W:\aurora'"
 yes | composer require sindla/aurora:8.0.x-dev -W --no-progress
-yes | composer require phpunit/phpunit:^12.3 -W --dev --no-progress
-yes | composer require dama/doctrine-test-bundle:^8.3 -W --dev --no-progress
+yes | composer require phpunit/phpunit:^12.4 -W --dev --no-progress
+yes | composer require dama/doctrine-test-bundle:^8.4 -W --dev --no-progress
 yes | composer require phpstan/phpstan:^2.1 -W --dev --no-progress
 cd vendor/sindla/aurora/
 composer install
