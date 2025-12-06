@@ -5,6 +5,9 @@ on:
     push:
         branches:
             - "7.4"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
 env:
     fail-fast: true
     WORKSPACE: "${{ github.workspace }}"
