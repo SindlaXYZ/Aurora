@@ -3,22 +3,20 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
 use GeoIp2\Database\Reader;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\HttpFoundation\Request;
 
 class AuroraClient
 {
-    private const DOCUMENTATION_CIDRS = [
-        '192.0.2.0/24',    // TEST-NET-1
-        '198.51.100.0/24', // TEST-NET-2
-        '203.0.113.0/24',  // TEST-NET-3
-        '2001:db8::/32',   // IPv6 documentation prefix
-    ];
-    private $geoLiteCountryReader;
-    private $geoLiteCityReader;
-    private $geoLiteASNReader;
+    private const array DOCUMENTATION_CIDRS
+        = [
+            '192.0.2.0/24',    // TEST-NET-1
+            '198.51.100.0/24', // TEST-NET-2
+            '203.0.113.0/24',  // TEST-NET-3
+            '2001:db8::/32',   // IPv6 documentation prefix
+        ];
+    private ?Reader $geoLiteCountryReader = null;
+    private ?Reader $geoLiteCityReader    = null;
+    private ?Reader $geoLiteASNReader     = null;
 
     public function __construct(
         private ?Container $container = null
@@ -173,7 +171,7 @@ class AuroraClient
             }
         }
 
-        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+        if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') {
             return 'https://';
         }
 
@@ -197,7 +195,7 @@ class AuroraClient
             return false;
         }
 
-        $ipString = trim((string) $ip);
+        $ipString = trim((string)$ip);
 
         if ($ipString === '') {
             return false;
@@ -246,7 +244,7 @@ class AuroraClient
             return false;
         }
 
-        $prefixLength = (int) $prefixLength;
+        $prefixLength = (int)$prefixLength;
         $ipBinary     = inet_pton($ip);
         $subnetBinary = inet_pton($subnet);
 
@@ -289,7 +287,7 @@ class AuroraClient
             return $prefLanguages;
         }
 
-        $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $languages           = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
         $normalizedLanguages = [];
 
         foreach ($languages as $language) {
@@ -319,7 +317,7 @@ class AuroraClient
                 [$key, $value] = array_map('trim', explode('=', $part, 2));
 
                 if (strcasecmp($key, 'q') === 0 && is_numeric($value)) {
-                    $quality = (float) $value;
+                    $quality = (float)$value;
                     break;
                 }
             }
@@ -376,7 +374,7 @@ class AuroraClient
 
             if ($length === 2) {
                 $parts[$index] = strtoupper($part);
-            } elseif ($length === 4) {
+            } else if ($length === 4) {
                 $parts[$index] = ucfirst(strtolower($part));
             } else {
                 $parts[$index] = strtolower($part);
