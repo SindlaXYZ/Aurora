@@ -1,19 +1,19 @@
 ## Aurora
 
-[![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.3)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.3) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/7.3/.github/badges/coverage.svg?raw=true) [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.3)](https://github.com/SindlaXYZ/Aurora/tree/7.3) [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.3&expanded=true)
+[![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=7.4)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A7.4) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/7.4/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/7.4/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/7.4/.github/badges/coverage.svg?raw=true) [![Last Commit](https://img.shields.io/github/last-commit/SindlaXYZ/Aurora/7.4)](https://github.com/SindlaXYZ/Aurora/tree/7.4) [![Latest Version](https://img.shields.io/github/v/release/SindlaXYZ/Aurora?label=tag&color=brightgreen)](https://github.com/SindlaXYZ/Aurora/releases?q=v7.4&expanded=true)
 
 ## Installation
 
 The Aurora package is Packagist ready, and Composer can be used to install it (PHP 8.4+ required).
 
 ```bash
-composer require sindla/aurora:7.3.*
+composer require sindla/aurora:7.4.*
 ```
 
 The x-dev flag can be used to install the development version:
 
 ```bash
-composer require sindla/aurora:7.3.x-dev
+composer require sindla/aurora:7.4.x-dev
 ```
 
 ## Configuration
@@ -323,9 +323,9 @@ composer install
 
 mkdir symfony/
 cd symfony/
-composer create-project symfony/skeleton:7.3.* . --no-cache
+composer create-project symfony/skeleton:7.4.* . --no-cache
 yes | composer require symfony/webapp-pack
-yes | composer require sindla/aurora:7.3.x-dev -W --no-cache --no-progress
+yes | composer require sindla/aurora:7.4.x-dev -W --no-cache --no-progress
 yes | composer require phpunit/phpunit:10.5.* -W --dev --no-progress
 yes | composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
 php vendor/bin/phpunit -c phpunit.dist.xml vendor/sindla/aurora/tests/
