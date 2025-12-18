@@ -50,7 +50,7 @@ trait MetaTrait
 
         return $this;
     }
-    
+
     public function mergeMeta(array $meta): self
     {
         $this->meta = (is_array($this->meta) ? array_merge($this->meta, $meta) : $meta);
