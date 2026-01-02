@@ -6,7 +6,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\EventSubscriber;
 
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\EventSubscriber\BlackHoleSubscriber;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Symfony\Component\HttpClient\MockHttpClient;
 use Symfony\Component\HttpClient\Response\MockResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -48,13 +48,13 @@ class BlackHoleSubscriberTest extends TestCase
             }
         );
 
-        $auroraClient = $this->createMock(AuroraClient::class);
-        $auroraClient
+        $auroraIP = $this->createMock(AuroraIP::class);
+        $auroraIP
             ->expects($this->exactly(2))
             ->method('ip')
             ->willReturn('203.0.113.10');
 
-        $subscriber = new BlackHoleSubscriber($auroraClient, $mockClient);
+        $subscriber = new BlackHoleSubscriber($auroraIP, $mockClient);
 
         $kernel = $this->createMock(HttpKernelInterface::class);
         $request = Request::create('https://app.example/resource');
