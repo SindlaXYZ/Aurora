@@ -302,7 +302,7 @@ COMMENT;
             }
 
             $commentLine = sprintf(
-                '%s// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s',
+                '%s// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --display-phpunit-notices --testdox --filter %s',
                 $indent,
                 $relativeFilePath,
                 $methodName
@@ -320,20 +320,5 @@ COMMENT;
         }
 
         return $content;
-    }
-
-    /**
-     * Generate the comment for a specific test method
-     */
-    private function generateMethodComment(string $relativeFilePath, string $methodName, string $indentation = ''): string
-    {
-        $commentTemplate = <<<COMMENT
-/**
- * clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --testdox --filter %s
- */
-COMMENT;
-
-        $comment = sprintf($commentTemplate, $relativeFilePath, $methodName);
-        return preg_replace('/^/m', "\t", $comment);
     }
 }
