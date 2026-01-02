@@ -10,15 +10,16 @@ use Symfony\Component\HttpFoundation\Request;
 
 class AuroraClient
 {
-    private const DOCUMENTATION_CIDRS = [
-        '192.0.2.0/24',    // TEST-NET-1
-        '198.51.100.0/24', // TEST-NET-2
-        '203.0.113.0/24',  // TEST-NET-3
-        '2001:db8::/32',   // IPv6 documentation prefix
-    ];
-    private $geoLiteCountryReader;
-    private $geoLiteCityReader;
-    private $geoLiteASNReader;
+    private const array DOCUMENTATION_CIDRS
+        = [
+            '192.0.2.0/24',    // TEST-NET-1
+            '198.51.100.0/24', // TEST-NET-2
+            '203.0.113.0/24',  // TEST-NET-3
+            '2001:db8::/32',   // IPv6 documentation prefix
+        ];
+    private ?Reader $geoLiteCountryReader = null;
+    private ?Reader $geoLiteCityReader    = null;
+    private ?Reader $geoLiteASNReader     = null;
 
     public function __construct(
         private ?Container $container = null
@@ -173,7 +174,7 @@ class AuroraClient
             }
         }
 
-        if (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off') {
+        if (!empty($_SERVER['HTTPS']) && strtolower((string)$_SERVER['HTTPS']) !== 'off') {
             return 'https://';
         }
 
@@ -189,60 +190,6 @@ class AuroraClient
     }
 
     /**
-     * Returns the client IP
-     *
-     * @deprecated 7.3.9
-     * @see AuroraIP::ip()
-     */
-    public function ip(Request $request): string
-    {
-        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->ip($request)` instead.', __METHOD__);
-
-        // CloudFlare: The real visitor IP addresses
-        // https://support.cloudflare.com/hc/en-us/articles/200170986-How-does-Cloudflare-handle-HTTP-Request-headers-
-        if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            return $_SERVER['HTTP_CF_CONNECTING_IP'];
-        }
-
-        $forwardedForHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
-
-        if (is_string($forwardedForHeader)) {
-            $forwardedForSingleIp = trim($forwardedForHeader);
-
-            if (
-                $forwardedForSingleIp !== ''
-                && false === strpos($forwardedForHeader, ',')
-                && $this->ipIsValid($forwardedForSingleIp)
-            ) {
-                return $forwardedForSingleIp;
-            }
-        }
-
-        if (is_string($forwardedForHeader) && strpos($forwardedForHeader, ',') !== false) {
-            foreach (explode(',', $forwardedForHeader) as $ip) {
-                $ip = trim($ip);
-                if ($this->ipIsValid($ip)) {
-                    return $ip;
-                }
-            }
-        }
-
-        if ($this->ipIsValid($request->getClientIp())) {
-            return $request->getClientIp();
-        }
-
-        if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValid($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        }
-
-        if (isset($_SERVER['REMOTE_ADDR']) && $this->ipIsValid($_SERVER['REMOTE_ADDR'])) {
-            return $_SERVER['REMOTE_ADDR'];
-        }
-
-        return '127.0.0.1';
-    }
-
-    /**
      * Check if an IP is valid
      */
     public function ipIsValid(mixed $ip): bool
@@ -251,7 +198,7 @@ class AuroraClient
             return false;
         }
 
-        $ipString = trim((string) $ip);
+        $ipString = trim((string)$ip);
 
         if ($ipString === '') {
             return false;
@@ -300,7 +247,7 @@ class AuroraClient
             return false;
         }
 
-        $prefixLength = (int) $prefixLength;
+        $prefixLength = (int)$prefixLength;
         $ipBinary     = inet_pton($ip);
         $subnetBinary = inet_pton($subnet);
 
@@ -343,7 +290,7 @@ class AuroraClient
             return $prefLanguages;
         }
 
-        $languages = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
+        $languages           = explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']);
         $normalizedLanguages = [];
 
         foreach ($languages as $language) {
@@ -373,7 +320,7 @@ class AuroraClient
                 [$key, $value] = array_map('trim', explode('=', $part, 2));
 
                 if (strcasecmp($key, 'q') === 0 && is_numeric($value)) {
-                    $quality = (float) $value;
+                    $quality = (float)$value;
                     break;
                 }
             }
@@ -430,7 +377,7 @@ class AuroraClient
 
             if ($length === 2) {
                 $parts[$index] = strtoupper($part);
-            } elseif ($length === 4) {
+            } else if ($length === 4) {
                 $parts[$index] = ucfirst(strtolower($part));
             } else {
                 $parts[$index] = strtolower($part);
@@ -438,114 +385,5 @@ class AuroraClient
         }
 
         return implode('-', $parts);
-    }
-
-    /**
-     * ----------------------------------------------------------------------------------
-     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
-     *  --------------------------------------------------------------------------------
-     *
-     * Check if an IPv4 is a Google Bot (by hostname)
-     *
-     * @deprecated 7.3.9
-     * @see AuroraIP::isGoogle()
-     */
-    public function ipIsGoogleBot(Request|string $IP): bool
-    {
-        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isGoogle($ip)` instead.', __METHOD__);
-
-        if ($IP instanceof Request) {
-            $IP = $this->ip($IP);
-        }
-
-        $ipString = trim((string) $IP);
-
-        if (!$this->ipIsValid($ipString)) {
-            return false;
-        }
-
-        /**
-         * @TODO: instead of gethostbyaddr, use (https://developers.google.com/search/docs/crawling-indexing/verifying-googlebot):
-         *      https://developers.google.com/static/search/apis/ipranges/googlebot.json
-         *      https://developers.google.com/static/search/apis/ipranges/special-crawlers.json
-         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers.json
-         *      https://developers.google.com/static/search/apis/ipranges/user-triggered-fetchers-google.json
-         */
-
-        $hostname = gethostbyaddr($ipString);
-
-        $AuroraMatch = new AuroraMatch();
-
-        if (is_string($hostname) && $hostname !== '' && $hostname !== $ipString) {
-            if ($AuroraMatch->matchAtLeastOneDomain($hostname, ['google.com', 'googlebot.com'])) {
-                return true;
-            }
-        }
-
-        $auroraIP = new AuroraIP();
-
-        return $auroraIP->isGoogle($ipString);
-    }
-
-    /**
-     * ----------------------------------------------------------------------------------
-     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
-     *  --------------------------------------------------------------------------------
-     *
-     * Check if an IPv4 is a Microsoft/Bing bot (by hostname)
-     *
-     * @deprecated 7.3.9
-     * @see AuroraIP::isBing()
-     */
-    public function ipIsBingBot(Request|string $IP): bool
-    {
-        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isBing($ip)` instead.', __METHOD__);
-
-        if ($IP instanceof Request) {
-            $IP = $this->ip($IP);
-        }
-
-        /**
-         * @TODO: instead of gethostbyaddr, use (https://www.bing.com/webmasters/help/how-to-verify-bingbot-3905dc26):
-         *      https://www.bing.com/toolbox/bingbot.json
-         */
-
-        $ipString = trim((string) $IP);
-
-        if (!$this->ipIsValid($ipString)) {
-            return false;
-        }
-
-        $hostname = gethostbyaddr($ipString);
-
-        /** @var AuroraMatch $AuroraMatch */
-        $AuroraMatch = new AuroraMatch();
-
-        if (is_string($hostname) && $hostname !== '' && $hostname !== $ipString) {
-            if ($AuroraMatch->matchAtLeastOneDomain($hostname, ['msn.com', 'bing.com'])) {
-                return true;
-            }
-        }
-
-        $auroraIP = new AuroraIP();
-
-        return $auroraIP->isBing($ipString);
-    }
-
-    /**
-     * ----------------------------------------------------------------------------------
-     * !! WARNING !! - Because of the reverse DNS lookups, this method is/might be slow
-     *  --------------------------------------------------------------------------------
-     *
-     * Check if an IPv4 is a Google Bot or a Bing Bot (by hostname)
-     *
-     * @deprecated 7.3.9
-     * @see AuroraIP::isBot()
-     */
-    public function ipIsGoogleOrBingBot(Request|string $IP): bool
-    {
-        trigger_deprecation('sindla/aurora', '7.3.9', 'Method %s() is deprecated. Use `new AuroraIP()->isBot($ip)` instead.', __METHOD__);
-
-        return $this->ipIsGoogleBot($IP) || $this->ipIsBingBot($IP);
     }
 }

@@ -33,6 +33,48 @@ trait MetaTrait
         return $this;
     }
 
+    public function appendMeta(array $meta): self
+    {
+        foreach ($meta as $key => $value) {
+            if (!isset($this->meta[$key])) {
+                // Key doesn't exist, add it with the value
+                $this->meta[$key] = $value;
+            } else if (is_array($this->meta[$key])) {
+                // Key exists and is already an array, append the new value
+                $this->meta[$key][] = $value;
+            } else {
+                // Key exists but is not an array, convert to array and append
+                $this->meta[$key] = [$this->meta[$key], $value];
+            }
+        }
+
+        return $this;
+    }
+
+    public function appendUniqMeta(array $meta): self
+    {
+        foreach ($meta as $key => $value) {
+            if (!isset($this->meta[$key])) {
+                // Key doesn't exist, add it with the value
+                $this->meta[$key] = $value;
+            } elseif (is_array($this->meta[$key])) {
+                // Key exists and is already an array, append only if value is not already present
+                if (!in_array($value, $this->meta[$key], true)) {
+                    $this->meta[$key][] = $value;
+                }
+            } else {
+                // Key exists but is not an array
+                // Only convert to array if the new value is different from the existing one
+                if ($this->meta[$key] !== $value) {
+                    $this->meta[$key] = [$this->meta[$key], $value];
+                }
+                // If values are equal, do nothing (keep the existing single value)
+            }
+        }
+
+        return $this;
+    }
+
     public function mergeMeta(array $meta): self
     {
         $this->meta = (is_array($this->meta) ? array_merge($this->meta, $meta) : $meta);

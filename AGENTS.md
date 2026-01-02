@@ -12,7 +12,7 @@
 
 ## PHP Guidelines
 
-- Aurora is a Symfony 7.3 bundle requiring PHP 8.4 or newer.
+- Aurora is a Symfony 8.0 bundle requiring PHP 8.4 or newer.
 - Follow PSR-4 autoloading with the `Sindla\\Bundle\\AuroraBundle` namespace.
 - Place application code in `src/` and tests in `tests/`.
 
@@ -24,10 +24,10 @@ This is a Symfony bundle. To install the project as a Symfony bundle and run PHP
 2. Create a new empty directory (e.g., /workspace/Aurora-installed) then run the following commands:
    2.1 `mkdir /workspace/Aurora-installed` - if the directory does not exists
    2.2 `cd /workspace/Aurora-installed`
-   2.3 `yes | composer create-project symfony/skeleton:7.3.x-dev . --no-cache`
+   2.3 `yes | composer create-project symfony/skeleton:8.0.x-dev . --no-cache`
    2.4 `yes | composer require symfony/webapp-pack -W --no-progress`
    2.5 `composer config repositories.aurora '{"type":"path","url":"/workspace/Aurora","options":{"symlink":true}}'`
-   2.6 `yes | composer require sindla/aurora:7.3.x-dev -W --no-progress`
+   2.6 `yes | composer require sindla/aurora:8.0.x-dev -W --no-progress`
    2.7 `yes | composer require phpunit/phpunit:^12.3 -W --dev --no-progress`
    2.8 `yes | composer require dama/doctrine-test-bundle:^8.3 -W --dev --no-progress`
    2.9 `yes | composer require phpstan/phpstan:^2.1 -W --dev --no-progress`
@@ -53,7 +53,7 @@ Code changes/bug fixes – change only the files located inside `/workspace/Auro
 If you are Codex, before running PHPUnit tests, execute the following commands:
 
 ```
-composer create-project symfony/skeleton:7.3 temp_project --no-cache
+composer create-project symfony/skeleton:8.0 temp_project --no-cache
 
 mv temp_project/* temp_project/.* .
 
