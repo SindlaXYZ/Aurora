@@ -53,7 +53,7 @@ class AuroraCalendarTest extends KernelTestCase
     {
         $this->expectException(\InvalidArgumentException::class);
 
-        (new AuroraCalendar())->dateSuffix($given);
+        new AuroraCalendar()->dateSuffix($given);
     }
 
     public static function dataInvalidDateSuffix(): array

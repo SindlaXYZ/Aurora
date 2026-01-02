@@ -260,7 +260,7 @@ class AuroraChronosTest extends TestCase
     {
         $this->assertSame(
             $expected,
-            (new AuroraChronos())->dateToMachineDate($given[0], $given[1])
+            new AuroraChronos()->dateToMachineDate($given[0], $given[1])
         );
     }
 
@@ -277,7 +277,7 @@ class AuroraChronosTest extends TestCase
     {
         $this->assertSame(
             $expected,
-            (new AuroraChronos())->dateToMachineDateTime($given[0], $given[1])
+            new AuroraChronos()->dateToMachineDateTime($given[0], $given[1])
         );
     }
 

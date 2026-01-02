@@ -107,7 +107,7 @@ class StrinkTest extends TestCase
 
         foreach ([
                      'External Request Repository' => ['external_request_repository'],
-                     'Șîğñ Îñ'                    => ['ȘÎĞÑ_ÎÑ']
+                     'Șîğñ Îñ'                     => ['ȘÎĞÑ_ÎÑ']
                  ] as $expected => $givens) {
             foreach ($givens as $given) {
                 $this->assertEquals(
@@ -149,8 +149,8 @@ class StrinkTest extends TestCase
 
     public function testCompressQuotes(): void
     {
-        $raw = "\"\"''Test''\"\"";
-        $expected = (string) (new Strink())
+        $raw      = "\"\"''Test''\"\"";
+        $expected = (string)new Strink()
             ->string($raw)
             ->compressSimpleQuotes()
             ->compressDoubleQuotes()
@@ -159,7 +159,7 @@ class StrinkTest extends TestCase
 
         $this->assertEquals(
             $expected,
-            (string) (new Strink())->string($raw)->compressQuotes()
+            (string)new Strink()->string($raw)->compressQuotes()
         );
     }
 
@@ -169,12 +169,12 @@ class StrinkTest extends TestCase
 
         $this->assertEquals(
             'lorem-ipsum',
-            (string) $Strink->string('Lorem Ipsum')->slugify()
+            (string)$Strink->string('Lorem Ipsum')->slugify()
         );
 
         $this->assertEquals(
             'șîĝñ-îñ',
-            (string) $Strink->string('Șîĝñ Îñ')->slugify(true)
+            (string)$Strink->string('Șîĝñ Îñ')->slugify(true)
         );
     }
 
@@ -209,9 +209,9 @@ class StrinkTest extends TestCase
     public function testUpperLowerAndUcfirst(): void
     {
         $Strink = new Strink();
-        $this->assertEquals('Ș', (string) $Strink->string('ș')->upper());
-        $this->assertEquals('ș', (string) $Strink->string('Ș')->lower());
-        $this->assertEquals('Șarpe', (string) $Strink->string('șarpe')->ucfirst());
+        $this->assertEquals('Ș', (string)$Strink->string('ș')->upper());
+        $this->assertEquals('ș', (string)$Strink->string('Ș')->lower());
+        $this->assertEquals('Șarpe', (string)$Strink->string('șarpe')->ucfirst());
     }
 
     public function testRemoveWords(): void
@@ -219,12 +219,12 @@ class StrinkTest extends TestCase
         $Strink = new Strink();
         $this->assertEquals(
             'maro',
-            (string) $Strink->string('șarpe maro')->removeWords(['șarpe'])
+            (string)$Strink->string('șarpe maro')->removeWords(['șarpe'])
         );
 
         $this->assertEquals(
             'Lorem ipsum',
-            (string) $Strink->string('Lorem ipsum dolor')->removeWords(['dolor'])
+            (string)$Strink->string('Lorem ipsum dolor')->removeWords(['dolor'])
         );
     }
 
@@ -250,10 +250,10 @@ class StrinkTest extends TestCase
     public function testLimitedString(): void
     {
         $Strink = new Strink();
-        $this->assertEquals('Șîĝñ', (string) $Strink->string('Șîĝñ')->limitedString(4));
-        $this->assertEquals('...', (string) $Strink->string('Șîĝñ')->limitedString(3));
-        $this->assertEquals('Ș...', (string) $Strink->string('Șîĝñț')->limitedString(4));
-        $this->assertEquals('..', (string) $Strink->string('Șîĝñț')->limitedString(2));
+        $this->assertEquals('Șîĝñ', (string)$Strink->string('Șîĝñ')->limitedString(4));
+        $this->assertEquals('...', (string)$Strink->string('Șîĝñ')->limitedString(3));
+        $this->assertEquals('Ș...', (string)$Strink->string('Șîĝñț')->limitedString(4));
+        $this->assertEquals('..', (string)$Strink->string('Șîĝñț')->limitedString(2));
     }
 
     ##########################################################################################################################################################################################
@@ -335,13 +335,13 @@ class StrinkTest extends TestCase
     public function testRandomStringZeroLength(): void
     {
         $Strink = new Strink();
-        $this->assertSame('', (string) $Strink->randomString(0));
+        $this->assertSame('', (string)$Strink->randomString(0));
     }
 
     public function testRandomStringIncludesVCharacters(): void
     {
         mt_srand(0);
-        $result = (string) (new Strink())->randomString(1000);
+        $result = (string)new Strink()->randomString(1000);
         $this->assertStringContainsString('v', $result);
         $this->assertStringContainsString('V', $result);
     }
@@ -349,7 +349,7 @@ class StrinkTest extends TestCase
     public function testRandomStringSkipsEmptyKeys(): void
     {
         mt_srand(1);
-        $result = (string) (new Strink())->randomString(5, ['abc', '']);
+        $result = (string)new Strink()->randomString(5, ['abc', '']);
         $this->assertSame(5, strlen($result));
         $this->assertMatchesRegularExpression('/^[abc]+$/', $result);
     }

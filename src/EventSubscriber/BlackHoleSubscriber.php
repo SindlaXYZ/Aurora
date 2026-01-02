@@ -4,19 +4,19 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
-use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 readonly class BlackHoleSubscriber implements EventSubscriberInterface
 {
     public function __construct(
-        private AuroraClient $auroraClient,
+        private AuroraIP            $auroraIP,
         private HttpClientInterface $httpClient
     )
     {
@@ -33,7 +33,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         if ($event->isMainRequest()) {
-            $this->auroraClient->ip($request);
+            $this->auroraIP->ip($request);
             if (
                 filter_var($_ENV['BLACK_HOLE_API_ENABLED'] ?? false, FILTER_VALIDATE_BOOLEAN)
                 && isset($_ENV['BLACK_HOLE_API_URL'])
@@ -59,7 +59,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             'isHTTP'    => boolval(!$request->isSecure()),
                             'isHTTPS'   => boolval($request->isSecure()),
                             'serverIP'  => $request->server->get('SERVER_ADDR'),
-                            'clientIP'  => $this->auroraClient->ip($event->getRequest()),
+                            'clientIP'  => $this->auroraIP->ip($event->getRequest()),
                             'userAgent' => $request->headers->get('User-Agent'),
                             'headers'   => $request->headers->all(),
                         ];

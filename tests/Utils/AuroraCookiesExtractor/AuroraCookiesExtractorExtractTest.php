@@ -46,7 +46,7 @@ class AuroraCookiesExtractorExtractTest extends TestCase
         $this->assertCount(1, $cookies);
         $expires = $cookies[0]->getExpires();
         $this->assertInstanceOf(\DateTimeImmutable::class, $expires);
-        $diff = $expires->getTimestamp() - (new \DateTimeImmutable('now', new \DateTimeZone('UTC')))->getTimestamp();
+        $diff = $expires->getTimestamp() - new \DateTimeImmutable('now', new \DateTimeZone('UTC'))->getTimestamp();
         $this->assertGreaterThanOrEqual(59, $diff);
         $this->assertLessThanOrEqual(60, $diff);
     }

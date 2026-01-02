@@ -69,5 +69,5 @@ if (!class_exists(\Symfony\Bridge\Monolog\Logger::class)) {
 if (file_exists(dirname(__DIR__) . '/config/bootstrap.php')) {
     require dirname(__DIR__) . '/config/bootstrap.php';
 } else if (method_exists(Dotenv::class, 'bootEnv')) {
-    (new Dotenv())->bootEnv(dirname(__DIR__) . '/.env');
+    new Dotenv()->bootEnv(dirname(__DIR__) . '/.env');
 }

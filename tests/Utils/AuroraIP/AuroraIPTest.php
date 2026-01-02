@@ -58,7 +58,7 @@ class AuroraIPTest extends TestCase
     #[DataProvider('dataIsIPInSubnet')]
     public function testIsIPInSubnet(string $ip, string $cidr, bool $expected): void
     {
-        $this->assertEquals($expected, (new AuroraIP())->isIPInSubnet($ip, $cidr));
+        $this->assertEquals($expected, new AuroraIP()->isIPInSubnet($ip, $cidr));
     }
 
     public static function dataIsIPInSubnet(): array
