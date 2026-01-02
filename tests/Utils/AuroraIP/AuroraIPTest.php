@@ -6,6 +6,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraIP;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIP/AuroraIPTest.php --no-coverage
@@ -41,7 +42,7 @@ class AuroraIPTest extends TestCase
     {
         $this->assertEquals(
             $expected,
-            (new AuroraIP())->isPrivate($given),
+            new AuroraIP()->isPrivate($given),
             'Given IP: ' . $given . ' != ' . ($expected ? 'true' : 'false')
         );
     }
@@ -74,5 +75,28 @@ class AuroraIPTest extends TestCase
             ['192.168.1.5', ' 192.168.1.0/24', true],
             ['192.168.1.5', '192.168.1.0', false],
         ];
+    }
+
+    public function testIpTrimsSingleForwardedHeader(): void
+    {
+        $request = Request::create(
+            '/',
+            'GET',
+            [],
+            [],
+            [],
+            ['REMOTE_ADDR' => '198.51.100.5']
+        );
+
+        $originalServer                  = $_SERVER;
+        $_SERVER['HTTP_X_FORWARDED_FOR'] = ' 203.0.113.10 ';
+
+        $auroraClient = new AuroraIP();
+
+        try {
+            $this->assertSame('203.0.113.10', $auroraClient->ip($request));
+        } finally {
+            $_SERVER = $originalServer;
+        }
     }
 }
