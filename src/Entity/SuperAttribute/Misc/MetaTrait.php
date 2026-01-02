@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Sindla\Bundle\AuroraBundle\Doctrine\Attributes\Aurora;
 use Sindla\Bundle\AuroraBundle\Doctrine\TypeHint\MetaData;
-use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 trait MetaTrait
 {
