@@ -7,7 +7,7 @@ class Strink
 {
     protected string $string = '';
 
-    public function __construnct(?string $string = null)
+    public function __construct(?string $string = null)
     {
         if ($string) {
             $this->string($string);
