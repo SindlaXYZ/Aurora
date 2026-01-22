@@ -7,15 +7,22 @@ class Strink
 {
     protected string $string = '';
 
-    private function detectEncoding(): string
+    public function __construnct(?string $string = null)
     {
-        return mb_detect_encoding($this->string) ?: 'UTF-8';
+        if ($string) {
+            $this->string($string);
+        }
     }
 
     public function string(string $string): self
     {
         $this->string = $string;
         return $this;
+    }
+
+    private function detectEncoding(): string
+    {
+        return mb_detect_encoding($this->string) ?: 'UTF-8';
     }
 
     /**
@@ -44,7 +51,7 @@ class Strink
      */
     public function compressSlashes(): self
     {
-        $workingString           = $this->string;
+        $workingString          = $this->string;
         $preserveProtocolPrefix = false;
 
         if (str_starts_with($workingString, '//') && (strlen($workingString) === 2 || $workingString[2] !== '/')) {
@@ -109,7 +116,7 @@ class Strink
      *
      * @param integer     $length
      * @param multi-array $keysToUse
-    */
+     */
     public function randomString(int $length = 12, array $keysToUse = []): self
     {
         if ($length <= 0) {
@@ -128,7 +135,7 @@ class Strink
 
         $keysToUse = array_values(array_filter(
             $keysToUse,
-            static fn ($key): bool => is_string($key) && $key !== ''
+            static fn($key): bool => is_string($key) && $key !== ''
         ));
 
         if (count($keysToUse) === 0) {
@@ -163,7 +170,7 @@ class Strink
      */
     public function obfuscateString(mixed $string, int $margins = 2): string
     {
-        $string = (string) $string;
+        $string = (string)$string;
         $length = mb_strlen($string, 'UTF-8');
 
         if ($margins < 0) {
@@ -203,16 +210,16 @@ class Strink
 
             if ($cut == 'right') {
                 $limitedString = mb_substr(
-                    $this->string,
-                    0,
-                    max(0, $limit - $postTextLength),
-                    'utf-8'
-                ) . $postText;
-            } elseif ($cut == 'middle' || $cut == 'center') {
+                        $this->string,
+                        0,
+                        max(0, $limit - $postTextLength),
+                        'utf-8'
+                    ) . $postText;
+            } else if ($cut == 'middle' || $cut == 'center') {
                 $left   = mb_substr(
                     $this->string,
                     0,
-                    max(0, (int) ceil($limit / 2) - $postTextLength),
+                    max(0, (int)ceil($limit / 2) - $postTextLength),
                     'utf-8'
                 );
                 $center = $postText;
@@ -264,7 +271,7 @@ class Strink
 
         if ($upperCaseAllLetters) {
             $this->string = mb_convert_case($this->string, MB_CASE_TITLE, $encoding);
-        } elseif ($upperCaseFirstLetter) {
+        } else if ($upperCaseFirstLetter) {
             $this->string = mb_strtoupper(mb_substr($this->string, 0, 1, $encoding), $encoding)
                 . mb_substr($this->string, 1, null, $encoding);
         }
@@ -307,21 +314,21 @@ class Strink
 
     public function lower(): self
     {
-        $encoding = $this->detectEncoding();
+        $encoding     = $this->detectEncoding();
         $this->string = mb_strtolower($this->string, $encoding);
         return $this;
     }
 
     public function upper(): self
     {
-        $encoding = $this->detectEncoding();
+        $encoding     = $this->detectEncoding();
         $this->string = mb_strtoupper($this->string, $encoding);
         return $this;
     }
 
     public function ucfirst(): self
     {
-        $encoding = $this->detectEncoding();
+        $encoding     = $this->detectEncoding();
         $this->string = mb_strtoupper(mb_substr($this->string, 0, 1, $encoding), $encoding)
             . mb_substr($this->string, 1, null, $encoding);
         return $this;
@@ -333,7 +340,7 @@ class Strink
     public function removeWords(array $wordsList): self
     {
         foreach ($wordsList as $word) {
-            $escapedWord = preg_quote($word, '/');
+            $escapedWord  = preg_quote($word, '/');
             $this->string = preg_replace('/\b' . $escapedWord . '\b/iu', '', $this->string);
         }
 
