@@ -393,7 +393,7 @@ class CommandMiddleware extends Command
         return $this->progressBar;
     }
 
-    protected function progressBarAdvanceMessage(string $message, int $step = 1, bool $displayAllTimes = false): void
+    protected function progressBarAdvanceMessage(string $message, int $step = 1, bool $displayAllTimes = true): void
     {
         if (null === $this->progressBar) {
             return;
