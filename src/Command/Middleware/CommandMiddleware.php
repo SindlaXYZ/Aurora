@@ -381,6 +381,12 @@ class CommandMiddleware extends Command
 
     protected function createProgressBar(int $max): ProgressBar
     {
+        trigger_error('Method ' . __METHOD__ . ' is deprecated since v8.0. Use progressBarCreate() instead.', E_USER_DEPRECATED);
+        return $this->progressBarCreate($max);
+    }
+
+    protected function progressBarCreate(int $max): ProgressBar
+    {
         $this->progressBar = $this->io->createProgressBar($max);
         $this->progressBar->setFormat("\n %current%/%max% [%bar%] %percent:3s%% in %elapsed:6s% / ETT %estimated:-16s% / ETA %remaining:-16s% / %memory:6s% \n %message%\n");
         $this->progressBar->setOverwrite(true);
