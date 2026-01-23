@@ -39,7 +39,9 @@ class CommandMiddleware extends Command
     private ?ProgressBar           $progressBar = null;
     private \DateTimeInterface     $progressBarPreviousDisplay;
 
-    public function __construct()
+    public function __construct(
+        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir
+    )
     {
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
         parent::__construct();
@@ -564,7 +566,7 @@ class CommandMiddleware extends Command
 
     protected function databaseDrop(): void
     {
-        ($this->getApplication()->find('doctrine:schema:drop'))
+        $this->getApplication()->find('doctrine:schema:drop')
             ->run(new ArrayInput(['--full-database' => true, '--force' => true]), $this->output);
     }
 
@@ -575,7 +577,7 @@ class CommandMiddleware extends Command
         $phpBinaryPath   = $phpBinaryFinder->find();
         $process         = new Process([
             $phpBinaryPath,
-            sprintf('%s/bin/console', $this->parameterBag->get('root')),
+            sprintf('%s/bin/console', $this->projectDir),
             'doctrine:migrations:migrate',
             '-n'
         ]);
