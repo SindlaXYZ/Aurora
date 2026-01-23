@@ -374,7 +374,7 @@ class CommandMiddleware extends Command
 
     protected function createProgressBar(int $max): ProgressBar
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated since v8.0. Use progressBarCreate() instead.', E_USER_DEPRECATED);
+        trigger_error('Method ' . __METHOD__ . ' has been deprecated since v8.0. Use progressBarCreate() instead.', E_USER_DEPRECATED);
         return $this->progressBarCreate($max);
     }
 
