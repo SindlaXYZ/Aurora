@@ -11,11 +11,9 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Process\PhpExecutableFinder;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Yaml\Parser;
@@ -29,10 +27,6 @@ class CommandMiddleware extends Command
     protected SymfonyStyle    $io;
 
     #[Required]
-    private ParameterBagInterface  $parameterBag;
-    private BufferedOutput         $bufferedOutput;
-    private                        $kernelRootDir;
-    #[Required]
     private ManagerRegistry        $managerRegistry;
     #[Required]
     private EntityManagerInterface $em;
@@ -40,25 +34,11 @@ class CommandMiddleware extends Command
     private ?ProgressBar           $progressBar = null;
     private \DateTimeInterface     $progressBarPreviousDisplay;
 
-    public function __construct(
-    )
+    public function __construct()
     {
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
         parent::__construct();
     }
-
-//    /**
-//     * Inject container using setter injection
-//     * This method will be automatically called by Symfony's service container
-//     */
-//    #[Required]
-//    public function setContainer(
-//        #[Autowire(service: 'service_container')]
-//        ContainerInterface $container
-//    ): void
-//    {
-//        $this->container = $container;
-//    }
 
     /**
      * Inject ManagerRegistry using setter injection
@@ -577,7 +557,9 @@ class CommandMiddleware extends Command
 
     protected function databaseDrop(): void
     {
-        $this->getApplication()->find('doctrine:schema:drop')
+        $this
+            ->getApplication()
+            ->find('doctrine:schema:drop')
             ->run(new ArrayInput(['--full-database' => true, '--force' => true]), $this->output);
     }
 
