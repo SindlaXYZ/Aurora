@@ -36,11 +36,11 @@ class CommandMiddleware extends Command
     private ManagerRegistry        $managerRegistry;
     #[Required]
     private EntityManagerInterface $em;
+    private string                 $projectDir;
     private ?ProgressBar           $progressBar = null;
     private \DateTimeInterface     $progressBarPreviousDisplay;
 
     public function __construct(
-        #[Autowire('%kernel.project_dir%')] private readonly string $projectDir
     )
     {
         $this->progressBarPreviousDisplay = new \DateTimeImmutable();
@@ -79,6 +79,17 @@ class CommandMiddleware extends Command
     ): void
     {
         $this->em = $em;
+    }
+
+    /**
+     * Inject project directory using setter injection
+     */
+    #[Required]
+    public function setProjectDir(
+        #[Autowire('%kernel.project_dir%')] string $projectDir
+    ): void
+    {
+        $this->projectDir = $projectDir;
     }
 
     /**
