@@ -530,7 +530,7 @@ class CommandMiddleware extends Command
         return $this->progressBar->getProgress() == $this->progressBar->getMaxSteps();
     }
 
-    protected function progressBarFinish(): void
+    protected function progressBarFinish(bool $newLineAtTheEnd = false): void
     {
         if (null === $this->progressBar) {
             return;
@@ -539,7 +539,10 @@ class CommandMiddleware extends Command
         $this->progressBar->setMessage('');
         $this->progressBar->clear();
         $this->progressBar->finish();
-        $this->io->newLine();
+
+        if ($newLineAtTheEnd) {
+            $this->io->newLine();
+        }
     }
 
     ###################################################################################################################################################################################################
