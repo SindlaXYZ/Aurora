@@ -18,7 +18,7 @@ trait LegacyStringNullable
         return $this->legacyIdentifier;
     }
 
-    public function setLegacyIdentifier(?int $legacyIdentifier = null): self
+    public function setLegacyIdentifier(?string $legacyIdentifier = null): self
     {
         $this->legacyIdentifier = $legacyIdentifier;
         return $this;
