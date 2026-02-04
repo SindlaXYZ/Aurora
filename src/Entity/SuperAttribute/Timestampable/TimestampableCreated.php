@@ -19,27 +19,6 @@ trait TimestampableCreated
         if (!isset($this->createdAt)) {
             $this->setCreatedAt(new \DateTimeImmutable());
         }
-
-//        if (method_exists($this, 'setUpdatedAt') && !isset($this->updatedAt)) {
-//            $this->setUpdatedAt(new \DateTimeImmutable());
-//        }
-
-//        if (method_exists($this, 'setDeletedAt') && !isset($this->deletedAt)) {
-//            $attributes = new \ReflectionClass($this)->getProperty('deletedAt')->getAttributes(); // @TODO: refactor this and use "symfony/property-info"
-//            foreach ($attributes as $attribute) {
-//                if ($attribute->getName() === Orm\Column::class) {
-//                    foreach ($attribute->getArguments() as $argument) {
-//                        if ('datetime' === $argument) {
-//                            $this->setDeletedAt(new \DateTime(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
-//                            break;
-//                        } else if ('datetime_immutable' === $argument) {
-//                            $this->setDeletedAt(new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
-//                            break;
-//                        }
-//                    }
-//                }
-//            }
-//        }
     }
 
     public function getCreatedAt(): ?\DateTimeImmutable
