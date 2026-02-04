@@ -18,6 +18,14 @@ trait TimestampableDeleted
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
     private ?\DateTimeImmutable $deletedAt = null;
 
+    #[ORM\PrePersist]
+    public function prePersistHook(): void
+    {
+        if (!$this->deletedAt) {
+            $this->setDeletedAt(new \DateTimeImmutable());
+        }
+    }
+
     public function getDeletedAt(): ?\DateTimeImmutable
     {
         return $this->deletedAt;
