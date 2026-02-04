@@ -21,6 +21,13 @@ services:
     #        public: true
 
     ###################################################################################################################
+    ###  Aurora Doctrine Event Subscribers  ###########################################################################
+
+    Sindla\Bundle\AuroraBundle\EventSubscriber\SoftDeleteIndexSubscriber:
+        tags:
+            - { name: doctrine.event_listener, event: loadClassMetadata }
+
+    ###################################################################################################################
     ###  Aurora Controller ############################################################################################
 
     aurora.controller.test:

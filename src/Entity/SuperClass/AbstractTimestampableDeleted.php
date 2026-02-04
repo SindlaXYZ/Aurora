@@ -8,7 +8,6 @@ use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\MappedSuperclass]
-#[ORM\Index(name: 'idx_soft_delete', columns: ['deleted_at'])]
 abstract class AbstractTimestampableDeleted
 {
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
