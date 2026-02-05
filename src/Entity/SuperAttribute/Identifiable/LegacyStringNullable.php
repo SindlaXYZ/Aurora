@@ -13,7 +13,7 @@ trait LegacyStringNullable
     #[Groups([AuroraConstants::GROUP_READ])]
     protected ?string $legacyIdentifier = null;
 
-    public function getLegacyIdentifier(): ?int
+    public function getLegacyIdentifier(): ?string
     {
         return $this->legacyIdentifier;
     }
