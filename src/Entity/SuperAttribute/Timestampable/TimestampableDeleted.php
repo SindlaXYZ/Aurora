@@ -7,6 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
+#[ORM\HasLifecycleCallbacks]
 trait TimestampableDeleted
 {
     /**
