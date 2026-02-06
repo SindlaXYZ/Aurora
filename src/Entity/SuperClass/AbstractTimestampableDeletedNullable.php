@@ -34,7 +34,7 @@ abstract class AbstractTimestampableDeletedNullable
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function willBeDeleted(): bool
+    public function isDeletedInFuture(): bool
     {
         return $this->deletedAt && $this->deletedAt->getTimestamp() >= time();
     }

@@ -43,7 +43,7 @@ abstract class AbstractTimestampableDeletedNotNullable
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
-    public function willBeDeleted(): bool
+    public function isDeletedInFuture(): bool
     {
         return $this->deletedAt && $this->deletedAt->format('Y-m-d H:i:s') != new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT)->format('Y-m-d H:i:s')
         && $this->deletedAt->getTimestamp() >= time();
