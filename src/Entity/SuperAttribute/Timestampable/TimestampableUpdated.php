@@ -17,13 +17,9 @@ trait TimestampableUpdated
     protected ?DateTimeInterface $updatedAt = null;
 
     #[ORM\PreUpdate]
-    public function preUpdateHook(): void
+    public function preUpdateUpdatedAt(): void
     {
         $this->setUpdatedAt(new DateTimeImmutable());
-
-        if (method_exists($this, 'getCreatedAt') && null === $this->getCreatedAt()) {
-            $this->setCreatedAt($this->getUpdatedAt());
-        }
     }
 
     public function getUpdatedAt(): ?DateTimeInterface

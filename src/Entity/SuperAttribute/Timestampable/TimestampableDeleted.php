@@ -20,7 +20,7 @@ trait TimestampableDeleted
     private ?\DateTimeImmutable $deletedAt = null;
 
     #[ORM\PrePersist]
-    public function prePersistHook(): void
+    public function prePersistDeletedAt(): void
     {
         if (!$this->deletedAt) {
             $this->setDeletedAt(new \DateTimeImmutable());

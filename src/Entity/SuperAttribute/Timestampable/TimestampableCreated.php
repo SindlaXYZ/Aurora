@@ -15,7 +15,7 @@ trait TimestampableCreated
     protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\PrePersist]
-    public function prePersistHook(): void
+    public function prePersistCreatedAt(): void
     {
         if (!isset($this->createdAt)) {
             $this->setCreatedAt(new \DateTimeImmutable());
