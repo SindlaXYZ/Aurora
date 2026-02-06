@@ -8,7 +8,7 @@ use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\HasLifecycleCallbacks]
-trait TimestampableDeleted
+trait TimestampableDeletedNotNullable
 {
     /**
      * Should have a default value (a date in the future), so that it can be used in a composed uniq key
@@ -23,7 +23,7 @@ trait TimestampableDeleted
     public function prePersistDeletedAt(): void
     {
         if (!$this->deletedAt) {
-            $this->setDeletedAt(new \DateTimeImmutable());
+            $this->setDeletedAt(new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
         }
     }
 
@@ -41,9 +41,17 @@ trait TimestampableDeleted
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeleted(): bool
     {
-        return !(null == $this->deletedAt || $this->deletedAt == AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT);
+        return $this->deletedAt && $this->deletedAt->getTimestamp() < time();
+    }
+
+    #[Groups([AuroraConstants::GROUP_READ])]
+    public function isDeletedInFuture(): bool
+    {
+        return $this->deletedAt && $this->deletedAt->format('Y-m-d H:i:s') != new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT)->format('Y-m-d H:i:s')
+            && $this->deletedAt->getTimestamp() >= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
