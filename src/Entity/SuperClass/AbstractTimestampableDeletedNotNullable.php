@@ -9,7 +9,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\MappedSuperclass]
 #[ORM\HasLifecycleCallbacks]
-abstract class AbstractTimestampableDeleted
+abstract class AbstractTimestampableDeletedNotNullable
 {
     #[ORM\Column(name: 'deleted_at', type: Types::DATETIME_IMMUTABLE, nullable: true, options: ['default' => AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT])]
     private ?\DateTimeImmutable $deletedAt = null;
@@ -18,7 +18,7 @@ abstract class AbstractTimestampableDeleted
     public function prePersistDeletedAt(): void
     {
         if (!$this->deletedAt) {
-            $this->setDeletedAt(new \DateTimeImmutable());
+            $this->setDeletedAt(new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
         }
     }
 
@@ -36,9 +36,17 @@ abstract class AbstractTimestampableDeleted
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
+    #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeleted(): bool
     {
-        return !(null == $this->deletedAt || $this->deletedAt == AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT);
+        return $this->deletedAt && $this->deletedAt->getTimestamp() < time();
+    }
+
+    #[Groups([AuroraConstants::GROUP_READ])]
+    public function willBeDeleted(): bool
+    {
+        return $this->deletedAt && $this->deletedAt->format('Y-m-d H:i:s') != new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT)->format('Y-m-d H:i:s')
+        && $this->deletedAt->getTimestamp() >= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

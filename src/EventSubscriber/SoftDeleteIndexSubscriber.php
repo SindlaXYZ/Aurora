@@ -8,7 +8,7 @@ use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
 use Doctrine\ORM\Events;
 use Doctrine\ORM\Mapping\ClassMetadataInfo;
-use Sindla\Bundle\AuroraBundle\Entity\SuperClass\AbstractTimestampableDeleted;
+use Sindla\Bundle\AuroraBundle\Entity\SuperClass\AbstractTimestampableDeletedNotNullable;
 
 /**
  * Automatically adds a unique soft delete index (idx_{table}_deleted_at) to all entities
@@ -30,7 +30,7 @@ class SoftDeleteIndexSubscriber
         }
 
         // Check if the entity extends AbstractTimestampableDeleted
-        if (!is_subclass_of($metadata->getName(), AbstractTimestampableDeleted::class)) {
+        if (!is_subclass_of($metadata->getName(), AbstractTimestampableDeletedNotNullable::class)) {
             return;
         }
 
