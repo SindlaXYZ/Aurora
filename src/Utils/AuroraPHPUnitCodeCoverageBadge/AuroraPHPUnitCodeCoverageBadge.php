@@ -134,6 +134,10 @@ SVG;
         return <<<SVG
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="99" height="20">
+    <linearGradient id="workflow-fill" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop stop-color="#444D56" offset="0%"></stop>
+        <stop stop-color="#24292E" offset="100%"></stop>
+    </linearGradient>
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
         <stop offset="1" stop-opacity=".1"/>
@@ -142,7 +146,7 @@ SVG;
         <rect width="99" height="20" rx="3" fill="#fff"/>
     </mask>
     <g mask="url(#a)">
-        <path fill="#555" d="M0 0h63v20H0z"/>
+        <path fill="url(#workflow-fill)" d="M0 0h63v20H0z"/>
         <path fill="{{ color }}" d="M63 0h36v20H63z"/>
         <path fill="url(#b)" d="M0 0h99v20H0z"/>
     </g>
@@ -165,6 +169,10 @@ SVG;
         return <<<SVG
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="{$width}" height="20">
+    <linearGradient id="workflow-fill" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop stop-color="#444D56" offset="0%"></stop>
+        <stop stop-color="#24292E" offset="100%"></stop>
+    </linearGradient>
     <linearGradient id="b" x2="0" y2="100%">
         <stop offset="0" stop-color="#bbb" stop-opacity=".1"/>
         <stop offset="1" stop-opacity=".1"/>
@@ -173,7 +181,7 @@ SVG;
         <rect width="{$width}" height="20" rx="3" fill="#fff"/>
     </mask>
     <g mask="url(#a)">
-        <path fill="#555" d="M0 0h{$leftBlock}v20H0z"/>
+        <path fill="url(#workflow-fill)" d="M0 0h{$leftBlock}v20H0z"/>
         <path fill="{{ color }}" d="M{$leftBlock} 0h{$rightBlockWidth}v20H{$leftBlock}z"/>
         <path fill="url(#b)" d="M0 0h{$width}v20H0z"/>
     </g>
