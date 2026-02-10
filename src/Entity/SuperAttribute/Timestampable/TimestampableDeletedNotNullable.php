@@ -4,6 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable;
 
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Gedmo\Mapping\Annotation as Gedmo;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -50,8 +51,27 @@ trait TimestampableDeletedNotNullable
     #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeletedInFuture(): bool
     {
-        return $this->deletedAt && $this->deletedAt->format('Y-m-d H:i:s') != new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT)->format('Y-m-d H:i:s')
-            && $this->deletedAt->getTimestamp() >= time();
+        if (!$this->deletedAt) {
+            return false;
+        }
+
+        $isNotDefault = $this->deletedAt->format('Y-m-d H:i:s') != (new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT))->format('Y-m-d H:i:s');
+
+        if (!$isNotDefault) {
+            return false;
+        }
+
+        $reflectionClass = new \ReflectionClass($this);
+        $softDeleteableAttributes = $reflectionClass->getAttributes(Gedmo\SoftDeleteable::class);
+
+        if (!empty($softDeleteableAttributes)) {
+            $softDeleteable = $softDeleteableAttributes[0]->newInstance();
+            if (!$softDeleteable->timeAware) {
+                return true;
+            }
+        }
+
+        return $this->deletedAt->getTimestamp() >= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
