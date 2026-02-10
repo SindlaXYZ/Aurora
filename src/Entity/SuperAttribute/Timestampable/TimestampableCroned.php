@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableCroned
 {
     #[ORM\Column(name: 'croned_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $cronedAt = null;
 
     public function getCronedAt(): ?DateTimeInterface
@@ -33,25 +33,25 @@ trait TimestampableCroned
         return boolval($this->cronedAt);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCronedAtLifespanAsSeconds(): int
     {
         return $this->cronedAt ? new \DateTime()->getTimestamp() - $this->cronedAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCronedAtLifespanAsMinutes(): int
     {
         return round($this->getCronedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCronedAtLifespanAsHours(): int
     {
         return round($this->getCronedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCronedAtLifespanAsDays(): int
     {
         return round($this->getCronedAtLifespanAsHours() / 24);

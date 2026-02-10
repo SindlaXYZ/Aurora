@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableSuspended
 {
     #[ORM\Column(name: 'suspended_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $suspendedAt = null;
 
     public function getSuspendedAt(): ?DateTimeInterface
@@ -28,37 +28,37 @@ trait TimestampableSuspended
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function isSuspended(): bool
     {
         return boolval($this->getSuspendedAt());
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSuspendedInTheFuture(): bool
     {
         return $this->getSuspendedAt() && $this->getSuspendedAt()->getTimestamp() > time();
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSuspendedAtLifespanAsSeconds(): int
     {
         return $this->getSuspendedAt() ? time() - $this->getSuspendedAt()->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSuspendedAtLifespanAsMinutes(): int
     {
         return round($this->getSuspendedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSuspendedAtLifespanAsHours(): int
     {
         return round($this->getSuspendedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSuspendedAtLifespanAsDays(): int
     {
         return round($this->getSuspendedAtLifespanAsHours() / 24);

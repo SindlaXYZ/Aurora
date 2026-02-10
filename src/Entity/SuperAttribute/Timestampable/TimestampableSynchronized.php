@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableSynchronized
 {
     #[ORM\Column(name: 'synchronized_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $synchronizedAt = null;
 
     public function getSynchronizedAt(): ?DateTimeInterface
@@ -33,25 +33,25 @@ trait TimestampableSynchronized
         return boolval($this->synchronizedAt);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSynchronizedAtLifespanAsSeconds(): int
     {
         return $this->synchronizedAt ? new \DateTime()->getTimestamp() - $this->synchronizedAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSynchronizedAtLifespanAsMinutes(): int
     {
         return round($this->getSynchronizedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSynchronizedAtLifespanAsHours(): int
     {
         return round($this->getSynchronizedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getSynchronizedAtLifespanAsDays(): int
     {
         return round($this->getSynchronizedAtLifespanAsHours() / 24);

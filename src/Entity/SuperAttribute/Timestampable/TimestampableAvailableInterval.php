@@ -11,11 +11,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableAvailableInterval
 {
     #[ORM\Column(name: 'available_from', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $availableFrom = null;
 
     #[ORM\Column(name: 'available_to', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $availableTo = null;
 
     public function getAvailableFrom(): ?DateTimeInterface
@@ -43,7 +43,7 @@ trait TimestampableAvailableInterval
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function isAvailable(): bool
     {
         return
@@ -54,13 +54,13 @@ trait TimestampableAvailableInterval
             ($this->getAvailableFrom() && $this->getAvailableTo() && $this->getAvailableFrom()->getTimestamp() <= time() && $this->getAvailableTo()->getTimestamp() >= time());
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getAvailableInTheFuture(): bool
     {
         return $this->getAvailableFrom() && $this->getAvailableFrom()->getTimestamp() > time();
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getAvailableAtLifespanAsSeconds(): int
     {
         if ($this->getAvailableFrom() && $this->getAvailableFrom()->getTimestamp() <= time()) {
@@ -74,19 +74,19 @@ trait TimestampableAvailableInterval
         return 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getAvailableAtLifespanAsMinutes(): int
     {
         return round($this->getAvailableAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getAvailableAtLifespanAsHours(): int
     {
         return round($this->getAvailableAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getAvailableAtLifespanAsDays(): int
     {
         return round($this->getAvailableAtLifespanAsHours() / 24);

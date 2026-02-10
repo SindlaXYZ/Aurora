@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableCreated
 {
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\PrePersist]
@@ -36,31 +36,31 @@ trait TimestampableCreated
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function isPersisted(): bool
     {
         return (bool)$this->createdAt;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCreatedAtLifespanAsSeconds(): int
     {
         return $this->createdAt ? new \DateTime()->getTimestamp() - $this->createdAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCreatedAtLifespanAsMinutes(): int
     {
         return round($this->getCreatedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCreatedAtLifespanAsHours(): int
     {
         return round($this->getCreatedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getCreatedAtLifespanAsDays(): int
     {
         return round($this->getCreatedAtLifespanAsHours() / 24);

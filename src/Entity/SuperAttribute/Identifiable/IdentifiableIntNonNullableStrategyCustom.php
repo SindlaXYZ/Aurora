@@ -13,7 +13,7 @@ trait IdentifiableIntNonNullableStrategyCustom
     #[ORM\Id]
     #[ORM\Column(type: Types::STRING, nullable: false)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
     protected string $id;
 
     public function getId(): string

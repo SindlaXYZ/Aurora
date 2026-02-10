@@ -12,7 +12,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampablePasswordExpire
 {
     #[ORM\Column(name: 'password_expire_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $passwordExpireAt = null;
 
     public function getPasswordExpireAt(): ?DateTimeInterface
@@ -29,25 +29,25 @@ trait TimestampablePasswordExpire
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getPasswordExpireAtLifespanAsSeconds(): int
     {
         return $this->passwordExpireAt ? new \DateTime()->getTimestamp() - $this->passwordExpireAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getPasswordExpireAtLifespanAsMinutes(): int
     {
         return round($this->getPasswordExpireAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getPasswordExpireAtLifespanAsHours(): int
     {
         return round($this->getPasswordExpireAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getPasswordExpireAtLifespanAsDays(): int
     {
         return round($this->getPasswordExpireAtLifespanAsHours() / 24);

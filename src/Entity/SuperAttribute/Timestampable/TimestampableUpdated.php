@@ -13,7 +13,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableUpdated
 {
     #[ORM\Column(name: 'updated_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $updatedAt = null;
 
     #[ORM\PreUpdate]
@@ -41,25 +41,25 @@ trait TimestampableUpdated
         return boolval($this->updatedAt);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getUpdatedAtLifespanAsSeconds(): int
     {
         return $this->updatedAt ? new \DateTime()->getTimestamp() - $this->updatedAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getUpdatedAtLifespanAsMinutes(): int
     {
         return round($this->getUpdatedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getUpdatedAtLifespanAsHours(): int
     {
         return round($this->getUpdatedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getUpdatedAtLifespanAsDays(): int
     {
         return round($this->getUpdatedAtLifespanAsHours() / 24);

@@ -10,7 +10,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait LegacyIntNullable
 {
     #[ORM\Column(type: Types::INTEGER, nullable: true, options: ['unsigned' => true])]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
     protected ?int $legacyId = null;
 
     public function getLegacyId(): ?int

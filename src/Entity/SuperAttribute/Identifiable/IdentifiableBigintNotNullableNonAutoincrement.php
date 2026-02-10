@@ -11,7 +11,7 @@ trait IdentifiableBigintNotNullableNonAutoincrement
 {
     #[ORM\Id]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['`unsigned`' => true])]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
     protected int $id;
 
     public function getId(): ?int

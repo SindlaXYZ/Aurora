@@ -42,13 +42,13 @@ trait TimestampableDeletedNotNullable
     // ----------------------------------------------------------------------------------------------------------------------------------------------
     // -- CUSTOM METHODS ----------------------------------------------------------------------------------------------------------------------------
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function isDeleted(): bool
     {
         return $this->deletedAt && $this->deletedAt->getTimestamp() < time();
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function isDeletedInFuture(): bool
     {
         if (!$this->deletedAt) {
@@ -74,25 +74,25 @@ trait TimestampableDeletedNotNullable
         return $this->deletedAt->getTimestamp() >= time();
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getDeletedAtLifespanAsSeconds(): int
     {
         return $this->deletedAt ? new \DateTime()->getTimestamp() - $this->deletedAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getDeletedAtLifespanAsMinutes(): int
     {
         return round($this->getDeletedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getDeletedAtLifespanAsHours(): int
     {
         return round($this->getDeletedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getDeletedAtLifespanAsDays(): int
     {
         return round($this->getDeletedAtLifespanAsHours() / 24);

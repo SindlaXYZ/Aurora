@@ -11,7 +11,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
 trait TimestampableTranslated
 {
     #[ORM\Column(name: 'translated_at', type: Types::DATETIME_IMMUTABLE, nullable: true)]
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     protected ?DateTimeInterface $translatedAt = null;
 
     public function getTranslatedAt(): ?DateTimeInterface
@@ -33,25 +33,25 @@ trait TimestampableTranslated
         return boolval($this->translatedAt);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getTranslatedAtLifespanAsSeconds(): int
     {
         return $this->translatedAt ? new \DateTime()->getTimestamp() - $this->translatedAt->getTimestamp() : 0;
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getTranslatedAtLifespanAsMinutes(): int
     {
         return round($this->getTranslatedAtLifespanAsSeconds() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getTranslatedAtLifespanAsHours(): int
     {
         return round($this->getTranslatedAtLifespanAsMinutes() / 60);
     }
 
-    #[Groups([AuroraConstants::GROUP_READ])]
+    #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]
     public function getTranslatedAtLifespanAsDays(): int
     {
         return round($this->getTranslatedAtLifespanAsHours() / 24);
