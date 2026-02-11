@@ -7,7 +7,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Sindla\Bundle\AuroraBundle\Config\AuroraConstants;
 use Symfony\Component\Serializer\Attribute\Groups;
 
-trait IdentifiableIntNonNullable
+trait IdentifiableIntNonNullableWithTableAlias
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
