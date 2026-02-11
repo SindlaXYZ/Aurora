@@ -11,7 +11,6 @@ trait IdentifiableBigintNonNullable
 {
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
-    #[ORM\SequenceGenerator(sequenceName: self::TABLE_ALIAS . '_id_seq', allocationSize: 1, initialValue: 1)]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['unsigned' => true])]
     #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
     protected int $id;
