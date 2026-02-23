@@ -30,7 +30,7 @@
         "aws/aws-sdk-php": "^3.362",
         "brick/math": "^0.14",
         "doctrine/orm": "^3.5",
-        "firebase/php-jwt": "^6.11",
+        "firebase/php-jwt": "^7.0",
         "geoip2/geoip2": "^3.2",
         "matthiasmullie/minify": "^1.3",
         "scienta/doctrine-json-functions": "^6.3",
