@@ -96,7 +96,7 @@ jobs:
 
                     echo -e "\033[0;35m * composer require sindla/aurora \033[0m"
                     composer require sindla/aurora:${{ env.AURORA_VERSION }}.x-dev -W --no-cache --no-progress
-                    composer require brick/math:^0.14 -W --no-cache --no-progress
+                    composer require brick/math:^0.17 -W --no-cache --no-progress
 
                     echo -e "\033[0;35m * composer require phpunit/phpunit \033[0m"
                     composer require phpunit/phpunit:^12.4 -W --dev --no-progress
