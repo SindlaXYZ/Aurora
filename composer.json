@@ -36,6 +36,7 @@
         "scienta/doctrine-json-functions": "^6.3",
         "symfony/uid": "^8.0",
         "symfony/property-info": "^8.0",
+        "symfony/twig-bundle": "^8.0",
         "tedivm/jshrink": "^1.8"
     },
     "@comment require": [
