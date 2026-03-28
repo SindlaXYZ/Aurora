@@ -18,8 +18,8 @@
         <server name="SYMFONY_PHPUNIT_VERSION" value="12.3" /> <!-- PHPUnit version -->
         <env name="SYMFONY_DEPRECATIONS_HELPER" value="" /> <!-- values: "disabled" > "weak" > "" (empty) -->
         <env name="APP_ENV" value="test" force="true" />
-        <ini name="xdebug.mode" value="coverage" />
-        <env name="XDEBUG_MODE" value="coverage" />
+        <!-- <ini name="xdebug.mode" value="coverage" /> -->
+        <!-- <env name="XDEBUG_MODE" value="coverage" /> -->
     </php>
 
     <testsuites>
