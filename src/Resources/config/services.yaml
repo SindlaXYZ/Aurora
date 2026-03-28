@@ -61,11 +61,11 @@ services:
     ###################################################################################################################
     ###  Aurora Commands  #############################################################################################
 
-    aurora.command.cloudlare.r2:
-        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
-        arguments: ['@aurora.cloudflare.r2']
-        tags:
-            - { name: console.command }
+#    aurora.command.cloudlare.r2:
+#        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+#        arguments: ['@aurora.cloudflare.r2']
+#        tags:
+#            - { name: console.command }
 
     # Register TestCommand (see the class file for the command name)
     aurora.command.test:
@@ -111,125 +111,125 @@ services:
     ###################################################################################################################
     ###  Aurora Twig  #################################################################################################
 
-    aurora.twig.utility:
-        class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
-        tags:
-            - { name: twig.extension }
-        arguments: ['@service_container', "@request_stack", "@twig"]
-        autowire: true
-        autoconfigure: true
-        public: true
+#    aurora.twig.utility:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
+#        tags:
+#            - { name: twig.extension }
+#        arguments: ['@service_container', "@request_stack", "@twig"]
+#        autowire: true
+#        autoconfigure: true
+#        public: true
 
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
 
-    aurora.array:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.calendar:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.chronos:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.client:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
-        arguments: ['@service_container']
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.cookies.extractor:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.ip:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.match:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.calculus:
-        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.diacritics:
-        class: Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.git:
-        class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
-        arguments: ['@service_container']
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.helper:
-        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.io:
-        class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    #   DEPRECATED
-    #    aurora.params:
-    #        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
-    #        arguments: ['@service_container']
-    #        autowire: true
-    #        autoconfigure: true
-    #        public: true
-
-    aurora.pwa:
-        class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
-        arguments: ['@service_container', '@request_stack', '@twig']
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.sanitizer:
-        class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
-        arguments: ['@service_container']
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.strink:
-        class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
-        autowire: true
-        autoconfigure: true
-        public: true
-
-    aurora.cloudflare.r2:
-        class: Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2
-        autowire: true
-        autoconfigure: true
-        public: true
+#    aurora.array:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.calendar:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.chronos:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.client:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
+#        arguments: ['@service_container']
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.cookies.extractor:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.ip:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.match:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.calculus:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.diacritics:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.git:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
+#        arguments: ['@service_container']
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.helper:
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.io:
+#        class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    #   DEPRECATED
+#    #    aurora.params:
+#    #        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
+#    #        arguments: ['@service_container']
+#    #        autowire: true
+#    #        autoconfigure: true
+#    #        public: true
+#
+#    aurora.pwa:
+#        class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
+#        arguments: ['@service_container', '@request_stack', '@twig']
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.sanitizer:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
+#        arguments: ['@service_container']
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.strink:
+#        class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
+#        autowire: true
+#        autoconfigure: true
+#        public: true
+#
+#    aurora.cloudflare.r2:
+#        class: Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2
+#        autowire: true
+#        autoconfigure: true
+#        public: true
 
     ###################################################################################################################
     ###################################################################################################################
