@@ -9,7 +9,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 /**
  * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/IO/IOTest.php --no-coverage
  */
-class IOTest extends TestCase
+class AuroraIOTest extends TestCase
 {
     public function testFileIsOlderThan(): void
     {
