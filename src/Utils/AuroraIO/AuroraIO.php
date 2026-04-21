@@ -1,10 +1,10 @@
 <?php
 
-namespace Sindla\Bundle\AuroraBundle\Utils\IO;
+namespace Sindla\Bundle\AuroraBundle\Utils\AuroraIO;
 
 use Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos;
 
-class IO
+class AuroraIO
 {
     const int TIME_UNIT_SECONDS = AuroraChronos::TIME_UNIT_SECONDS;
     const int TIME_UNIT_MINUTES = AuroraChronos::TIME_UNIT_MINUTES;
@@ -19,9 +19,6 @@ class IO
      */
     public function recursiveCreateDirectory(string $directory): bool
     {
-        // Since 2026-04-21
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use AuroraIO/AuroraIO instead.', E_USER_DEPRECATED);
-
         if (!is_dir($directory)) {
             return (mkdir($directory, 0777, true)) ? true : false;
         } else {
@@ -34,9 +31,6 @@ class IO
      */
     public function recursiveDelete(string $str, bool $removeGivenDir = true): bool
     {
-        // Since 2026-04-21
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use AuroraIO/AuroraIO instead.', E_USER_DEPRECATED);
-
         if (is_file($str) || is_link($str)) {
             return @unlink($str);
         }
@@ -68,9 +62,6 @@ class IO
 
     public function dirIsEmpty(string $directory): bool
     {
-        // Since 2026-04-21
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use AuroraIO/AuroraIO instead.', E_USER_DEPRECATED);
-
         if (!is_dir($directory)) {
             return true;
         }
@@ -100,9 +91,6 @@ class IO
 
     public function fileIsOlderThan(string $file, int $timeUnit, int $timeUnitType): bool
     {
-        // Since 2026-04-21
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use AuroraIO/AuroraIO instead.', E_USER_DEPRECATED);
-
         if (!is_file($file)) {
             return false;
         }
