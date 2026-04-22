@@ -2,11 +2,16 @@
     "permissions": {
         "allow": [
             "Bash(find:*)",
-            "WebFetch(*)",
+            "WebFetch(domain:*)",
             "Read(.git/**)",
             "Read(.gitattributes)",
             "Read(.gitignore)",
-            "Read(.gitmodules)"
+            "Read(.gitmodules)",
+            "Bash(gh release *)",
+            "Bash(gh --version)",
+            "Bash(gh pr view:*)",
+            "Bash(gh pr diff:*)",
+            "Bash(gh issue view:*)"
         ],
         "deny": [
             "Write(.git/**)",
