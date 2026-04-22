@@ -37,7 +37,8 @@ final class PHPUnitCommand extends CommandMiddleware
             ->addOption('junitXMLFilePath', null, InputOption::VALUE_OPTIONAL)
             ->addOption('outputCoverageSVGFilePath', null, InputOption::VALUE_OPTIONAL)
             ->addOption('outputStatementsSVGFilePath', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('outputPassingSVGFilePath', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('outputPassingSVGFilePath', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('outputTestsSVGFilePath', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -98,6 +99,33 @@ final class PHPUnitCommand extends CommandMiddleware
         }
 
         new AuroraPHPUnitCodeCoverageBadge()->generatePHPUnitPassingBadge($junitXMLFilePath, $outputPassingSVGFilePath);
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitTestsBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputTestsSVGFilePath=.github/badges/phpunit-tests.svg
+     *
+     * Generate the phpunit-tests.svg (passing/failing) badge from junit.xml — avoids GitHub API timing issues
+     */
+    protected function generatePHPUnitTestsBadge(): int
+    {
+        if (
+            !($junitXMLFilePath = $this->input->getOption('junitXMLFilePath') ?? null)
+            || !($outputTestsSVGFilePath = $this->input->getOption('outputTestsSVGFilePath') ?? null)
+        ) {
+            throw new \Exception('Missing required options.');
+        }
+
+        if (!file_exists($junitXMLFilePath)) {
+            $junitXMLFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $junitXMLFilePath;
+        }
+
+        if (!file_exists($outputTestsSVGFilePath)) {
+            $outputTestsSVGFilePath = $this->parameterBag->get('kernel.project_dir') . '/' . $outputTestsSVGFilePath;
+        }
+
+        new AuroraPHPUnitCodeCoverageBadge()->generatePHPUnitTestsBadge($junitXMLFilePath, $outputTestsSVGFilePath);
 
         return self::SUCCESS;
     }

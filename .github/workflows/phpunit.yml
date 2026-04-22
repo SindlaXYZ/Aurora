@@ -251,9 +251,10 @@ jobs:
                     --outputCoverageSVGFilePath=../.github/badges/coverage.svg \
                     --outputStatementsSVGFilePath=../.github/badges/statements.svg
 
-                    curl -L \
-                    "https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg" \
-                    -o ../.github/badges/phpunit-tests.svg
+                    /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitTestsBadge \
+                    --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
+                    --outputTestsSVGFilePath=../.github/badges/phpunit-tests.svg
 
             -   name: "Commit PHPUnit badges"
                 if: steps.check_branch.outputs.should_commit == 'true'
