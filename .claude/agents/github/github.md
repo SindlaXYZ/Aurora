@@ -9,7 +9,7 @@ allowedTools:
   - "Edit"
   - "Glob"
   - "Grep"
-effort: high
+effort: max
 color: green
 maxTurns: 15
 model: sonnet
