@@ -9,7 +9,7 @@ use Sindla\Bundle\AuroraBundle\Tests\Trait\PersistenceTrait;
 use Sindla\Bundle\AuroraBundle\Tests\WebTestCaseMiddleware;
 
 /**
- * APP_ENV=test /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:schema:drop --full-database --force; yes | APP_ENV=test APP_DEBUG=0 /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:migrations:migrate | APP_ENV=test /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:fixtures:load --verbose --append
+ * APP_ENV=test /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:schema:drop --full-database --force; yes | APP_ENV=test APP_DEBUG=0 /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:migrations:migrate; yes | APP_ENV=test /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console doctrine:fixtures:load --verbose --append
  *
  * clear; cd /srv/${DKZ_DOMAIN}/; SYMFONY_DEPRECATIONS_HELPER=         /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/ --no-coverage
  * clear; cd /srv/${DKZ_DOMAIN}/; SYMFONY_DEPRECATIONS_HELPER=         /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/GivenTest.php --no-coverage
