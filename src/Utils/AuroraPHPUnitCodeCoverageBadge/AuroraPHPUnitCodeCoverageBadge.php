@@ -74,21 +74,21 @@ class AuroraPHPUnitCodeCoverageBadge
 
         $coverage = (int)(($totalElements === 0) ? 0 : ($checkedElements / $totalElements) * 100);
 
-        if ($coverage >= 98) {
+        if ($coverage >= 90) {
             $background = '#44CC11';  // Bright Green
             $textColor  = '#FFFFFF';
-        } else if ($coverage >= 90) {
-            $background = '#97CA00';  // Green
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 75) {
-            $background = '#A8961F';  // Yellow-Green
+        } else if ($coverage >= 70) {
+            $background = '#6DEF3E';  // Green:97CA00
             $textColor  = '#FFFFFF';
         } else if ($coverage >= 50) {
-            $background = '#DFB317';  // Yellow
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 15) {
-            $background = '#FE7D37';  // Orange
-            $textColor  = '#FFFFFF';
+            $background = '#ADF692';  // Yellow-Green:A8961F
+            $textColor  = '#000000';
+        } else if ($coverage >= 30) {
+            $background = '#CDFABD';  // Yellow:DFB317
+            $textColor  = '#000000';
+        } else if ($coverage >= 10) {
+            $background = '#EDFDE7';  // Orange:FE7D37
+            $textColor  = '#000000';
         } else {
             $background = '#E0E6EB';  // Grey
             $textColor  = '#000000';
