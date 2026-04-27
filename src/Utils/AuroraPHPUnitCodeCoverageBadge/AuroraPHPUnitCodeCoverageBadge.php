@@ -78,17 +78,17 @@ class AuroraPHPUnitCodeCoverageBadge
             $background = '#44CC11';  // Bright Green
             $textColor  = '#FFFFFF';
         } else if ($coverage >= 70) {
-            $background = '#6DEF3E';  // Green:97CA00
+            $background = '#97CA00';  // Green
             $textColor  = '#FFFFFF';
         } else if ($coverage >= 50) {
-            $background = '#ADF692';  // Yellow-Green:A8961F
-            $textColor  = '#000000';
+            $background = '#A8961F';  // Yellow-Green
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 30) {
-            $background = '#CDFABD';  // Yellow:DFB317
-            $textColor  = '#000000';
+            $background = '#DFB317';  // Yellow
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 10) {
-            $background = '#EDFDE7';  // Orange:FE7D37
-            $textColor  = '#000000';
+            $background = '#FE7D37';  // Orange
+            $textColor  = '#FFFFFF';
         } else {
             $background = '#E0E6EB';  // Grey
             $textColor  = '#000000';
