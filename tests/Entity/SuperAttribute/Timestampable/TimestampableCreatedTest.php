@@ -7,7 +7,7 @@ use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Timestampable\Timestampable
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Timestampable/TimestampableCreated.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Timestampable/TimestampableCreated.php --no-coverage
  */
 class TimestampableCreatedTest extends KernelTestCase
 {

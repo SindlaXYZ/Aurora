@@ -85,7 +85,7 @@ class AuroraPHPUnitCodeCoverageBadge
         } else if ($coverage >= 15) {
             $color = '#FE7D37';  // Orange
         } else {
-            $color = '#D73A49';  // Red
+            $color = '#E0E6EB';  // Grey
         }
 
         $coverageSVG = $this->_coverageSVG();

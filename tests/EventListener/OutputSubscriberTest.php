@@ -12,7 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/EventListener/OutputSubscriberTest.php --no-coverage
  */
 class OutputSubscriberTest extends KernelTestCase
 {

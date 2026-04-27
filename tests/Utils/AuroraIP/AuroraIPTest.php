@@ -9,7 +9,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIP/AuroraIPTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIP/AuroraIPTest.php --no-coverage
  */
 class AuroraIPTest extends TestCase
 {

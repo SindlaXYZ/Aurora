@@ -176,11 +176,11 @@ final class ComposerCommand extends Command
         }
     }
 
-    public function _updatePHPUnit()
+    public function _updatePHPUnit(): void
     {
         $this->io->comment(sprintf('%s Updating the <info>PHPUnit</info> ...', $this->p()));
 
-        $phpUnitFile = $this->kernelRootDir . '/phpunit.phar';
+        $phpUnitFile = $this->kernelRootDir . '/vendor/phpunit/phpunit.phar';
 
         // If the file is not older than X time
         $cacheSeconds = (60 * 60 * 24);

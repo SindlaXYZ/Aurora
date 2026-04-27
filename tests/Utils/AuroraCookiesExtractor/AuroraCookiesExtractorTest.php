@@ -9,7 +9,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\Cookie;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraCookiesExtractorTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraChronos/AuroraCookiesExtractorTest.php --no-coverage
  */
 class AuroraCookiesExtractorTest extends KernelTestCase
 {

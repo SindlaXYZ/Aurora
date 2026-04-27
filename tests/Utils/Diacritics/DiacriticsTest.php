@@ -3,19 +3,12 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\Client;
 
-// PHPUnit
-use PHPUnit\Framework\TestCase;
-
-// Symfony
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpClient\HttpClient;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Diacritics/DiacriticsTest.php --no-coverage
  */
 class DiacriticsTest extends KernelTestCase
 {

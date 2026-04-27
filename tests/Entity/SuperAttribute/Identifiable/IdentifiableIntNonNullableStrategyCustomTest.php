@@ -9,7 +9,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/IdentifiableIntNonNullableStrategyCustomTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Entity/SuperAttribute/Identifiable/IdentifiableIntNonNullableStrategyCustomTest.php --no-coverage
  */
 class IdentifiableIntNonNullableStrategyCustomTest extends KernelTestCase
 {

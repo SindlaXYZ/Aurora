@@ -8,7 +8,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraCalendar/AuroraCalendarTest.php --no-coverage
  */
 class AuroraCalendarTest extends KernelTestCase
 {

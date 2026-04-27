@@ -3,14 +3,11 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraMatch;
 
-// PHPUnit
 use PHPUnit\Framework\TestCase;
-
-// Aurora
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraMatch/AuroraMatchTest.php --no-coverage
  */
 class AuroraMatchTest extends TestCase
 {

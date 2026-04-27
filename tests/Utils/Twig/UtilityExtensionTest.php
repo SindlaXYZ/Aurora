@@ -12,7 +12,7 @@ use Symfony\Component\HttpFoundation\RequestStack;
 use Twig\Environment;
 
 /**
- * clear; php phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/Twig/UtilityExtensionTest.php --no-coverage
  */
 class UtilityExtensionTest extends TestCase
 {
@@ -62,7 +62,7 @@ class UtilityExtensionTest extends TestCase
 
         return $data;
     }
-    
+
     #[DataProvider('dataGetBuild')]
     public function testGetBuild(?int $limit, string $expected): void
     {
