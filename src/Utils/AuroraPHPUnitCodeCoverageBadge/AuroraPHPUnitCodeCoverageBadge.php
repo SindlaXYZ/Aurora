@@ -75,26 +75,34 @@ class AuroraPHPUnitCodeCoverageBadge
         $coverage = (int)(($totalElements === 0) ? 0 : ($checkedElements / $totalElements) * 100);
 
         if ($coverage >= 98) {
-            $color = '#44CC11';  // Bright Green
+            $background = '#44CC11';  // Bright Green
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 90) {
-            $color = '#97CA00';  // Green
+            $background = '#97CA00';  // Green
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 75) {
-            $color = '#A8961F';  // Yellow-Green
+            $background = '#A8961F';  // Yellow-Green
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 50) {
-            $color = '#DFB317';  // Yellow
+            $background = '#DFB317';  // Yellow
+            $textColor  = '#FFFFFF';
         } else if ($coverage >= 15) {
-            $color = '#FE7D37';  // Orange
+            $background = '#FE7D37';  // Orange
+            $textColor  = '#FFFFFF';
         } else {
-            $color = '#E0E6EB';  // Grey
+            $background = '#E0E6EB';  // Grey
+            $textColor  = '#000000';
         }
 
         $coverageSVG = $this->_coverageSVG();
-        $coverageSVG = str_replace('{{ color }}', $color, $coverageSVG);
+        $coverageSVG = str_replace('{{ background }}', $background, $coverageSVG);
+        $coverageSVG = str_replace('{{ textColor }}', $textColor, $coverageSVG);
         $coverageSVG = str_replace('{{ total }}', $coverage, $coverageSVG);
         file_put_contents($outputCoverageSVGFilePath, $coverageSVG);
 
         $statementsSVG = $this->__statementsSVG();
-        $statementsSVG = str_replace('{{ color }}', $color, $statementsSVG);
+        $statementsSVG = str_replace('{{ background }}', $background, $statementsSVG);
+        $statementsSVG = str_replace('{{ textColor }}', $textColor, $statementsSVG);
         $statementsSVG = str_replace('{{ statements }}', $statements, $statementsSVG);
         $statementsSVG = str_replace('{{ coveredStatements }}', $coveredStatements, $statementsSVG);
         file_put_contents($outputStatementsSVGFilePath, $statementsSVG);
@@ -221,14 +229,14 @@ SVG;
     </mask>
     <g mask="url(#a)">
         <path fill="url(#workflow-fill)" d="M0 0h63v20H0z"/>
-        <path fill="{{ color }}" d="M63 0h36v20H63z"/>
+        <path fill="{{ background }}" d="M63 0h36v20H63z"/>
         <path fill="url(#b)" d="M0 0h99v20H0z"/>
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="31.5" y="15" fill="#010101" fill-opacity=".3">Coverage</text>
         <text x="31.5" y="14">Coverage</text>
         <text x="80" y="15" fill="#010101" fill-opacity=".3">{{ total }}%</text>
-        <text x="80" y="14">{{ total }}%</text>
+        <text x="80" y="14" fill="{{ textColor }}">{{ total }}%</text>
     </g>
 </svg>
 SVG;
@@ -256,14 +264,14 @@ SVG;
     </mask>
     <g mask="url(#a)">
         <path fill="url(#workflow-fill)" d="M0 0h{$leftBlock}v20H0z"/>
-        <path fill="{{ color }}" d="M{$leftBlock} 0h{$rightBlockWidth}v20H{$leftBlock}z"/>
+        <path fill="{{ background }}" d="M{$leftBlock} 0h{$rightBlockWidth}v20H{$leftBlock}z"/>
         <path fill="url(#b)" d="M0 0h{$width}v20H0z"/>
     </g>
     <g fill="#fff" text-anchor="middle" font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
         <text x="38" y="15" fill="#010101" fill-opacity=".3">Statements</text>
         <text x="38" y="14">Statements</text>
         <text x="117" y="15" fill="#010101" fill-opacity=".3">{{ coveredStatements }} / {{ statements }}</text>
-        <text x="117" y="14">{{ coveredStatements }} / {{ statements }}</text>
+        <text x="117" y="14" fill="{{ textColor }}">{{ coveredStatements }} / {{ statements }}</text>
     </g>
 </svg>
 SVG;
