@@ -20,6 +20,6 @@
         <text x="31.5" y="15" fill="#010101" fill-opacity=".3">Coverage</text>
         <text x="31.5" y="14">Coverage</text>
         <text x="80" y="15" fill="#010101" fill-opacity=".3">33%</text>
-        <text x="80" y="14">33%</text>
+        <text x="80" y="14" fill="#FFFFFF">33%</text>
     </g>
 </svg>
