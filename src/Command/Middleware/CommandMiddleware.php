@@ -25,6 +25,7 @@ class CommandMiddleware extends Command
     protected InputInterface  $input;
     protected OutputInterface $output;
     protected SymfonyStyle    $io;
+    protected bool            $dryRun = false;
 
     #[Required]
     private ManagerRegistry        $managerRegistry;
@@ -85,6 +86,11 @@ class CommandMiddleware extends Command
 
         /** @var SymfonyStyle io */
         $this->io = new SymfonyStyle($this->input, $this->output);
+
+        if ($input->hasOption('dry-run') && $input->hasParameterOption('--dry-run')) {
+            $value        = $input->getOption('dry-run');
+            $this->dryRun = null === $value || '' === $value || filter_var($value, FILTER_VALIDATE_BOOLEAN);
+        }
     }
 
     protected function try(InputInterface $input, OutputInterface $output, Command $command): int
