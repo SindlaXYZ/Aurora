@@ -2,11 +2,11 @@
 
 ## Project Overview
 
-`sindla/aurora` is a **Symfony 8.0 bundle** (PHP 8.4+) published on Packagist.
+`sindla/aurora` is a **Symfony 8.1 bundle** (PHP 8.4+) published on Packagist.
 Namespace: `Sindla\Bundle\AuroraBundle`
 License: MIT
-Branch convention: `8.0` (development), `6.1` (main/stable)
-Packagist: `composer require sindla/aurora:8.0.*`
+Branch convention: `8.1` (development), `6.1` (main/stable)
+Packagist: `composer require sindla/aurora:8.1.*`
 
 ## Code Style
 
@@ -126,8 +126,8 @@ tests/
 | `geoip2/geoip2` | ^3.3 | MaxMind GeoLite2 |
 | `matthiasmullie/minify` | ^1.3 | HTML/CSS/JS minification |
 | `scienta/doctrine-json-functions` | ^6.5 | JSON DQL functions |
-| `symfony/uid` | ^8.0 | UUID |
-| `symfony/twig-bundle` | ^8.0 | Twig |
+| `symfony/uid` | ^8.1 | UUID |
+| `symfony/twig-bundle` | ^8.1 | Twig |
 | `tedivm/jshrink` | ^1.8 | JS minification |
 
 ### Dev (require-dev)
@@ -147,12 +147,12 @@ Aurora is a bundle and requires a host Symfony application to run tests. The bun
 # 1. Create host Symfony app in a sibling directory
 mkdir /workspace/Aurora-installed
 cd /workspace/Aurora-installed
-yes | composer create-project symfony/skeleton:8.0.x-dev . --no-cache
+yes | composer create-project symfony/skeleton:8.1.x-dev . --no-cache
 yes | composer require symfony/webapp-pack -W --no-progress
 
 # 2. Register Aurora as a local path repository
 composer config repositories.aurora '{"type":"path","url":"/workspace/Aurora","options":{"symlink":true}}'
-yes | composer require sindla/aurora:8.0.x-dev -W --no-progress
+yes | composer require sindla/aurora:8.1.x-dev -W --no-progress
 
 # 3. Install dev tools
 yes | composer require phpunit/phpunit:^12.4 -W --dev --no-progress
@@ -199,10 +199,10 @@ KERNEL_CLASS=App\\Kernel APP_ENV=test php /workspace/Aurora-installed/vendor/bin
 
 ## CI/CD (GitHub Actions)
 
-Workflow: `.github/workflows/phpunit.yml`, triggers on push to `8.0` and all pull requests.
+Workflow: `.github/workflows/phpunit.yml`, triggers on push to `8.1` and all pull requests.
 
 - **Environment**: Ubuntu 22.04, PHP 8.4, xdebug coverage.
-- **Strategy**: Creates a fresh Symfony 8.0 skeleton, installs Aurora as a dev dependency, syncs `src/` and `tests/` into the build, runs tests per-directory, then runs all with coverage.
+- **Strategy**: Creates a fresh Symfony 8.1 skeleton, installs Aurora as a dev dependency, syncs `src/` and `tests/` into the build, runs tests per-directory, then runs all with coverage.
 - **Badges**: PHPUnit passing/coverage/statements SVG badges are auto-generated via `aurora:php-unit` command and committed to `.github/badges/` on version branches (X.Y where X>=7).
 - **Auto-merge**: Pull requests from `codex/*` branches are auto-squash-merged after all checks pass.
 

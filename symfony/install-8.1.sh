@@ -16,12 +16,12 @@ else
   cd "$aurora_installed_path"
 fi
 
-yes | composer create-project symfony/skeleton:8.0.x-dev . --no-cache
+yes | composer create-project symfony/skeleton:8.1.x-dev . --no-cache
 yes | composer require symfony/webapp-pack -W --no-progress
 composer config repositories.aurora "{\"type\":\"path\",\"url\":\"$aurora_path\",\"options\":{\"symlink\":true}}"
 # composer config repositories.aurora alternative:
 # powershell -Command "New-Item -ItemType Junction -Path 'aurora' -Target 'W:\aurora'"
-yes | composer require sindla/aurora:8.0.x-dev -W --no-progress
+yes | composer require sindla/aurora:8.1.x-dev -W --no-progress
 yes | composer require phpunit/phpunit:^12.4 -W --dev --no-progress
 yes | composer require dama/doctrine-test-bundle:^8.4 -W --dev --no-progress
 yes | composer require phpstan/phpstan:^2.1 -W --dev --no-progress
@@ -31,5 +31,5 @@ cd ../../../
 php bin/console cache:clear --env=dev
 KERNEL_CLASS=App\\Kernel APP_ENV=test php vendor/bin/phpunit --no-coverage -c vendor/sindla/aurora/phpunit.xml.dist vendor/sindla/aurora/tests/
 KERNEL_CLASS=App\\Kernel APP_ENV=test php vendor/bin/phpstan analyse -l 6 vendor/sindla/aurora/src
-echo -e "\n\nSymfony 8.0 installation completed.\n"
+echo -e "\n\nSymfony 8.1 installation completed.\n"
 read -n 1 -s -r -p "Press any key to continue"

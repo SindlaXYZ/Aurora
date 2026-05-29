@@ -1,19 +1,19 @@
 ## Aurora
 
-[![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=8.0)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A8.0) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/8.0/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/8.0/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/8.0/.github/badges/coverage.svg?raw=true) [![Last Commit](https://github.com/SindlaXYZ/aurora/blob/8.0/.github/badges/last-commit.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/tree/8.0) [![Latest Version](https://github.com/SindlaXYZ/aurora/blob/8.0/.github/badges/tag.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/releases?q=v8.0&expanded=true)
+[![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=8.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A8.1) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/coverage.svg?raw=true) [![Last Commit](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/last-commit.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/tree/8.1) [![Latest Version](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/tag.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/releases?q=v8.1&expanded=true)
 
 ## Installation
 
 The Aurora package is Packagist ready, and Composer can be used to install it (PHP 8.4+ required).
 
 ```bash
-composer require sindla/aurora:8.0.*
+composer require sindla/aurora:8.1.*
 ```
 
 The x-dev flag can be used to install the development version:
 
 ```bash
-composer require sindla/aurora:8.0.x-dev
+composer require sindla/aurora:8.1.x-dev
 ```
 
 ## Configuration
@@ -323,9 +323,9 @@ composer install
 
 mkdir symfony/
 cd symfony/
-composer create-project symfony/skeleton:8.0.* . --no-cache
+composer create-project symfony/skeleton:8.1.* . --no-cache
 yes | composer require symfony/webapp-pack
-yes | composer require sindla/aurora:8.0.x-dev -W --no-cache --no-progress
+yes | composer require sindla/aurora:8.1.x-dev -W --no-cache --no-progress
 yes | composer require phpunit/phpunit:10.5.* -W --dev --no-progress
 yes | composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
 php vendor/bin/phpunit -c phpunit.dist.xml vendor/sindla/aurora/tests/
