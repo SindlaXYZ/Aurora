@@ -259,6 +259,40 @@ jobs:
                     --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
                     --outputTestsSVGFilePath=../.github/badges/phpunit-tests.svg
 
+            -   name: "Generate repository badges (last commit, tag)"
+                if: steps.check_branch.outputs.should_commit == 'true'
+                env:
+                    GH_TOKEN: ${{ github.token }}
+                run: |
+                    mkdir -p .github/badges
+
+                    # The shields.io /badge/ (static) endpoint does NOT call the GitHub API,
+                    # so it never returns the "Unable to select next GitHub token from pool"
+                    # rate-limit error that the dynamic github/* endpoints intermittently do.
+
+                    # "last commit" badge — literal dashes in the date must be doubled for shields.io
+                    COMMIT_DATE="$(git log -1 --format=%cs)"
+                    COMMIT_DATE_ESC="${COMMIT_DATE//-/--}"
+                    if curl -fsSL "https://img.shields.io/badge/last%20commit-${COMMIT_DATE_ESC}-blue" -o /tmp/last-commit.svg \
+                        && grep -q "<svg" /tmp/last-commit.svg && ! grep -q "Unable to select" /tmp/last-commit.svg; then
+                        mv /tmp/last-commit.svg .github/badges/last-commit.svg
+                    else
+                        echo "last-commit badge download failed; keeping existing badge"
+                    fi
+
+                    # "tag" badge — latest published release tag
+                    LATEST_TAG="$(gh release view --json tagName -q .tagName 2>/dev/null || true)"
+                    if [ -n "$LATEST_TAG" ]; then
+                        if curl -fsSL "https://img.shields.io/badge/tag-${LATEST_TAG}-brightgreen" -o /tmp/tag.svg \
+                            && grep -q "<svg" /tmp/tag.svg && ! grep -q "Unable to select" /tmp/tag.svg; then
+                            mv /tmp/tag.svg .github/badges/tag.svg
+                        else
+                            echo "tag badge download failed; keeping existing badge"
+                        fi
+                    else
+                        echo "Could not resolve latest release tag; keeping existing tag badge"
+                    fi
+
             -   name: "Commit PHPUnit badges"
                 if: steps.check_branch.outputs.should_commit == 'true'
                 run: |
@@ -276,7 +310,9 @@ jobs:
                     git add .github/badges/coverage.svg \
                             .github/badges/phpunit.svg \
                             .github/badges/phpunit-tests.svg \
-                            .github/badges/statements.svg
+                            .github/badges/statements.svg \
+                            .github/badges/last-commit.svg \
+                            .github/badges/tag.svg
 
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
 
