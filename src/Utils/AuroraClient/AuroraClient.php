@@ -3,10 +3,7 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraClient;
 
 use GeoIp2\Database\Reader;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
-use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\HttpFoundation\Request;
 
 class AuroraClient
 {

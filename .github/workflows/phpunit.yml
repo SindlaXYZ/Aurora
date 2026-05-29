@@ -5,6 +5,9 @@ on:
     push:
         branches:
             - "8.0"
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: false
 env:
     fail-fast: true
     WORKSPACE: "${{ github.workspace }}"
@@ -260,13 +263,23 @@ jobs:
                 if: steps.check_branch.outputs.should_commit == 'true'
                 run: |
                     BRANCH="${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}"
+                    echo "Pushing to branch: $BRANCH"
+
                     git config user.name "github-actions[bot]"
                     git config user.email "github-actions[bot]@users.noreply.github.com"
                     git config --global pull.rebase true
                     git config --global rebase.autoStash true
-                    git pull origin "HEAD:${BRANCH}"
-                    git add .github/badges/coverage.svg .github/badges/phpunit.svg .github/badges/phpunit-tests.svg .github/badges/statements.svg
+
+                    git fetch origin "${BRANCH}"
+                    git rebase origin/"${BRANCH}"
+
+                    git add .github/badges/coverage.svg \
+                            .github/badges/phpunit.svg \
+                            .github/badges/phpunit-tests.svg \
+                            .github/badges/statements.svg
+
                     git commit -m "Update PHPUnit badges" || echo "No changes to commit"
+
                     git push origin "HEAD:${BRANCH}"
 
             #########################################################################################################################################

@@ -18,7 +18,7 @@ composer require sindla/aurora:8.0.x-dev
 
 ## Configuration
 
-Even if Aurora is Packagist-ready and is a Symfony bundle, no recipe will be installed automatically.
+Even though Aurora is Packagist-ready and is a Symfony bundle, no recipe will be installed automatically.
 
 <details>
         <summary><h4>🗂️ config/packages/aurora.yaml</h4></summary>
