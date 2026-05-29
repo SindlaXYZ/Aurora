@@ -1,0 +1,64 @@
+name: Forbidden Files
+
+on:
+    pull_request:
+    push:
+        branches:
+            - '**'
+
+env:
+    fail-fast: true
+
+permissions:
+    contents: read
+
+jobs:
+    forbidden-files:
+        name: Forbidden Files
+        runs-on: ubuntu-22.04
+        steps:
+            -   name: Checkout code
+                uses: actions/checkout@v6
+
+            -   name: Verify no forbidden files are tracked
+                run: |
+                    set -eu
+                    FORBIDDEN=(
+                        ".env.local"
+                        ".env.test.local"
+                        ".env.*.local"
+                        ".env.local.php"
+                        ".docker/.env.local"
+                        ".claude/agents/github/.credentials.local"
+                        ".claude/settings.local.json"
+                        "config/secrets/prod/prod.decrypt.private.php"
+                        "config/jwt/*.pem"
+                        # Aurora-specific (see .claude/CLAUDE.md):
+                        # - composer.lock must NEVER be committed for this bundle.
+                        # - MaxMind GeoLite2 databases are licensed binaries that are
+                        #   auto-downloaded by Composer hooks, never stored in git.
+                        "composer.lock"
+                        "*.mmdb"
+                    )
+                    LEAKED=()
+                    for f in "${FORBIDDEN[@]}"; do
+                        if git ls-files --error-unmatch -- "$f" >/dev/null 2>&1; then
+                            LEAKED+=("$f")
+                        fi
+                    done
+                    if [ ${#LEAKED[@]} -gt 0 ]; then
+                        echo "::error::The following forbidden files are tracked by git and must NEVER be committed:"
+                        for f in "${LEAKED[@]}"; do
+                            echo "  - $f"
+                        done
+                        echo ""
+                        echo "Remediation:"
+                        echo "  1. Remove the file(s) from the index and commit:"
+                        echo "       git rm --cached <file>"
+                        echo "       git commit -m 'Remove forbidden file from git'"
+                        echo "  2. Confirm the path is covered by .gitignore."
+                        echo "  3. ROTATE any secret that may have been written to the file -"
+                        echo "     the value is already in git history and must be considered compromised."
+                        exit 1
+                    fi
+                    echo "OK - none of the forbidden files are tracked."
