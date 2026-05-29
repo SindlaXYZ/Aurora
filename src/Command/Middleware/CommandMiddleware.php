@@ -112,9 +112,10 @@ class CommandMiddleware extends Command
             $executionStartTime      = microtime(true);
             $actionResult            = $command->$action();
             $executionElapsedSeconds = microtime(true) - $executionStartTime;
-            $hours                   = str_pad(BigDecimal::of($executionElapsedSeconds)->dividedBy(3600, 0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
-            $minutes                 = str_pad(BigDecimal::of($executionElapsedSeconds)->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, 0, STR_PAD_LEFT);
-            $seconds                 = str_pad(BigDecimal::of($executionElapsedSeconds)->remainder(60)->toScale(0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
+            $elapsed                 = BigDecimal::of((string) $executionElapsedSeconds);
+            $hours                   = str_pad($elapsed->dividedBy(3600, 0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
+            $minutes                 = str_pad($elapsed->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, 0, STR_PAD_LEFT);
+            $seconds                 = str_pad($elapsed->remainder(60)->toScale(0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
             $this->io->write(sprintf("[%s] Done in <fg=white;options=bold>%s</>", date('H:i:s'), "{$hours}:{$minutes}:{$seconds}"), true);
             return $actionResult;
         } else {
