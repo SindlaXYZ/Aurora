@@ -2,31 +2,25 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraGit;
 
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
-use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 /**
  * Debug: php bin/console debug:container aurora.git
- *
- * Class AuroraGit
- *
- * @package AuroraBundle\Utils
  */
 class AuroraGit
 {
-    protected $container;
-
-    public function __construct(Container $Container)
-    {
-        $this->container = $Container;
+    public function __construct(
+        private readonly ParameterBagInterface $parameterBag,
+    ) {
     }
 
     private function createCache(): AdapterInterface
     {
-        $lifetime = ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1);
+        $lifetime = ('prod' == $this->parameterBag->get('kernel.environment') ? (60 * 60 * 24) : 1);
 
         if (ApcuAdapter::isSupported()) {
             return new ApcuAdapter('', $lifetime);
@@ -40,8 +34,7 @@ class AuroraGit
         $cache = $this->createCache();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
-            $root = $this->container->getParameter('aurora.root');
-            $this->container->getParameter('aurora.root');
+            $root = $this->parameterBag->get('aurora.root');
 
             if (is_dir($root . '/.git/')) {
                 $stringFromFile = file($root . '/.git/HEAD', FILE_USE_INCLUDE_PATH);
@@ -63,7 +56,7 @@ class AuroraGit
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
 
-            $root = $this->container->getParameter('aurora.root');
+            $root = $this->parameterBag->get('aurora.root');
 
             if (is_dir($root . '/.git/refs/tags/')) {
                 if ($tags = glob($root . '/.git/refs/tags/*')) {
@@ -91,7 +84,7 @@ class AuroraGit
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__), function (ItemInterface $item) {
 
-            $root = $this->container->getParameter('aurora.root');
+            $root = $this->parameterBag->get('aurora.root');
 
             if (is_dir($root . '/.git/refs/tags/')) {
                 if ($tags = glob($root . '/.git/refs/tags/*')) {
@@ -124,7 +117,7 @@ class AuroraGit
                 }
             }
 
-            $root = $this->container->getParameter('aurora.root');
+            $root = $this->parameterBag->get('aurora.root');
 
             if (is_dir($root . '/.git/')) {
                 if (file_exists($root . '/.git/refs/heads/' . $branch)) {
@@ -155,7 +148,7 @@ class AuroraGit
                 }
             }
 
-            $root = $this->container->getParameter('aurora.root');
+            $root = $this->parameterBag->get('aurora.root');
 
             if (is_dir($root . '/.git/')) {
                 if (file_exists($root . '/.git/logs/refs/heads/' . $branch)) {

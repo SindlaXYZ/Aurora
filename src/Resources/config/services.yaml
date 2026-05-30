@@ -180,7 +180,7 @@ services:
 #
 #    aurora.git:
 #        class: Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit
-#        arguments: ['@service_container']
+#        # ParameterBagInterface is autowired.
 #        autowire: true
 #        autoconfigure: true
 #        public: true
