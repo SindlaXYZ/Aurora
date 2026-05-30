@@ -296,27 +296,35 @@ namespace Symfony\Component\HttpFoundation\Session {
     }
 }
 
-namespace Symfony\Component\DependencyInjection {
-    if (!interface_exists(ContainerInterface::class)) {
-        interface ContainerInterface extends \Psr\Container\ContainerInterface
+namespace Symfony\Component\DependencyInjection\ParameterBag {
+    if (!interface_exists(ParameterBagInterface::class)) {
+        interface ParameterBagInterface
         {
-            public const EXCEPTION_ON_INVALID_REFERENCE = 1;
+            public function get(string $name): mixed;
 
-            public const NULL_ON_INVALID_REFERENCE = 0;
+            public function has(string $name): bool;
+        }
+    }
 
-            public const IGNORE_ON_INVALID_REFERENCE = 2;
+    if (!class_exists(ParameterBag::class)) {
+        class ParameterBag implements ParameterBagInterface
+        {
+            /**
+             * @param array<string, mixed> $parameters
+             */
+            public function __construct(private array $parameters = [])
+            {
+            }
 
-            public const IGNORE_ON_UNINITIALIZED_REFERENCE = 3;
+            public function get(string $name): mixed
+            {
+                return $this->parameters[$name] ?? null;
+            }
 
-            public function set(string $id, mixed $service): void;
-
-            public function initialized(string $id): bool;
-
-            public function getParameter(string $name): mixed;
-
-            public function hasParameter(string $name): bool;
-
-            public function setParameter(string $name, mixed $value): void;
+            public function has(string $name): bool
+            {
+                return array_key_exists($name, $this->parameters);
+            }
         }
     }
 }
@@ -363,8 +371,10 @@ namespace Twig {
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA {
 
 use PHPUnit\Framework\TestCase;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -408,7 +418,7 @@ final class PWACacheTest extends TestCase
     {
         $iconsDirectory = $this->createIconsDirectory();
 
-        $container = $this->createContainer([
+        $parameterBag = $this->createParameterBag([
             'aurora.pwa.app_name'        => 'Test App',
             'aurora.pwa.app_short_name'  => 'Test',
             'aurora.pwa.app_description' => 'Just a test manifest',
@@ -422,7 +432,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($container, $requestStack, $twig);
+        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
         $response = $pwa->manifestJSON($request);
 
         self::assertInstanceOf(JsonResponse::class, $response);
@@ -438,7 +448,7 @@ final class PWACacheTest extends TestCase
     {
         $iconsDirectory = $this->createIconsDirectory();
 
-        $container = $this->createContainer([
+        $parameterBag = $this->createParameterBag([
             'aurora.pwa.icons' => $iconsDirectory,
         ]);
 
@@ -447,7 +457,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($container, $requestStack, $twig);
+        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
         $response = $pwa->browserConfig($request);
 
         self::assertInstanceOf(Response::class, $response);
@@ -459,7 +469,7 @@ final class PWACacheTest extends TestCase
     {
         $iconsDirectory = $this->createIconsDirectory();
 
-        $container = $this->createContainer([
+        $parameterBag = $this->createParameterBag([
             'aurora.pwa.icons' => $iconsDirectory,
         ]);
 
@@ -468,7 +478,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($container, $requestStack, $twig);
+        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
         $response = $pwa->icon($request);
 
         self::assertInstanceOf(BinaryFileResponse::class, $response);
@@ -495,7 +505,7 @@ final class PWACacheTest extends TestCase
         return $directory;
     }
 
-    private function createContainer(array $overrides = []): ContainerInterface
+    private function createParameterBag(array $overrides = []): ParameterBagInterface
     {
         $defaults = [
             'aurora.pwa.app_name'                        => 'Default App',
@@ -518,81 +528,19 @@ final class PWACacheTest extends TestCase
             'kernel.environment'                         => 'dev',
         ];
 
-        $parameters = array_merge($defaults, $overrides);
+        return new ParameterBag(array_merge($defaults, $overrides));
+    }
 
-        return new class ($parameters) implements ContainerInterface {
-            /** @var array<string, mixed> */
-            private array $services = [];
-
-            /**
-             * @param array<string, mixed> $parameters
-             */
-            public function __construct(private array $parameters)
+    private function createGit(): AuroraGit
+    {
+        return new class extends AuroraGit {
+            public function __construct()
             {
-                $this->services['aurora.git'] = new class {
-                    public function getHash(): string
-                    {
-                        return 'hash-value';
-                    }
-                };
-
-                $this->services['aurora.pwa'] = new class {
-                    public function version(Request $request): string
-                    {
-                        return 'version';
-                    }
-                };
-
-                $this->services['aurora.helper'] = new class {
-                    public function isTrue(mixed $value): bool
-                    {
-                        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === true;
-                    }
-
-                    public function isFalse(mixed $value): bool
-                    {
-                        return filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE) === false;
-                    }
-                };
             }
 
-            public function get(string $id, int $invalidBehavior = self::EXCEPTION_ON_INVALID_REFERENCE): ?object
+            public function getHash(?string $branch = null)
             {
-                if (!$this->has($id)) {
-                    throw new \RuntimeException(sprintf('Service %s not found.', $id));
-                }
-
-                return $this->services[$id];
-            }
-
-            public function has(string $id): bool
-            {
-                return array_key_exists($id, $this->services);
-            }
-
-            public function set(string $id, mixed $service): void
-            {
-                $this->services[$id] = $service;
-            }
-
-            public function initialized(string $id): bool
-            {
-                return $this->has($id);
-            }
-
-            public function getParameter(string $name): \UnitEnum|array|string|int|float|bool|null
-            {
-                return $this->parameters[$name] ?? null;
-            }
-
-            public function hasParameter(string $name): bool
-            {
-                return array_key_exists($name, $this->parameters);
-            }
-
-            public function setParameter(string $name, mixed $value): void
-            {
-                $this->parameters[$name] = $value;
+                return 'hash-value';
             }
         };
     }

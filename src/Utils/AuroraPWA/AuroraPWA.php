@@ -2,13 +2,14 @@
 
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraPWA;
 
-use AllowDynamicProperties;
 use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit;
 use Symfony\Component\Cache\Adapter\AdapterInterface;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Exception\CacheException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -23,20 +24,20 @@ use Twig\Environment;
 /**
  * Debug: php bin/console debug:container aurora.pwa
  */
-#[AllowDynamicProperties]
 class AuroraPWA
 {
     private ?SessionInterface $session = null;
 
     public function __construct(
-        private ContainerInterface $container,
-        private RequestStack       $requestStack,
-        private Environment        $twig
-    )
-    {
-        if (method_exists($requestStack, 'getSession')) {
+        private readonly ParameterBagInterface $parameterBag,
+        private readonly RequestStack          $requestStack,
+        private readonly Environment           $twig,
+        #[Autowire(service: 'aurora.git')]
+        private readonly AuroraGit             $git,
+    ) {
+        if (method_exists($this->requestStack, 'getSession')) {
             try {
-                $session = $requestStack->getSession();
+                $session = $this->requestStack->getSession();
             } catch (SessionNotFoundException) {
                 $session = null;
             }
@@ -49,12 +50,12 @@ class AuroraPWA
         if (null === $this->session) {
             $requestFromStack = null;
 
-            if (method_exists($requestStack, 'getMainRequest')) {
-                $requestFromStack = $requestStack->getMainRequest();
-            } else if (method_exists($requestStack, 'getMasterRequest')) {
-                $requestFromStack = $requestStack->getMasterRequest();
-            } else if (method_exists($requestStack, 'getCurrentRequest')) {
-                $requestFromStack = $requestStack->getCurrentRequest();
+            if (method_exists($this->requestStack, 'getMainRequest')) {
+                $requestFromStack = $this->requestStack->getMainRequest();
+            } else if (method_exists($this->requestStack, 'getMasterRequest')) {
+                $requestFromStack = $this->requestStack->getMasterRequest();
+            } else if (method_exists($this->requestStack, 'getCurrentRequest')) {
+                $requestFromStack = $this->requestStack->getCurrentRequest();
             }
 
             if ($requestFromStack instanceof Request && method_exists($requestFromStack, 'getSession')) {
@@ -72,6 +73,14 @@ class AuroraPWA
     }
 
     /**
+     * Read an "aurora.pwa.*" (or kernel) container parameter, returning $default when it is not defined.
+     */
+    private function parameter(string $name, mixed $default = null): mixed
+    {
+        return $this->parameterBag->has($name) ? $this->parameterBag->get($name) : $default;
+    }
+
+    /**
      * manifest.json | manifest.webmanifest
      */
     public function manifestJSON(Request $request): JsonResponse
@@ -80,11 +89,11 @@ class AuroraPWA
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
 
-            $appName        = $this->container->getParameter('aurora.pwa.app_name');
-            $appShortName   = $this->container->getParameter('aurora.pwa.app_short_name');
-            $appDescription = $this->container->getParameter('aurora.pwa.app_description');
-            $appThemeColor  = $this->container->getParameter('aurora.pwa.theme_color');
-            $appBackground  = $this->container->getParameter('aurora.pwa.background_color');
+            $appName        = $this->parameter('aurora.pwa.app_name');
+            $appShortName   = $this->parameter('aurora.pwa.app_short_name');
+            $appDescription = $this->parameter('aurora.pwa.app_description');
+            $appThemeColor  = $this->parameter('aurora.pwa.theme_color');
+            $appBackground  = $this->parameter('aurora.pwa.background_color');
 
             if (class_exists('\App\Service\AuroraService')) {
                 $utils          = new \App\Service\AuroraService();
@@ -115,10 +124,10 @@ class AuroraPWA
                 'name'             => $appName,
                 'short_name'       => $appShortName, // The short_name manifest member is used to specify a short name for your web application, which may be used when the full name is too long for the available space.
                 'description'      => $appDescription,
-                'id'               => $this->container->getParameter('aurora.pwa.start_url'), // When the browser sees a manifest that does not have an identity that matches an already installed PWA, it will treat it as a new AuroraPWA, even if it is served from the same URL as another PWA. But if it sees a manifest with an identity that matches the already installed PWA, it will treat that as the installed PWA.
-                'start_url'        => $this->container->getParameter('aurora.pwa.start_url'),
+                'id'               => $this->parameter('aurora.pwa.start_url'), // When the browser sees a manifest that does not have an identity that matches an already installed PWA, it will treat it as a new AuroraPWA, even if it is served from the same URL as another PWA. But if it sees a manifest with an identity that matches the already installed PWA, it will treat that as the installed PWA.
+                'start_url'        => $this->parameter('aurora.pwa.start_url'),
                 'display_override' => ['fullscreen', 'minimal-ui'],
-                'display'          => $this->container->getParameter('aurora.pwa.display'),  // fullscreen
+                'display'          => $this->parameter('aurora.pwa.display'),  // fullscreen
                 'theme_color'      => $appThemeColor, // #RGB
                 'background_color' => $appBackground, // #RGB
                 'icons'            => []
@@ -126,7 +135,7 @@ class AuroraPWA
 
             foreach ([36, 48, 72, 96, 144, 192, 512] as $iconSize) {
                 $fileName = "android-icon-{$iconSize}x{$iconSize}.png";
-                if (file_exists($this->container->getParameter('aurora.pwa.icons') . "/{$fileName}")) {
+                if (file_exists($this->parameter('aurora.pwa.icons') . "/{$fileName}")) {
                     $manifest['icons'][] = [
                         'src'     => "/android-icon-{$iconSize}x{$iconSize}.png",
                         'sizes'   => "{$iconSize}x{$iconSize}",
@@ -138,7 +147,7 @@ class AuroraPWA
                 }
             }
 
-            $maskableIcon = $this->container->getParameter('aurora.pwa.icons') . '/android-icon-maskable.png';
+            $maskableIcon = $this->parameter('aurora.pwa.icons') . '/android-icon-maskable.png';
 
             if (file_exists($maskableIcon) && 0 !== filesize($maskableIcon)) {
                 [$maskableWidth, $maskableHeight] = (function_exists('getimagesize') ? getimagesize($maskableIcon) : [196, 196]);
@@ -174,7 +183,7 @@ class AuroraPWA
                         'square70x70logo'   => ['@src' => '/ms-icon-70x70.png'],
                         'square150x150logo' => ['@src' => '/ms-icon-150x150.png'],
                         'square310x310logo' => ['@src' => '/ms-icon-310x310.png'],
-                        'TileColor'         => $this->container->getParameter('aurora.pwa.theme_color') // #RGB
+                        'TileColor'         => $this->parameter('aurora.pwa.theme_color') // #RGB
                     ]
                 ]
             ];
@@ -195,7 +204,7 @@ class AuroraPWA
 
     public function mainJS(Request $request): Response
     {
-        if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var($this->parameter('aurora.pwa.enabled', true), FILTER_VALIDATE_BOOLEAN)) {
             return new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']);
         }
 
@@ -222,8 +231,8 @@ class AuroraPWA
 
         $automaticallyPrompt = true;
 
-        if ($this->container->hasParameter('aurora.pwa.automatically_prompt')) {
-            $rawAutomaticallyPrompt    = $this->container->getParameter('aurora.pwa.automatically_prompt');
+        if ($this->parameterBag->has('aurora.pwa.automatically_prompt')) {
+            $rawAutomaticallyPrompt    = $this->parameter('aurora.pwa.automatically_prompt');
             $parsedAutomaticallyPrompt = filter_var(
                 $rawAutomaticallyPrompt,
                 FILTER_VALIDATE_BOOLEAN,
@@ -238,7 +247,7 @@ class AuroraPWA
         }
 
         $rendered = $this->twig->render('@Aurora/pwa-main.js.twig', [
-            'pwaDebug'             => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaDebug'             => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'           => $this->version($request),
             'hostName'             => $request->getHost(),
             'automatically_prompt' => $automaticallyPrompt,
@@ -250,7 +259,7 @@ class AuroraPWA
         ]);
 
         // Minify if not DEV
-        if ('dev' !== $this->container->getParameter('kernel.environment')) {
+        if ('dev' !== $this->parameter('kernel.environment')) {
             $minifier = new Minify\JS();
             $minifier->add($rendered);
             $rendered = $minifier->minify();
@@ -268,23 +277,23 @@ class AuroraPWA
 
     public function serviceWorkerJS(Request $request): Response
     {
-        if (!filter_var($this->container->getParameter('aurora.pwa.enabled') ?? true, FILTER_VALIDATE_BOOLEAN)) {
+        if (!filter_var($this->parameter('aurora.pwa.enabled', true), FILTER_VALIDATE_BOOLEAN)) {
             return new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']);
         }
 
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
-            'pwaDebug'                            => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaDebug'                            => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'                          => $this->version($request),
             'hostName'                            => $request->getHost(),
-            'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->container->getParameter('aurora.pwa.start_url'), $this->container->getParameter('aurora.pwa.offline')], $this->container->getParameter('aurora.pwa.precache')))) . "'",
-            'prevent_cache'                       => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache')) . "'",
-            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->container->getParameter('aurora.pwa.prevent_cache_header_request_accept') ?? []) . "'",
-            'external_cache'                      => "/" . implode("/, /", $this->container->getParameter('aurora.pwa.external_cache')) . "/",
-            'offline'                             => $this->container->getParameter('aurora.pwa.offline')
+            'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->parameter('aurora.pwa.start_url'), $this->parameter('aurora.pwa.offline')], $this->parameter('aurora.pwa.precache')))) . "'",
+            'prevent_cache'                       => "'" . implode("', '", $this->parameter('aurora.pwa.prevent_cache')) . "'",
+            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->parameter('aurora.pwa.prevent_cache_header_request_accept', [])) . "'",
+            'external_cache'                      => "/" . implode("/, /", $this->parameter('aurora.pwa.external_cache')) . "/",
+            'offline'                             => $this->parameter('aurora.pwa.offline')
         ]);
 
         // Minify if not DEV
-        if ('dev' !== $this->container->getParameter('kernel.environment')) {
+        if ('dev' !== $this->parameter('kernel.environment')) {
             $minifier = new Minify\JS();
             $minifier->add($rendered);
             $rendered = $minifier->minify();
@@ -302,9 +311,8 @@ class AuroraPWA
 
     public function version(Request $request): string
     {
-        $serviceGit    = $this->container->get('aurora.git');
-        $version       = $serviceGit->getHash();
-        $versionAppend = $this->container->getParameter('aurora.pwa.version_append');
+        $version       = (string)$this->git->getHash();
+        $versionAppend = (string)$this->parameter('aurora.pwa.version_append', '');
 
         $cookieSessionId = null;
 
@@ -337,26 +345,24 @@ class AuroraPWA
     }
 
     /**
-     * Favicon image
-     *
-     * @return image/x-icon
+     * Favicon image (Content-Type: image/x-icon).
      */
     public function icon(Request $request): Response|BinaryFileResponse
     {
         $cache = $this->createCacheAdapter();
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
-            $iconPath = $this->container->getParameter('aurora.pwa.icons') . $request->getRequestUri();
+            $iconPath = $this->parameter('aurora.pwa.icons') . $request->getRequestUri();
 
             if (!file_exists($iconPath)) {
                 preg_match('/(\d+)x(\d+)/i', $request->getPathInfo(), $matches);
                 if (isset($matches[0]) && isset($matches[1]) && isset($matches[2]) && 0 != abs(intval($matches[1])) && 0 != abs(intval($matches[2]))) {
-                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "/android-icon-{$matches[1]}x{$matches[2]}.png";
+                    $iconPath = $this->parameter('aurora.pwa.icons') . "/android-icon-{$matches[1]}x{$matches[2]}.png";
                     if (file_exists($iconPath)) {
                         return $this->_icon($iconPath);
                     }
 
-                    $iconPath = $this->container->getParameter('aurora.pwa.icons') . "/apple-icon-{$matches[1]}x{$matches[2]}.png";
+                    $iconPath = $this->parameter('aurora.pwa.icons') . "/apple-icon-{$matches[1]}x{$matches[2]}.png";
                     if (file_exists($iconPath)) {
                         return $this->_icon($iconPath);
                     }
@@ -386,7 +392,7 @@ class AuroraPWA
 
     private function createCacheAdapter(): AdapterInterface
     {
-        $defaultLifetime = 'prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1;
+        $defaultLifetime = 'prod' == $this->parameter('kernel.environment') ? (60 * 60 * 24) : 1;
 
         if (ApcuAdapter::isSupported()) {
             try {
