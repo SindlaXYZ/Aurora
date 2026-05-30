@@ -2,7 +2,7 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-use Sindla\Bundle\AuroraBundle\Utils\PWA\PWA;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
@@ -26,7 +26,7 @@ class PWAController extends AbstractController
         $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
 
         return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
-            /** @var PWA $PWA */
+            /** @var AuroraPWA $PWA */
             $PWA = $this->container->get('aurora.pwa');
 
             // Manifest

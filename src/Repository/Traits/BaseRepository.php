@@ -6,7 +6,7 @@ use Doctrine\DBAL\ConnectionException;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\QueryBuilder;
-use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -97,7 +97,7 @@ trait BaseRepository
 
     private function extract($count = false, $onlyOne = null, bool $getDQL = false)
     {
-        $Strink    = new Strink();
+        $Strink    = new AuroraStrink();
         $className = $this->getClassName();
         $reflect   = new \ReflectionClass(new $className()); // @TODO: refactor this and use "symfony/property-info"
 

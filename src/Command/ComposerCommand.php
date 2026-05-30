@@ -13,7 +13,7 @@ use Symfony\Component\Console\Output\BufferedOutput;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\Yaml\Yaml;
-use Sindla\Bundle\AuroraBundle\Utils\IO\IO;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 
 #[AsCommand(
     name       : 'aurora:composer',
@@ -166,7 +166,7 @@ final class ComposerCommand extends Command
             $this->io->newLine();
             $this->output->writeln(sprintf('%s Copy the <info>/Static/js/*</info> to <info>/web/static/js/aurora/</info>', $this->p()));
 
-            /** @var IO $IOService */
+            /** @var AuroraIO $IOService */
             $IOService = $this->container->get('aurora.io');
             $IOService->recursiveCreateDirectory($this->kernelRootDir . '/web/static/aurora/js/');
 
@@ -349,7 +349,7 @@ final class ComposerCommand extends Command
                 if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, true)) {
                     throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
                 } else {
-                    /** @var IO $IOService */
+                    /** @var AuroraIO $IOService */
                     $IOService = $this->container->get('aurora.io');
 
                     foreach (glob($auroraCacheDir . '/', GLOB_ONLYDIR) as $directory) {
@@ -365,10 +365,10 @@ final class ComposerCommand extends Command
         $compiledDir = $this->container->getParameter('aurora.root') . '/public/static/compiled';
 
         if ($files = glob("{$compiledDir}/*.{css,js}", GLOB_BRACE)) {
-            /** @var IO $IOService */
+            /** @var AuroraIO $IOService */
             $IOService = $this->container->get('aurora.io');
             foreach ($files as $file) {
-                if ($IOService->fileIsOlderThan($file, 30, IO::TIME_UNIT_DAYS)) {
+                if ($IOService->fileIsOlderThan($file, 30, AuroraIO::TIME_UNIT_DAYS)) {
                     unlink($file);
                 }
             }
@@ -381,7 +381,7 @@ final class ComposerCommand extends Command
 
             $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
 
-            /** @var IO $IOService */
+            /** @var AuroraIO $IOService */
             $IOService = $this->container->get('aurora.io');
             foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
                 $IOService->recursiveDelete($directory, false);

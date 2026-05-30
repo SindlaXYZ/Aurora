@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
-use Sindla\Bundle\AuroraBundle\Utils\Strink\Strink;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\ExceptionEvent;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -66,7 +66,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
 
                         $this->httpClient->request(
                             'POST',
-                            new Strink()->string(sprintf(
+                            new AuroraStrink()->string(sprintf(
                                 '%s/%s/%s',
                                 $_ENV['BLACK_HOLE_API_URL'],
                                 $_ENV['BLACK_HOLE_API_VERSION'],

@@ -7,7 +7,7 @@ use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 
 /**
- * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/IO/IOTest.php --no-coverage
+ * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIO/AuroraIOTest.php --no-coverage
  */
 class AuroraIOTest extends TestCase
 {

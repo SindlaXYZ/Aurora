@@ -112,7 +112,7 @@ services:
     ###  Aurora Twig  #################################################################################################
 
 #    aurora.twig.utility:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension
 #        tags:
 #            - { name: twig.extension }
 #        arguments: ['@service_container', "@request_stack", "@twig"]
@@ -167,19 +167,19 @@ services:
 #        public: true
 #
 #    aurora.calculus:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Calculus\Calculus
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\AuroraCalculus
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 #
 #    aurora.diacritics:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Diacritics\Diacritics
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraDiacritics\AuroraDiacritics
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 #
 #    aurora.git:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Git\Git
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit
 #        arguments: ['@service_container']
 #        autowire: true
 #        autoconfigure: true
@@ -192,7 +192,7 @@ services:
 #        public: true
 #
 #    aurora.io:
-#        class: Sindla\Bundle\AuroraBundle\Utils\IO\IO
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO
 #        autowire: true
 #        autoconfigure: true
 #        public: true
@@ -206,27 +206,27 @@ services:
 #    #        public: true
 #
 #    aurora.pwa:
-#        class: Sindla\Bundle\AuroraBundle\Utils\PWA\PWA
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA
 #        arguments: ['@service_container', '@request_stack', '@twig']
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 #
 #    aurora.sanitizer:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Sanitizer\Sanitizer
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer
 #        arguments: ['@service_container']
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 #
 #    aurora.strink:
-#        class: Sindla\Bundle\AuroraBundle\Utils\Strink\Strink
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink
 #        autowire: true
 #        autoconfigure: true
 #        public: true
 #
 #    aurora.cloudflare.r2:
-#        class: Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2
+#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2
 #        autowire: true
 #        autoconfigure: true
 #        public: true

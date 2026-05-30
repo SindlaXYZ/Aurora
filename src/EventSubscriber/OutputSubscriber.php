@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-use Sindla\Bundle\AuroraBundle\Utils\Twig\UtilityExtension;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Request;

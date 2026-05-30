@@ -4,7 +4,7 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 
 use Aws\Result;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
-use Sindla\Bundle\AuroraBundle\Utils\CloudflareR2\CloudflareR2;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
@@ -20,7 +20,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 final class CloudflareR2Command extends CommandMiddleware
 {
     public function __construct(
-        protected CloudflareR2 $cloudflareR2
+        protected AuroraCloudflareR2 $cloudflareR2
     )
     {
         parent::__construct();

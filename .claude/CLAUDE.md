@@ -8,6 +8,53 @@ License: MIT
 Branch convention: `8.1` (development), `6.1` (main/stable)
 Packagist: `composer require sindla/aurora:8.1.*`
 
+## Reference Rules (`.claude/rules/`)
+
+The `.claude/rules/` directory holds detailed, topic-specific reference guides for Symfony 8.1, its components, third-party bundles, and project conventions. **Consult the relevant file before working on the corresponding topic** — they expand on the conventions summarized in this document.
+
+### Project conventions & tooling
+- [symfony.md](rules/symfony.md) — Symfony code rules and conventions
+- [phpunit.md](rules/phpunit.md) — PHPUnit rules and conventions
+- [symfony-command.md](rules/symfony-command.md) — Symfony console commands
+- [symfony-console-io.md](rules/symfony-console-io.md) — Symfony console input and output
+
+### Framework & components
+- [cache-attribute.md](rules/cache-attribute.md) — `#[Cache]` HTTP cache attribute
+- [controller-helper.md](rules/controller-helper.md) — ControllerHelper for decoupled controllers
+- [datepoint.md](rules/datepoint.md) — DatePoint Doctrine types
+- [deep-cloner.md](rules/deep-cloner.md) — Deep object-graph cloning
+- [dependency-injection.md](rules/dependency-injection.md) — Dependency Injection (8.1 additions)
+- [dynamic-controller-attributes.md](rules/dynamic-controller-attributes.md) — Dynamic controller attributes
+- [http-client.md](rules/http-client.md) — HttpClient (RFC 9111 caching, 8.1 additions)
+- [http-less-applications.md](rules/http-less-applications.md) — HTTP-less Symfony applications
+- [intl.md](rules/intl.md) — Intl currency filtering by legal tender
+- [jsonpath.md](rules/jsonpath.md) — JsonPath (8.1 improvements)
+- [jsonstreamer.md](rules/jsonstreamer.md) — JsonStreamer (8.1 improvements)
+- [mailer.md](rules/mailer.md) — Mailer (DKIM, S/MIME, TLS hardening, 8.1 transports)
+- [messenger.md](rules/messenger.md) — Messenger (7.3 / 7.4 / 8.1 additions)
+- [monolog.md](rules/monolog.md) — Monolog per-exception logging and MailerHandler
+- [object-mapper.md](rules/object-mapper.md) — ObjectMapper component
+- [rate-limiter.md](rules/rate-limiter.md) — Rate Limiter (compound policy, `#[RateLimit]`)
+- [request-payload-mapping.md](rules/request-payload-mapping.md) — Improved request payload mapping
+- [routing.md](rules/routing.md) — Routing (7.3 / 7.4 baseline + 8.1 additions)
+- [security.md](rules/security.md) — Security (error exposure, OAuth2 / OIDC, 8.1 additions)
+- [serialize-attribute.md](rules/serialize-attribute.md) — `#[Serialize]` return-value serializer
+- [serializer.md](rules/serializer.md) — Serializer (7.3 / 7.4 / 8.1 additions)
+- [symfony-ai.md](rules/symfony-ai.md) — Symfony AI (v0.9.x)
+- [symfony-how-to-create-multiple-symfony-applications-with-a-single-kernel.md](rules/symfony-how-to-create-multiple-symfony-applications-with-a-single-kernel.md) — Multiple apps with a single kernel
+- [translation.md](rules/translation.md) — Translation component
+- [translator.md](rules/translator.md) — Translator global parameters
+- [twig.md](rules/twig.md) — Twig 3.23+ rules
+- [uid.md](rules/uid.md) — UID component (UUID v7 default, Uuid47Transformer)
+- [uri-signer.md](rules/uri-signer.md) — UriSigner signed URLs
+- [validator.md](rules/validator.md) — Validator (7.3 / 7.4 / 8.1 additions)
+- [workflow.md](rules/workflow.md) — Workflow component (enums, weighted transitions)
+
+### Third-party bundles & services
+- [damienharper-auditor-bundle.md](rules/damienharper-auditor-bundle.md) — damienharper/auditor-bundle (Doctrine entity auditing)
+- [gesdinet-jwt-refresh-token-bundle.md](rules/gesdinet-jwt-refresh-token-bundle.md) — gesdinet/jwt-refresh-token-bundle (JWT refresh tokens)
+- [proxy-cheap.md](rules/proxy-cheap.md) — proxy-cheap.com rotating residential proxies
+
 ## Code Style
 
 - UTF-8 encoding, LF line endings.
@@ -66,28 +113,27 @@ src/
 ├── Tests/Trait/                      # Reusable test traits (DatabaseManagement, Persistence)
 ├── Utils/
 │   ├── AuroraArray/AuroraArray.php
+│   ├── AuroraCalculus/               # Math (2D, 3D, Geo, Graph via traits)
 │   ├── AuroraCalendar/               # Calendar utilities
 │   ├── AuroraCalendarLinkGenerator/  # Calendar link generation
 │   ├── AuroraChronos/AuroraChronos.php  # Date/time handling
 │   ├── AuroraClient/AuroraClient.php    # HTTP client + MaxMind GeoIP2
+│   ├── AuroraCloudflareR2/AuroraCloudflareR2.php  # Cloudflare R2 via AWS S3 SDK
 │   ├── AuroraCookiesExtractor/
 │   ├── AuroraCryptor/AuroraCryptor.php  # AES encryption (AES-128-CTR default)
+│   ├── AuroraDiacritics/             # Diacritic removal (Romanian extension)
+│   ├── AuroraGit/AuroraGit.php
 │   ├── AuroraHelper/
 │   ├── AuroraIO/AuroraIO.php         # File/directory I/O — use this
 │   ├── AuroraIP/AuroraIP.php         # IP utilities + KnownBotsAndCrawlers
 │   ├── AuroraMatch/AuroraMatch.php   # Pattern matching
+│   ├── AuroraMonolog/                # HtmlFormatter, MiscProcessor
 │   ├── AuroraPHPUnitCodeCoverageBadge/  # SVG badge generation
-│   ├── Calculus/                     # Math (2D, 3D, Geo, Graph via traits)
-│   ├── CloudflareR2/CloudflareR2.php # Cloudflare R2 via AWS S3 SDK
-│   ├── Diacritics/                   # Diacritic removal (Romanian extension)
-│   ├── Git/Git.php
-│   ├── IO/IO.php                     # DEPRECATED — use AuroraIO instead
-│   ├── Monolog/                      # HtmlFormatter, MiscProcessor
-│   ├── PWA/PWA.php                   # Progressive Web App logic
-│   ├── PseudoLocalization/
-│   ├── Sanitizer/Sanitizer.php
-│   ├── Strink/Strink.php             # Fluent string manipulation
-│   └── Twig/UtilityExtension.php     # Twig global `aurora` object
+│   ├── AuroraPseudoLocalization/
+│   ├── AuroraPWA/AuroraPWA.php       # Progressive Web App logic
+│   ├── AuroraSanitizer/AuroraSanitizer.php
+│   ├── AuroraStrink/AuroraStrink.php # Fluent string manipulation
+│   └── AuroraTwig/UtilityExtension.php  # Twig global `aurora` object
 └── templates/                        # Twig templates (PWA, error, manifest, offline)
 
 tests/
@@ -99,9 +145,6 @@ tests/
 ```
 
 ## Key Rules
-
-### Deprecated Code
-- `Utils/IO/IO.php` is **deprecated** since 2026-04-21. Use `Utils/AuroraIO/AuroraIO.php` instead.
 
 ### PHPUnit
 - Use `#[DataProvider('methodName')]` attribute only. Do NOT use `@dataProvider` annotation.
@@ -335,5 +378,5 @@ $this->em->flush();
 - **PWA**: Inject `{{ aurora.pwa(app.request) }}` inside `<head>` in Twig layout.
 - **HTML Minifier**: Register `OutputSubscriber` as a `kernel.event_listener` for `kernel.response`.
 - **Tests with stubs**: `tests/bootstrap.php` provides Monolog and Twig stubs for running tests without all dependencies installed — allows standalone unit testing of utilities.
-- **Strink**: Fluent string builder — chain methods, call `->get()` or cast to string for the result.
+- **AuroraStrink**: Fluent string builder — chain methods, call `->get()` or cast to string for the result.
 - **AuroraCryptor**: AES-128-CTR by default; configure via `->setCipher()` before `->encrypt()` / `->decrypt()`.
