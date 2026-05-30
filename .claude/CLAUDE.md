@@ -36,6 +36,7 @@ The `.claude/rules/` directory holds detailed, topic-specific reference guides f
 - [object-mapper.md](rules/object-mapper.md) — ObjectMapper component
 - [rate-limiter.md](rules/rate-limiter.md) — Rate Limiter (compound policy, `#[RateLimit]`)
 - [request-payload-mapping.md](rules/request-payload-mapping.md) — Improved request payload mapping
+- [reusable-bundles.md](rules/reusable-bundles.md) — Creating reusable Symfony bundles
 - [routing.md](rules/routing.md) — Routing (7.3 / 7.4 baseline + 8.1 additions)
 - [security.md](rules/security.md) — Security (error exposure, OAuth2 / OIDC, 8.1 additions)
 - [serialize-attribute.md](rules/serialize-attribute.md) — `#[Serialize]` return-value serializer
