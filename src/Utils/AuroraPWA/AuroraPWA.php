@@ -34,7 +34,8 @@ class AuroraPWA
         private readonly Environment           $twig,
         #[Autowire(service: 'aurora.git')]
         private readonly AuroraGit             $git,
-    ) {
+    )
+    {
         if (method_exists($this->requestStack, 'getSession')) {
             try {
                 $session = $this->requestStack->getSession();
@@ -52,9 +53,9 @@ class AuroraPWA
 
             if (method_exists($this->requestStack, 'getMainRequest')) {
                 $requestFromStack = $this->requestStack->getMainRequest();
-            } else if (method_exists($this->requestStack, 'getMasterRequest')) {
+            } elseif (method_exists($this->requestStack, 'getMasterRequest')) {
                 $requestFromStack = $this->requestStack->getMasterRequest();
-            } else if (method_exists($this->requestStack, 'getCurrentRequest')) {
+            } elseif (method_exists($this->requestStack, 'getCurrentRequest')) {
                 $requestFromStack = $this->requestStack->getCurrentRequest();
             }
 
@@ -162,9 +163,9 @@ class AuroraPWA
                 trigger_error(sprintf('File %s not found or size equals zero.', 'android-icon-maskable.png'), E_USER_NOTICE);
             }
 
-            $Response = new JsonResponse($manifest);
-            $Response->setEncodingOptions(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-            return $Response;
+            return
+                new JsonResponse($manifest)
+                    ->setEncodingOptions(JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
         });
     }
 
@@ -320,7 +321,7 @@ class AuroraPWA
             if (method_exists($request->cookies, 'get')) {
                 $cookieSessionId = $request->cookies->get('PHPSESSID');
             }
-        } else if (method_exists($request, 'cookies')) {
+        } elseif (method_exists($request, 'cookies')) {
             $cookiesBag = $request->cookies();
             if (is_object($cookiesBag) && method_exists($cookiesBag, 'get')) {
                 $cookieSessionId = $cookiesBag->get('PHPSESSID');
