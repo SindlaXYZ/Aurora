@@ -1,28 +1,72 @@
 {
-    "permissions": {
-        "allow": [
-            "Bash(find:*)",
-            "WebFetch(domain:*)",
-            "Read(.git/**)",
-            "Read(.gitattributes)",
-            "Read(.gitignore)",
-            "Read(.gitmodules)",
-            "Bash(gh release *)",
-            "Bash(gh --version)",
-            "Bash(gh pr view:*)",
-            "Bash(gh pr diff:*)",
-            "Bash(gh issue view:*)"
-        ],
-        "deny": [
-            "Write(.git/**)",
-            "Write(.gitattributes)",
-            "Write(.gitignore)",
-            "Write(.gitmodules)"
-        ],
-        "defaultMode": "acceptEdits"
-    },
-    "enabledPlugins": {
-        "php-lsp@claude-plugins-official": true,
-        "context7@upstash": true
-    }
+  "enabledPlugins": {
+    "context7@upstash": true,
+    "php-lsp@claude-plugins-official": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(/usr/bin/php bin/console:*)",
+      "Bash(cat:*)",
+      "Bash(cd:*)",
+      "Bash(cp:*)",
+      "Bash(curl:*)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(for:*)",
+      "Bash(gh release *)",
+      "Bash(gh --version)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh issue view:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(mkdir:*)",
+      "Bash(php bin/console:*)",
+      "Bash(printf:*)",
+      "Bash(tail:*)",
+      "WebFetch(*)",
+      "WebFetch(domain:ai.symfony.com)",
+      "WebFetch(domain:api-platform.com)",
+      "WebFetch(domain:api.github.com)",
+      "WebFetch(domain:docs.proxy-cheap.com)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:laravel.com)",
+      "WebFetch(domain:proxy-cheap.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:symfony.com)",
+      "WebSearch",
+      "Write(/tmp/**)",
+      "Edit(/tmp/**)",
+      "Read(/tmp/**)"
+    ],
+    "ask": [
+      "Bash(* bin/console doctrine:database:drop*)",
+      "Bash(* bin/console doctrine:migrations:migrate*)",
+      "Bash(chmod *)",
+      "Bash(chown *)",
+      "Bash(dd *)",
+      "Bash(docker *)",
+      "Bash(fdisk *)",
+      "Bash(firebase *)",
+      "Bash(gcloud *)",
+      "Bash(kill *)",
+      "Bash(killall *)",
+      "Bash(kubectl *)",
+      "Bash(mkfs *)",
+      "Bash(npm *)",
+      "Bash(pip *)",
+      "Bash(pip3 *)",
+      "Bash(pkill *)",
+      "Bash(pnpm *)",
+      "Bash(rm *)",
+      "Bash(rmdir *)",
+      "Bash(shred *)",
+      "Bash(unlink *)",
+      "Bash(wget *)",
+      "Bash(yarn *)"
+    ],
+    "defaultMode": "auto",
+    "deny": []
+  }
 }
