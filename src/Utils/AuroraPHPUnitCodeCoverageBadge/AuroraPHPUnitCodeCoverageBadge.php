@@ -74,24 +74,27 @@ class AuroraPHPUnitCodeCoverageBadge
 
         $coverage = (int)(($totalElements === 0) ? 0 : ($checkedElements / $totalElements) * 100);
 
-        if ($coverage >= 90) {
-            $background = '#44CC11';  // Bright Green
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 70) {
-            $background = '#97CA00';  // Green
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 50) {
-            $background = '#A8961F';  // Yellow-Green
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 30) {
-            $background = '#DFB317';  // Yellow
-            $textColor  = '#FFFFFF';
-        } else if ($coverage >= 10) {
-            $background = '#FE7D37';  // Orange
-            $textColor  = '#FFFFFF';
-        } else {
-            $background = '#E0E6EB';  // Grey
-            $textColor  = '#000000';
+        // [minCoverage, background, textColor] — ordered from high to low
+        $scale = [
+            [92, '#44CC11', '#FFFFFF'],
+            [83, '#68CB0A', '#FFFFFF'],
+            [75, '#7FCB05', '#FFFFFF'],
+            [67, '#96CA00', '#FFFFFF'],
+            [58, '#9EB50C', '#FFFFFF'],
+            [50, '#AEAF11', '#FFFFFF'],
+            [42, '#BEAA16', '#FFFFFF'],
+            [33, '#CEA41C', '#FFFFFF'],
+            [25, '#DE9F21', '#FFFFFF'],
+            [17, '#EE9926', '#FFFFFF'],
+            [8, '#FB8234', '#FFFFFF'],
+        ];
+
+        [$background, $textColor] = ['#E0E6EB', '#000000']; // grey fallback (< 8%)
+        foreach ($scale as [$min, $bg, $fg]) {
+            if ($coverage >= $min) {
+                [$background, $textColor] = [$bg, $fg];
+                break;
+            }
         }
 
         $coverageSVG = $this->_coverageSVG();
