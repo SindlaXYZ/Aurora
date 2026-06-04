@@ -2,9 +2,10 @@
 
 | Version | Created    | Updated    |
 |---------|------------|------------|
-| 3.27    | 2026-05-17 | 2026-05-29 |
+| 3.27.1  | 2026-05-17 | 2026-06-01 |
 
 **Sources:**
+* https://symfony.com/blog/twig-3-27-1-released
 * https://symfony.com/blog/twig-3-27-0-released
 * https://symfony.com/blog/twig-3-26-0-released
 * https://symfony.com/blog/twig-3-25-0-released
@@ -13,9 +14,9 @@
 * https://github.com/twigphp/Twig/blob/3.x/CHANGELOG
 * https://twig.symfony.com/doc/3.x/
 
-Twig is versioned independently of Symfony. The rules below apply whenever `twig/twig` is at `^3.23` (sections 6, 8-9), `^3.25` (sections 1-5), `^3.26` (section 7), or `^3.27` (section 8). The current release is **3.27.0** (May 2026); the rule recommends pinning to it for the full sandbox-security posture. The `twig.safe_class` service tag (section 4) requires Symfony 8.1 - which the v8.1 stub runs - so it is simply available here.
+Twig is versioned independently of Symfony. The rules below apply whenever `twig/twig` is at `^3.23` (sections 6, 8-9), `^3.25` (sections 1-5), `^3.26` (section 7), or `^3.27` (section 8). The current release is **3.27.1** (May 2026, a bugfix patch over 3.27.0); the rule recommends pinning to it for the full sandbox-security posture. The `twig.safe_class` service tag (section 4) requires Symfony 8.1 - which the v8.1 stub runs - so it is simply available here.
 
-**Two recent security-focused releases.** 3.26.0 (May 2026) bundles 13 sandbox / XSS fixes (section 7). 3.27.0 (May 2026) adds 5 more sandbox fixes plus an opt-in strict `SecurityPolicy` mode and deprecates `SourcePolicyInterface` (section 8). Upgrade is REQUIRED for any project that renders untrusted templates through the sandbox; sections 7-8 also list the behavior changes that affect non-sandbox code.
+**Two recent security-focused releases.** 3.26.0 (May 2026) bundles 13 sandbox / XSS fixes (section 7). 3.27.0 (May 2026) adds 5 more sandbox fixes plus an opt-in strict `SecurityPolicy` mode and deprecates `SourcePolicyInterface` (section 8). 3.27.1 (May 2026) is a bugfix patch that fixes two regressions introduced by the 3.27.0 sandbox hardening (section 8.6). Upgrade is REQUIRED for any project that renders untrusted templates through the sandbox; sections 7-8 also list the behavior changes that affect non-sandbox code.
 
 ## 1. Sandbox-Aware Filters, Functions, and Tests - Use `needs_is_sandboxed`
 
@@ -313,7 +314,7 @@ Test action: in projects with a custom source-policy implementation, run `bin/ph
 
 ## 8. Twig 3.27.0 - More Sandbox Fixes + Strict SecurityPolicy + `SourcePolicyInterface` Deprecation
 
-Twig 3.27.0 (released 27 May 2026) is the current release. It is another security release: 5 sandbox fixes (1 low, 4 medium), an opt-in strict mode for `SecurityPolicy` that previews the Twig 4.0 sandbox defaults, and the deprecation of `SourcePolicyInterface`. No new template-language features.
+Twig 3.27.0 (released 27 May 2026) is a security release: 5 sandbox fixes (1 low, 4 medium), an opt-in strict mode for `SecurityPolicy` that previews the Twig 4.0 sandbox defaults, and the deprecation of `SourcePolicyInterface`. No new template-language features. (The current release is 3.27.1, a bugfix patch over 3.27.0 - see section 8.6.)
 
 ### 8.1 The 5 sandbox fixes
 
@@ -370,10 +371,21 @@ Rule: when configuring a `SecurityPolicy` for sandboxed templates, add `extends`
 | Sandbox template fails with `SecurityError` after enabling `setStrict(true)` | Strict mode requires every tag/function in the allow-list (8.2) | Add the missing tags/functions to `allowedTags` / `allowedFunctions`. |
 | Sandbox unit test failing: "expected exploit to succeed" | One of the 5 fixes in 8.1 now blocks it | Invert the assertion to expect `SecurityError`. |
 
+### 8.6 Twig 3.27.1 - Bugfix Patch (Two Sandbox Regression Fixes)
+
+Twig 3.27.1 (released 30 May 2026) is the current release - a **bugfix patch** over 3.27.0. It fixes two regressions that the 3.27.0 sandbox hardening introduced; it adds no features, no new CVEs, and no new deprecations. If you are on 3.27.0, upgrade straight to 3.27.1.
+
+| PR | Regression introduced in 3.27.0 | Fix in 3.27.1 |
+|---|---|---|
+| [#4821](https://github.com/twigphp/Twig/pull/4821) | The sandbox materialized `Traversable` arguments into a plain `array` (part of the 3.27.0 `Traversable` coercion, section 8.1), so a function typed against a concrete iterable class broke - e.g. passing Symfony's `FormView` to `form_errors()` in a sandboxed template failed with a type error. | The sandbox now walks an `IteratorAggregate` in place and passes the ORIGINAL object through unchanged, instead of replacing it with an array. |
+| [#4822](https://github.com/twigphp/Twig/pull/4822) | Array access with a `Stringable` key was inconsistent: the optimized inline path threw, while the regular path coerced the key to a string - e.g. `{{ menu[section] }}` where `section` is a `Stringable`. | The optimized path now coerces the key the same way as the regular path, still applying the sandbox `__toString` policy check. |
+
+Dockraft stub impact: **none by default.** The stub is API-Platform-first (no Symfony Forms on the REST surface) and does not run a `SandboxExtension` over untrusted templates out of the box, so neither regression is reachable in the default stub. The fixes matter only if you (a) render a Symfony `FormView` inside a sandboxed template, or (b) index a collection with a `Stringable` key in a sandboxed template. Pin `^3.27.1` either way - it is a strict superset of 3.27.0's security fixes.
+
 ## 9. Version Constraints
 
 | Package | Required |
 |---|---|
-| `twig/twig` | `^3.23` (for `=`, `?.`, `===`, destructuring), `^3.25` (for `needs_is_sandboxed`, deterministic embeds, overridable `EscaperRuntime`), `^3.26` (for sandbox hardening + `CoercesChildrenToStringInterface`), `^3.27` (current - additional sandbox fixes, `SecurityPolicy::setStrict()`, `SourcePolicyInterface` deprecation). Pin `^3.27` for the full security posture. |
+| `twig/twig` | `^3.23` (for `=`, `?.`, `===`, destructuring), `^3.25` (for `needs_is_sandboxed`, deterministic embeds, overridable `EscaperRuntime`), `^3.26` (for sandbox hardening + `CoercesChildrenToStringInterface`), `^3.27` (additional sandbox fixes, `SecurityPolicy::setStrict()`, `SourcePolicyInterface` deprecation), `^3.27.1` (current - fixes two 3.27.0 sandbox regressions: typed-iterable / `FormView` args and `Stringable` array keys). Pin `^3.27.1` for the full security posture without the 3.27.0 regressions. |
 | `twig/extra-bundle` | `^3.27` (REQUIRED when used - the `is_safe` annotation fixes ship from 3.26 in this package; bumping `twig/twig` alone leaves the XSS surface open) |
 | `symfony/twig-bundle` | `^7.3` (for `#[AsTwigFilter]` / `#[AsTwigFunction]` / `#[AsTwigTest]`), `^8.1` required for the `twig.safe_class` resource tag (available in this stub) |

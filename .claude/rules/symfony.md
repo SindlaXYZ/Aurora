@@ -2,7 +2,7 @@
 
 | Version | Created    | Updated    |
 |---------|------------|------------|
-| 8.1     | 2026-05-08 | 2026-05-29 |
+| 8.1     | 2026-05-08 | 2026-06-03 |
 
 **Sources:**
 * https://raw.githubusercontent.com/symfony/symfony/refs/heads/8.1/CHANGELOG-8.1.md
@@ -13,6 +13,7 @@
 
 - **Syntax and spacing:** Add a single space after commas and around binary operators (`==`, `&&`, etc.), except for the concatenation operator (`.`). Unary operators (`!`, `--`) must be attached to the variable.
 - **Strict types:** Use strict comparison (`===`, `!==`), except where type juggling is intentionally required.
+- **Comment width:** Comment prose (`//`, `#`, and the text lines inside `/** ... */` docblocks) may run up to 199 characters per line (inclusive, counting indentation + comment markers). Pack words onto each line and break ONLY when the next word would exceed 199, when a new paragraph starts, or at a new docblock tag (`@param`, `@throws`, ...). Do NOT wrap comment prose at ~80-104 characters - artificially short, multi-line comment blocks are the anti-pattern. This governs comment text only, not executable code. See the worked example in `.claude/CLAUDE.md` (PHP Code Style, rule 2).
 - **Yoda conditions:** Use Yoda conditions when comparing a variable to an expression (e.g. `if (true === $status)`) to avoid accidental assignment in `if` statements. Applies to `==`, `!=`, `===`, `!==`.
 - **Return statements:** Use `return null;` when a method explicitly returns null, and `return;` when the function returns `void`. Add a blank line before `return`, except when it is the only statement in a block.
 - **Class structure:**

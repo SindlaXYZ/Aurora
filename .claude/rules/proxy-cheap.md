@@ -108,7 +108,7 @@ framework:
                 headers:
                     X-Api-Key:    '%env(PROXY_CHEAP_API_KEY)%'
                     X-Api-Secret: '%env(PROXY_CHEAP_API_SECRET)%'
-                    User-Agent:   'dockraft-proxy-cheap-client/1.0 (+https://api.itp.pro)'
+                    User-Agent:   'dockraft-proxy-cheap-client/1.0 (+https://__DOMAIN__)'
                     Accept:       'application/json'
                 # The management API responses are tiny (KB-scale) - no caching needed.
                 # Adding caching here can mask charge / balance changes.

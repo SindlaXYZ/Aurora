@@ -2,9 +2,10 @@
 
 | Version | Created    | Updated    |
 |---------|------------|------------|
-| 8.1     | 2026-05-29 | 2026-05-29 |
+| 8.1     | 2026-05-29 | 2026-06-02 |
 
 **Sources:**
+* https://symfony.com/blog/new-in-symfony-8-1-ratelimiter-improvements
 * https://symfony.com/doc/8.1/rate_limiter.html
 * https://raw.githubusercontent.com/symfony/symfony/refs/heads/8.1/CHANGELOG-8.1.md
 * https://github.com/symfony/symfony/blob/8.1/src/Symfony/Component/HttpKernel/Attribute/RateLimit.php
@@ -169,9 +170,35 @@ class ApiController extends AbstractController
 
 ## 6. Symfony 8.1 - Calendar-Aligned `FixedWindowLimiter`
 
-By default a fixed window starts on the first hit and resets one `interval` later, so the window boundaries float. Symfony 8.1 adds a calendar-aligned mode: the window is anchored to a fixed datetime and resets every `interval` from there, giving boundaries that line up with the calendar (e.g. the top of every hour, midnight every day) regardless of when the first hit lands.
+By default a fixed window starts on the first hit and resets one `interval` later, so the window boundaries float. Symfony 8.1 adds a calendar-aligned mode: the window is anchored to a fixed datetime and resets every `interval` from there - windows reset at `anchor_at + n x interval`. This gives boundaries that line up with the calendar regardless of when the first hit lands, which is what billing cycles, fiscal years, and fixed-day resets need.
 
-The mode is enabled by the `FixedWindowLimiter` constructor's new `?\DateTimeImmutable $anchorAt = null` argument:
+### 6.1 Enabling it - the `anchor_at` framework config key
+
+In this stub, rate limiters are declared under `framework.rate_limiter` (section 2), not constructed by hand. The aligned mode is enabled there with the 8.1 `anchor_at` key:
+
+```yaml
+# config/packages/framework.yaml  (or rate_limiter.yaml)
+framework:
+    rate_limiter:
+        api_quota:
+            policy: 'fixed_window'
+            limit: 10000
+            interval: '1 month'
+            # The counter resets on the 5th of every month at 00:00 UTC.
+            anchor_at: '2026-01-05 00:00:00 UTC'
+```
+
+Constraints (enforced by the limiter - getting them wrong is a hard error, not a silent no-op):
+
+- **`fixed_window` only.** `anchor_at` is meaningful for the `fixed_window` policy. It does not apply to `sliding_window`, `token_bucket`, or `compound`.
+- **Interval of at least one month.** The aligned mode requires an `interval` of one month or longer. Sub-month intervals throw `\InvalidArgumentException` when the limiter is constructed.
+- **Any `\DateTimeImmutable`-parseable string.** `anchor_at` accepts any string `\DateTimeImmutable` accepts; Symfony computes each window by repeatedly adding the `interval` to it (timezone- and DST-correct).
+
+Leave `anchor_at` unset (the default) for the classic first-hit-starts-the-window behavior, and for any window shorter than a month.
+
+### 6.2 The underlying constructor argument
+
+The config key maps to the `FixedWindowLimiter` constructor's new `?\DateTimeImmutable $anchorAt = null` argument (relevant only if you build a limiter by hand instead of through `framework.rate_limiter`):
 
 ```php
 public function __construct(
@@ -184,9 +211,9 @@ public function __construct(
 )
 ```
 
-Per the source: "When set, the window is aligned to a calendar starting at this datetime and resetting every `$interval`, instead of starting on the first hit." Leave it `null` (the default) for the classic first-hit-starts-the-window behavior.
+Per the source PHPDoc: "When set, the window is aligned to a calendar starting at this datetime and resetting every `$interval`, instead of starting on the first hit." The same source notes that sub-month intervals throw `\InvalidArgumentException`.
 
-Use the aligned mode when the limit must mean "N per calendar hour / day" rather than "N per rolling interval since the first request" - e.g. a daily quota that everyone sees reset at midnight, or hourly buckets that line up with reporting windows. Skip it when a rolling window is what you actually want (most abuse-prevention limits).
+Use the aligned mode when the limit must mean "N per calendar period that everyone sees reset at the same instant" (a monthly API quota that resets on the billing day, a per-fiscal-year cap) rather than "N per rolling interval since the first request". Skip it when a rolling window is what you actually want - which is most abuse-prevention limits, and is also why the sub-month windows the stub's examples use (sections 1-5) do NOT set `anchor_at`.
 
 ## 7. Common Errors
 
@@ -196,13 +223,15 @@ Use the aligned mode when the limit must mean "N per calendar hour / day" rather
 | Tokens consumed twice per request | Application code calls `consume()` more than once on the compound | Call once per attempt; `consume()` mutates state. |
 | Limit not enforced across containers | In-memory lock store | Switch the lock factory to Redis / Postgres in `framework.lock`. |
 | `#[RateLimit]` has no effect / `Attribute class "RateLimit" not found` | `symfony/http-kernel` < 8.1, or the wrong namespace imported | Upgrade to `^8.1`; import `Symfony\Component\HttpKernel\Attribute\RateLimit` (HttpKernel, not RateLimiter). |
-| Window does not reset on the calendar boundary you expected | `anchorAt` left `null` (rolling window) | Construct the `FixedWindowLimiter` with an `anchorAt` datetime to align the window. |
+| Window does not reset on the calendar boundary you expected | `anchor_at` not set (rolling window) | Add `anchor_at:` to the `fixed_window` limiter in `framework.rate_limiter` to align the window (section 6). |
+| `\InvalidArgumentException` when the limiter is built, with an `anchor_at` set | `anchor_at` used with an `interval` shorter than one month (or with a non-`fixed_window` policy) | Use `anchor_at` only on a `fixed_window` limiter whose `interval` is at least one month; drop it for shorter windows. |
 
 ## 8. Version Constraints
 
 | Package | Required |
 |---|---|
 | `symfony/rate-limiter` | `^8.1` (for the calendar-aligned `FixedWindowLimiter` `anchorAt`; the `compound` policy is carried from `^7.3`. Already installed by `symfony_install_skeleton()`) |
+| `symfony/framework-bundle` | `^8.1` (wires the `anchor_at` config key under `framework.rate_limiter` through to the limiter) |
 | `symfony/http-kernel` | `^8.1` (for the `#[RateLimit]` controller attribute) |
 | `symfony/lock` | `^7.3` (already installed; required for cross-server enforcement) |
 | `symfony/expression-language` | required only when a `#[RateLimit(key: new Expression(...))]` is used |

@@ -2,12 +2,16 @@
 
 | Version | Created    | Updated    |
 |---------|------------|------------|
-| 8.1     | 2026-05-29 | 2026-05-29 |
+| 8.1     | 2026-05-29 | 2026-06-02 |
 
 **Sources:**
-* https://symfony.com/blog/new-in-symfony-8-1-http-client-improvements
+* https://symfony.com/blog/new-in-symfony-8-1-httpclient-improvements
 * https://symfony.com/doc/8.1/http_client.html
 * https://raw.githubusercontent.com/symfony/symfony/refs/heads/8.1/CHANGELOG-8.1.md
+* https://raw.githubusercontent.com/symfony/symfony/refs/heads/8.1/src/Symfony/Component/HttpClient/CHANGELOG.md
+* https://github.com/symfony/symfony/blob/8.1/src/Symfony/Component/HttpClient/NoPrivateNetworkHttpClient.php
+* https://raw.githubusercontent.com/symfony/symfony/refs/heads/8.1/src/Symfony/Component/HttpClient/CachingHttpClient.php
+* https://github.com/symfony/symfony/blob/8.1/src/Symfony/Component/HttpClient/CurlHttpClient.php
 * https://datatracker.ietf.org/doc/html/rfc9111
 
 Symfony 7.4 reworked HTTP client caching: the legacy `HttpCache` dependency is gone, replaced by Cache-component-backed storage that follows RFC 9111 (the modern HTTP caching specification). This rule documents that caching baseline (unchanged on 8.1) plus the 8.1 additions - including one behavior change: `CachingHttpClient`'s default `maxTtl` is now bounded at 86400 seconds.
@@ -95,28 +99,35 @@ What this means on upgrade:
 
 - A project relying on UNBOUNDED upstream TTLs through `CachingHttpClient` now silently caps every item at 1 day unless `max_ttl` is set explicitly higher. Items that used to live for weeks now expire daily.
 - This is the one HttpClient change in this rule that alters runtime caching behavior. If a scoped client genuinely needs items to live longer than a day, set `max_ttl:` to the desired value explicitly - do not depend on "unset = forever" anymore.
+- **Passing `null` as `$maxTtl` is deprecated in 8.1.** The `CachingHttpClient` constructor argument is still `?int $maxTtl = 86400` (so `null` remains type-accepted), but the changelog deprecates passing it: "pass a positive integer instead". When constructing the client by hand, pass an explicit positive TTL rather than `null`; do not reintroduce the old unbounded behavior through `null`.
 - Most projects WANT a bound here; the new default is the safer behavior. Re-check cache-hit expectations for any long-lived upstream resource after upgrading.
 
 ## 7. Symfony 8.1 - Other Additions
 
 All additive; opt-in per scoped client or per call.
 
-### 7.1 Custom DNS Resolution
+### 7.1 Custom DNS Resolution - `DnsResolvingHttpClient`
 
-8.1 adds custom DNS resolution via a decorating HTTP client - resolve hostnames to specific IPs (split-horizon DNS, pinning a host to a known IP, testing against a staging IP without editing `/etc/hosts`) without changing the request URL. Wrap the base client in the DNS-resolving decorator and supply the host-to-IP mapping.
+8.1 adds the `Symfony\Component\HttpClient\DnsResolvingHttpClient` decorator - resolve hostnames to specific IPs (split-horizon DNS, pinning a host to a known IP, testing against a staging IP without editing `/etc/hosts`) via a custom resolver, without changing the request URL. Wrap the base client in the decorator and supply the host-to-IP resolver. The custom resolution is applied on redirects too (the changelog entry is "resolve host names using a custom resolver, including on redirects"), so a 30x to the same host stays pinned to your resolver's answer.
 
 ### 7.2 `$allowList` on `NoPrivateNetworkHttpClient`
 
 `NoPrivateNetworkHttpClient` blocks requests to private / internal IP ranges (SSRF protection). 8.1 adds an `$allowList` constructor argument so specific otherwise-blocked hosts / ranges can be permitted - e.g. one trusted internal service that must be reachable while every other private address stays blocked.
 
+The full constructor is `__construct(HttpClientInterface $client, string|array|null $subnets = null, string|array $allowList = [])` - `$allowList` is the **third** argument, after the existing `$subnets` (the blocked-subnet definition). Its type is `string|array` and its default is `[]` (block everything private). Pass `null` for `$subnets` to keep the default private-subnet block list, then supply the allow value third (positionally or by name):
+
 ```php
 use Symfony\Component\HttpClient\NoPrivateNetworkHttpClient;
 
-// Block private networks, but explicitly allow one internal host.
+// Block the default private networks, but explicitly allow one internal host.
+// Positional: 2nd arg null = default blocked subnets, 3rd arg = the allow-list.
+$client = new NoPrivateNetworkHttpClient($inner, null, ['10.0.5.10']);
+
+// Named-argument equivalent (skips the defaulted $subnets):
 $client = new NoPrivateNetworkHttpClient($inner, allowList: ['10.0.5.10']);
 ```
 
-Keep the allow-list as tight as possible - each entry is a hole in the SSRF guard.
+`$allowList` accepts a single IP / CIDR string or an array of them. Keep it as tight as possible - each entry is a hole in the SSRF guard.
 
 ### 7.3 `max_connect_duration` Option
 
@@ -130,9 +141,23 @@ $response = $client->request('GET', $url, [
 ]);
 ```
 
-### 7.4 Persistent cURL Handles
+### 7.4 Persistent cURL Connections - `extra.use_persistent_connections`
 
-8.1 adds support for persistent cURL handles - the underlying cURL handle is reused across requests rather than recreated, reducing connection-setup overhead for a client that issues many requests to the same host (a hot scraping or polling loop). This is a performance optimization with no API change at the call site.
+8.1 adds the `extra.use_persistent_connections` option on `CurlHttpClient` (default `false`). When enabled, cURL reuses a persistent share handle across requests - the DNS cache, SSL sessions, and connection data are reused instead of recreated - reducing connection-setup overhead for a client that issues many requests to the same host (a hot scraping or polling loop). The component's `CHANGELOG.md` notes the persistent-connection support itself was introduced in PHP 8.5.
+
+It is an explicit opt-in option key, NOT automatic - set it under the `extra` option:
+
+```php
+use Symfony\Component\HttpClient\CurlHttpClient;
+
+$client = new CurlHttpClient([
+    'extra' => [
+        'use_persistent_connections' => true,
+    ],
+]);
+```
+
+Leave it at the default `false` unless a client genuinely hammers the same host repeatedly; persistent share handles keep connection state alive across requests, which is a benefit for a polling loop but unnecessary overhead for one-off calls.
 
 ### 7.5 `GuzzleHttpHandler`
 
@@ -140,7 +165,7 @@ $response = $client->request('GET', $url, [
 
 ### 7.6 Stale-If-Error Fallback Logging
 
-`CachingHttpClient` now logs when it serves a stale cached response because the upstream errored (the RFC 9111 `stale-if-error` fallback). Previously this fallback was silent; the log line makes it visible that a response was served stale due to an upstream failure - watch for it when diagnosing "why is this data old?" reports.
+8.1 makes `CachingHttpClient` implement `Psr\Log\LoggerAwareInterface` (with a `setLogger(LoggerInterface $logger)` method) so it can log when it serves a stale cached response because the upstream errored - the RFC 9111 `stale-if-error` fallback. Previously this fallback was silent; with a logger injected, the log line makes it visible that a response was served stale due to an upstream failure - watch for it when diagnosing "why is this data old?" reports. Inside Symfony the framework wires a logger into the caching client automatically; in standalone use call `setLogger()` to opt in.
 
 ## 8. Common Errors
 

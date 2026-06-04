@@ -2,7 +2,7 @@
 
 | Version | Created    | Updated    |
 |---------|------------|------------|
-| 8.1     | 2026-05-28 | 2026-05-29 |
+| 8.1     | 2026-05-28 | 2026-05-30 |
 
 **Sources:**
 * https://symfony.com/blog/new-in-symfony-8-1-improved-json-streaming-and-querying
@@ -55,6 +55,7 @@ The attribute's `returnType` argument declares how the function may be used in a
 
 ```php
 use Symfony\Component\JsonPath\Attribute\AsJsonPathFunction;
+use Symfony\Component\JsonPath\FunctionReturnType;
 
 #[AsJsonPathFunction('isActive', returnType: FunctionReturnType::Logical)]
 final class IsActiveFunction
