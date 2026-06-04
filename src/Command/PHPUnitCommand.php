@@ -79,7 +79,7 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitPassingBadge --junitXMLFilePath=.docker/.test-results/junit.xml --outputPassingSVGFilePath=.github/badges/phpunit.svg
      *
      * Update the phpunit.svg (PHPUnit X/Y) badge file - where X is the number of passing tests and Y is the total number of tests
      */
@@ -106,7 +106,7 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitTestsBadge --junitXMLFilePath=.envs/.test-results/junit.xml --outputTestsSVGFilePath=.github/badges/phpunit-tests.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitTestsBadge --junitXMLFilePath=.docker/.test-results/junit.xml --outputTestsSVGFilePath=.github/badges/phpunit-tests.svg
      *
      * Generate the phpunit-tests.svg (passing/failing) badge from junit.xml — avoids GitHub API timing issues
      */
@@ -133,7 +133,7 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=.envs/.test-results/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCodeCoverageBadge --cloverXMLFilePath=.docker/.test-results/clover.xml --outputCoverageSVGFilePath=.github/badges/coverage.svg --outputStatementsSVGFilePath=.github/badges/statements.svg
      *
      * Update the coverage.svg (Coverage ?%) and statements.svg (Statements ?/?) badges file
      */
@@ -165,7 +165,7 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
-     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCoverageHistory --cloverXMLFilePath=.envs/.test-results/clover.xml --historyNDJSONFilePath=.github/badges/coverage-trend.ndjson --outputTrendSVGFilePath=.github/badges/coverage-trend.svg
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCoverageHistory --cloverXMLFilePath=.docker/.test-results/clover.xml --historyNDJSONFilePath=.github/badges/coverage-trend.ndjson --outputTrendSVGFilePath=.github/badges/coverage-trend.svg
      *
      * Append the current clover.xml metrics to the coverage-trend.ndjson history file (consecutive duplicates are skipped)
      * and regenerate the coverage-trend.svg badge out of the whole history
