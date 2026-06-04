@@ -24,7 +24,16 @@ class AuroraClient
     {
     }
 
-    private function readGeoLite2Country(): void
+    /**
+     * Initialize the GeoLite2 Country reader.
+     *
+     * The GeoLite2 databases are optional (auto-downloaded by the Composer hooks only when the MaxMind env vars are set),
+     * so a missing database file must NOT break the caller (e.g. a Twig template rendering) - it simply disables the lookup.
+     * See https://github.com/SindlaXYZ/Aurora/issues/1
+     *
+     * Returns true when the reader is available, false when the database file is missing.
+     */
+    private function readGeoLite2Country(): bool
     {
         if (null == $this->container) {
             throw new \Exception('Container not set/initialized!');
@@ -33,14 +42,19 @@ class AuroraClient
         if (!$this->geoLiteCountryReader) {
             $GeoLite2CountryFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2Country.mmdb';
             if (!is_file($GeoLite2CountryFile)) {
-                throw new \Exception("[{$GeoLite2CountryFile}] file not found!");
+                return false;
             }
 
             $this->geoLiteCountryReader = new Reader($GeoLite2CountryFile);
         }
+
+        return true;
     }
 
-    private function readGeoLite2City(): void
+    /**
+     * Initialize the GeoLite2 City reader; returns false (instead of throwing) when the optional database file is missing.
+     */
+    private function readGeoLite2City(): bool
     {
         if (null == $this->container) {
             throw new \Exception('Container not set/initialized!');
@@ -49,14 +63,19 @@ class AuroraClient
         if (!$this->geoLiteCityReader) {
             $GeoLite2CityFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2City.mmdb';
             if (!is_file($GeoLite2CityFile)) {
-                throw new \Exception("[{$GeoLite2CityFile}] file not found!");
+                return false;
             }
 
             $this->geoLiteCityReader = new Reader($GeoLite2CityFile);
         }
+
+        return true;
     }
 
-    private function readGeoLite2ASN(): void
+    /**
+     * Initialize the GeoLite2 ASN reader; returns false (instead of throwing) when the optional database file is missing.
+     */
+    private function readGeoLite2ASN(): bool
     {
         if (null == $this->container) {
             throw new \Exception('Container not set/initialized!');
@@ -65,11 +84,13 @@ class AuroraClient
         if (!$this->geoLiteASNReader) {
             $GeoLite2ASNFile = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2/GeoLite2ASN.mmdb';
             if (!is_file($GeoLite2ASNFile)) {
-                throw new \Exception("[{$GeoLite2ASNFile}] file not found!");
+                return false;
             }
 
             $this->geoLiteASNReader = new Reader($GeoLite2ASNFile);
         }
+
+        return true;
     }
 
     /**
@@ -77,7 +98,9 @@ class AuroraClient
      */
     public function ip2CountryCode(string $ipAddress): ?string
     {
-        $this->readGeoLite2Country();
+        if (!$this->readGeoLite2Country()) {
+            return null;
+        }
 
         try {
             $record = $this->geoLiteCountryReader->country($ipAddress);
@@ -90,7 +113,9 @@ class AuroraClient
 
     public function ip2CityCounty(string $ipAddress): ?string
     {
-        $this->readGeoLite2City();
+        if (!$this->readGeoLite2City()) {
+            return null;
+        }
 
         try {
             $record = $this->geoLiteCityReader->city($ipAddress);
@@ -103,7 +128,9 @@ class AuroraClient
 
     public function ip2CityName(string $ipAddress): ?string
     {
-        $this->readGeoLite2City();
+        if (!$this->readGeoLite2City()) {
+            return null;
+        }
 
         try {
             $record = $this->geoLiteCityReader->city($ipAddress);
@@ -116,8 +143,11 @@ class AuroraClient
 
     public function ip2ASN(string $ipAddress): array
     {
+        if (!$this->readGeoLite2ASN()) {
+            return [];
+        }
+
         $asn = [];
-        $this->readGeoLite2ASN();
 
         try {
             $ip2asn         = $this->geoLiteASNReader->asn($ipAddress);
