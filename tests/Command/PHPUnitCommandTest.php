@@ -205,11 +205,9 @@ final class PHPUnitCommandTest extends TestCase
             $output = new BufferedOutput();
 
             $initialize = new \ReflectionMethod(CommandMiddleware::class, 'initialize');
-            $initialize->setAccessible(true);
             $initialize->invoke($command, $input, $output);
 
             $method = new \ReflectionMethod(PHPUnitCommand::class, 'updateDocumentationBlocks');
-            $method->setAccessible(true);
 
             self::assertSame(
                 PHPUnitCommand::SUCCESS,
@@ -225,6 +223,84 @@ final class PHPUnitCommandTest extends TestCase
             self::assertNotFalse($expectedContent, 'The expected file could not be read.');
             self::assertSame($expectedContent, $result, 'The updated file does not match the expected content.');
         } finally {
+            $this->removeDirectory($temporaryRoot);
+        }
+    }
+
+    #[Test]
+    public function testGeneratePHPUnitCoverageHistoryAppendsHistoryAndGeneratesTrendBadge(): void
+    {
+        $temporaryRoot = sys_get_temp_dir() . '/aurora_phpunit_history_' . uniqid('', true);
+
+        self::assertTrue(mkdir($temporaryRoot . '/test-results', 0777, true), 'Failed to create the temporary test-results directory.');
+        self::assertTrue(mkdir($temporaryRoot . '/badges', 0777, true), 'Failed to create the temporary badges directory.');
+
+        $cloverXml = <<<'XML'
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage>
+    <project>
+        <metrics elements="10" coveredelements="6"/>
+        <file name="Sample.php">
+            <metrics statements="5" coveredstatements="3"/>
+        </file>
+    </project>
+</coverage>
+XML;
+
+        self::assertNotFalse(file_put_contents($temporaryRoot . '/test-results/clover.xml', $cloverXml));
+
+        $originalGitHubSha = \getenv('GITHUB_SHA');
+        \putenv('GITHUB_SHA=1234567890abcdef');
+
+        $parameterBag = new ParameterBag(['kernel.project_dir' => $temporaryRoot]);
+
+        try {
+            $command = new PHPUnitCommand($parameterBag);
+
+            // Relative paths that do not exist yet: they must be resolved against kernel.project_dir
+            $input = new ArrayInput([
+                '--cloverXMLFilePath'      => 'test-results/clover.xml',
+                '--historyNDJSONFilePath'  => 'badges/coverage-trend.ndjson',
+                '--outputTrendSVGFilePath' => 'badges/coverage-trend.svg',
+            ], $command->getDefinition());
+
+            $output = new BufferedOutput();
+
+            $initialize = new \ReflectionMethod(CommandMiddleware::class, 'initialize');
+            $initialize->invoke($command, $input, $output);
+
+            $method = new \ReflectionMethod(PHPUnitCommand::class, 'generatePHPUnitCoverageHistory');
+
+            self::assertSame(
+                PHPUnitCommand::SUCCESS,
+                $method->invoke($command),
+                'The command should finish successfully.'
+            );
+
+            $historyContent = file_get_contents($temporaryRoot . '/badges/coverage-trend.ndjson');
+            self::assertIsString($historyContent, 'The coverage history file should have been created.');
+
+            $lines = array_values(array_filter(explode("\n", $historyContent)));
+            self::assertCount(1, $lines);
+
+            $entry = json_decode($lines[0], true);
+            self::assertIsArray($entry);
+            self::assertSame('1234567', $entry['sha']);
+            self::assertSame(60, $entry['coverage']);
+            self::assertSame(5, $entry['statements']);
+            self::assertSame(3, $entry['coveredStatements']);
+
+            $trendSvg = file_get_contents($temporaryRoot . '/badges/coverage-trend.svg');
+            self::assertIsString($trendSvg, 'The coverage trend badge should have been created.');
+            self::assertStringContainsString('<polyline', $trendSvg);
+            self::assertStringContainsString('60% &#183; 3/5', $trendSvg);
+        } finally {
+            if (false === $originalGitHubSha) {
+                \putenv('GITHUB_SHA');
+            } else {
+                \putenv('GITHUB_SHA=' . $originalGitHubSha);
+            }
+
             $this->removeDirectory($temporaryRoot);
         }
     }

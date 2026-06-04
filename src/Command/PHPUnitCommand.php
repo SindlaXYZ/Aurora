@@ -38,7 +38,9 @@ final class PHPUnitCommand extends CommandMiddleware
             ->addOption('outputCoverageSVGFilePath', null, InputOption::VALUE_OPTIONAL)
             ->addOption('outputStatementsSVGFilePath', null, InputOption::VALUE_OPTIONAL)
             ->addOption('outputPassingSVGFilePath', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('outputTestsSVGFilePath', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('outputTestsSVGFilePath', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('historyNDJSONFilePath', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('outputTrendSVGFilePath', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -163,6 +165,74 @@ final class PHPUnitCommand extends CommandMiddleware
     }
 
     /**
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=generatePHPUnitCoverageHistory --cloverXMLFilePath=.envs/.test-results/clover.xml --historyNDJSONFilePath=.github/badges/coverage-trend.ndjson --outputTrendSVGFilePath=.github/badges/coverage-trend.svg
+     *
+     * Append the current clover.xml metrics to the coverage-trend.ndjson history file (consecutive duplicates are skipped)
+     * and regenerate the coverage-trend.svg badge out of the whole history
+     */
+    protected function generatePHPUnitCoverageHistory(): int
+    {
+        if (
+            !($cloverXMLFilePath = $this->input->getOption('cloverXMLFilePath') ?? null)
+            || !($historyNDJSONFilePath = $this->input->getOption('historyNDJSONFilePath') ?? null)
+        ) {
+            throw new \Exception('Missing required options.');
+        }
+
+        $cloverXMLFilePath      = $this->resolveFilePathOption($cloverXMLFilePath);
+        $historyNDJSONFilePath  = $this->resolveFilePathOption($historyNDJSONFilePath);
+        $outputTrendSVGFilePath = $this->input->getOption('outputTrendSVGFilePath') ?? null;
+
+        $badge    = new AuroraPHPUnitCodeCoverageBadge();
+        $appended = $badge->appendCoverageHistory($cloverXMLFilePath, $historyNDJSONFilePath, getenv('GITHUB_SHA') ?: null);
+
+        $this->outputWithTime(
+            $appended
+                ? sprintf('Coverage history entry appended to %s', $historyNDJSONFilePath)
+                : sprintf('Coverage history entry skipped (same values as the last entry in %s)', $historyNDJSONFilePath)
+        );
+
+        if (!empty($outputTrendSVGFilePath)) {
+            $outputTrendSVGFilePath = $this->resolveFilePathOption($outputTrendSVGFilePath);
+
+            $badge->generateCoverageTrendBadge($historyNDJSONFilePath, $outputTrendSVGFilePath);
+            $this->outputWithTime(sprintf('Coverage trend badge generated at %s', $outputTrendSVGFilePath));
+        }
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * clear; /usr/bin/php bin/console aurora:php-unit --action=backfillPHPUnitCoverageHistory --historyNDJSONFilePath=.github/badges/coverage-trend.ndjson --outputTrendSVGFilePath=.github/badges/coverage-trend.svg
+     *
+     * Rebuild the coverage-trend.ndjson history file retroactively, from the git history of the statements.svg / coverage.svg
+     * badge files located next to it (the existing history file content is replaced)
+     */
+    protected function backfillPHPUnitCoverageHistory(): int
+    {
+        if (!($historyNDJSONFilePath = $this->input->getOption('historyNDJSONFilePath') ?? null)) {
+            throw new \Exception('Missing required options.');
+        }
+
+        $historyNDJSONFilePath  = $this->resolveFilePathOption($historyNDJSONFilePath);
+        $outputTrendSVGFilePath = $this->input->getOption('outputTrendSVGFilePath') ?? null;
+
+        $badge          = new AuroraPHPUnitCodeCoverageBadge();
+        $entriesWritten = $badge->backfillCoverageHistoryFromGit($historyNDJSONFilePath);
+
+        $this->outputWithTime(sprintf('Coverage history rebuilt from git with %d entries into %s', $entriesWritten, $historyNDJSONFilePath));
+
+        if (!empty($outputTrendSVGFilePath)) {
+            $outputTrendSVGFilePath = $this->resolveFilePathOption($outputTrendSVGFilePath);
+
+            $badge->generateCoverageTrendBadge($historyNDJSONFilePath, $outputTrendSVGFilePath);
+            $this->outputWithTime(sprintf('Coverage trend badge generated at %s', $outputTrendSVGFilePath));
+        }
+
+        return self::SUCCESS;
+    }
+
+    /**
      * clear; /usr/bin/php bin/console aurora:php-unit --action=updateDocumentationBlocks
      * clear; /usr/bin/php bin/console aurora:php-unit --verbose --action=updateDocumentationBlocks
      */
@@ -207,8 +277,10 @@ COMMENT;
             $fileName         = $file->getFilename();
             $filePath         = $file->getRealPath();
             $content          = file_get_contents($filePath);
-            $relativePath     = trim(str_replace($fileName, '', $file->getRelativePathname()), '/');
-            $relativeFilePath = trim($file->getRelativePathname(), '/');
+            // Normalize Windows directory separators: the generated doc blocks contain Linux shell commands
+            $relativePathname = str_replace('\\', '/', $file->getRelativePathname());
+            $relativePath     = trim(str_replace($fileName, '', $relativePathname), '/');
+            $relativeFilePath = trim($relativePathname, '/');
 
             // Update comments at the class level
             $classCommentPattern = '/(?P<comment>\/\*\*(?:[^*]|\*(?!\/))*\*\/\s*)?(?P<attributes>(?:(?:^[ \t]*\#\[[^\r\n]*\]\r?\n))*)(?P<indent>^[ \t]*)class\s+(?P<signature>\w+\s+(?:extends\s+\w+(?:\\\\\w+)*(?:\s+implements[^{\r\n]+)?|implements[^{\r\n]+|[^\r\n]*))/m';
@@ -349,5 +421,23 @@ COMMENT;
         }
 
         return $content;
+    }
+
+    /**
+     * Resolve a file path option: existing paths and absolute paths are kept as-is, while relative paths
+     * that do not exist (yet) are resolved against the project directory
+     */
+    private function resolveFilePathOption(string $filePath): string
+    {
+        if (file_exists($filePath)) {
+            return $filePath;
+        }
+
+        // Unix ("/...") and Windows ("C:\", "C:/", "\\server\share") absolute paths are kept untouched
+        if (preg_match('#^(?:[/\\\\]|[a-zA-Z]:[/\\\\])#', $filePath)) {
+            return $filePath;
+        }
+
+        return $this->parameterBag->get('kernel.project_dir') . '/' . $filePath;
     }
 }

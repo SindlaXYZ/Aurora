@@ -2,6 +2,8 @@
 
 [![PHPUnit](https://github.com/SindlaXYZ/Aurora/actions/workflows/phpunit.yml/badge.svg?branch=8.1)](https://github.com/SindlaXYZ/Aurora/actions?query=branch%3A8.1) ![PHPUnitTests](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/phpunit.svg?raw=true) ![PHPUnitStatements](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/statements.svg?raw=true) ![PHPUnitCoverage](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/coverage.svg?raw=true) [![Forbidden Files](https://github.com/SindlaXYZ/Aurora/actions/workflows/forbidden-files.yml/badge.svg?branch=8.1)](https://github.com/SindlaXYZ/Aurora/actions/workflows/forbidden-files.yml) [![Last Commit](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/last-commit.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/tree/8.1) [![Latest Version](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/tag.svg?raw=true)](https://github.com/SindlaXYZ/Aurora/releases?q=v8.1&expanded=true)
 
+![PHPUnitCoverageTrend](https://github.com/SindlaXYZ/aurora/blob/8.1/.github/badges/coverage-trend.svg?raw=true)
+
 ## Installation
 
 The Aurora package is Packagist ready, and Composer can be used to install it (PHP 8.4+ required).

@@ -255,6 +255,12 @@ jobs:
                     --outputStatementsSVGFilePath=../.github/badges/statements.svg
 
                     /usr/bin/php bin/console aurora:php-unit \
+                    --action=generatePHPUnitCoverageHistory \
+                    --cloverXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/clover.xml \
+                    --historyNDJSONFilePath=../.github/badges/coverage-trend.ndjson \
+                    --outputTrendSVGFilePath=../.github/badges/coverage-trend.svg
+
+                    /usr/bin/php bin/console aurora:php-unit \
                     --action=generatePHPUnitTestsBadge \
                     --junitXMLFilePath=${{ env.BUILD_DIR }}/.github/.test-results/junit.xml \
                     --outputTestsSVGFilePath=../.github/badges/phpunit-tests.svg
@@ -308,6 +314,8 @@ jobs:
                     git rebase origin/"${BRANCH}"
 
                     git add .github/badges/coverage.svg \
+                            .github/badges/coverage-trend.ndjson \
+                            .github/badges/coverage-trend.svg \
                             .github/badges/phpunit.svg \
                             .github/badges/phpunit-tests.svg \
                             .github/badges/statements.svg \

@@ -50,52 +50,9 @@ class AuroraPHPUnitCodeCoverageBadge
      */
     public function generateCoverageBadges(string $cloverXMLFilePath, string $outputCoverageSVGFilePath, string $outputStatementsSVGFilePath): void
     {
-        if (!file_exists($cloverXMLFilePath)) {
-            throw new \InvalidArgumentException(sprintf('Clover XML file (%s) does not exist', $cloverXMLFilePath));
-        }
+        ['coverage' => $coverage, 'statements' => $statements, 'coveredStatements' => $coveredStatements] = $this->_parseCloverFile($cloverXMLFilePath);
 
-        $xml             = new \SimpleXMLElement(file_get_contents($cloverXMLFilePath));
-        $metrics         = $xml->xpath('//metrics');
-        $files           = $xml->xpath('//file');
-        $totalElements   = 0;
-        $checkedElements = 0;
-
-        foreach ($metrics as $metric) {
-            $totalElements   += (int)$metric['elements'];
-            $checkedElements += (int)$metric['coveredelements'];
-        }
-
-        $statements        = 0;
-        $coveredStatements = 0;
-        foreach ($files as $file) {
-            $statements        += (int)$file->metrics['statements'];
-            $coveredStatements += (int)$file->metrics['coveredstatements'];
-        }
-
-        $coverage = (int)(($totalElements === 0) ? 0 : ($checkedElements / $totalElements) * 100);
-
-        // [minCoverage, background, textColor] — ordered from high to low
-        $scale = [
-            [92, '#44CC11', '#FFFFFF'],
-            [83, '#68CB0A', '#FFFFFF'],
-            [75, '#7FCB05', '#FFFFFF'],
-            [67, '#96CA00', '#FFFFFF'],
-            [58, '#9EB50C', '#FFFFFF'],
-            [50, '#AEAF11', '#FFFFFF'],
-            [42, '#BEAA16', '#FFFFFF'],
-            [33, '#CEA41C', '#FFFFFF'],
-            [25, '#DE9F21', '#FFFFFF'],
-            [17, '#EE9926', '#FFFFFF'],
-            [8, '#FB8234', '#FFFFFF'],
-        ];
-
-        [$background, $textColor] = ['#E0E6EB', '#000000']; // grey fallback (< 8%)
-        foreach ($scale as [$min, $bg, $fg]) {
-            if ($coverage >= $min) {
-                [$background, $textColor] = [$bg, $fg];
-                break;
-            }
-        }
+        [$background, $textColor] = $this->_coverageColors($coverage);
 
         $coverageSVG = $this->_coverageSVG();
         $coverageSVG = str_replace('{{ background }}', $background, $coverageSVG);
@@ -109,6 +66,149 @@ class AuroraPHPUnitCodeCoverageBadge
         $statementsSVG = str_replace('{{ statements }}', $statements, $statementsSVG);
         $statementsSVG = str_replace('{{ coveredStatements }}', $coveredStatements, $statementsSVG);
         file_put_contents($outputStatementsSVGFilePath, $statementsSVG);
+    }
+
+    /**
+     * Append the current clover.xml metrics as a new line to the coverage history NDJSON file.
+     *
+     * Each line is a JSON object: {"date": "...", "sha": "...", "coverage": int, "statements": int, "coveredStatements": int}.
+     * Consecutive identical entries are skipped: when the last recorded entry carries the same coverage / statements /
+     * coveredStatements values, the file is left untouched.
+     *
+     * Returns true when a new entry was appended, false when it was skipped as a duplicate of the last entry.
+     *
+     * @throws \Exception
+     */
+    public function appendCoverageHistory(string $cloverXMLFilePath, string $historyNDJSONFilePath, ?string $commitSha = null, ?string $date = null): bool
+    {
+        $metrics = $this->_parseCloverFile($cloverXMLFilePath);
+        $entries = $this->_readCoverageHistory($historyNDJSONFilePath);
+        $last    = ([] === $entries) ? null : $entries[array_key_last($entries)];
+
+        if (
+            null !== $last
+            && $last['coverage'] === $metrics['coverage']
+            && $last['statements'] === $metrics['statements']
+            && $last['coveredStatements'] === $metrics['coveredStatements']
+        ) {
+            return false;
+        }
+
+        $entry = [
+            'date'              => $date ?? gmdate('Y-m-d'),
+            'sha'               => (null !== $commitSha && '' !== trim($commitSha)) ? substr(trim($commitSha), 0, 7) : null,
+            'coverage'          => $metrics['coverage'],
+            'statements'        => $metrics['statements'],
+            'coveredStatements' => $metrics['coveredStatements'],
+        ];
+
+        // Guard against a history file that does not end with a newline (manual edits)
+        $prefix = '';
+        if (file_exists($historyNDJSONFilePath)) {
+            $existingContent = (string)file_get_contents($historyNDJSONFilePath);
+            if ('' !== $existingContent && !str_ends_with($existingContent, "\n")) {
+                $prefix = "\n";
+            }
+        }
+
+        file_put_contents($historyNDJSONFilePath, $prefix . $this->_encodeCoverageHistoryEntry($entry) . "\n", FILE_APPEND | LOCK_EX);
+
+        return true;
+    }
+
+    /**
+     * Rebuild the coverage history NDJSON file retroactively, from the git history of the statements / coverage SVG badge files.
+     *
+     * Walks every commit that touched the statements SVG badge, extracts the historical values out of the committed SVG blobs
+     * ("coveredStatements / statements" from the statements badge, "coverage%" from the coverage badge) and rewrites the whole
+     * NDJSON file (any existing file content is replaced). Consecutive entries with identical values are collapsed into one.
+     * When the statements / coverage SVG file paths are not provided, they default to "statements.svg" / "coverage.svg"
+     * located in the same directory as the NDJSON file.
+     *
+     * Returns the number of entries written.
+     */
+    public function backfillCoverageHistoryFromGit(string $historyNDJSONFilePath, ?string $statementsSVGFilePath = null, ?string $coverageSVGFilePath = null): int
+    {
+        $badgesDirectory       = \dirname($historyNDJSONFilePath);
+        $statementsSVGFilePath ??= $badgesDirectory . '/statements.svg';
+        $coverageSVGFilePath   ??= $badgesDirectory . '/coverage.svg';
+
+        $statementsDirectory = \dirname($statementsSVGFilePath);
+        $statementsBasename  = basename($statementsSVGFilePath);
+        $coverageDirectory   = \dirname($coverageSVGFilePath);
+        $coverageBasename    = basename($coverageSVGFilePath);
+
+        // "./<file>" pathspecs are relative to the git working directory, so no repository-root resolution is needed
+        [$exitCode, $logLines, $errorOutput] = $this->_git($statementsDirectory, ['log', '--reverse', '--format=%H %cs', '--', './' . $statementsBasename]);
+
+        if (0 !== $exitCode) {
+            throw new \RuntimeException(sprintf('Failed to read the git history of "%s": %s.', $statementsSVGFilePath, $errorOutput));
+        }
+
+        $entries = [];
+
+        foreach ($logLines as $logLine) {
+            $parts = explode(' ', trim($logLine), 2);
+            if (2 !== count($parts)) {
+                continue;
+            }
+
+            [$sha, $date] = $parts;
+
+            [$showExitCode, $showLines] = $this->_git($statementsDirectory, ['show', sprintf('%s:./%s', $sha, $statementsBasename)]);
+
+            if (0 !== $showExitCode || !preg_match('/>(\d+) \/ (\d+)</', implode("\n", $showLines), $statementsMatches)) {
+                continue;
+            }
+
+            $coveredStatements = (int)$statementsMatches[1];
+            $statements        = (int)$statementsMatches[2];
+            $coverage          = null;
+
+            [$coverageExitCode, $coverageLines] = $this->_git($coverageDirectory, ['show', sprintf('%s:./%s', $sha, $coverageBasename)]);
+
+            if (0 === $coverageExitCode && preg_match('/>(\d+)%</', implode("\n", $coverageLines), $coverageMatches)) {
+                $coverage = (int)$coverageMatches[1];
+            }
+
+            if (null === $coverage) {
+                // The coverage SVG badge is missing for this commit; approximate from the statements ratio
+                $coverage = (int)((0 === $statements) ? 0 : ($coveredStatements / $statements) * 100);
+            }
+
+            $entries[] = [
+                'date'              => $date,
+                'sha'               => substr($sha, 0, 7),
+                'coverage'          => $coverage,
+                'statements'        => $statements,
+                'coveredStatements' => $coveredStatements,
+            ];
+        }
+
+        $entries = $this->_deduplicateConsecutiveCoverageEntries($entries);
+
+        $ndjson = '';
+        foreach ($entries as $entry) {
+            $ndjson .= $this->_encodeCoverageHistoryEntry($entry) . "\n";
+        }
+
+        file_put_contents($historyNDJSONFilePath, $ndjson, LOCK_EX);
+
+        return count($entries);
+    }
+
+    /**
+     * Generate a self-contained SVG sparkline badge with the coverage evolution, from the coverage history NDJSON file.
+     */
+    public function generateCoverageTrendBadge(string $historyNDJSONFilePath, string $outputTrendSVGFilePath): void
+    {
+        $entries = $this->_readCoverageHistory($historyNDJSONFilePath);
+
+        if ([] === $entries) {
+            throw new \InvalidArgumentException(sprintf('Coverage history file (%s) does not exist or contains no valid entries.', $historyNDJSONFilePath));
+        }
+
+        file_put_contents($outputTrendSVGFilePath, $this->_coverageTrendSVG($entries));
     }
 
     private function _PHPUnitTestsBadge(bool $isPassing): string
@@ -275,6 +375,286 @@ SVG;
         <text x="38" y="14">Statements</text>
         <text x="117" y="15" fill="#010101" fill-opacity=".3">{{ coveredStatements }} / {{ statements }}</text>
         <text x="117" y="14" fill="{{ textColor }}">{{ coveredStatements }} / {{ statements }}</text>
+    </g>
+</svg>
+SVG;
+    }
+
+    /**
+     * Extract the aggregated coverage metrics out of a clover.xml file.
+     *
+     * @return array{coverage: int, statements: int, coveredStatements: int}
+     *
+     * @throws \Exception
+     */
+    private function _parseCloverFile(string $cloverXMLFilePath): array
+    {
+        if (!file_exists($cloverXMLFilePath)) {
+            throw new \InvalidArgumentException(sprintf('Clover XML file (%s) does not exist', $cloverXMLFilePath));
+        }
+
+        $xml             = new \SimpleXMLElement(file_get_contents($cloverXMLFilePath));
+        $metrics         = $xml->xpath('//metrics');
+        $files           = $xml->xpath('//file');
+        $totalElements   = 0;
+        $checkedElements = 0;
+
+        foreach ($metrics as $metric) {
+            $totalElements   += (int)$metric['elements'];
+            $checkedElements += (int)$metric['coveredelements'];
+        }
+
+        $statements        = 0;
+        $coveredStatements = 0;
+        foreach ($files as $file) {
+            $statements        += (int)$file->metrics['statements'];
+            $coveredStatements += (int)$file->metrics['coveredstatements'];
+        }
+
+        return [
+            'coverage'          => (int)(($totalElements === 0) ? 0 : ($checkedElements / $totalElements) * 100),
+            'statements'        => $statements,
+            'coveredStatements' => $coveredStatements,
+        ];
+    }
+
+    /**
+     * Map a coverage percentage to the badge background / text colors.
+     *
+     * @return array{0: string, 1: string} [background, textColor]
+     */
+    private function _coverageColors(int $coverage): array
+    {
+        // [minCoverage, background, textColor] — ordered from high to low
+        $scale = [
+            [92, '#44CC11', '#FFFFFF'],
+            [83, '#68CB0A', '#FFFFFF'],
+            [75, '#7FCB05', '#FFFFFF'],
+            [67, '#96CA00', '#FFFFFF'],
+            [58, '#9EB50C', '#FFFFFF'],
+            [50, '#AEAF11', '#FFFFFF'],
+            [42, '#BEAA16', '#FFFFFF'],
+            [33, '#CEA41C', '#FFFFFF'],
+            [25, '#DE9F21', '#FFFFFF'],
+            [17, '#EE9926', '#FFFFFF'],
+            [8, '#FB8234', '#FFFFFF'],
+        ];
+
+        [$background, $textColor] = ['#E0E6EB', '#000000']; // grey fallback (< 8%)
+        foreach ($scale as [$min, $bg, $fg]) {
+            if ($coverage >= $min) {
+                [$background, $textColor] = [$bg, $fg];
+                break;
+            }
+        }
+
+        return [$background, $textColor];
+    }
+
+    /**
+     * Read and validate the coverage history NDJSON file; invalid lines are skipped silently.
+     *
+     * @return array<int, array{date: string, sha: string|null, coverage: int, statements: int, coveredStatements: int}>
+     */
+    private function _readCoverageHistory(string $historyNDJSONFilePath): array
+    {
+        if (!file_exists($historyNDJSONFilePath)) {
+            return [];
+        }
+
+        $entries = [];
+        $lines   = preg_split('/\r\n|\r|\n/', (string)file_get_contents($historyNDJSONFilePath)) ?: [];
+
+        foreach ($lines as $line) {
+            $line = trim($line);
+            if ('' === $line) {
+                continue;
+            }
+
+            $entry = json_decode($line, true);
+
+            if (
+                !is_array($entry)
+                || !isset($entry['date']) || !is_string($entry['date'])
+                || !isset($entry['coverage']) || !is_numeric($entry['coverage'])
+                || !isset($entry['statements']) || !is_numeric($entry['statements'])
+                || !isset($entry['coveredStatements']) || !is_numeric($entry['coveredStatements'])
+            ) {
+                continue;
+            }
+
+            $entries[] = [
+                'date'              => $entry['date'],
+                'sha'               => (isset($entry['sha']) && is_string($entry['sha']) && '' !== $entry['sha']) ? $entry['sha'] : null,
+                'coverage'          => (int)$entry['coverage'],
+                'statements'        => (int)$entry['statements'],
+                'coveredStatements' => (int)$entry['coveredStatements'],
+            ];
+        }
+
+        return $entries;
+    }
+
+    /**
+     * Collapse consecutive entries carrying identical coverage / statements / coveredStatements values.
+     *
+     * @param array<int, array{date: string, sha: string|null, coverage: int, statements: int, coveredStatements: int}> $entries
+     *
+     * @return array<int, array{date: string, sha: string|null, coverage: int, statements: int, coveredStatements: int}>
+     */
+    private function _deduplicateConsecutiveCoverageEntries(array $entries): array
+    {
+        $deduplicated = [];
+
+        foreach ($entries as $entry) {
+            $last = ([] === $deduplicated) ? null : $deduplicated[array_key_last($deduplicated)];
+
+            if (
+                null !== $last
+                && $last['coverage'] === $entry['coverage']
+                && $last['statements'] === $entry['statements']
+                && $last['coveredStatements'] === $entry['coveredStatements']
+            ) {
+                continue;
+            }
+
+            $deduplicated[] = $entry;
+        }
+
+        return $deduplicated;
+    }
+
+    /**
+     * Encode a coverage history entry as a single NDJSON line (without the trailing newline), with a stable key order.
+     *
+     * @param array{date: string, sha: string|null, coverage: int, statements: int, coveredStatements: int} $entry
+     */
+    private function _encodeCoverageHistoryEntry(array $entry): string
+    {
+        return json_encode([
+            'date'              => $entry['date'],
+            'sha'               => $entry['sha'],
+            'coverage'          => $entry['coverage'],
+            'statements'        => $entry['statements'],
+            'coveredStatements' => $entry['coveredStatements'],
+        ], JSON_UNESCAPED_SLASHES);
+    }
+
+    /**
+     * Run a git command in the given working directory, without going through a shell.
+     *
+     * @param string[] $arguments
+     *
+     * @return array{0: int, 1: string[], 2: string} [exitCode, stdoutLines, stderr]
+     */
+    private function _git(string $workingDirectory, array $arguments): array
+    {
+        $process = @proc_open(
+            array_merge(['git'], $arguments),
+            [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+            $pipes,
+            $workingDirectory
+        );
+
+        if (!is_resource($process)) {
+            return [1, [], sprintf('Could not start the "git" process in "%s".', $workingDirectory)];
+        }
+
+        $standardOutput = (string)stream_get_contents($pipes[1]);
+        $standardError  = (string)stream_get_contents($pipes[2]);
+
+        fclose($pipes[1]);
+        fclose($pipes[2]);
+
+        $exitCode = proc_close($process);
+        $lines    = ('' === trim($standardOutput)) ? [] : (preg_split('/\r\n|\r|\n/', trim($standardOutput)) ?: []);
+
+        return [$exitCode, $lines, trim($standardError)];
+    }
+
+    /**
+     * @param array<int, array{date: string, sha: string|null, coverage: int, statements: int, coveredStatements: int}> $entries
+     */
+    private function _coverageTrendSVG(array $entries): string
+    {
+        $chartLeft   = 8;
+        $chartRight  = 292;
+        $chartTop    = 24;
+        $chartBottom = 48;
+
+        $series   = array_column($entries, 'coverage');
+        $minValue = min($series);
+        $maxValue = max($series);
+
+        // Keep a minimum vertical span so a near-flat series does not degenerate into a 0-height chart
+        if (($maxValue - $minValue) < 4) {
+            $middle   = ($maxValue + $minValue) / 2;
+            $minValue = $middle - 2;
+            $maxValue = $middle + 2;
+
+            if ($minValue < 0) {
+                $minValue = 0;
+                $maxValue = 4;
+            }
+
+            if ($maxValue > 100) {
+                $maxValue = 100;
+                $minValue = 96;
+            }
+        }
+
+        // A single entry is rendered as a flat, full-width line
+        if (1 === count($series)) {
+            $series[] = $series[0];
+        }
+
+        $pointsCount = count($series);
+        $linePoints  = [];
+
+        foreach ($series as $index => $value) {
+            $x            = $chartLeft + ($index * ($chartRight - $chartLeft) / ($pointsCount - 1));
+            $y            = $chartBottom - (($value - $minValue) / ($maxValue - $minValue)) * ($chartBottom - $chartTop);
+            $linePoints[] = round($x, 2) . ',' . round($y, 2);
+        }
+
+        $polylinePoints = implode(' ', $linePoints);
+        $polygonPoints  = sprintf('%s %d,%d %d,%d', $polylinePoints, $chartRight, $chartBottom, $chartLeft, $chartBottom);
+
+        $lastEntry     = $entries[array_key_last($entries)];
+        [$accentColor] = $this->_coverageColors($lastEntry['coverage']);
+        $label         = sprintf('%d%% &#183; %d/%d', $lastEntry['coverage'], $lastEntry['coveredStatements'], $lastEntry['statements']);
+
+        $firstDate = $entries[0]['date'];
+        $lastDate  = $lastEntry['date'];
+        $dates     = sprintf('<text x="8" y="57">%s</text>', $firstDate);
+
+        if ($lastDate !== $firstDate) {
+            $dates .= "\n        " . sprintf('<text x="292" y="57" text-anchor="end">%s</text>', $lastDate);
+        }
+
+        return <<<SVG
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="60">
+    <linearGradient id="workflow-fill" x1="50%" y1="0%" x2="50%" y2="100%">
+        <stop stop-color="#444D56" offset="0%"></stop>
+        <stop stop-color="#24292E" offset="100%"></stop>
+    </linearGradient>
+    <mask id="a">
+        <rect width="300" height="60" rx="3" fill="#fff"/>
+    </mask>
+    <g mask="url(#a)">
+        <path fill="url(#workflow-fill)" d="M0 0h300v60H0z"/>
+        <polygon fill="{$accentColor}" fill-opacity=".2" points="{$polygonPoints}"/>
+        <polyline fill="none" stroke="{$accentColor}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" points="{$polylinePoints}"/>
+    </g>
+    <g font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="11">
+        <text x="8" y="17" fill="#010101" fill-opacity=".3">Coverage</text>
+        <text x="8" y="16" fill="#FFFFFF">Coverage</text>
+        <text x="292" y="17" text-anchor="end" fill="#010101" fill-opacity=".3">{$label}</text>
+        <text x="292" y="16" text-anchor="end" fill="{$accentColor}">{$label}</text>
+    </g>
+    <g font-family="DejaVu Sans,Verdana,Geneva,sans-serif" font-size="9" fill="#959DA5">
+        {$dates}
     </g>
 </svg>
 SVG;
