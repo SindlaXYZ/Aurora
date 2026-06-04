@@ -301,7 +301,7 @@ class AuroraClient
             $locale  = array_shift($parts);
             $quality = 1.0;
 
-            if ($locale === '' || $locale === null) {
+            if ('' === $locale) {
                 continue;
             }
 

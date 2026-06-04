@@ -171,9 +171,8 @@ class AuroraGit
                 }
 
                 preg_match_all('/>\s((?<!\d)\d{10}(?!\d))\s/', $lastLine, $matches);
-                $date = ((is_array($matches) && isset($matches[0]) && isset($matches[1][0])) ? date('Y-m-d H:i:s', $matches[1][0]) : 'N/A');
 
-                return $date;
+                return isset($matches[1][0]) ? date('Y-m-d H:i:s', (int)$matches[1][0]) : 'N/A';
             } else {
                 $item->expiresAfter(10);
                 return 'NOT-A-GIT-REPO';

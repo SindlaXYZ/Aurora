@@ -63,18 +63,18 @@ abstract class AbstractTimestampableDeletedNullable
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getDeletedAtLifespanAsMinutes(): int
     {
-        return round($this->getDeletedAtLifespanAsSeconds() / 60);
+        return (int)round($this->getDeletedAtLifespanAsSeconds() / 60);
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getDeletedAtLifespanAsHours(): int
     {
-        return round($this->getDeletedAtLifespanAsMinutes() / 60);
+        return (int)round($this->getDeletedAtLifespanAsMinutes() / 60);
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
     public function getDeletedAtLifespanAsDays(): int
     {
-        return round($this->getDeletedAtLifespanAsHours() / 24);
+        return (int)round($this->getDeletedAtLifespanAsHours() / 24);
     }
 }

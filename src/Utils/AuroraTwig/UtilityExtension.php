@@ -182,7 +182,7 @@ class UtilityExtension extends AbstractExtension
     public function dnsPrefetch(): void
     {
         // Since 2020-12-18
-        trigger_error('Method aurora.dnsPrefetch() is deprecated. Use aurora.linkRelDnsPrefetch() instead.', E_USER_DEPRECATED);
+        trigger_deprecation('sindla/aurora', '8.0', 'The aurora.dnsPrefetch() method is deprecated, use aurora.linkRelDnsPrefetch() instead.');
         $this->linkRelDnsPrefetch();
     }
 
@@ -297,7 +297,7 @@ class UtilityExtension extends AbstractExtension
      */
     public function compressCss(Request $Request, $combine, $minify, ...$assets)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use compressCSSJS() instead.', E_USER_DEPRECATED);
+        trigger_deprecation('sindla/aurora', '8.0', 'The %s() method is deprecated, use compressCSSJS() instead.', __METHOD__);
 
         $serviceGit = $this->container->get('aurora.git');
 
@@ -323,7 +323,7 @@ class UtilityExtension extends AbstractExtension
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
-                throw new \RuntimeException("[AURORA] Cannot create cache dir `{$staticServerDir}`");
+                throw new \RuntimeException(sprintf('[AURORA] Cannot create cache dir "%s".', $staticServerDir));
             }
 
             $combined = '/*' . date('Y-m-d H:i:s') . '*/';
@@ -342,7 +342,7 @@ class UtilityExtension extends AbstractExtension
      */
     public function compressJs(Request $Request, $combine, $minify, ...$assets)
     {
-        trigger_error('Method ' . __METHOD__ . ' is deprecated. Use compressCSSJS() instead.', E_USER_DEPRECATED);
+        trigger_deprecation('sindla/aurora', '8.0', 'The %s() method is deprecated, use compressCSSJS() instead.', __METHOD__);
 
         // TODO: external JS files : preg_match('/http:|https:|ftp:/', $asset)
 
@@ -370,7 +370,7 @@ class UtilityExtension extends AbstractExtension
             $staticWebDir    = 0 ? '/aurora/compiled' : '/static/compiled';
 
             if ('dev' === $this->container->getParameter('kernel.environment') && !is_dir($staticServerDir) && !mkdir($staticServerDir, 0777, true)) {
-                throw new \RuntimeException("[AURORA] Cannot create cache dir `{$staticServerDir}`");
+                throw new \RuntimeException(sprintf('[AURORA] Cannot create cache dir "%s".', $staticServerDir));
             }
 
             $combined = '/*' . date('Y-m-d H:i:s') . '*/';
@@ -431,10 +431,11 @@ class UtilityExtension extends AbstractExtension
 
         $onDev = boolval('dev' === $this->container->getParameter('kernel.environment'));
 
+        $combineAndMinifyOutputContentHead = '';
+        $combineAndMinifyOutputContent     = '';
+
         if ($combineAndMinify) {
-            $combineAndMinifyOutputContentHead = '';
-            $combineAndMinifyOutputContent     = '';
-            $combineAndMinifyOutputFileName    = (sha1(json_encode($assets) . $serviceGit->getHash()) . ('css' == $assetType ? '.css' : '.js'));
+            $combineAndMinifyOutputFileName = (sha1(json_encode($assets) . $serviceGit->getHash()) . ('css' == $assetType ? '.css' : '.js'));
             $combineAndMinifyOutputAbsPath     = "{$auroraRootDir}/public/static/compiled/{$combineAndMinifyOutputFileName}";
             $combineAndMinifyOutputWebPath     = "/static/compiled/{$combineAndMinifyOutputFileName}";
         }

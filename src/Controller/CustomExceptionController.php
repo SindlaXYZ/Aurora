@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Log\DebugLoggerInterface;
 
 class CustomExceptionController extends AbstractController
 {
-    public function handler(Request $request, \Throwable $exception, DebugLoggerInterface $logger = null)
+    public function handler(Request $request, \Throwable $exception, ?DebugLoggerInterface $logger = null)
     {
         $statusCode = $exception instanceof HttpExceptionInterface
             ? $exception->getStatusCode()

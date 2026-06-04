@@ -78,14 +78,9 @@ class CommandMiddleware extends Command
      */
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        /** @var InputInterface input */
-        $this->input = $input;
-
-        /** @var OutputInterface output */
+        $this->input  = $input;
         $this->output = $output;
-
-        /** @var SymfonyStyle io */
-        $this->io = new SymfonyStyle($this->input, $this->output);
+        $this->io     = new SymfonyStyle($this->input, $this->output);
 
         if ($input->hasOption('dry-run') && $input->hasParameterOption('--dry-run')) {
             $value        = $input->getOption('dry-run');
@@ -113,9 +108,9 @@ class CommandMiddleware extends Command
             $actionResult            = $command->$action();
             $executionElapsedSeconds = microtime(true) - $executionStartTime;
             $elapsed                 = BigDecimal::of((string) $executionElapsedSeconds);
-            $hours                   = str_pad($elapsed->dividedBy(3600, 0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
-            $minutes                 = str_pad($elapsed->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, 0, STR_PAD_LEFT);
-            $seconds                 = str_pad($elapsed->remainder(60)->toScale(0, RoundingMode::Floor), 2, 0, STR_PAD_LEFT);
+            $hours                   = str_pad((string)$elapsed->dividedBy(3600, 0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
+            $minutes                 = str_pad((string)$elapsed->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, '0', STR_PAD_LEFT);
+            $seconds                 = str_pad((string)$elapsed->remainder(60)->toScale(0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
             $this->io->write(sprintf("[%s] Done in <fg=white;options=bold>%s</>", date('H:i:s'), "{$hours}:{$minutes}:{$seconds}"), true);
             return $actionResult;
         } else {
@@ -206,10 +201,6 @@ class CommandMiddleware extends Command
         $lines = preg_split('/\r\n|\r|\n/', $yamlContent) ?: [];
 
         foreach ($lines as $rawLine) {
-            if ($rawLine === null) {
-                continue;
-            }
-
             $trimmedLine = ltrim($rawLine, " \t");
 
             if ($trimmedLine === '' || str_starts_with($trimmedLine, '#') || in_array($trimmedLine, ['---', '...'], true)) {
@@ -381,7 +372,8 @@ class CommandMiddleware extends Command
 
     protected function createProgressBar(int $max): ProgressBar
     {
-        trigger_error('Method ' . __METHOD__ . ' has been deprecated since v8.0. Use progressBarCreate() instead.', E_USER_DEPRECATED);
+        trigger_deprecation('sindla/aurora', '8.0', 'The %s() method is deprecated, use progressBarCreate() instead.', __METHOD__);
+
         return $this->progressBarCreate($max);
     }
 

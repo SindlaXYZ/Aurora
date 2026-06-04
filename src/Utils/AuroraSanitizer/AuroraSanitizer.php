@@ -55,45 +55,28 @@ class AuroraSanitizer
         $minifier    = new Minify\CSS();
         $AuroraMatch = new AuroraMatch();
 
-        // TODO: parse line by line
+        // Change url(path) relative to the css file, line by line
+        $cssLineByLine = '';
+        foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
+            $matches = $AuroraMatch->matchCssUrls($line);
 
-        if (false) {
-            /* Version 1 (Buggy) */
-            preg_match_all("/url\((?!['\"]?(?:data|https|http):)['\"]?([^'\"\)]*)['\"]?\)/", $css, $matches);
-            foreach ($matches[0] as $urlToImport) {
-                $quote = '';
-                if (0 === strpos($urlToImport, "url('")) {
-                    $quote = "'";
-                } else if (0 === strpos($urlToImport, 'url("')) {
-                    $quote = '"';
-                }
-                $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
-                $css          = str_replace($urlToImport, $urlToImport2, $css);
-            }
-        } else {
-            /* Version 2 */
-            $cssLineByLine = '';
-            foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
-                $matches = $AuroraMatch->matchCssUrls($line);
-
-                if (isset($matches[0]) && !empty($matches[0])) {
-                    foreach ($matches[0] as $urlToImport) {
-                        $quote = '';
-                        if (0 === strpos($urlToImport, "url('")) {
-                            $quote = "'";
-                        } else if (0 === strpos($urlToImport, 'url("')) {
-                            $quote = '"';
-                        }
-                        $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
-                        $line         = str_replace($urlToImport, $urlToImport2, $line);
+            if (isset($matches[0]) && !empty($matches[0])) {
+                foreach ($matches[0] as $urlToImport) {
+                    $quote = '';
+                    if (0 === strpos($urlToImport, "url('")) {
+                        $quote = "'";
+                    } else if (0 === strpos($urlToImport, 'url("')) {
+                        $quote = '"';
                     }
+                    $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
+                    $line         = str_replace($urlToImport, $urlToImport2, $line);
                 }
-
-                $cssLineByLine .= $line . "\n";
             }
 
-            $css = $cssLineByLine;
+            $cssLineByLine .= $line . "\n";
         }
+
+        $css = $cssLineByLine;
 
         $minifier->add($css);
         return $minifier->minify();

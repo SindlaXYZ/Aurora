@@ -73,14 +73,9 @@ class LazyEntityCommand extends CommandMiddlewareV1
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var InputInterface */
-        $this->input = $input;
-
-        /** @var OutputInterface */
+        $this->input  = $input;
         $this->output = $output;
-
-        /** @var SymfonyStyle io */
-        $this->io = new SymfonyStyle($this->input, $this->output);
+        $this->io     = new SymfonyStyle($this->input, $this->output);
 
         $this->em = $this->container->get('doctrine')->getManager();
 
@@ -146,7 +141,7 @@ class LazyEntityCommand extends CommandMiddlewareV1
         $constructBody = false;
         preg_match('/__construct(.*?)}/is', $fileContent, $matches);
         if (!empty($matches)) {
-            $func = new \ReflectionMethod($className, '__construct');
+            $func = new \ReflectionMethod($this->entityQualifiedName, '__construct');
             $filename = $func->getFileName();
             $start_line = $func->getStartLine() - 1; // it's actually - 1, otherwise you wont get the function() block
             $end_line = $func->getEndLine();

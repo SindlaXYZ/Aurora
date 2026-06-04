@@ -314,15 +314,11 @@ class AuroraChronos
     ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
-            if (!($startDate instanceof \DateTime)) {
-                $startDate = new \DateTime($startDate);
-            }
+            $startDate = new \DateTime($startDate);
         }
 
         if (!($endDate instanceof \DateTimeInterface)) {
-            if (!($endDate instanceof \DateTime)) {
-                $endDate = new \DateTime($endDate);
-            }
+            $endDate = new \DateTime($endDate);
         }
 
         return ((int)(($endDate->getTimestamp() - $startDate->getTimestamp()) / 60));
@@ -339,15 +335,11 @@ class AuroraChronos
     ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
-            if (!($startDate instanceof \DateTime)) {
-                $startDate = new \DateTime($startDate);
-            }
+            $startDate = new \DateTime($startDate);
         }
 
         if (!($endDate instanceof \DateTimeInterface)) {
-            if (!($endDate instanceof \DateTime)) {
-                $endDate = new \DateTime($endDate);
-            }
+            $endDate = new \DateTime($endDate);
         }
 
         return intdiv($endDate->getTimestamp() - $startDate->getTimestamp(), 3600);
@@ -364,19 +356,16 @@ class AuroraChronos
     ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
-            if (!($startDate instanceof \DateTime)) {
-                $startDate = new \DateTime($startDate);
-            }
+            $startDate = new \DateTime($startDate);
         }
 
         if (!($endDate instanceof \DateTimeInterface)) {
-            if (!($endDate instanceof \DateTime)) {
-                $endDate = new \DateTime($endDate);
-            }
+            $endDate = new \DateTime($endDate);
         }
 
         $interval = $startDate->diff($endDate);
-        return $interval->format("%r%a");
+
+        return (int)$interval->format('%r%a');
     }
 
     /**
@@ -472,15 +461,11 @@ class AuroraChronos
     ): int
     {
         if (!($startDate instanceof \DateTimeInterface)) {
-            if (!($startDate instanceof \DateTime)) {
-                $startDate = new \DateTime($startDate);
-            }
+            $startDate = new \DateTime($startDate);
         }
 
         if (!($endDate instanceof \DateTimeInterface)) {
-            if (!($endDate instanceof \DateTime)) {
-                $endDate = new \DateTime($endDate);
-            }
+            $endDate = new \DateTime($endDate);
         }
 
         return $startDate->diff($endDate)->y;
@@ -531,9 +516,9 @@ class AuroraChronos
         $h = (int)($m / 60);
         $m = $m % 60;
 
-        $m = str_pad($m, 2, '0', STR_PAD_LEFT);
-        $h = str_pad($h, 2, '0', STR_PAD_LEFT);
-        $s = str_pad($s, 2, '0', STR_PAD_LEFT);
+        $m = str_pad((string)$m, 2, '0', STR_PAD_LEFT);
+        $h = str_pad((string)$h, 2, '0', STR_PAD_LEFT);
+        $s = str_pad((string)$s, 2, '0', STR_PAD_LEFT);
 
         if ('00' == $h && $cutHourIfZero) {
             return $m . ':' . $s;

@@ -50,14 +50,9 @@ class OutputSubscriber implements EventSubscriberInterface
 
     public function __construct(Container $container, UtilityExtension $utilityExtension, ?array $headers = [])
     {
-        /** @var Container Container */
-        $this->container = $container;
-
-        /** @var UtilityExtension */
+        $this->container        = $container;
         $this->UtilityExtension = $utilityExtension;
-
-        /** @var array headers */
-        $this->headers = $headers;
+        $this->headers          = $headers;
     }
 
     public static function getSubscribedEvents(): array

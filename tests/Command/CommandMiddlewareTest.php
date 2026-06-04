@@ -13,7 +13,6 @@ class CommandMiddlewareTest extends TestCase
         $command = new CommandMiddleware();
         $reflection = new \ReflectionClass($command);
         $property = $reflection->getProperty('progressBarPreviousDisplay');
-        $property->setAccessible(true);
 
         $this->assertInstanceOf(\DateTimeInterface::class, $property->getValue($command));
     }
@@ -23,7 +22,6 @@ class CommandMiddlewareTest extends TestCase
         $command = new CommandMiddleware();
         $reflection = new \ReflectionClass($command);
         $method = $reflection->getMethod('readYamlFile');
-        $method->setAccessible(true);
 
         $tmpFile = tempnam(sys_get_temp_dir(), 'yaml');
         file_put_contents($tmpFile, "foo: bar\n");
@@ -42,7 +40,6 @@ class CommandMiddlewareTest extends TestCase
         $command     = new CommandMiddleware();
         $reflection  = new \ReflectionClass($command);
         $method      = $reflection->getMethod('readYamlFile');
-        $method->setAccessible(true);
 
         $yaml = <<<YAML
 parent:

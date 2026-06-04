@@ -72,7 +72,7 @@ final class PHPUnitCommand extends CommandMiddleware
      */
     protected function test(): int
     {
-        $this->outputWithTime(sprintf("Command: %s", $this->commandName));
+        $this->outputWithTime(sprintf("Command: %s", $this->getName()));
         $this->outputWithTime(sprintf("Application environment: %s", $this->parameterBag->get('kernel.environment')));
         $this->outputWithTime(sprintf("Project directory: %s", $this->parameterBag->get('kernel.project_dir')));
         return self::SUCCESS;

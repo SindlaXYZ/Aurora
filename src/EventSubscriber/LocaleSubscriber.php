@@ -38,10 +38,8 @@ class LocaleSubscriber implements EventSubscriberInterface
 
     public function __construct(Container $container, $twig)
     {
-        /** @var Container Container */
         $this->container = $container;
-
-        $this->twig = $twig;
+        $this->twig      = $twig;
     }
 
     public static function getSubscribedEvents(): array

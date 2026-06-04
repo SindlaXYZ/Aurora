@@ -7,10 +7,11 @@ use Symfony\Component\HttpFoundation\RequestStack;
 
 class MiscProcessor
 {
-    private $container;
-    private $requestStack;
-    private $cachedClientIp = null;
-    private $record;
+    private Container    $container;
+    private RequestStack $requestStack;
+    private ?string      $cachedClientIp = null;
+    /** @var array<string, mixed> */
+    private array        $record;
 
     public function __construct(Container $container, RequestStack $requestStack)
     {
@@ -30,7 +31,6 @@ class MiscProcessor
     /**
      * Set the client details
      *
-     * @return  none
      * @throws \Exception
      */
     public function clientDetails()

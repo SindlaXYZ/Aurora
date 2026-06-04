@@ -72,13 +72,13 @@ final class I18nCommand extends CommandMiddleware
      */
     protected function test(): int
     {
-        $this->outputWithTime(sprintf("Command: %s", $this->commandName));
+        $this->outputWithTime(sprintf("Command: %s", $this->getName()));
         $this->outputWithTime(sprintf("Application environment: %s", $this->container->getParameter('kernel.environment')));
         $this->outputWithTime(sprintf("Project directory: %s", $this->container->getParameter('kernel.project_dir')));
         $this->outputWithTime(sprintf("Container locale: %s", $this->container->get('translator')->getLocale()));
         $this->outputWithTime(sprintf("Translator locale: %s", $this->translator->getLocale()));
-        $this->outputWithTime(sprintf("Translator locales: [ %s ]", implode(', ', $this->parameterBag->get('locales'))));
-        $this->outputWithTime(sprintf("Translator default path: %s", $this->parameterBag->get('translator.default_path')));
+        $this->outputWithTime(sprintf("Translator locales: [ %s ]", implode(', ', $this->container->getParameter('locales'))));
+        $this->outputWithTime(sprintf("Translator default path: %s", $this->container->getParameter('translator.default_path')));
 
         $this->io->comment('Call localeSwitcher');
         $this->localeSwitcher->setLocale('ro');
@@ -86,7 +86,7 @@ final class I18nCommand extends CommandMiddleware
         $this->outputWithTime(sprintf("Container locale: %s", $this->container->get('translator')->getLocale()));
         $this->outputWithTime(sprintf("Translator locale: %s", $this->translator->getLocale()));
 
-        $defaultLocaleYamlFiles = glob($this->parameterBag->get('translator.default_path') . '/*en.yaml');
+        $defaultLocaleYamlFiles = glob($this->container->getParameter('translator.default_path') . '/*en.yaml');
 
         print_r($defaultLocaleYamlFiles);
 

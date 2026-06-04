@@ -57,14 +57,14 @@ class AuroraPHPUnitCodeCoverageBadge
         $coverageSVG = $this->_coverageSVG();
         $coverageSVG = str_replace('{{ background }}', $background, $coverageSVG);
         $coverageSVG = str_replace('{{ textColor }}', $textColor, $coverageSVG);
-        $coverageSVG = str_replace('{{ total }}', $coverage, $coverageSVG);
+        $coverageSVG = str_replace('{{ total }}', (string)$coverage, $coverageSVG);
         file_put_contents($outputCoverageSVGFilePath, $coverageSVG);
 
         $statementsSVG = $this->__statementsSVG();
         $statementsSVG = str_replace('{{ background }}', $background, $statementsSVG);
         $statementsSVG = str_replace('{{ textColor }}', $textColor, $statementsSVG);
-        $statementsSVG = str_replace('{{ statements }}', $statements, $statementsSVG);
-        $statementsSVG = str_replace('{{ coveredStatements }}', $coveredStatements, $statementsSVG);
+        $statementsSVG = str_replace('{{ statements }}', (string)$statements, $statementsSVG);
+        $statementsSVG = str_replace('{{ coveredStatements }}', (string)$coveredStatements, $statementsSVG);
         file_put_contents($outputStatementsSVGFilePath, $statementsSVG);
     }
 
@@ -270,7 +270,7 @@ class AuroraPHPUnitCodeCoverageBadge
 SVG;
     }
 
-    private function _PHPUnitPassingBadge($passedTests, $totalTests, $colorA, $colorB): string
+    private function _PHPUnitPassingBadge(int $passedTests, int $totalTests, string $colorA, string $colorB): string
     {
         $text            = "{$passedTests} / {$totalTests}";
         $textWidth       = strlen($text) * 6.5; // 6.5 is the average character width

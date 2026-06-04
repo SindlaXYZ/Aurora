@@ -23,24 +23,15 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 final class ComposerCommand extends Command
 {
     /**
-     * The name of the command (the part after "bin/console")
      * The command must be registered in src/Resources/config/services.yaml
      *
      * Usage:
      *      clear; php bin/console aurora:composer
-     *
-     * @var string|null
      */
-    /** @var InputInterface input */
-    protected InputInterface $input;
-
-    /** @var OutputInterface output */
+    protected InputInterface  $input;
     protected OutputInterface $output;
-
-    /** @var SymfonyStyle io */
-    protected SymfonyStyle $io;
-
-    protected $kernelRootDir;
+    protected SymfonyStyle    $io;
+    protected string          $kernelRootDir;
 
     private const  GEOIP2_COUNTRY = 'Country';
     private const  GEOIP2_CITY    = 'City';
@@ -92,25 +83,24 @@ final class ComposerCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var InputInterface input */
-        $this->input = $input;
-
-        /** @var OutputInterface output */
+        $this->input  = $input;
         $this->output = $output;
-
-        /** @var SymfonyStyle io */
-        $this->io = new SymfonyStyle($this->input, $this->output);
+        $this->io     = new SymfonyStyle($this->input, $this->output);
 
         $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
         $action = trim($input->getOption('action'));
 
         if (empty($action)) {
-            return $this->io->warning("Invalid action: not specified.");
+            $this->io->warning('Invalid action: not specified.');
+
+            return Command::FAILURE;
         }
 
         if ('_' == substr($action, 0, 1)) {
-            return $this->io->warning("Invalid action {$action}()");
+            $this->io->warning("Invalid action {$action}()");
+
+            return Command::FAILURE;
         }
 
         if (method_exists($this, $action)) {
@@ -119,7 +109,9 @@ final class ComposerCommand extends Command
             $this->io->newLine();
             $this->io->success('[AURORA] All commands were successfully run (post update).');
         } else {
-            return $this->outputWithTime("Invalid action {$action}()");
+            $this->io->warning("Invalid action {$action}()");
+
+            return Command::FAILURE;
         }
 
         return Command::SUCCESS;
@@ -215,7 +207,7 @@ final class ComposerCommand extends Command
      * @param string $type Country|City|ASN
      * @throws \Exception
      */
-    private function _updateGeoIP2(string $type)
+    private function _updateGeoIP2(string $type, bool $retryOnPharError = true): void
     {
         if (!in_array($type, [self::GEOIP2_COUNTRY, self::GEOIP2_CITY, self::GEOIP2_ASN])) {
             $this->io->error(sprintf('[AURORA] _updateGeoIP2(%s) invalid type!', $type));
@@ -251,14 +243,16 @@ final class ComposerCommand extends Command
         }
 
         if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
-            throw new \RuntimeException("[AURORA] Cannot create temporary dir `{$tempDir}`");
+            throw new \RuntimeException(sprintf('[AURORA] Cannot create temporary dir "%s".', $tempDir));
         }
 
         if (!is_dir($maxmindDir)) {
             try {
                 mkdir($maxmindDir, 0777, true);
             } catch (\Exception $e) {
-                return $this->io->error("[AURORA] Cannot create maxmind dir `{$maxmindDir}`");
+                $this->io->error(sprintf('[AURORA] Cannot create maxmind dir "%s".', $maxmindDir));
+
+                return;
             }
         }
 
@@ -280,7 +274,9 @@ final class ComposerCommand extends Command
         try {
             $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-{$type}&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
         } catch (\Exception $e) {
-            return $this->io->error("[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.");
+            $this->io->error('[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.');
+
+            return;
         }
 
         $tmpTar   = "{$tempDir}/GeoLite2-{$type}.tar";
@@ -298,23 +294,24 @@ final class ComposerCommand extends Command
             if ($originalFileContent) {
                 file_put_contents($destinationFile, $originalFileContent);
             }
-            return $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
+
+            $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
+
+            return;
         }
 
-        // Decompress from gz
-        $pharError = false;
+        // Decompress from gz; retry the whole download once when the archive is corrupted
         try {
             $PharData = new \PharData($tmpTarGz);
-        } catch (\UnexpectedValueException $e) {
-            $pharError = true;
-            throw new \Exception('[AURORA] Could not read .tar.gz file.');
-        } catch (\BadMethodCallException $e) {
-            $pharError = true;
-            throw new \Exception('[AURORA] Something goes wrong with the .tar.gz file.');
-        } finally {
-            if ($pharError) {
-                return $this->_updateGeoIP2($type);
+        } catch (\UnexpectedValueException|\BadMethodCallException $e) {
+            if ($retryOnPharError) {
+                $this->io->warning(sprintf('[AURORA] Could not read the .tar.gz file (%s); retrying once.', $e->getMessage()));
+                $this->_updateGeoIP2($type, false);
+
+                return;
             }
+
+            throw new \Exception(sprintf('[AURORA] Could not read the .tar.gz file (%s).', $e->getMessage()), 0, $e);
         }
 
         $PharData->decompress();
@@ -330,7 +327,7 @@ final class ComposerCommand extends Command
         $this->io->comment(sprintf('%s ... done;', $this->p()));
     }
 
-    private function _cleanUpAndChecks(string $functionName)
+    private function _cleanUpAndChecks(string $functionName): void
     {
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // Static compiled JS & CSS files
@@ -347,7 +344,7 @@ final class ComposerCommand extends Command
 
             foreach ($auroraCacheDirs as $auroraCacheDir) {
                 if (!is_dir($auroraCacheDir) && !mkdir($auroraCacheDir, 0777, true)) {
-                    throw new \RuntimeException("[AURORA] Cannot create cache dir `{$auroraCacheDir}`");
+                    throw new \RuntimeException(sprintf('[AURORA] Cannot create cache dir "%s".', $auroraCacheDir));
                 } else {
                     /** @var AuroraIO $IOService */
                     $IOService = $this->container->get('aurora.io');
