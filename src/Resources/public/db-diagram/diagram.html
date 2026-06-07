@@ -1,0 +1,1340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Schema Diagram</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef0f4;
+    --dot: #d4d8e0;
+    --panel: #ffffff;
+    --panel-border: #e2e6ee;
+    --header-bg: #1f2740;
+    --header-fg: #f2f4fa;
+    --row-fg: #2a3144;
+    --row-type: #8b93a7;
+    --row-sep: #eef1f6;
+    --row-hover: #f3f6ff;
+    --pk: #e0a93b;
+    --fk: #4f7cf0;
+    --edge: #9aa6c4;
+    --edge-active: #2f63e8;
+    --accent: #2f63e8;
+    --row-hl: rgba(47,99,232,0.13);
+    --ui-bg: rgba(255,255,255,0.85);
+    --ui-fg: #2a3144;
+    --ui-border: #d9deea;
+    --shadow: 0 8px 24px rgba(31,39,64,0.10), 0 1px 3px rgba(31,39,64,0.08);
+  }
+  html[data-theme="dark"] {
+    --bg: #0e1016;
+    --dot: #20242f;
+    --panel: #181b24;
+    --panel-border: #272c39;
+    --header-bg: #232a3d;
+    --header-fg: #eef1f8;
+    --row-fg: #c8cdda;
+    --row-type: #6f7790;
+    --row-sep: #21262f;
+    --row-hover: #1f2330;
+    --pk: #e0a93b;
+    --fk: #5d86f5;
+    --edge: #41495f;
+    --edge-active: #6b95ff;
+    --accent: #6b95ff;
+    --row-hl: rgba(107,149,255,0.20);
+    --ui-bg: rgba(24,27,36,0.85);
+    --ui-fg: #c8cdda;
+    --ui-border: #2b313f;
+    --shadow: 0 10px 30px rgba(0,0,0,0.45), 0 1px 2px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ui-fg);
+    overflow: hidden;
+  }
+
+  #canvas {
+    position: fixed;
+    inset: 0;
+    background-image: radial-gradient(var(--dot) 1.4px, transparent 1.4px);
+    background-size: 22px 22px;
+    cursor: grab;
+    touch-action: none;
+  }
+  #canvas.panning { cursor: grabbing; }
+
+  svg { width: 100%; height: 100%; display: block; }
+
+  /* tables */
+  .table { cursor: grab; }
+  .table.dragging { cursor: grabbing; }
+  .table-body {
+    fill: var(--panel);
+    stroke: var(--panel-border);
+    stroke-width: 1;
+    filter: drop-shadow(0 6px 16px rgba(31,39,64,0.10));
+  }
+  .table-header { fill: var(--header-bg); }
+  .table-title {
+    fill: var(--header-fg);
+    font-weight: 600;
+    font-size: 14px;
+    font-family: 'IBM Plex Sans', sans-serif;
+  }
+  .col-name {
+    fill: var(--row-fg);
+    font-size: 13px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .col-name.is-pk { font-weight: 600; }
+  .col-type {
+    fill: var(--row-type);
+    font-size: 11.5px;
+    font-family: 'IBM Plex Mono', monospace;
+    text-anchor: end;
+  }
+  .row-sep { stroke: var(--row-sep); stroke-width: 1; }
+  .row-hit { fill: transparent; }
+  .table:hover .row-hit { fill: var(--row-hover); }
+
+  /* FK / PK rows participating in the hovered table's relations */
+  .row-hit.key-hl, .table:hover .row-hit.key-hl { fill: var(--row-hl); }
+  .col-name.key-hl { fill: var(--accent); font-weight: 600; }
+
+  /* key markers */
+  .marker-pk { fill: var(--pk); }
+  .marker-fk { fill: none; stroke: var(--fk); stroke-width: 1.6; }
+
+  /* edges */
+  .edge { fill: none; stroke: var(--edge); stroke-width: 1.6; stroke-linejoin: round; }
+  .edge-dot { fill: var(--edge); }
+  .edge-ring { fill: var(--panel); stroke: var(--edge); stroke-width: 1.6; }
+
+  /* highlight / dim states */
+  .dim { opacity: 0.18; transition: opacity .12s ease; }
+  .table .table-body, .table .table-header, .edge, .edge-dot, .edge-ring { transition: opacity .12s ease; }
+  .edge.active { stroke: var(--edge-active); stroke-width: 2.2; }
+  .edge-dot.active { fill: var(--edge-active); }
+  .edge-ring.active { stroke: var(--edge-active); }
+  .table.active .table-body { stroke: var(--edge-active); stroke-width: 2; }
+
+  /* toolbar */
+  #toolbar {
+    position: fixed;
+    top: 16px; left: 16px;
+    display: flex; gap: 8px; align-items: center;
+    background: var(--ui-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    padding: 8px 10px;
+    box-shadow: var(--shadow);
+    z-index: 10;
+  }
+  #toolbar .title {
+    font-weight: 700; font-size: 13px; letter-spacing: .2px;
+    padding: 0 6px 0 4px; color: var(--ui-fg); white-space: nowrap;
+  }
+  #search {
+    border: 1px solid var(--ui-border);
+    background: var(--panel);
+    color: var(--ui-fg);
+    border-radius: 8px;
+    padding: 6px 10px;
+    font-size: 13px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    width: 170px;
+    outline: none;
+  }
+  #search:focus { border-color: var(--accent); }
+  .btn {
+    border: 1px solid var(--ui-border);
+    background: var(--panel);
+    color: var(--ui-fg);
+    border-radius: 8px;
+    padding: 6px 11px;
+    font-size: 12.5px;
+    font-family: 'IBM Plex Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  #legend {
+    position: fixed;
+    bottom: 16px; left: 16px;
+    background: var(--ui-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--ui-border);
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-size: 11.5px;
+    color: var(--ui-fg);
+    box-shadow: var(--shadow);
+    z-index: 10;
+    display: flex; gap: 14px;
+  }
+  #legend .item { display: flex; align-items: center; gap: 6px; }
+  #legend .swatch { width: 10px; height: 10px; border-radius: 50%; }
+  .sw-pk { background: var(--pk); }
+  .sw-fk { background: transparent; border: 1.6px solid var(--fk); }
+
+  #zoom-info {
+    position: fixed; bottom: 16px; right: 16px;
+    background: var(--ui-bg); backdrop-filter: blur(10px);
+    border: 1px solid var(--ui-border); border-radius: 10px;
+    padding: 7px 11px; font-size: 11.5px; color: var(--ui-fg);
+    font-family: 'IBM Plex Mono', monospace; z-index: 10;
+    box-shadow: var(--shadow);
+  }
+
+  /* empty state - shown when schema.js has not been generated yet */
+  #empty-state {
+    position: fixed; inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    z-index: 20;
+  }
+  #empty-state .box {
+    background: var(--ui-bg);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--ui-border);
+    border-radius: 12px;
+    padding: 28px 36px;
+    box-shadow: var(--shadow);
+    text-align: center;
+    max-width: 560px;
+  }
+  #empty-state h2 { margin: 0 0 8px; font-size: 17px; }
+  #empty-state p { margin: 0 0 14px; font-size: 13.5px; color: var(--row-type); }
+  #empty-state code {
+    display: inline-block;
+    background: var(--panel);
+    border: 1px solid var(--ui-border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12.5px;
+  }
+</style>
+</head>
+<body>
+  <div id="toolbar">
+    <span class="title">DB&nbsp;Schema&nbsp;·&nbsp;v17</span>
+    <input id="search" type="text" placeholder="Find table…" autocomplete="off">
+    <button class="btn" id="btn-reset">Reset layout</button>
+    <button class="btn" id="btn-fit">Fit</button>
+    <button class="btn" id="btn-theme">Dark</button>
+  </div>
+
+  <div id="legend">
+    <div class="item"><span class="swatch sw-pk"></span> Primary key</div>
+    <div class="item"><span class="swatch sw-fk"></span> Foreign key</div>
+    <div class="item">Drag tables · scroll to zoom · drag canvas to pan</div>
+  </div>
+
+  <div id="zoom-info">100%</div>
+
+  <div id="canvas">
+    <svg id="svg" xmlns="http://www.w3.org/2000/svg">
+      <g id="viewport">
+        <g id="edges"></g>
+        <g id="tables"></g>
+      </g>
+    </svg>
+  </div>
+
+  <div id="empty-state">
+    <div class="box">
+      <h2>No schema data found</h2>
+      <p>schema.js is missing or empty. Generate it from the project root, then reload this page:</p>
+      <code>php bin/console app:db-diagram</code>
+    </div>
+  </div>
+
+<!-- Data is loaded via a script tag (window.DB_SCHEMA) because fetch('schema.json') is CORS-blocked under file:// in Chrome/Edge. Regenerate with: php bin/console app:db-diagram -->
+<script src="schema.js"></script>
+<script>
+/* =========================================================================
+   SCHEMA DATA
+   Loaded from schema.js (window.DB_SCHEMA), produced by the Symfony console
+   command `app:db-diagram`. The viewer reads:
+   { tables: [{ name, columns: [{ name, type, pk, fk, nullable }] }],
+     relations: [{ fromTable, fromColumn, toTable, toColumn }] }
+   Extra keys (entityClass, isJoinTable, indexes, ...) are ignored.
+   ========================================================================= */
+const schema = window.DB_SCHEMA ?? { tables: [], relations: [] };
+if (!window.DB_SCHEMA) {
+  document.getElementById("empty-state").style.display = "flex";
+}
+
+/* =========================================================================
+   CONFIG
+   ========================================================================= */
+const HEADER_H = 38;
+const ROW_H    = 27;
+const BODY_PAD = 8;
+const GUTTER_L = 26;   // left space for the key marker
+const PAD_R    = 14;
+const GAP      = 18;   // gap between column name and type
+const MIN_W    = 190;
+const MAX_W    = 380;
+/*
+ * Spacing is tuned for the FIT zoom: a 35-table diagram fits at ~35%, so anything under ~6 world-px between parallel lines collapses into a single fat line on screen. LANE_STEP 22 keeps
+ * parallel corridor lanes ~8px apart even at fit zoom; COL_GAP must stay several LANE_STEPs wide so a corridor can hold its lanes.
+ */
+const COL_GAP  = 240;  // horizontal gap between layout columns - doubles as the routing corridor for the vertical edge segments
+const ROW_GAP  = 72;   // vertical gap between stacked tables
+const COMP_GAP = 80;   // vertical gap between connected components in the initial layout
+const EDGE_PAD = 16;   // keep-away between a routing corridor and the table borders
+const LANE_STEP = 22;  // spacing between parallel vertical edge segments sharing a corridor
+const SEG_GAP   = 16;  // minimum clearance between collinear segments - without it two edges meeting end-to-end on the same lane read as ONE continuous line (the fan-in problem)
+
+const SVG_NS = "http://www.w3.org/2000/svg";
+const svg      = document.getElementById("svg");
+const viewport = document.getElementById("viewport");
+const gEdges   = document.getElementById("edges");
+const gTables  = document.getElementById("tables");
+const canvas   = document.getElementById("canvas");
+const zoomInfo = document.getElementById("zoom-info");
+
+/* text measurement via canvas 2D (reliable, synchronous) */
+const measureCtx = document.createElement("canvas").getContext("2d");
+function measure(text, font) { measureCtx.font = font; return measureCtx.measureText(text).width; }
+const FONT_TITLE = "600 14px 'IBM Plex Sans', sans-serif";
+const FONT_NAME  = "13px 'IBM Plex Mono', monospace";
+const FONT_TYPE  = "11.5px 'IBM Plex Mono', monospace";
+
+/* =========================================================================
+   MODEL — compute table sizes + indexes + adjacency
+   ========================================================================= */
+const tables = schema.tables.map(t => {
+  let maxLine = measure(t.name, FONT_TITLE) + 28;
+  for (const c of t.columns) {
+    const line = GUTTER_L + measure(c.name, FONT_NAME) + GAP + measure(c.type, FONT_TYPE) + PAD_R;
+    if (line > maxLine) maxLine = line;
+  }
+  const width  = Math.max(MIN_W, Math.min(MAX_W, Math.ceil(maxLine)));
+  const height = HEADER_H + t.columns.length * ROW_H + BODY_PAD;
+  // bandLeft/bandRight = the horizontal span of the layout column the table sits in; the edge router keeps every vertical segment OUTSIDE all bands so lines never cross a table box
+  return { name: t.name, columns: t.columns, width, height, x: 0, y: 0, bandLeft: 0, bandRight: 0, el: null };
+});
+const byName = new Map(tables.map(t => [t.name, t]));
+const adjacency = new Map(tables.map(t => [t.name, new Set()]));
+const inDegree  = new Map(tables.map(t => [t.name, 0]));   // how many FK edges point INTO each table - drives which table anchors the layout
+for (const r of schema.relations) {
+  adjacency.get(r.fromTable)?.add(r.toTable);
+  adjacency.get(r.toTable)?.add(r.fromTable);
+  inDegree.set(r.toTable, (inDegree.get(r.toTable) ?? 0) + 1);
+}
+
+/* =========================================================================
+   LAYOUT — relation-aware layered columns (BFS from the most connected
+   table) + barycenter ordering to reduce edge crossings. Connected tables
+   land in adjacent columns so the orthogonal edges run through the free
+   corridors between columns; isolated tables go to a grid below.
+   ========================================================================= */
+function connectedComponents() {
+  const seen = new Set(), comps = [];
+  for (const t of tables) {
+    if (seen.has(t.name)) continue;
+    const comp = [], queue = [t.name];
+    seen.add(t.name);
+    while (queue.length) {
+      const n = queue.shift();
+      comp.push(byName.get(n));
+      for (const m of adjacency.get(n)) if (!seen.has(m)) { seen.add(m); queue.push(m); }
+    }
+    comps.push(comp);
+  }
+  return comps;
+}
+
+function radialColumns(comp) {
+  // concentric arrangement: the most REFERENCED table (highest FK in-degree) is the hub in the CENTER column; BFS rings around it are split into a left and a right half, so the diagram
+  // grows outward like a circle - heavily referenced tables in the middle, loosely connected leaves at the margins
+  const score = name => inDegree.get(name) * 1000 + adjacency.get(name).size;
+  const root = comp.reduce((a, b) => score(b.name) > score(a.name) ? b : a);
+
+  const ring = new Map([[root.name, 0]]);
+  const parent = new Map();
+  const queue = [root.name];
+  while (queue.length) {
+    const n = queue.shift();
+    for (const m of [...adjacency.get(n)].sort((a, b) => score(b) - score(a))) {
+      if (ring.has(m)) continue;
+      ring.set(m, ring.get(n) + 1);
+      parent.set(m, n);
+      queue.push(m);
+    }
+  }
+
+  // group every table under its ring-1 ancestor: a whole branch always stays on one side of the hub
+  const branchOf = name => {
+    let n = name;
+    while (1 < (ring.get(n) ?? 0)) n = parent.get(n);
+    return n;
+  };
+  const branches = new Map();
+  for (const t of comp) {
+    if (0 === ring.get(t.name)) continue;
+    const b = branchOf(t.name);
+    if (!branches.has(b)) branches.set(b, []);
+    branches.get(b).push(t);
+  }
+
+  // greedy balance: biggest branches first, each to the currently lighter side
+  const side = new Map([[root.name, 0]]);
+  const sorted = [...branches.values()].sort((p, q) => q.length - p.length);
+  let leftWeight = 0, rightWeight = 0;
+  for (const members of sorted) {
+    const weight = members.reduce((s, t) => s + t.height + ROW_GAP, 0);
+    const s = leftWeight <= rightWeight ? -1 : 1;
+    if (0 > s) leftWeight += weight; else rightWeight += weight;
+    for (const t of members) side.set(t.name, s);
+  }
+
+  // one improvement pass: flip a branch when it lowers the combined cost of hub-crossing FK edges AND left/right height imbalance. The balance term is what keeps the layout round -
+  // without it the pass collapses every branch onto one side (zero crossings, but the hub ends up at the far edge); the few crossings left over are taken around the diagram by highway routes
+  const CROSS_COST = 400;
+  const crossCount = () => schema.relations.reduce((c, r) => c + (0 > (side.get(r.fromTable) ?? 0) * (side.get(r.toTable) ?? 0) ? 1 : 0), 0);
+  const cost = () => crossCount() * CROSS_COST + Math.abs(leftWeight - rightWeight);
+  for (const members of sorted) {
+    const weight = members.reduce((s, t) => s + t.height + ROW_GAP, 0);
+    const s0 = side.get(members[0].name);
+    const before = cost();
+    for (const t of members) side.set(t.name, -s0);
+    if (0 > s0) { leftWeight -= weight; rightWeight += weight; } else { leftWeight += weight; rightWeight -= weight; }
+    if (cost() > before) {
+      for (const t of members) side.set(t.name, s0);
+      if (0 > s0) { leftWeight += weight; rightWeight -= weight; } else { leftWeight -= weight; rightWeight += weight; }
+    }
+  }
+
+  // signed column index = ring * side; the resulting column sequence reads left -> hub -> right
+  const cols = new Map();
+  for (const t of comp) {
+    const k = (ring.get(t.name) ?? 0) * (side.get(t.name) ?? 1);
+    if (!cols.has(k)) cols.set(k, []);
+    cols.get(k).push(t);
+  }
+  return [...cols.keys()].sort((a, b) => a - b).map(k => cols.get(k));
+}
+
+function orderLayers(layers) {
+  // one forward + one backward barycenter pass: each table moves next to the average position of its neighbors in the reference layer
+  const pos = new Map();
+  const refresh = () => layers.forEach(l => l.forEach((t, i) => pos.set(t.name, i)));
+  const sortByNeighborsOf = (layer, refLayer) => {
+    const refNames = new Set(refLayer.map(t => t.name));
+    const bary = t => {
+      const ns = [...adjacency.get(t.name)].filter(n => refNames.has(n));
+      return ns.length ? ns.reduce((s, n) => s + pos.get(n), 0) / ns.length : pos.get(t.name);
+    };
+    layer.sort((a, b) => bary(a) - bary(b));
+    refresh();
+  };
+  refresh();
+  // two full down-up sweeps converge well enough at ERD sizes (yFiles/ELK run a handful of sweeps too)
+  for (let pass = 0; pass < 2; pass++) {
+    for (let i = 1; i < layers.length; i++) sortByNeighborsOf(layers[i], layers[i - 1]);
+    for (let i = layers.length - 2; i >= 0; i--) sortByNeighborsOf(layers[i], layers[i + 1]);
+  }
+}
+
+function placeColumn(layer, x, yStart) {
+  const width = Math.max(...layer.map(t => t.width));
+  let y = yStart;
+  for (const t of layer) {
+    t.x = x;
+    t.y = y;
+    t.bandLeft = x;
+    t.bandRight = x + width;
+    y += t.height + ROW_GAP;
+  }
+  return { width, bottom: y - ROW_GAP };
+}
+
+/* leaf tables: exactly ONE outgoing FK and NOTHING referencing them (e.g. vehicle_certification -> vehicle). They hug their parent so the single relation renders as a short straight line:
+   the layout pulls them level with the parent, and assignAnchors later aligns the two anchor heights exactly. */
+function leafParentOf(t) {
+  const out = schema.relations.filter(r => r.fromTable === t.name && r.toTable !== t.name);
+  const incoming = schema.relations.some(r => r.toTable === t.name && r.fromTable !== t.name);
+  if (1 !== out.length || incoming) return null;
+  return byName.get(out[0].toTable) ?? null;
+}
+
+function layout() {
+  const comps = connectedComponents().sort((a, b) => b.length - a.length);
+  let yBase = 60;
+  let treeRight = 60;
+
+  for (const comp of comps.filter(c => c.length > 1)) {
+    const columns = radialColumns(comp);
+    orderLayers(columns);
+    // columns are centered vertically within the component band: the hub sits mid-height and the leaf-heavy outer rings fan towards the top/bottom margins, giving the oval silhouette
+    const colHeight = column => column.reduce((s, t) => s + t.height, 0) + (column.length - 1) * ROW_GAP;
+    const compHeight = Math.max(...columns.map(colHeight));
+    let x = 60, bottom = yBase;
+    for (const column of columns) {
+      const placed = placeColumn(column, x, yBase + (compHeight - colHeight(column)) / 2);
+      bottom = Math.max(bottom, placed.bottom);
+      x += placed.width + COL_GAP;
+    }
+
+    /* vertical relaxation (light Sugiyama coordinate assignment): every table drifts towards the average height of its connected neighbors, within the slack left by the tables above and
+       below it - the column ORDER never changes. This is what levels e.g. user_company with the tables it references instead of wherever the initial stack dropped it, removing the
+       crossings that a manual "move this table a bit up" would fix. Leaf tables aim at their PARENT's center (weighted passes below), so their single relation can run straight. */
+    for (let pass = 0; pass < 6; pass++) {
+      for (const column of columns) {
+        for (let i = 0; i < column.length; i++) {
+          const t = column[i];
+          const parent = leafParentOf(t);
+          const neighbors = parent ? [parent] : [...adjacency.get(t.name)].map(n => byName.get(n)).filter(Boolean);
+          if (!neighbors.length) continue;
+          const desired = neighbors.reduce((s, n) => s + n.y + n.height / 2, 0) / neighbors.length - t.height / 2;
+          const lo = 0 === i ? yBase : column[i - 1].y + column[i - 1].height + ROW_GAP;
+          const hi = i === column.length - 1 ? Infinity : column[i + 1].y - ROW_GAP - t.height;
+          t.y = Math.max(lo, Math.min(hi, desired));
+        }
+      }
+    }
+
+    // leaves slide horizontally inside their column band towards the parent, shrinking the visual gap the single straight line has to span
+    for (const column of columns) {
+      for (const t of column) {
+        const parent = leafParentOf(t);
+        if (!parent) continue;
+        const bandSlack = (t.bandRight - t.bandLeft) - t.width;
+        if (bandSlack < 2) continue;
+        t.x = parent.x + parent.width / 2 >= t.x + t.width / 2 ? t.bandRight - t.width : t.bandLeft;
+      }
+    }
+
+    bottom = Math.max(bottom, ...comp.map(t => t.y + t.height));
+
+    treeRight = Math.max(treeRight, x);
+    yBase = bottom + COMP_GAP;
+  }
+
+  // isolated tables (no relations): stacked in columns to the RIGHT of the relation tree - modern monitors are wide, so the unlinked tables use the horizontal space instead of pushing the tree up
+  const singles = comps.filter(c => 1 === c.length).flat();
+  if (singles.length) {
+    const top = 60;
+    const maxBottom = Math.max(yBase - COMP_GAP, 700);
+    let x = treeRight + COL_GAP, y = top, colW = 0;
+    for (const t of singles) {
+      if (y > top && y + t.height > maxBottom) { x += colW + COL_GAP; y = top; colW = 0; }
+      t.x = x; t.y = y; t.bandLeft = x; t.bandRight = x + t.width;
+      colW = Math.max(colW, t.width);
+      y += t.height + ROW_GAP;
+    }
+  }
+
+}
+
+/* =========================================================================
+   RENDER TABLES (created once; drag updates transform only)
+   ========================================================================= */
+function roundedTopRectPath(w, h, r) {
+  return `M0,${r} A${r},${r} 0 0 1 ${r},0 L${w - r},0 A${r},${r} 0 0 1 ${w},${r} L${w},${h} L0,${h} Z`;
+}
+function el(name, attrs) {
+  const e = document.createElementNS(SVG_NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+
+function renderTables() {
+  gTables.innerHTML = "";
+  for (const t of tables) {
+    const g = el("g", { class: "table", transform: `translate(${t.x},${t.y})`, "data-name": t.name });
+
+    // body
+    g.appendChild(el("rect", { class: "table-body", x: 0, y: 0, width: t.width, height: t.height, rx: 10 }));
+    // header (rounded top only)
+    g.appendChild(el("path", { class: "table-header", d: roundedTopRectPath(t.width, HEADER_H, 10) }));
+    const title = el("text", { class: "table-title", x: 13, y: HEADER_H / 2 + 5 });
+    title.textContent = t.name;
+    g.appendChild(title);
+
+    // rows - the per-column elements are kept on the table model so the hover highlight can light up the exact FK/PK rows of a relation
+    const rowEls = {};
+    t.columns.forEach((c, i) => {
+      const y = HEADER_H + i * ROW_H;
+      const cy = y + ROW_H / 2;
+      const hit = el("rect", { class: "row-hit", x: 1, y: y, width: t.width - 2, height: ROW_H });
+      g.appendChild(hit);
+      if (i > 0) g.appendChild(el("line", { class: "row-sep", x1: 0, y1: y, x2: t.width, y2: y }));
+
+      // marker
+      if (c.pk) {
+        g.appendChild(el("circle", { class: "marker-pk", cx: 13, cy: cy, r: 4 }));
+      } else if (c.fk) {
+        g.appendChild(el("circle", { class: "marker-fk", cx: 13, cy: cy, r: 3.6 }));
+      }
+      const nm = el("text", { class: "col-name" + (c.pk ? " is-pk" : ""), x: GUTTER_L, y: cy + 4.5 });
+      nm.textContent = c.name;
+      g.appendChild(nm);
+      const tp = el("text", { class: "col-type", x: t.width - PAD_R, y: cy + 4 });
+      tp.textContent = c.type;
+      g.appendChild(tp);
+      rowEls[c.name] = { hit, nm };
+    });
+    t.rowEls = rowEls;
+
+    t.el = g;
+    gTables.appendChild(g);
+    attachDrag(g, t);
+    attachHover(g, t);
+  }
+}
+
+/* =========================================================================
+   RENDER EDGES — orthogonal (DbVisualizer-style) routing, recomputed on
+   every drag. Each edge runs: horizontal out of the source row, vertical
+   along a free corridor between column bands, horizontal into the target
+   row. Edges sharing a corridor get distinct parallel lanes so their
+   vertical segments never overlap.
+   ========================================================================= */
+/* ============================ GRID EDGE ROUTER ============================
+   Real orthogonal routing (the libavoid approach, sized for this diagram): every edge is A*-routed over a track grid built from the free space between tables, with additive penalties for
+   bends, crossings, near-table crossings and (near-prohibitive) sibling crossings; running on top of another edge's track segment is effectively forbidden, so parallel edges spread onto
+   neighboring tracks on their own. Edges route shortest-first, then rip-up-and-reroute passes let early edges escape congestion created by later ones. This replaces the earlier analytic
+   3-segment construction whose single-dogleg shape made whole classes of crossings provably unavoidable. */
+
+const BEND_COST          = 60;
+const CROSS_COST         = 90;
+const CROSS_NEAR_COST    = 270;     // crossing inside the apron of a table - tangles with departure / entry stubs
+const SIBLING_CROSS_COST = 4500;    // crossing between edges leaving the same table side - the user-reported regression class
+const PARALLEL_COST      = 1e7;     // two edges sharing a track segment would render as ONE line
+const TABLE_APRON        = 6;       // inflation around table boxes the router must not enter
+
+function segBlockedByTable(horizontal, fixed, lo, hi) {
+  // does the open segment (at y=fixed spanning x in (lo,hi), or x=fixed spanning y) cut any inflated table box?
+  for (const t of tables) {
+    const x1 = t.x - TABLE_APRON, x2 = t.x + t.width + TABLE_APRON;
+    const y1 = t.y - TABLE_APRON, y2 = t.y + t.height + TABLE_APRON;
+    if (horizontal) {
+      if (fixed > y1 && fixed < y2 && lo < x2 && hi > x1) return true;
+    } else {
+      if (fixed > x1 && fixed < x2 && lo < y2 && hi > y1) return true;
+    }
+  }
+  return false;
+}
+
+/* per-track blocked intervals, precomputed once per routing run - the A* inner loop then checks a short sorted list instead of scanning every table per move */
+function buildBlockedIndex(xs, ys) {
+  const byX = new Map(), byY = new Map();
+  for (const x of xs) {
+    const list = [];
+    for (const t of tables) {
+      if (x > t.x - TABLE_APRON && x < t.x + t.width + TABLE_APRON) list.push([t.y - TABLE_APRON, t.y + t.height + TABLE_APRON]);
+    }
+    byX.set(Math.round(x * 10), list);
+  }
+  for (const y of ys) {
+    const list = [];
+    for (const t of tables) {
+      if (y > t.y - TABLE_APRON && y < t.y + t.height + TABLE_APRON) list.push([t.x - TABLE_APRON, t.x + t.width + TABLE_APRON]);
+    }
+    byY.set(Math.round(y * 10), list);
+  }
+  return { byX, byY };
+}
+
+function nearAnyTable(x, y) {
+  return tables.some(t => x > t.x - 60 && x < t.x + t.width + 60 && y > t.y - 30 && y < t.y + t.height + 30);
+}
+
+/* track grid: x tracks sample the corridors between column bands plus a few outer rings; y tracks are every anchor height plus the channels hugging each table and a few outer rings */
+function buildTracks(routes) {
+  const xsSet = new Set(), ysSet = new Set();
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+  const bands = tables.map(t => [t.bandLeft, t.bandRight]).sort((a, b) => a[0] - b[0]);
+  const merged = [];
+  for (const [lo, hi] of bands) {
+    if (merged.length && lo <= merged[merged.length - 1][1] + 2 * EDGE_PAD) merged[merged.length - 1][1] = Math.max(merged[merged.length - 1][1], hi);
+    else merged.push([lo, hi]);
+  }
+  for (let i = 0; i + 1 < merged.length; i++) {
+    const lo = merged[i][1] + EDGE_PAD, hi = merged[i + 1][0] - EDGE_PAD;
+    if (hi - lo < 2) { xsSet.add((lo + hi) / 2); continue; }
+    for (let x = lo; x <= hi; x += LANE_STEP) xsSet.add(x);
+    xsSet.add(hi);
+  }
+  for (let k = 0; k < 8; k++) {
+    xsSet.add(merged[0][0] - EDGE_PAD - k * LANE_STEP);
+    xsSet.add(merged[merged.length - 1][1] + EDGE_PAD + k * LANE_STEP);
+  }
+
+  for (const t of tables) {
+    minX = Math.min(minX, t.x); maxX = Math.max(maxX, t.x + t.width);
+    minY = Math.min(minY, t.y); maxY = Math.max(maxY, t.y + t.height);
+    ysSet.add(t.y - TABLE_APRON - 8);
+    ysSet.add(t.y + t.height + TABLE_APRON + 8);
+  }
+  for (let k = 0; k < 8; k++) {
+    ysSet.add(minY - 30 - k * LANE_STEP);
+    ysSet.add(maxY + 30 + k * LANE_STEP);
+  }
+  for (const rt of routes) { ysSet.add(rt.sy); ysSet.add(rt.ty); }
+
+  return { xs: [...xsSet].sort((a, b) => a - b), ys: [...ysSet].sort((a, b) => a - b) };
+}
+
+/* occupancy of already-routed edges, per track line, for crossing / parallel penalties */
+function makeOccupancy() {
+  // keyed maps serve the exact-track crossing checks; the flat arrays serve the proximity parallel checks (anchor-derived tracks can sit arbitrarily close to each other)
+  return { v: new Map(), h: new Map(), allV: [], allH: [] };
+}
+function walkSegments(pts, cb) {
+  for (let i = 0; i + 1 < pts.length; i++) {
+    const [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    if (Math.abs(y1 - y2) < 0.01 && Math.abs(x1 - x2) > 0.01) cb(true, y1, Math.min(x1, x2), Math.max(x1, x2));
+    else if (Math.abs(x1 - x2) < 0.01 && Math.abs(y1 - y2) > 0.01) cb(false, x1, Math.min(y1, y2), Math.max(y1, y2));
+  }
+}
+function pushOcc(occ, horizontal, fixed, lo, hi, rt) {
+  const map = horizontal ? occ.h : occ.v;
+  const key = Math.round(fixed * 10);
+  if (!map.has(key)) map.set(key, []);
+  const entry = { fixed, lo, hi, rt };
+  map.get(key).push(entry);
+  // keep the flat list sorted by the fixed coordinate so the proximity check can bisect into a tiny window
+  const flat = horizontal ? occ.allH : occ.allV;
+  let lo2 = 0, hi2 = flat.length;
+  while (lo2 < hi2) { const mid = (lo2 + hi2) >> 1; if (flat[mid].fixed < fixed) lo2 = mid + 1; else hi2 = mid; }
+  flat.splice(lo2, 0, entry);
+}
+
+function registerRoute(occ, rt) {
+  walkSegments(rt.pts, (horizontal, fixed, lo, hi) => pushOcc(occ, horizontal, fixed, lo, hi, rt));
+}
+
+/* nearest track in the given direction whose stub from the table edge stays clear of every OTHER table (the stub legitimately starts inside its own table apron) */
+function firstFreeTrack(xs, from, dir, y, ownTable) {
+  let nearest = null;
+  for (const x of (0 < dir ? xs : [...xs].reverse())) {
+    if (0 < dir ? x <= from + 1 : x >= from - 1) continue;
+    if (null === nearest) nearest = x;
+    const lo = Math.min(from, x), hi = Math.max(from, x);
+    let clear = true;
+    for (const t of tables) {
+      if (t === ownTable) continue;
+      if (y > t.y - TABLE_APRON && y < t.y + t.height + TABLE_APRON && lo < t.x + t.width + TABLE_APRON && hi > t.x - TABLE_APRON) { clear = false; break; }
+    }
+    if (clear) return x;
+  }
+  return nearest;
+}
+function unregisterRoute(occ, rt) {
+  for (const map of [occ.v, occ.h]) {
+    for (const list of map.values()) {
+      for (let i = list.length - 1; 0 <= i; i--) if (list[i].rt === rt) list.splice(i, 1);
+    }
+  }
+  for (const list of [occ.allV, occ.allH]) {
+    for (let i = list.length - 1; 0 <= i; i--) if (list[i].rt === rt) list.splice(i, 1);
+  }
+}
+
+/* A* over the track grid; nodes are (xIndex, yIndex, direction). The explored window is clamped to the edge's bounding box plus a generous margin, which keeps each search tiny. */
+function routeEdge(rt, xs, ys, occ, blocked) {
+  const exitDir = 'R' === rt.exit ? 1 : -1;
+  const entryDir = 'L' === rt.entry ? 1 : -1;   // an edge entering the LEFT side arrives moving right
+
+  const startX = rt.startX ?? firstFreeTrack(xs, rt.sx, exitDir, rt.sy, rt.a);
+  const endX = rt.endX ?? firstFreeTrack(xs, rt.tx, -entryDir, rt.ty, rt.b);
+  if (null === startX || null === endX) { rt.pts = [[rt.sx, rt.sy], [rt.tx, rt.ty]]; return; }
+
+  const xi = new Map(xs.map((x, i) => [x, i]));
+  const yi = new Map(ys.map((y, i) => [y, i]));
+  const sIx = xi.get(startX), sIy = yi.get(rt.sy);
+  const eIx = xi.get(endX), eIy = yi.get(rt.ty);
+
+  // clamp the search window around the endpoints; widePass lifts the clamp when the tight window cannot reach the target (e.g. routes that must escape around the whole diagram)
+  const PADW = rt.widePass ? Infinity : 1.5 * COL_GAP;
+  const loX = Math.min(xs[sIx], xs[eIx]) - PADW, hiX = Math.max(xs[sIx], xs[eIx]) + PADW;
+  const loY = Math.min(ys[sIy], ys[eIy]) - PADW, hiY = Math.max(ys[sIy], ys[eIy]) + PADW;
+
+  const sideKey = rt.a.name + '|' + rt.exit;
+  const crossPenaltyAt = (x, y, horizontal) => {
+    // arriving at a node where a PERPENDICULAR foreign segment covers the spot = a crossing
+    const map = horizontal ? occ.v : occ.h;
+    const list = map.get(Math.round((horizontal ? x : y) * 10));
+    if (!list) return 0;
+    const pos = horizontal ? y : x;
+    let p = 0;
+    for (const seg of list) {
+      if (seg.rt === rt) continue;
+      if (pos > seg.lo + 0.01 && pos < seg.hi - 0.01) {
+        p += (seg.rt.a.name + '|' + seg.rt.exit) === sideKey ? SIBLING_CROSS_COST : (nearAnyTable(x, y) ? CROSS_NEAR_COST : CROSS_COST);
+      }
+    }
+    return p;
+  };
+  const parallelPenalty = (horizontal, fixed, lo, hi) => {
+    // proximity check: anchor-derived tracks can sit closer than a lane step, and two runs a few px apart read as one line just like exact overlap. The flat list is kept sorted by the
+    // fixed coordinate, so a bisect plus a short forward walk covers exactly the nearby window.
+    const list = horizontal ? occ.allH : occ.allV;
+    const threshold = LANE_STEP * 0.9;
+    let a = 0, b = list.length;
+    while (a < b) { const mid = (a + b) >> 1; if (list[mid].fixed < fixed - threshold) a = mid + 1; else b = mid; }
+    for (let i = a; i < list.length && list[i].fixed < fixed + threshold; i++) {
+      const seg = list[i];
+      if (seg.rt === rt) continue;
+      // the margin also forbids BUTT-JOINTS: two runs meeting end-to-end on one track read as a single continuous line with alternating identity (the track-swapping artifact)
+      if (seg.lo < hi + SEG_GAP && seg.hi > lo - SEG_GAP) return PARALLEL_COST;
+    }
+    return 0;
+  };
+
+  // binary heap A*
+  const NX = xs.length, NY = ys.length;
+  const nodeId = (ix, iyy, d) => (ix * NY + iyy) * 2 + d;   // d: 0 horizontal, 1 vertical
+  const dist = new Map(), prev = new Map();
+  const heap = [];
+  const push = (k, id) => { heap.push([k, id]); let i = heap.length - 1; while (0 < i) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; } };
+  const pop = () => { const top = heap[0], last = heap.pop(); if (heap.length) { heap[0] = last; let i = 0; for (;;) { const l = 2 * i + 1, r = l + 1; let m = i; if (l < heap.length && heap[l][0] < heap[m][0]) m = l; if (r < heap.length && heap[r][0] < heap[m][0]) m = r; if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m; } } return top; };
+  const hCost = (ix, iyy) => 2.5 * (Math.abs(xs[ix] - xs[eIx]) + Math.abs(ys[iyy] - ys[eIy]));
+
+  const startId = nodeId(sIx, sIy, 0);
+  dist.set(startId, 0);
+  push(hCost(sIx, sIy), startId);
+  const goalId = nodeId(eIx, eIy, 0);
+  let found = false;
+
+  while (heap.length) {
+    const [, id] = pop();
+    if (id === goalId) { found = true; break; }
+    const d = id % 2, iyy = ((id - d) / 2) % NY, ix = ((id - d) / 2 - iyy) / NY;
+    const g0 = dist.get(id);
+    if (undefined === g0) continue;
+
+    const tryMove = (jx, jy, horizontal) => {
+      if (jx < 0 || jx >= NX || jy < 0 || jy >= NY) return;
+      if (xs[jx] < loX || xs[jx] > hiX || ys[jy] < loY || ys[jy] > hiY) return;
+      const fixed = horizontal ? ys[iyy] : xs[ix];
+      const lo = horizontal ? Math.min(xs[ix], xs[jx]) : Math.min(ys[iyy], ys[jy]);
+      const hi = horizontal ? Math.max(xs[ix], xs[jx]) : Math.max(ys[iyy], ys[jy]);
+      const blockedList = (horizontal ? blocked.byY : blocked.byX).get(Math.round(fixed * 10));
+      if (blockedList) { for (const [bLo, bHi] of blockedList) if (lo < bHi && hi > bLo) return; }
+      let cost = hi - lo;
+      if ((horizontal ? 0 : 1) !== d) cost += BEND_COST;
+      cost += parallelPenalty(horizontal, fixed, lo, hi);
+      cost += crossPenaltyAt(xs[jx], ys[jy], horizontal);
+      const nid = nodeId(jx, jy, horizontal ? 0 : 1);
+      const g = g0 + cost;
+      if (g < (dist.get(nid) ?? Infinity)) { dist.set(nid, g); prev.set(nid, id); push(g + hCost(jx, jy), nid); }
+    };
+
+    tryMove(ix + 1, iyy, true);
+    tryMove(ix - 1, iyy, true);
+    tryMove(ix, iyy + 1, false);
+    tryMove(ix, iyy - 1, false);
+  }
+
+  rt.finalG = found ? Math.round(dist.get(goalId)) : -1;
+  if (!found && !rt.widePass) {
+    // tight window could not reach the target - retry once over the whole grid before giving up
+    rt.widePass = true;
+    routeEdge(rt, xs, ys, occ, blocked);
+    rt.widePass = false;
+    return;
+  }
+
+  const pts = [[rt.tx, rt.ty]];
+  if (found) {
+    let id = goalId;
+    while (undefined !== id) {
+      const d = id % 2, iyy = ((id - d) / 2) % NY, ix = ((id - d) / 2 - iyy) / NY;
+      pts.push([xs[ix], ys[iyy]]);
+      id = prev.get(id);
+    }
+  } else {
+    pts.push([endX, rt.ty], [endX, rt.sy], [startX, rt.sy]);
+  }
+  pts.push([rt.sx, rt.sy]);
+  pts.reverse();
+
+  // merge collinear runs so bends and hops stay clean
+  const merged = [pts[0]];
+  for (let i = 1; i + 1 < pts.length; i++) {
+    const [x0, y0] = merged[merged.length - 1], [x1, y1] = pts[i], [x2, y2] = pts[i + 1];
+    const colinear = (Math.abs(x0 - x1) < 0.01 && Math.abs(x1 - x2) < 0.01) || (Math.abs(y0 - y1) < 0.01 && Math.abs(y1 - y2) < 0.01);
+    if (!colinear) merged.push(pts[i]);
+  }
+  merged.push(pts[pts.length - 1]);
+  rt.pts = merged;
+}
+
+/* anchors on DIFFERENT tables can land on near-equal y after the layout refinement; their table-edge stubs are forced segments that cannot dodge each other, so the values themselves get
+   pushed at least 8px apart (each anchor stays within its own table side) */
+function deconflictAnchorValues(routes) {
+  const items = [];
+  for (const rt of routes) {
+    items.push({ rt, get: () => rt.sy, set: y => { rt.sy = y; }, t: rt.a });
+    items.push({ rt, get: () => rt.ty, set: y => { rt.ty = y; }, t: rt.b });
+  }
+  for (let pass = 0; pass < 3; pass++) {
+    let moved = false;
+    for (let i = 0; i < items.length; i++) {
+      for (let j = i + 1; j < items.length; j++) {
+        const p = items[i], q = items[j];
+        if (p.rt === q.rt) continue;   // the two endpoints of one route may deliberately share a height - that IS the straight line
+        // same-table pairs are spaced by construction INITIALLY, but a cross-table shift can land an anchor exactly on its sibling - so every pair is re-enforced here
+        const gap = q.get() - p.get();
+        if (Math.abs(gap) < 8) {
+          const lo = q.t.y + HEADER_H + 6, hi = q.t.y + q.t.height - 6;
+          q.set(Math.max(lo, Math.min(hi, q.get() + (0 <= gap ? 8 - gap : -8 - gap))));
+          moved = true;
+        }
+      }
+    }
+    if (!moved) break;
+  }
+}
+
+function routeAllEdges(routes, ripupPasses) {
+  const { xs, ys } = buildTracks(routes);
+  const occ = makeOccupancy();
+  const blocked = buildBlockedIndex(xs, ys);
+  const order = [...routes].sort((p, q) => (Math.abs(p.sx - p.tx) + Math.abs(p.sy - p.ty)) - (Math.abs(q.sx - q.tx) + Math.abs(q.sy - q.ty)));
+
+  // pre-register every edge's forced table-edge stubs so no other route may settle on a line a stub will inevitably occupy
+  for (const rt of order) {
+    rt.pts = [[rt.sx, rt.sy], [rt.tx, rt.ty]];
+    registerStubs(occ, rt, xs);
+  }
+
+  for (const rt of order) { unregisterRoute(occ, rt); routeEdge(rt, xs, ys, occ, blocked); registerRoute(occ, rt); }
+  for (let pass = 0; pass < ripupPasses; pass++) {
+    for (const rt of order) {
+      unregisterRoute(occ, rt);
+      routeEdge(rt, xs, ys, occ, blocked);
+      registerRoute(occ, rt);
+    }
+  }
+}
+
+function registerStubs(occ, rt, xs) {
+  const exitDir = "R" === rt.exit ? 1 : -1;
+  const entryDir = "L" === rt.entry ? 1 : -1;
+  const sX = firstFreeTrack(xs, rt.sx, exitDir, rt.sy, rt.a);
+  const tX = firstFreeTrack(xs, rt.tx, -entryDir, rt.ty, rt.b);
+  rt.startX = sX;
+  rt.endX = tX;
+  walkSegments([[rt.sx, rt.sy], [sX, rt.sy]], (h, fixed, lo, hi) => pushOcc(occ, h, fixed, lo, hi, rt));
+  walkSegments([[tX, rt.ty], [rt.tx, rt.ty]], (h, fixed, lo, hi) => pushOcc(occ, h, fixed, lo, hi, rt));
+}
+
+function computeRoutes(ripupPasses = 0) {
+  const routes = [];
+  for (const r of schema.relations) {
+    const a = byName.get(r.fromTable);
+    const b = byName.get(r.toTable);
+    if (!a || !b) continue;
+    // exit / entry sides by relative position; anchors provisional at the table centers, refined by assignAnchors below
+    const exit = b.x + b.width / 2 >= a.x + a.width / 2 ? 'R' : 'L';
+    const entry = 'R' === exit ? 'L' : 'R';
+    routes.push({
+      r, a, b, exit, entry,
+      sx: 'R' === exit ? a.x + a.width : a.x,
+      tx: 'L' === entry ? b.x : b.x + b.width,
+      sy: a.y + a.height / 2,
+      ty: b.y + b.height / 2,
+      pts: null,
+    });
+  }
+
+  // two anchor passes: the first orders by the opposite TABLE center, the second by the opposite (by then final) ANCHOR
+  assignAnchors(routes);
+  assignAnchors(routes);
+  deconflictAnchorValues(routes);
+  routeAllEdges(routes, ripupPasses);
+
+  // cheap repair pass (quality renders only): if two edges leaving the same table side still cross, swapping their two departure anchors is the proven fix - each crossing pair gets one
+  // attempt, kept only when it stops THAT pair from crossing
+  if (2 <= ripupPasses) {
+    const tried = new Set();
+    for (let attempt = 0; attempt < 6; attempt++) {
+      const pair = findSiblingCrossing(routes, tried);
+      if (!pair) break;
+      const [p, q] = pair;
+      tried.add(pairKey(p, q));
+      [p.sy, q.sy] = [q.sy, p.sy];
+      routeAllEdges(routes, 1);
+      const still = findSiblingCrossing(routes);
+      if (still && (still.includes(p) || still.includes(q))) {
+        [p.sy, q.sy] = [q.sy, p.sy];
+        routeAllEdges(routes, 1);
+      }
+    }
+  }
+
+  return routes;
+}
+
+function pairKey(p, q) {
+  const a = p.r.fromTable + ">" + p.r.toTable, b = q.r.fromTable + ">" + q.r.toTable;
+  return a < b ? a + "|" + b : b + "|" + a;
+}
+
+/* first pair of routes that leave the same table side and cross each other (the invariant-7 class) and is not in the skip set, or null */
+function findSiblingCrossing(routes, skip) {
+  const segs = [];
+  for (const rt of routes) {
+    walkSegments(rt.pts, (horizontal, fixed, lo, hi) => segs.push({ rt, horizontal, fixed, lo, hi }));
+  }
+  const sideOf = rt => rt.a.name + "|" + rt.exit;
+  for (const h of segs) {
+    if (!h.horizontal) continue;
+    for (const v of segs) {
+      if (v.horizontal || h.rt === v.rt || sideOf(h.rt) !== sideOf(v.rt)) continue;
+      if (skip && skip.has(pairKey(h.rt, v.rt))) continue;
+      if (v.fixed > h.lo + 0.01 && v.fixed < h.hi - 0.01 && h.fixed > v.lo + 0.01 && h.fixed < v.hi - 0.01) return [h.rt, v.rt];
+    }
+  }
+  return null;
+}
+
+/* the weighted objective the layout refinement minimizes: route everything from scratch (no rip-up - cheap), then tally crossings with the same weights the router itself uses */
+function countCrossings() {
+  const routes = computeRoutes(0);
+  const vsegs = [], hsegs = [];
+  for (const rt of routes) {
+    walkSegments(rt.pts, (horizontal, fixed, lo, hi) => (horizontal ? hsegs : vsegs).push({ rt, fixed, lo, hi }));
+  }
+
+  const sideOf = rt => rt.a.name + '|' + rt.exit;
+  let score = 0;
+  for (const h of hsegs) {
+    for (const v of vsegs) {
+      if (h.rt === v.rt) continue;
+      if (v.fixed > h.lo + 0.01 && v.fixed < h.hi - 0.01 && h.fixed > v.lo + 0.01 && h.fixed < v.hi - 0.01) {
+        if (sideOf(h.rt) === sideOf(v.rt)) score += 50;
+        else score += nearAnyTable(v.fixed, h.fixed) ? 3 : 1;
+      }
+    }
+  }
+  return score;
+}
+
+/* DbVisualizer-style anchors: an edge does NOT leave from its FK row - each table SIDE spreads its connection points along the block height, ordered by where the line actually heads
+   (the FK / PK columns are communicated by the hover row highlight instead). */
+function assignAnchors(routes) {
+  const requests = new Map();
+  const add = (t, side, id, otherY, set) => {
+    const key = t.name + '|' + side;
+    if (!requests.has(key)) requests.set(key, []);
+    requests.get(key).push({ t, id, otherY, set });
+  };
+
+  for (const rt of routes) {
+    const edgeId = rt.r.fromTable + '>' + rt.r.toTable + ':' + rt.r.fromColumn;
+    add(rt.a, rt.exit, edgeId + '#src', () => rt.ty, y => { rt.sy = y; });
+    add(rt.b, rt.entry, edgeId + '#dst', () => rt.sy, y => { rt.ty = y; });
+  }
+
+  for (const [key, list] of requests.entries()) {
+    const t = list[0].t;
+    const mid = t.y + HEADER_H + (t.height - HEADER_H) / 2;
+    const above = list.filter(r => r.otherY() < mid).sort((p, q) => q.otherY() - p.otherY());
+    const below = list.filter(r => r.otherY() >= mid).sort((p, q) => q.otherY() - p.otherY());
+    const ordered = [...above, ...below];
+    const usable = Math.max(20, t.height - HEADER_H - 16);
+    const step = Math.min(34, usable / ordered.length);
+    // the +-4 stagger keeps the LEFT and RIGHT side ladders of one table off each other's y values - symmetric counts would otherwise produce IDENTICAL anchor heights on both sides,
+    // and two horizontal runs at the exact same y read as one line as soon as their x ranges meet
+    const stagger = key.endsWith("|L") ? 4 : -4;
+    const start = t.y + HEADER_H + (t.height - HEADER_H) / 2 - (ordered.length - 1) / 2 * step + stagger;
+    ordered.forEach((req, i) => req.set(start + i * step));
+  }
+
+  // leaf edges run STRAIGHT: a single-FK leaf and its parent meet at one shared height inside the OVERLAP of the two table bodies, so the relation renders as one direct line
+  // (deconflictAnchorValues then pushes every other anchor off that line; the same-route guard keeps the pair itself intact)
+  for (const rt of routes) {
+    if (leafParentOf(rt.a) !== rt.b) continue;
+    const lo = Math.max(rt.a.y + HEADER_H + 6, rt.b.y + HEADER_H + 6);
+    const hi = Math.min(rt.a.y + rt.a.height - 6, rt.b.y + rt.b.height - 6);
+    if (lo > hi) continue;   // the bodies do not overlap vertically - a straight line is geometrically impossible
+    const y = Math.max(lo, Math.min(hi, rt.ty));
+    rt.sy = y;
+    rt.ty = y;
+  }
+}
+
+/* path builder: rounded corners (CORNER_R) + crossing hops - where a horizontal run crosses a FOREIGN vertical segment, a small semicircular bridge is drawn over it (the circuit-diagram
+   convention). Together with the junction dots this turns the unavoidable orthogonal crossings from "tangled lines" into an explicitly readable notation. */
+const CORNER_R = 7;
+const HOP_R = 4.5;
+function orthoPath(points, ownKey, vsegs) {
+  // drop zero-length segments so corner math stays sane
+  const pts = points.filter((p, i) => 0 === i || Math.abs(p[0] - points[i - 1][0]) > 0.01 || Math.abs(p[1] - points[i - 1][1]) > 0.01);
+  if (pts.length < 2) return '';
+
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    const horizontal = Math.abs(y1 - y0) < 0.01;
+    const dir = horizontal ? Math.sign(x1 - x0) : Math.sign(y1 - y0);
+
+    // corner rounding shortens both ends of interior segments
+    const rPrev = 0 === i ? 0 : Math.min(CORNER_R, (horizontal ? Math.abs(x1 - x0) : Math.abs(y1 - y0)) / 2);
+    const rNext = i === pts.length - 2 ? 0 : Math.min(CORNER_R, (horizontal ? Math.abs(x1 - x0) : Math.abs(y1 - y0)) / 2);
+
+    if (horizontal) {
+      const xa = x0 + dir * rPrev, xb = x1 - dir * rNext;
+      // hops over foreign verticals strictly inside this run
+      const lo = Math.min(xa, xb) + HOP_R, hi = Math.max(xa, xb) - HOP_R;
+      const crossings = vsegs
+        .filter(v => v.key !== ownKey && v.x > lo && v.x < hi && y0 > Math.min(v.y1, v.y2) + 0.01 && y0 < Math.max(v.y1, v.y2) - 0.01)
+        .map(v => v.x)
+        .sort((p, q) => dir > 0 ? p - q : q - p);
+      if (0 < rPrev) d += ` Q${x0},${y0} ${xa},${y0}`;
+      for (const cx of crossings) {
+        d += ` L${cx - dir * HOP_R},${y0} A${HOP_R},${HOP_R} 0 0 ${dir > 0 ? 1 : 0} ${cx + dir * HOP_R},${y0}`;
+      }
+      d += ` L${xb},${y0}`;
+    } else {
+      const ya = y0 + dir * rPrev, yb = y1 - dir * rNext;
+      if (0 < rPrev) d += ` Q${x0},${y0} ${x0},${ya}`;
+      d += ` L${x0},${yb}`;
+    }
+  }
+  return d;
+}
+
+function renderEdges(ripupPasses = 1) {
+  gEdges.innerHTML = "";
+  const routes = computeRoutes(ripupPasses);
+
+  // every edge piece carries the list of tables it serves, so the hover highlight matches against the list
+  const addPath = (d, names) => gEdges.appendChild(el("path",   { class: "edge", d, "data-tables": names.join(",") }));
+  const addDot  = (cx, cy, names) => gEdges.appendChild(el("circle", { class: "edge-dot", cx, cy, r: 3.2, "data-tables": names.join(",") }));
+  const addRing = (cx, cy, names) => gEdges.appendChild(el("circle", { class: "edge-ring", cx, cy, r: 3.4, "data-tables": names.join(",") }));
+
+  // global list of vertical segments, used by orthoPath to bridge horizontal runs over foreign lines with hops
+  const vsegs = [];
+  for (const rt of routes) {
+    walkSegments(rt.pts, (horizontal, fixed, lo, hi) => {
+      if (!horizontal) vsegs.push({ key: rt, x: fixed, y1: lo, y2: hi });
+    });
+  }
+
+  for (const rt of routes) {
+    const names = [rt.r.fromTable, rt.r.toTable];
+    addPath(orthoPath(rt.pts, rt, vsegs), names);
+    // markers: filled dot at FK (source), open ring at PK (target)
+    addDot(rt.pts[0][0], rt.pts[0][1], names);
+    addRing(rt.pts[rt.pts.length - 1][0], rt.pts[rt.pts.length - 1][1], names);
+  }
+}
+
+/* =========================================================================
+   PAN / ZOOM
+   ========================================================================= */
+const view = { x: 80, y: 40, k: 1 };
+function applyView() {
+  viewport.setAttribute("transform", `translate(${view.x},${view.y}) scale(${view.k})`);
+  zoomInfo.textContent = Math.round(view.k * 100) + "%";
+}
+function svgPoint(clientX, clientY) {
+  const r = svg.getBoundingClientRect();
+  return { x: clientX - r.left, y: clientY - r.top };
+}
+function toWorld(clientX, clientY) {
+  const p = svgPoint(clientX, clientY);
+  return { x: (p.x - view.x) / view.k, y: (p.y - view.y) / view.k };
+}
+
+canvas.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const p = svgPoint(e.clientX, e.clientY);
+  const factor = Math.exp(-e.deltaY * 0.0015);
+  const nk = Math.max(0.25, Math.min(2.5, view.k * factor));
+  // zoom toward cursor
+  view.x = p.x - (p.x - view.x) * (nk / view.k);
+  view.y = p.y - (p.y - view.y) * (nk / view.k);
+  view.k = nk;
+  applyView();
+}, { passive: false });
+
+/* unified pointer handling: pan (on background) vs drag (on table) */
+let mode = null;            // "pan" | "drag"
+let dragTable = null;
+let dragOffset = { x: 0, y: 0 };
+let panStart = { x: 0, y: 0, vx: 0, vy: 0 };
+
+canvas.addEventListener("pointerdown", (e) => {
+  if (e.target.closest(".table")) return; // handled by table-specific listener
+  mode = "pan";
+  canvas.classList.add("panning");
+  panStart = { x: e.clientX, y: e.clientY, vx: view.x, vy: view.y };
+  canvas.setPointerCapture(e.pointerId);
+});
+
+function attachDrag(g, t) {
+  g.addEventListener("pointerdown", (e) => {
+    e.stopPropagation();
+    mode = "drag";
+    dragTable = t;
+    g.classList.add("dragging");
+    // bring to front
+    gTables.appendChild(g);
+    const w = toWorld(e.clientX, e.clientY);
+    dragOffset = { x: w.x - t.x, y: w.y - t.y };
+    g.setPointerCapture(e.pointerId);
+  });
+}
+
+window.addEventListener("pointermove", (e) => {
+  if (mode === "pan") {
+    view.x = panStart.vx + (e.clientX - panStart.x);
+    view.y = panStart.vy + (e.clientY - panStart.y);
+    applyView();
+  } else if (mode === "drag" && dragTable) {
+    const w = toWorld(e.clientX, e.clientY);
+    dragTable.x = Math.round(w.x - dragOffset.x);
+    dragTable.y = Math.round(w.y - dragOffset.y);
+    // a dragged table leaves its layout column: its band shrinks to the table itself so the router follows it
+    dragTable.bandLeft = dragTable.x;
+    dragTable.bandRight = dragTable.x + dragTable.width;
+    dragTable.el.setAttribute("transform", `translate(${dragTable.x},${dragTable.y})`);
+    renderEdges(0);
+    if (currentHover) applyHighlight(currentHover); // keep highlight while dragging
+  }
+});
+window.addEventListener("pointerup", () => {
+  if (dragTable) dragTable.el.classList.remove("dragging");
+  canvas.classList.remove("panning");
+  mode = null; dragTable = null;
+});
+
+/* =========================================================================
+   HOVER HIGHLIGHT
+   ========================================================================= */
+let currentHover = null;
+function attachHover(g, t) {
+  g.addEventListener("mouseenter", () => { currentHover = t.name; applyHighlight(t.name); });
+  g.addEventListener("mouseleave", () => { currentHover = null; clearHighlight(); });
+}
+function applyHighlight(name) {
+  const keep = new Set([name, ...adjacency.get(name)]);
+  for (const t of tables) {
+    t.el.classList.toggle("dim", !keep.has(t.name));
+    t.el.classList.toggle("active", t.name === name);
+  }
+  for (const e of gEdges.children) {
+    const touches = (e.getAttribute("data-tables") || "").split(",").includes(name);
+    e.classList.toggle("dim", !touches);
+    e.classList.toggle("active", touches);
+  }
+  // light up the exact FK + PK rows of every highlighted relation (both endpoints: the FK column on the referencing side AND the referenced column on the other side)
+  clearKeyHighlights();
+  for (const r of schema.relations) {
+    if (r.fromTable !== name && r.toTable !== name) continue;
+    for (const [tn, cn] of [[r.fromTable, r.fromColumn], [r.toTable, r.toColumn]]) {
+      const row = byName.get(tn)?.rowEls?.[cn];
+      if (!row) continue;
+      row.hit.classList.add("key-hl");
+      row.nm.classList.add("key-hl");
+    }
+  }
+}
+function clearKeyHighlights() {
+  for (const t of tables) {
+    if (!t.rowEls) continue;
+    for (const cn in t.rowEls) {
+      t.rowEls[cn].hit.classList.remove("key-hl");
+      t.rowEls[cn].nm.classList.remove("key-hl");
+    }
+  }
+}
+function clearHighlight() {
+  for (const t of tables) t.el.classList.remove("dim", "active");
+  for (const e of gEdges.children) e.classList.remove("dim", "active");
+  clearKeyHighlights();
+}
+
+/* =========================================================================
+   SEARCH / FIT / RESET / THEME
+   ========================================================================= */
+document.getElementById("search").addEventListener("input", (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  if (!q) { clearHighlight(); return; }
+  let first = null;
+  for (const t of tables) {
+    const match = t.name.toLowerCase().includes(q);
+    t.el.classList.toggle("dim", !match);
+    t.el.classList.toggle("active", match);
+    if (match && !first) first = t;
+  }
+  for (const ed of gEdges.children) ed.classList.add("dim");
+  if (first) centerOn(first);
+});
+
+function centerOn(t) {
+  const r = svg.getBoundingClientRect();
+  view.x = r.width / 2 - (t.x + t.width / 2) * view.k;
+  view.y = r.height / 2 - (t.y + t.height / 2) * view.k;
+  applyView();
+}
+
+function fit() {
+  if (!tables.length) return;
+  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  for (const t of tables) {
+    minX = Math.min(minX, t.x); minY = Math.min(minY, t.y);
+    maxX = Math.max(maxX, t.x + t.width); maxY = Math.max(maxY, t.y + t.height);
+  }
+  const r = svg.getBoundingClientRect();
+  const pad = 60;
+  const k = Math.min((r.width - pad * 2) / (maxX - minX), (r.height - pad * 2) / (maxY - minY), 1.4);
+  view.k = Math.max(0.25, k);
+  view.x = (r.width - (maxX - minX) * view.k) / 2 - minX * view.k;
+  view.y = (r.height - (maxY - minY) * view.k) / 2 - minY * view.k;
+  applyView();
+}
+
+document.getElementById("btn-reset").addEventListener("click", () => { layout(); renderTables(); renderEdges(2); fit(); });
+document.getElementById("btn-fit").addEventListener("click", fit);
+document.getElementById("btn-theme").addEventListener("click", (e) => {
+  const dark = document.documentElement.getAttribute("data-theme") === "dark";
+  document.documentElement.setAttribute("data-theme", dark ? "light" : "dark");
+  e.target.textContent = dark ? "Dark" : "Light";
+});
+
+/* =========================================================================
+   INIT
+   ========================================================================= */
+function init() {
+  layout();
+  renderTables();
+  renderEdges(2);
+  applyView();
+  fit();
+}
+// wait a tick so web fonts influence measurement when available
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(init);
+  setTimeout(() => { if (!gTables.children.length) init(); }, 400); // fallback
+} else {
+  init();
+}
+</script>
+</body>
+</html>
