@@ -1,5 +1,23 @@
 # Aurora Bundle — Agent Instructions
 
+> ## ⚠️ CRITICAL — PUBLIC REPOSITORY: NO SENSITIVE DATA, EVER
+>
+> **This is a PUBLIC repository.** Its full history is published on GitHub and distributed via Packagist (`sindla/aurora`), so anything committed is permanently visible to the entire world and cannot be truly erased once pushed.
+>
+> **NEVER commit, stage, or write to any tracked file — code, comments, tests, fixtures, docs, config, examples, commit messages, or git metadata — any:**
+> - Secrets or credentials: API keys, tokens, passwords, private keys, certificates, connection strings, `.env` values, MaxMind/Cloudflare/AWS keys, `APP_SECRET`.
+> - Personal data (PII): real names, emails, phone numbers, addresses, IPs tied to a person, user records.
+> - Internal or confidential information: private hostnames, internal URLs, customer/company data, proprietary business details.
+> - Any other sensitive information of any kind.
+>
+> **Rules for every agent:**
+> 1. Use only obviously-fake placeholders in examples (`user@example.com`, `your-api-key-here`, `https://example.com`). Never paste a real value, even "just to test".
+> 2. Before any `git add` / commit, scan the diff for the categories above. If anything sensitive is present, STOP and surface it to the user instead of committing.
+> 3. `composer.lock` must never be committed (see Code Style).
+> 4. If you discover sensitive data already in the repo or its history, do NOT quietly proceed — flag it to the user immediately (it likely requires history rewrite + secret rotation).
+>
+> When in doubt, treat the value as sensitive and keep it out of git.
+
 ## Project Overview
 
 `sindla/aurora` is a **Symfony 8.1 bundle** (PHP 8.4+) published on Packagist.
