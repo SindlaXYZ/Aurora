@@ -19,10 +19,12 @@ PRECACHE_URLS = [{{ precache|raw }}];
 
 {# Installing - the rest below handles the installing and caching #}
 self.addEventListener('install', event => {
+    {# Do NOT call skipWaiting() here: the new worker must stay in "waiting" until the user #}
+    {# accepts the update (the page posts a SKIP_WAITING message - see the 'message' handler #}
+    {# below). Activating eagerly here would leave registration.waiting null by the time the #}
+    {# update prompt is shown, so the prompt's "Reload" button would have nothing to activate. #}
     event.waitUntil(
-        caches.open(PRECACHE)
-            .then(cache => cache.addAll(PRECACHE_URLS))
-            .then(self.skipWaiting())
+        caches.open(PRECACHE).then(cache => cache.addAll(PRECACHE_URLS))
     );
 });
 
@@ -83,10 +85,9 @@ self.addEventListener('fetch', event => {
     {# [/fonts.gstatic.com/, /fonts.googleapis.com/]; #}
     var externalCache = [{{ external_cache|raw }}];
 
-    if (
-        event.request.url.startsWith(self.location.origin) ||
-        matchInArray(event.request.url, externalCache)
-    ) {
+    var sameOrigin = event.request.url.startsWith(self.location.origin);
+
+    if (sameOrigin || matchInArray(event.request.url, externalCache)) {
         event.respondWith((async () => {
             try {
                 {# Try to return from the cache. #}
@@ -94,16 +95,40 @@ self.addEventListener('fetch', event => {
                 if (cachedResponse) {
                     return cachedResponse;
                 }
-                {# If it's not in the cache, get it from the network and put it in the cache. #}
-                const cache = await caches.open(RUNTIME);
+
+                {# If it's not in the cache, get it from the network. #}
                 const response = await fetch(event.request);
-                {# Put a copy of the response in the cache. #}
-                await cache.put(event.request, response.clone());
+
+                {# Only store complete GET responses. Caching partial (206), error, or #}
+                {# unexpected responses would poison the cache. For same-origin requests we #}
+                {# require a successful "basic" response; for the allow-listed external hosts #}
+                {# we also accept "opaque" (no-cors) responses, which cannot be introspected. #}
+                const cacheable =
+                    'GET' === event.request.method &&
+                    response &&
+                    206 !== response.status &&
+                    (
+                        (sameOrigin && response.ok && 'basic' === response.type) ||
+                        (!sameOrigin && (response.ok || 'opaque' === response.type))
+                    );
+
+                if (cacheable) {
+                    const cache = await caches.open(RUNTIME);
+                    {# Put a copy of the response in the cache. #}
+                    await cache.put(event.request, response.clone());
+                }
+
                 return response;
             } catch (err) {
                 {# https://web.dev/learn/pwa/caching/#generic_fallback #}
-                {# In case of an error, return the fallback (offline page). #}
-                return caches.match('{{ path('aurora_pwa_offline')|raw }}');
+                {# In case of a network error, return the precached offline page when present. #}
+                const offlineResponse = await caches.match('{{ path('aurora_pwa_offline')|raw }}');
+                if (offlineResponse) {
+                    return offlineResponse;
+                }
+
+                {# Last-resort fallback so respondWith() never resolves with undefined. #}
+                return new Response('', {status: 504, statusText: 'Gateway Timeout'});
             }
         })());
     }

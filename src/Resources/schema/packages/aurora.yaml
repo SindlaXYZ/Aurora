@@ -13,8 +13,15 @@ parameters:
     aurora.minify.output.ignore.extensions:   ['.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip']
     aurora.minify.output.ignore.content.type: ['text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip']
     # https://developers.google.com/web/fundamentals/web-app-manifest
-    #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
-    aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersionAppend()`"
+    # Optional suffix appended to the PWA / service-worker version (used in the SW cache names).
+    # It MUST be stable for the lifetime of a deploy (a build hash, a release tag, APP_VERSION).
+    # NEVER use a time-based or per-request value (e.g. date()/time()/a session id): the service
+    # worker embeds the version in its cache names, so a value that changes between requests makes
+    # the browser treat the worker as updated and shows a false "new version available" prompt on
+    # every revisit. Leave empty to use the git hash alone, set a stable string / env var, or
+    # implement App\Service\AuroraService::pwaVersionAppend(): string (auto-detected when present).
+    aurora.pwa.version_append: ''
+    #aurora.pwa.version_append: '%env(default::APP_VERSION)%'
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
     aurora.pwa.app_short_name: ''

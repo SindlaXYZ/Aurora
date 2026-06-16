@@ -11,12 +11,9 @@ use Symfony\Component\Cache\Exception\CacheException;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
-use Symfony\Component\HttpFoundation\Exception\SessionNotFoundException;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Session\SessionInterface;
 use Symfony\Component\Serializer\Encoder\XmlEncoder;
 use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Environment;
@@ -26,51 +23,12 @@ use Twig\Environment;
  */
 class AuroraPWA
 {
-    private ?SessionInterface $session = null;
-
     public function __construct(
         private readonly ParameterBagInterface $parameterBag,
-        private readonly RequestStack          $requestStack,
         private readonly Environment           $twig,
         #[Autowire(service: 'aurora.git')]
         private readonly AuroraGit             $git,
-    )
-    {
-        if (method_exists($this->requestStack, 'getSession')) {
-            try {
-                $session = $this->requestStack->getSession();
-            } catch (SessionNotFoundException) {
-                $session = null;
-            }
-
-            if ($session instanceof SessionInterface) {
-                $this->session = $session;
-            }
-        }
-
-        if (null === $this->session) {
-            $requestFromStack = null;
-
-            if (method_exists($this->requestStack, 'getMainRequest')) {
-                $requestFromStack = $this->requestStack->getMainRequest();
-            } elseif (method_exists($this->requestStack, 'getMasterRequest')) {
-                $requestFromStack = $this->requestStack->getMasterRequest();
-            } elseif (method_exists($this->requestStack, 'getCurrentRequest')) {
-                $requestFromStack = $this->requestStack->getCurrentRequest();
-            }
-
-            if ($requestFromStack instanceof Request && method_exists($requestFromStack, 'getSession')) {
-                try {
-                    $session = $requestFromStack->getSession();
-                } catch (SessionNotFoundException) {
-                    $session = null;
-                }
-
-                if ($session instanceof SessionInterface) {
-                    $this->session = $session;
-                }
-            }
-        }
+    ) {
     }
 
     /**
@@ -312,37 +270,70 @@ class AuroraPWA
 
     public function version(Request $request): string
     {
-        $version       = (string)$this->git->getHash();
-        $versionAppend = (string)$this->parameter('aurora.pwa.version_append', '');
+        $version = (string)$this->git->getHash();
 
-        $cookieSessionId = null;
+        $versionAppend = $this->versionAppend($request);
 
-        if (property_exists($request, 'cookies') && is_object($request->cookies)) {
-            if (method_exists($request->cookies, 'get')) {
-                $cookieSessionId = $request->cookies->get('PHPSESSID');
-            }
-        } elseif (method_exists($request, 'cookies')) {
-            $cookiesBag = $request->cookies();
-            if (is_object($cookiesBag) && method_exists($cookiesBag, 'get')) {
-                $cookieSessionId = $cookiesBag->get('PHPSESSID');
-            }
-        }
-
-        if ($cookieSessionId && $this->session instanceof SessionInterface) {
-            $sessionIdentifier = $this->session->get('PHPSESSID');
-            if (null !== $sessionIdentifier && '' !== (string)$sessionIdentifier) {
-                $version .= '_' . (string)$sessionIdentifier;
-            }
-        }
-
-        if (0 === strpos($versionAppend, '!php/eval')) {
-            preg_match('/`(.*)`/', $versionAppend, $match);
-            if (isset($match[1]) && !empty($match[1])) {
-                $version .= '_' . substr(sha1(eval("return " . trim($match[1], ';') . ";")), 0, 15);
-            }
+        if ('' !== $versionAppend) {
+            $version .= '_' . $versionAppend;
         }
 
         return $version;
+    }
+
+    /**
+     * Resolve the optional, deploy-stable suffix appended to the PWA version.
+     *
+     * The returned value MUST be stable for the lifetime of a deployment (a build hash, a
+     * release tag, an "APP_VERSION" value, ...). It must NEVER carry per-request, per-session,
+     * or time-based data: the service worker embeds the version in its cache names
+     * ("precache-<version>" / "runtime-<version>"), so a value that changes between requests
+     * makes the browser treat the worker as updated and shows a false "new version available"
+     * prompt on every revisit.
+     *
+     * Resolution order:
+     *   1. An explicit, non-empty "aurora.pwa.version_append" string (e.g. a resolved
+     *      "%env(APP_VERSION)%") is used as-is, sanitized to a safe token.
+     *   2. Otherwise the host hook "App\Service\AuroraService::pwaVersionAppend(): string" is
+     *      used when present (its return value is hashed to a short, bounded token).
+     *   3. Otherwise the suffix is empty and the version is the git hash alone.
+     *
+     * The legacy "!php/eval `...`" form is intentionally NOT evaluated anymore: it executed
+     * arbitrary configuration code and was frequently time-based, which churned the service
+     * worker version on every request.
+     */
+    private function versionAppend(Request $request): string
+    {
+        $configured = (string)$this->parameter('aurora.pwa.version_append', '');
+
+        if (str_starts_with($configured, '!php/eval')) {
+            $configured = '';
+        }
+
+        if ('' !== $configured) {
+            return $this->sanitizeVersionToken($configured);
+        }
+
+        if (class_exists('\App\Service\AuroraService')) {
+            $utils          = new \App\Service\AuroraService();
+            $utils->request = $request;
+
+            if (method_exists($utils, 'pwaVersionAppend')) {
+                return substr(sha1((string)$utils->pwaVersionAppend()), 0, 15);
+            }
+        }
+
+        return '';
+    }
+
+    /**
+     * Reduce an arbitrary string to a token that is safe to embed inside the service worker
+     * cache names (and therefore inside a JavaScript string literal): letters, digits, ".",
+     * "_" and "-".
+     */
+    private function sanitizeVersionToken(string $token): string
+    {
+        return (string)preg_replace('/[^A-Za-z0-9._-]/', '', $token);
     }
 
     /**

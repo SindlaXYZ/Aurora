@@ -207,7 +207,7 @@ services:
 #
 #    aurora.pwa:
 #        class: Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA
-#        # ParameterBagInterface, RequestStack, Twig and the "aurora.git" service (via #[Autowire]) are autowired.
+#        # ParameterBagInterface, Twig and the "aurora.git" service (via #[Autowire]) are autowired.
 #        autowire: true
 #        autoconfigure: true
 #        public: true

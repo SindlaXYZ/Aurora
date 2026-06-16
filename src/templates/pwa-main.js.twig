@@ -26,6 +26,20 @@ if ('serviceWorker' in navigator) {
     });
     {% endif %}
 
+    {# Reload the page once when an updated, activated worker takes control of the page. #}
+    {# NOTE: "controllerchange" is an event on navigator.serviceWorker - NOT a property on the #}
+    {# registration. The previous "registration.controllerchange = ..." assignment never fired, #}
+    {# so the page was never reloaded automatically after an update. #}
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (refreshing) {
+            return;
+        }
+        refreshing = true;
+        {% if _debug %}console.log('controllerchange fired, reloading.');{% endif %}
+        window.location.reload();
+    });
+
     {# Delay registration until after the page has loaded, to ensure that our precaching requests don't degrade the first visit experience. #}
     {# See https://developers.google.com/web/fundamentals/instant-and-offline/service-worker/registration #}
     window.addEventListener('load', function () {
@@ -34,30 +48,13 @@ if ('serviceWorker' in navigator) {
 
             {% if _debug %}console.log('Registered with scope: ', registration.scope);{% endif %}
 
-            {% if false %}
-            {# identical with reg.onupdatefound #}
-            registration.addEventListener('updatefound', () => {
-                {% if _debug %}console.log('reg.addEventListener->updatefound fired.');{% endif %}
-
-                const newSW = registration.installing;
-                newSW.addEventListener('statechange', () => {
-
-                    {# Check service worker state #}
-                    if (newSW.state === 'installed') {
-
-                        {# Clear all caches #}
-                        caches.keys().then(function (cacheNames) {
-                            cacheNames.forEach(function (cacheName) {
-                                caches.delete(cacheName);
-                            });
-                        });
-
-                        {# A new SW is available and installed #}
-                        {# You can update the page directly or better show a notification to the user to prompt for a page reload and inform about the new version available #}
-                    }
-                });
-            });
-            {% endif %}
+            {# A worker may already be waiting from a previous load (installed but not activated). #}
+            {# onupdatefound below only fires for updates found during THIS page session, so an #}
+            {# already-waiting worker must be surfaced explicitly. #}
+            if (registration.waiting && navigator.serviceWorker.controller) {
+                {% if _debug %}console.log('A waiting service worker is already available.');{% endif %}
+                showUpdateNotification(registration);
+            }
 
             {# updatefound is fired if service-worker.js (sw.js) changes. #}
             registration.onupdatefound = function () {
@@ -68,13 +65,17 @@ if ('serviceWorker' in navigator) {
                 {# https://w3c.github.io/ServiceWorker/#service-worker-registration-updatefound-event #}
                 var installingWorker = registration.installing;
 
+                if (!installingWorker) {
+                    return;
+                }
+
                 installingWorker.onstatechange = function () {
                     {% if _debug %}console.log('Service Worker state changed to: ', installingWorker.state);{% endif %}
 
-                    if ('installed' == installingWorker.state) {
+                    if ('installed' === installingWorker.state) {
                         if (navigator.serviceWorker.controller) {
                             {# At this point, the old content will have been purged and the fresh content will have been added to the cache. #}
-                            {# It's the perfect time to display a "New content is available; please refresh." message in the page's interface. #}
+                            {# A new worker is waiting; prompt the user to refresh to apply the update. #}
                             {% if _debug %}console.log('New or updated content is available.');{% endif %}
                             showUpdateNotification(registration);
                         } else {
@@ -82,14 +83,10 @@ if ('serviceWorker' in navigator) {
                             {# It's the perfect time to display a "Content is cached for offline use." message. #}
                             {% if _debug %}console.log('Content is now available offline!');{% endif %}
                         }
-                    } else if ('redundant' == installingWorker.state) {
+                    } else if ('redundant' === installingWorker.state) {
                         {% if _debug %}console.error('The installing service worker became redundant.');{% endif %}
                     }
                 };
-            };
-
-            registration.controllerchange = function () {
-                {% if _debug %}console.log('reg.controllerchange fired.');{% endif %}
             };
 
         }).catch(function (e) {
@@ -107,7 +104,7 @@ if ('serviceWorker' in navigator) {
         {# Create the install button. #}
         const installButton = document.createElement('button');
         installButton.id = 'install-button';
-        installButton.textContent = '{{ translations.nnotificationInstallTheApp }}';
+        installButton.textContent = '{{ translations.notificationInstallTheApp }}';
         installButton.style.position = 'fixed';
         installButton.style.bottom = '20px';
         installButton.style.right = '20px';
@@ -192,12 +189,17 @@ if ('serviceWorker' in navigator) {
 
         {# Click event on the reload button #}
         refreshButton.onclick = () => {
-            {# Send a message to the Service Worker to skip waiting #}
+            {# Avoid double activation while the worker takes control. #}
+            refreshButton.disabled = true;
+
             if (registration.waiting) {
+                {# Tell the waiting worker to activate. The page then reloads from the global #}
+                {# 'controllerchange' handler once the new worker takes control. #}
                 registration.waiting.postMessage({type: 'SKIP_WAITING'});
+            } else {
+                {# No worker is waiting (e.g. it already activated): just reload. #}
+                window.location.reload();
             }
-            {# Close the modal #}
-            document.body.removeChild(modalOverlay);
         };
 
         {# Add the elements to the DOM #}

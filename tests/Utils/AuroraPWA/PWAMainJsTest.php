@@ -389,7 +389,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA {
                 $twig = new Environment();
             }
 
-            $pwa = new AuroraPWA($parameterBag, $requestStack, $twig, $git);
+            $pwa = new AuroraPWA($parameterBag, $twig, $git);
 
             return [$pwa, $request, $twig];
         }
@@ -424,6 +424,62 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA {
             self::assertIsArray($twig->lastContext);
             self::assertArrayHasKey('automatically_prompt', $twig->lastContext);
             self::assertFalse($twig->lastContext['automatically_prompt']);
+        }
+
+        /**
+         * Regression: the service worker version must NOT contain the session identifier.
+         *
+         * The scenario deliberately sets a "PHPSESSID" session attribute AND cookie (the exact
+         * conditions that used to leak into the version and trigger a false "new version
+         * available" prompt on every session change). The version must be the git hash alone.
+         *
+         * @covers \Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA::version
+         */
+        public function testVersionIsGitHashAloneAndIgnoresSession(): void
+        {
+            [$pwa, $request] = $this->createMainJsScenario();
+
+            self::assertSame('hash-value', $pwa->version($request));
+        }
+
+        /**
+         * @covers \Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA::version
+         */
+        public function testVersionAppendsStablePlainString(): void
+        {
+            [$pwa, $request] = $this->createMainJsScenario([
+                'aurora.pwa.version_append' => 'build-42',
+            ]);
+
+            self::assertSame('hash-value_build-42', $pwa->version($request));
+        }
+
+        /**
+         * @covers \Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA::version
+         */
+        public function testVersionSanitizesAppendToken(): void
+        {
+            [$pwa, $request] = $this->createMainJsScenario([
+                'aurora.pwa.version_append' => 'v1.2.3 (build/77)!',
+            ]);
+
+            self::assertSame('hash-value_v1.2.3build77', $pwa->version($request));
+        }
+
+        /**
+         * Regression: the legacy "!php/eval `...`" form is no longer evaluated. A time-based
+         * expression like date() must NOT influence the version (which would churn the service
+         * worker on every request/hour and falsely prompt for an update).
+         *
+         * @covers \Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA::version
+         */
+        public function testVersionIgnoresLegacyPhpEvalAppend(): void
+        {
+            [$pwa, $request] = $this->createMainJsScenario([
+                'aurora.pwa.version_append' => "!php/eval `date('Y-m-d H')`",
+            ]);
+
+            self::assertSame('hash-value', $pwa->version($request));
         }
     }
 }

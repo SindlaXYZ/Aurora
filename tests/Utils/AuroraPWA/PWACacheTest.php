@@ -432,7 +432,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
+        $pwa      = new AuroraPWA($parameterBag, $twig, $this->createGit());
         $response = $pwa->manifestJSON($request);
 
         self::assertInstanceOf(JsonResponse::class, $response);
@@ -457,7 +457,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
+        $pwa      = new AuroraPWA($parameterBag, $twig, $this->createGit());
         $response = $pwa->browserConfig($request);
 
         self::assertInstanceOf(Response::class, $response);
@@ -478,7 +478,7 @@ final class PWACacheTest extends TestCase
         $requestStack = $this->createRequestStack($session, $request);
         $twig         = $this->createTwigEnvironment();
 
-        $pwa      = new AuroraPWA($parameterBag, $requestStack, $twig, $this->createGit());
+        $pwa      = new AuroraPWA($parameterBag, $twig, $this->createGit());
         $response = $pwa->icon($request);
 
         self::assertInstanceOf(BinaryFileResponse::class, $response);
