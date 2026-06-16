@@ -6,3 +6,13 @@
 composer.lock
 /symfony/[0-9]*.[0-9]*/
 /vendor
+
+# Docker container runtime artifacts - written into the bind-mounted project dir
+# (DKZ_PROJECT_DIR=/srv/dockraft == the host repo root), so they must never be committed.
+.docker/.logs/
+.docker/.test-results/
+
+# Local working scripts - kept out of the public repo because they may contain
+# private credentials or machine-specific data. Un-ignore a specific file with
+# "git add -f" only after sanitizing it.
+/scripts/
