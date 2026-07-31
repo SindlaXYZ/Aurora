@@ -1,0 +1,16 @@
+* text=auto
+*.bat  text eol=crlf
+*.sh   text eol=lf
+*.md   text eol=lf
+*.html text eol=lf
+*.css  text eol=lf
+*.php  text eol=lf
+
+# The Gradle wrapper: the launcher script must keep LF even when checked out on
+# Windows, and the wrapper JAR must never go through EOL normalisation.
+gradlew text eol=lf
+*.jar  binary
+
+# The Git hooks carry no extension, and Git runs them through bash on Windows
+# too, where a CRLF checkout would leave every line ending in a stray \r.
+.githooks/** text eol=lf
