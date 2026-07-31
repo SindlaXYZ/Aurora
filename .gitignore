@@ -1,6 +1,7 @@
 .claude/agent-memory
 .claude/settings.local.json
 .claude/agents/
+.claude/rules/
 .idea/
 .phpunit.cache/
 composer.lock
