@@ -2,6 +2,8 @@
 .claude/settings.local.json
 .claude/agents/
 .claude/rules/
+.claude/plans/1987-12-20-example-plan.md
+.claude/skills/
 .idea/
 .phpunit.cache/
 composer.lock
@@ -18,3 +20,6 @@ composer.lock
 # private credentials or machine-specific data. Un-ignore a specific file with
 # "git add -f" only after sanitizing it.
 /scripts/
+
+
+cron.tab
