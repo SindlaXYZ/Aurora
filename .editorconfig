@@ -1,4 +1,4 @@
-; top-most EditorConfig file
+# Editor configuration, see https://editorconfig.org
 root = true
 
 ; Unix-style newlines
@@ -12,11 +12,24 @@ max_line_length = 199
 tab_width = 4
 trim_trailing_whitespace = true
 ij_continuation_indent_size = 4
+ij_visual_guides = 199
 ij_formatter_off_tag = @formatter:off
 ij_formatter_on_tag = @formatter:on
 ij_formatter_tags_enabled = false
 ij_smart_tabs = false
 ij_wrap_on_typing = false
+
+[*.json]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
+
+[*.ts]
+charset = utf-8
+end_of_line = lf
+indent_size = 2
+indent_style = space
 
 [*.css]
 ij_css_align_closing_brace_with_properties = false
@@ -261,7 +274,7 @@ ij_php_concat_spaces = true
 ij_php_copyright_weight = 28
 ij_php_deprecated_weight = 28
 ij_php_do_while_brace_force = never
-ij_php_else_if_style = separate
+ij_php_else_if_style = combine
 ij_php_else_on_new_line = false
 ij_php_example_weight = 28
 ij_php_extends_keyword_wrap = off
@@ -472,6 +485,20 @@ ij_xml_space_after_tag_name = false
 ij_xml_space_around_equals_in_attribute = false
 ij_xml_space_inside_empty_tag = true
 ij_xml_text_wrap = normal
+
+[*.feature]
+indent_size = 2
+ij_yaml_keep_indents_on_empty_lines = false
+ij_yaml_keep_line_breaks = true
+ij_yaml_space_before_colon = false
+ij_yaml_spaces_within_braces = true
+ij_yaml_spaces_within_brackets = false
+
+[{compose.yaml,compose.*.yaml}]
+indent_size = 2
+
+[*.md]
+trim_trailing_whitespace = false
 
 # Tab indentation (no size specified)
 [Makefile]
