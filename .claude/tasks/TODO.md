@@ -9,4 +9,4 @@ When an item grows into multi-step design work, promote it to a dated plan in `.
 
 Conventions: see `.claude/CLAUDE.md` -> "Plans and Tasks".
 
-- [ ] _Nothing yet - add the first task here._
+- [ ] Fix bugs found in the 2026-09-25 audit - see [plan](../plans/2026-09-25-bug-audit.md)
