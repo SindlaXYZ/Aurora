@@ -155,6 +155,49 @@ class UtilityExtensionTest extends TestCase
         }
     }
 
+    public function testTheNonceIsStableWithinARequestAndRenewedByReset(): void
+    {
+        $extension = new UtilityExtension(new Container(), new RequestStack(), $this->createStub(Environment::class), new AuroraHelperUtils());
+
+        $nonce = $extension->getNonce();
+        $this->assertSame($nonce, $extension->getNonce());
+
+        // "kernel.reset" between two requests of a long-running worker: the same CSP nonce used to be sent to every request
+        $extension->reset();
+        $this->assertNotSame($nonce, $extension->getNonce());
+    }
+
+    public function testPwaWorksWithTheDocumentedSingleArgumentAndWithoutTheOptionalParameters(): void
+    {
+        $request   = Request::create('https://localhost/');
+        $container = new Container();
+        $container->set('aurora.git', new class {
+            public function getHash(): string
+            {
+                return 'hash';
+            }
+        });
+        $container->set('aurora.pwa', new class {
+            public function version(Request $request): string
+            {
+                return 'version';
+            }
+        });
+
+        $twig = $this->createMock(Environment::class);
+        $twig
+            ->expects($this->once())
+            ->method('display')
+            ->with('@Aurora/pwa.html.twig', $this->callback(static fn(array $context): bool => false === $context['pwaDebug']
+                && false === $context['debug']
+                && null === $context['theme_color']
+                && 'version' === $context['pwaVersion']));
+
+        // README: "{{ aurora.pwa(app.request) }}" used to be an ArgumentCountError ($debug was required), and the "aurora.pwa.debug"
+        // parameter (not in the reference configuration) a ParameterNotFoundException ("getParameter() ?? false" does not catch it)
+        new UtilityExtension($container, new RequestStack(), $twig, new AuroraHelperUtils())->pwa($request);
+    }
+
     private function createUtilityExtensionWithGitHash(string $hash): UtilityExtension
     {
         $container = new Container();

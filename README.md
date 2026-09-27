@@ -285,7 +285,10 @@ final class TestController extends AbstractController
 
 ---
 
-#### Inject ContainerAwareInterface into Doctrine Migrations
+#### Inject the service container into Doctrine Migrations
+
+`Symfony\Component\DependencyInjection\ContainerAwareInterface` was removed in Symfony 7: the decorator injects the container into every
+migration that declares a public `setContainer(ContainerInterface $container)` method.
 
 1. `config/services.yaml`
 

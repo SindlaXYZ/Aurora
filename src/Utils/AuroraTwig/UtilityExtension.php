@@ -15,12 +15,13 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Yaml\Yaml;
+use Symfony\Contracts\Service\ResetInterface;
 use Twig\Environment;
 use Twig\Extension\AbstractExtension;
 use Twig\TwigFilter;
 use Twig\TwigFunction;
 
-class UtilityExtension extends AbstractExtension
+class UtilityExtension extends AbstractExtension implements ResetInterface
 {
     /** @var string|null */
     private ?string $nonce = null;
@@ -100,15 +101,15 @@ class UtilityExtension extends AbstractExtension
 
             new TwigFunction('manifest', [$this, 'manifest']),
 
-            // {{ aurora.pwa(app.request, app.debug) }}
+            // {{ aurora.pwa(app.request) }} or {{ aurora.pwa(app.request, app.debug) }}
             new TwigFunction('pwa', [$this, 'pwa']),
 
             new TwigFunction('pwa.version', [$this, 'pwaVersion']),
 
-            // {{ aurora.pwa.delete(app.request, app.debug) }}
+            // {{ aurora.pwaDelete(app.request, app.debug) }} ("aurora.pwa.delete(...)" is parsed by Twig as "aurora.pwa().delete(...)")
             new TwigFunction('pwa.delete', [$this, 'pwaDelete']),
 
-            // {{ aurora.pwa.unregister(app.request, app.debug) }}
+            // {{ aurora.pwaUnregister(app.request, app.debug) }}
             new TwigFunction('pwa.unregister', [$this, 'pwaUnregister']),
 
             new TwigFunction('dnsPrefetch', [$this, 'dnsPrefetch']),
@@ -122,14 +123,25 @@ class UtilityExtension extends AbstractExtension
     }
 
     /**
-     * Render and output twig template
+     * Optional "aurora.*" parameter: getParameter() throws for a parameter that is not defined ("?? $default" does not help),
+     * e.g. "aurora.pwa.debug" is not part of the reference configuration (src/Resources/schema/packages/aurora.yaml)
      */
-    public function manifest(Request $Request, bool $debug)
+    private function parameter(string $name, mixed $default = null): mixed
+    {
+        return $this->container->hasParameter($name) ? $this->container->getParameter($name) : $default;
+    }
+
+    /**
+     * Render and output twig template
+     *
+     * $debug is optional: the README usage "{{ aurora.pwa(app.request) }}" used to be an ArgumentCountError
+     */
+    public function manifest(Request $Request, bool $debug = false)
     {
         return $this->twig->display('@Aurora/manifest.html.twig', [
             'host'        => $Request->getHost(),
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
-            'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
+            'theme_color' => $this->parameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
             'debug'       => $debug
         ]);
@@ -138,13 +150,13 @@ class UtilityExtension extends AbstractExtension
     /**
      * Render and output twig template
      */
-    public function pwa(Request $Request, bool $debug)
+    public function pwa(Request $Request, bool $debug = false)
     {
         return $this->twig->display('@Aurora/pwa.html.twig', [
-            'pwaDebug'    => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaDebug'    => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'host'        => $Request->getHost(),
             'pwa'         => (bool)($Request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $Request->getHost())),
-            'theme_color' => $this->container->getParameter('aurora.pwa.theme_color'),
+            'theme_color' => $this->parameter('aurora.pwa.theme_color'),
             'build'       => $this->getBuild(),
             'pwaVersion'  => $this->pwaVersion($Request),
             'debug'       => $debug
@@ -159,10 +171,10 @@ class UtilityExtension extends AbstractExtension
         return $PWA->version($request);
     }
 
-    public function pwaDelete(Request $request, bool $debug)
+    public function pwaDelete(Request $request, bool $debug = false)
     {
         return $this->twig->display('@Aurora/pwa.delete.html.twig', [
-            'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaDebug'   => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'host'       => $request->getHost(),
             'pwa'        => (bool)($request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $request->getHost())),
             'build'      => $this->getBuild(),
@@ -171,10 +183,10 @@ class UtilityExtension extends AbstractExtension
         ]);
     }
 
-    public function pwaUnregister(Request $request, bool $debug)
+    public function pwaUnregister(Request $request, bool $debug = false)
     {
         return $this->twig->display('@Aurora/pwa.unregister.html.twig', [
-            'pwaDebug'   => filter_var($this->container->getParameter('aurora.pwa.debug') ?? false, FILTER_VALIDATE_BOOLEAN),
+            'pwaDebug'   => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'host'       => $request->getHost(),
             'pwa'        => (bool)($request->isSecure() || preg_match('/(.*\.localhost$|^localhost$)/i', $request->getHost())),
             'build'      => $this->getBuild(),
@@ -535,5 +547,14 @@ class UtilityExtension extends AbstractExtension
         }
 
         return $this->nonce;
+    }
+
+    /**
+     * A new CSP nonce for every request: long-running workers (FrankenPHP, RoadRunner, ...) reuse this shared service
+     * ("kernel.reset" tag, autoconfigured for ResetInterface)
+     */
+    public function reset(): void
+    {
+        $this->nonce = null;
     }
 }

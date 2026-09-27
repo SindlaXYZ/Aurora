@@ -4,10 +4,8 @@ namespace Sindla\Bundle\AuroraBundle\Controller;
 
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\ApcuAdapter;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Contracts\Cache\ItemInterface;
 use Twig\Environment;
 
 class PWAController extends AbstractController
@@ -18,41 +16,23 @@ class PWAController extends AbstractController
 
     /**
      * See src/Resources/config/routes/routes.yaml
+     *
+     * Dispatched by the path: the request URI contains the query string (and the base path), so "/pwa-sw.js?v2" (e.g. an asset
+     * version) used to be answered with the favicon. AuroraPWA caches the manifest, the browser config and the icons itself: the
+     * response cache used here required APCu (500 when it is not enabled), was shared by all the hosts and could not store the icons.
      */
     public function progressiveWebApplication(Request $Request, ?int $width, ?int $height): Response
     {
-        //var_dump($this->container->getParameter('aurora.pwa.offline'));die;
+        /** @var AuroraPWA $PWA */
+        $PWA = $this->container->get('aurora.pwa');
 
-        $cache = new ApcuAdapter('', ('prod' == $this->container->getParameter('kernel.environment') ? (60 * 60 * 24) : 1));
-
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . $Request->getRequestUri()), function (ItemInterface $item) use ($Request) {
-            /** @var AuroraPWA $PWA */
-            $PWA = $this->container->get('aurora.pwa');
-
-            // Manifest
-            if (in_array($Request->getRequestUri(), ['manifest.json', '/manifest.json', 'manifest.webmanifest', '/manifest.webmanifest'])) {
-                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
-                return $PWA->manifestJSON($Request);
-            } // MS browser config
-            else if (in_array($Request->getRequestUri(), ['browserconfig.xml', '/browserconfig.xml', 'IEconfig.xml', '/IEconfig.xml'])) {
-                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
-                return $PWA->browserConfig($Request);
-            } // Main JS
-            else if (in_array($Request->getRequestUri(), ['pwa-main.js', '/pwa-main.js'])) {
-                $item->expiresAfter(0);
-                return $PWA->mainJS($Request);
-
-            } // Service Worker JS
-            else if (in_array($Request->getRequestUri(), ['sw.js', '/sw.js', 'pwa-sw.js', '/pwa-sw.js'])) {
-                $item->expiresAfter(0);
-                return $PWA->serviceWorkerJS($Request);
-
-            } // Favicons
-            else {
-                $item->expiresAfter(('dev' !== $this->container->getParameter('kernel.environment')) ? 60 : 0);
-                return $PWA->icon($Request);
-            }
-        });
+        return match ($Request->getPathInfo()) {
+            '/manifest.json', '/manifest.webmanifest' => $PWA->manifestJSON($Request),
+            '/browserconfig.xml', '/IEconfig.xml'     => $PWA->browserConfig($Request),
+            '/pwa-main.js'                            => $PWA->mainJS($Request),
+            '/sw.js', '/pwa-sw.js'                    => $PWA->serviceWorkerJS($Request),
+            default                                   => $PWA->icon($Request),
+        };
     }
 
     /**

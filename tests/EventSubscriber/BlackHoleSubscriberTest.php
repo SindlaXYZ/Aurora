@@ -115,6 +115,35 @@ class BlackHoleSubscriberTest extends TestCase
         $this->assertSame(['kept'], $payload['headers']['x-custom']);
     }
 
+    public function testDoesNotForwardBasicAuthCredentialsNorTokenHeaders(): void
+    {
+        $capturedBody = null;
+        $mockClient   = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$capturedBody): MockResponse {
+                $capturedBody = $options['body'];
+
+                return new MockResponse('', ['http_code' => 200]);
+            }
+        );
+
+        // Symfony exposes HTTP Basic credentials as the "php-auth-user" / "php-auth-pw" headers: the plain text password used to be sent
+        $request = Request::create('https://app.example/resource', server: ['PHP_AUTH_USER' => 'admin', 'PHP_AUTH_PW' => 'plain-text-password']);
+        $request->headers->set('X-Api-Key', 'secret-api-key');
+        $request->headers->set('X-Auth-Token', 'secret-auth-token');
+        $request->headers->set('X-CSRF-Token', 'secret-csrf-token');
+        $request->headers->set('X-Custom', 'kept');
+
+        $this->dispatchNotFound(new BlackHoleSubscriber($this->createStub(AuroraIP::class), $mockClient), $request);
+
+        $this->assertIsString($capturedBody, 'The HTTP client was not invoked.');
+        $this->assertStringNotContainsString('plain-text-password', $capturedBody);
+        $this->assertStringNotContainsString('secret-', $capturedBody);
+
+        $payload = json_decode($capturedBody, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertSame(['kept'], $payload['headers']['x-custom']);
+        $this->assertArrayHasKey('host', $payload['headers']);
+    }
+
     #[DataProvider('dataFailingApiResponses')]
     public function testFailingApiDoesNotBreakTheNotFoundResponse(MockResponse $apiResponse): void
     {
