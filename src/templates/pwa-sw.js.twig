@@ -96,10 +96,11 @@ self.addEventListener('fetch', event => {
 
         event.respondWith((async () => {
             try {
-                {# Try to return from the cache. #}
+                {# Try to return from the cache, only a response that may be reused: the precached URLs are stored whatever their #}
+                {# Cache-Control, e.g. the page of the user signed in at the installation, then fetched by Turbo (not a navigation). #}
                 if (!isNavigation) {
                     const cachedResponse = await caches.match(event.request);
-                    if (cachedResponse) {
+                    if (cachedResponse && mayBeReused(cachedResponse)) {
                         return cachedResponse;
                     }
                 }

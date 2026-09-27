@@ -64,6 +64,8 @@ class PWAServiceWorkerTest extends TestCase
         // The precached pages are stored whatever their Cache-Control: the page of the user signed in when the worker was installed
         // was shown offline after the logout
         $this->assertMatchesRegularExpression('/if\s*\(\s*cachedPage\s*&&\s*mayBeReused\(cachedPage\)\s*\)/', $serviceWorker);
+        // ... and returned from the cache first for the other requests (e.g. a page fetched by Turbo), also online
+        $this->assertMatchesRegularExpression('/if\s*\(\s*cachedResponse\s*&&\s*mayBeReused\(cachedResponse\)\s*\)/', $serviceWorker);
         $this->assertStringContainsString('no-store|no-cache|private', $serviceWorker);
         $this->assertStringContainsString('"/aurora/pwa-offline"', $serviceWorker);
 
