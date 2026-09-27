@@ -64,6 +64,12 @@ class PWAServiceWorkerTest extends TestCase
         $this->assertStringContainsString('no-store|no-cache|private', $serviceWorker);
         $this->assertStringContainsString('"/aurora/pwa-offline"', $serviceWorker);
 
+        // A failing cache write used to discard the network response (the outer catch served a stale page or the offline page)
+        $this->assertMatchesRegularExpression(
+            '/try\s*\{\s*const cache\s*=\s*await caches\.open\(RUNTIME\);\s*await cache\.put\(event\.request,\s*response\.clone\(\)\);?\s*\}\s*catch\s*\(/',
+            $serviceWorker
+        );
+
         foreach (['(' => ')', '{' => '}', '[' => ']'] as $open => $close) {
             $this->assertSame(substr_count($serviceWorker, $open), substr_count($serviceWorker, $close), sprintf('Unbalanced "%s%s".', $open, $close));
         }

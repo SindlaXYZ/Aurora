@@ -108,9 +108,15 @@ self.addEventListener('fetch', event => {
                 const response = await fetch(event.request);
 
                 if (isCacheable(event.request, response, sameOrigin)) {
-                    const cache = await caches.open(RUNTIME);
-                    {# Put a copy of the response in the cache. #}
-                    await cache.put(event.request, response.clone());
+                    {# Best-effort: when the Cache Storage fails (full, unavailable), the network response is still returned, #}
+                    {# instead of a stale cached page or the offline page. #}
+                    try {
+                        const cache = await caches.open(RUNTIME);
+                        {# Put a copy of the response in the cache. #}
+                        await cache.put(event.request, response.clone());
+                    } catch (cacheError) {
+                        {% if _debug %}console.log('Caching failed: ' + cacheError);{% endif %}
+                    }
                 }
 
                 return response;
