@@ -122,8 +122,10 @@ self.addEventListener('fetch', event => {
                 return response;
             } catch (err) {
                 if (isNavigation) {
+                    {# Only a page that may be reused: the precached pages (the start URL, "aurora.pwa.precache") are stored #}
+                    {# whatever their Cache-Control, e.g. the page of the user signed in when the service worker was installed. #}
                     const cachedPage = await caches.match(event.request);
-                    if (cachedPage) {
+                    if (cachedPage && mayBeReused(cachedPage)) {
                         return cachedPage;
                     }
                 }
@@ -146,20 +148,22 @@ self.addEventListener('fetch', event => {
 {# unexpected responses would poison the cache. For same-origin requests we #}
 {# require a successful "basic" response; for the allow-listed external hosts #}
 {# we also accept "opaque" (no-cors) responses, which cannot be introspected. #}
-{# A response that must not be reused ("Cache-Control: no-store / no-cache / private", the default of the Symfony responses) is not #}
-{# stored either: it is personal (e.g. the page of a signed-in user) or must be revalidated. #}
+{# A response that must not be reused is not stored either (see mayBeReused()). #}
 function isCacheable(request, response, sameOrigin) {
-    if ('GET' !== request.method || !response || 206 === response.status) {
-        return false;
-    }
-
-    var cacheControl = (response.headers.get('Cache-Control') || '').toLowerCase();
-    if (/(^|[\s,])(no-store|no-cache|private)([\s,=]|$)/.test(cacheControl)) {
+    if ('GET' !== request.method || !response || 206 === response.status || !mayBeReused(response)) {
         return false;
     }
 
     return (sameOrigin && response.ok && 'basic' === response.type) ||
         (!sameOrigin && (response.ok || 'opaque' === response.type));
+}
+
+{# "Cache-Control: no-store / no-cache / private" (the default of the Symfony responses): the response is personal (e.g. the page #}
+{# of a signed-in user) or must be revalidated, so it must not be reused. #}
+function mayBeReused(response) {
+    var cacheControl = (response.headers.get('Cache-Control') || '').toLowerCase();
+
+    return !/(^|[\s,])(no-store|no-cache|private)([\s,=]|$)/.test(cacheControl);
 }
 
 function matchInArray(string, expressions) {

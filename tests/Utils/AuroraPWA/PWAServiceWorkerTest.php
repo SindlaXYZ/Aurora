@@ -61,6 +61,9 @@ class PWAServiceWorkerTest extends TestCase
         // Every page used to be served from the cache first: outdated pages, and the page of a signed-in user shown after the logout
         $this->assertMatchesRegularExpression('/[\'"]navigate[\'"]\s*===\s*event\.request\.mode/', $serviceWorker);
         $this->assertStringContainsString('function isCacheable(', $serviceWorker);
+        // The precached pages are stored whatever their Cache-Control: the page of the user signed in when the worker was installed
+        // was shown offline after the logout
+        $this->assertMatchesRegularExpression('/if\s*\(\s*cachedPage\s*&&\s*mayBeReused\(cachedPage\)\s*\)/', $serviceWorker);
         $this->assertStringContainsString('no-store|no-cache|private', $serviceWorker);
         $this->assertStringContainsString('"/aurora/pwa-offline"', $serviceWorker);
 
