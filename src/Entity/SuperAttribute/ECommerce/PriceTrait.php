@@ -37,10 +37,15 @@ trait PriceTrait
 
     public function calculatePriceWithoutVat(): self
     {
-        if ($this->priceWithoutVat) {
-            $this->priceWithoutVat = bcsub($this->priceWithoutVat, $this->priceVatAmount, 2);
-        } else if ($this->priceVatAmount) {
-            $this->priceWithoutVat = bcdiv($this->priceVatAmount, bcadd(1, bcdiv($this->priceVatPercentage, 100, 2), 2), 2);
+        // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
+        if (0 !== bccomp($this->priceWithVat, '0', 2)) {
+            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
+            $this->priceWithoutVat = (0 !== bccomp($this->priceVatAmount, '0', 2))
+                ? bcsub($this->priceWithVat, $this->priceVatAmount, 2)
+                : bcdiv($this->priceWithVat, bcadd('1', bcdiv($this->priceVatPercentage, '100', 6), 6), 2);
+        } else if (0 !== bccomp($this->priceVatAmount, '0', 2) && 0 !== bccomp($this->priceVatPercentage, '0', 2)) {
+            // Without VAT = VAT amount / VAT%
+            $this->priceWithoutVat = bcdiv($this->priceVatAmount, bcdiv($this->priceVatPercentage, '100', 6), 2);
         }
 
         return $this;
@@ -48,7 +53,7 @@ trait PriceTrait
 
     public function calculatePriceVatAmount(): self
     {
-        $this->priceVatAmount = bcdiv(bcmul($this->priceWithoutVat, bcdiv($this->priceVatPercentage, 100, 2), 2), 1, 2);
+        $this->priceVatAmount = bcdiv(bcmul($this->priceWithoutVat, bcdiv($this->priceVatPercentage, 100, 6), 2), 1, 2);
         return $this;
     }
 

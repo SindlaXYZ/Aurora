@@ -3,8 +3,10 @@
 namespace Sindla\Bundle\AuroraBundle\Utils\AuroraTwig;
 
 use MatthiasMullie\Minify;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink;
@@ -22,6 +24,8 @@ class UtilityExtension extends AbstractExtension
 {
     /** @var string|null */
     private ?string $nonce = null;
+
+    private ?AuroraClient $auroraClient = null;
 
     public function __construct(
         private Container    $container,
@@ -264,26 +268,33 @@ class UtilityExtension extends AbstractExtension
 
     public function ip(Request $Request)
     {
-        $Client = $this->container->get('aurora.client');
-        return $Client->ip($Request);
+        // AuroraClient::ip() was moved to AuroraIP::ip()
+        return new AuroraIP()->ip($Request);
     }
 
     public function ip2Country(Request $Request)
     {
-        $Client = $this->container->get('aurora.client');
-        return $Client->ip2CountryCode($this->ip($Request));
+        return $this->auroraClient()->ip2CountryCode($this->ip($Request));
     }
 
     public function ip2County(Request $Request)
     {
-        $Client = $this->container->get('aurora.client');
-        return $Client->ip2CityCounty($this->ip($Request));
+        return $this->auroraClient()->ip2CityCounty($this->ip($Request));
     }
 
     public function ip2City(Request $Request)
     {
-        $Client = $this->container->get('aurora.client');
-        return $Client->ip2CityName($this->ip($Request));
+        return $this->auroraClient()->ip2CityName($this->ip($Request));
+    }
+
+    /**
+     * The "aurora.client" service is optional (it is no longer registered by the bundle), fall back to a local instance.
+     */
+    private function auroraClient(): AuroraClient
+    {
+        $auroraClient = $this->container->has('aurora.client') ? $this->container->get('aurora.client') : null;
+
+        return $auroraClient instanceof AuroraClient ? $auroraClient : ($this->auroraClient ??= new AuroraClient($this->container));
     }
 
     /**

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
+use Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
@@ -79,14 +80,21 @@ class OutputSubscriber implements EventSubscriberInterface
         $pathInfo  = $request->getPathInfo();
         $routeName = $request->attributes->get('_route');
 
+        // Streamed (StreamedResponse, StreamedJsonResponse) and file (BinaryFileResponse) responses have no content (false):
+        // strtr(false) is a TypeError and setContent() throws a LogicException on them
+        $hasContent = false !== $response->getContent();
 
         if (
-            !$response->headers->get('X-Do-Not-Minify')
+            $hasContent
+            && !$response->headers->get('X-Do-Not-Minify')
             && !$response->headers->get('x-do-not-minify')
             && !method_exists($response, 'getFile')
-            && !in_array($response->headers->get('content-type'), $this->container->getParameter('aurora.minify.output.ignore.content.type'))
+            && !$this->isIgnoredContentType($response)
         ) {
-            if (filter_var($this->container->getParameter('aurora.minify.replace'), FILTER_VALIDATE_BOOLEAN)) {
+            if (
+                $this->container->hasParameter('aurora.minify.replace')
+                && filter_var($this->container->getParameter('aurora.minify.replace'), FILTER_VALIDATE_BOOLEAN)
+            ) {
                 $response->setContent(
                     strtr(
                         $response->getContent(),
@@ -99,7 +107,7 @@ class OutputSubscriber implements EventSubscriberInterface
         if (
             '/admin/' != substr($pathInfo, 0, 7)
             && !strpos($pathInfo, '_profiler')
-            && true == $this->container->getParameter('aurora.minify.output')
+            && filter_var($this->container->getParameter('aurora.minify.output'), FILTER_VALIDATE_BOOLEAN)
             && 0 == count(
                 array_filter($this->container->getParameter('aurora.minify.output.ignore.extensions'), function ($extension) use ($pathInfo) {
                     // If extensions found in path info
@@ -110,12 +118,20 @@ class OutputSubscriber implements EventSubscriberInterface
             )
         ) {
             if (
-                !$response->headers->get('X-Do-Not-Minify')
+                $hasContent
+                && !$response->headers->get('X-Do-Not-Minify')
                 && !$response->headers->get('x-do-not-minify')
                 && !method_exists($response, 'getFile')
-                && !in_array($response->headers->get('content-type'), $this->container->getParameter('aurora.minify.output.ignore.content.type'))
+                && !$this->isIgnoredContentType($response)
+                // HTML minifier: other content types (e.g. JSON) would be corrupted (whitespaces inside strings are collapsed)
+                && in_array($this->mediaType($response), ['', 'text/html'], true)
             ) {
-                $serviceSanitizer = $this->container->get('aurora.sanitizer');
+                // The "aurora.sanitizer" service is optional (it is no longer registered by the bundle)
+                $serviceSanitizer = $this->container->has('aurora.sanitizer') ? $this->container->get('aurora.sanitizer') : null;
+                if (!$serviceSanitizer instanceof AuroraSanitizer) {
+                    $serviceSanitizer = new AuroraSanitizer();
+                }
+
                 $response->setContent($serviceSanitizer->minifyHTML($response->getContent()));
             }
         }
@@ -140,5 +156,20 @@ class OutputSubscriber implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    /**
+     * The media type (lowercase, without parameters): "text/csv; charset=UTF-8" => "text/csv"; "" when the header is not set yet
+     */
+    private function mediaType(Response $response): string
+    {
+        return strtolower(trim(explode(';', (string)$response->headers->get('Content-Type'))[0]));
+    }
+
+    private function isIgnoredContentType(Response $response): bool
+    {
+        $ignored = $this->container->getParameter('aurora.minify.output.ignore.content.type');
+
+        return in_array($response->headers->get('Content-Type'), $ignored, true) || in_array($this->mediaType($response), $ignored, true);
     }
 }

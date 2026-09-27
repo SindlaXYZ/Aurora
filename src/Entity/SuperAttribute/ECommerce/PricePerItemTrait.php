@@ -37,10 +37,15 @@ trait PricePerItemTrait
 
     public function calculatePricePerItemWithoutVat(): self
     {
-        if ($this->pricePerItemWithoutVat) {
-            $this->pricePerItemWithoutVat = bcsub($this->pricePerItemWithoutVat, $this->pricePerItemVatAmount, 2);
-        } else if ($this->pricePerItemVatAmount) {
-            $this->pricePerItemWithoutVat = bcdiv($this->pricePerItemVatAmount, bcadd(1, bcdiv($this->pricePerItemVatPercentage, 100, 2), 2), 2);
+        // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
+        if (0 !== bccomp($this->pricePerItemWithVat, '0', 2)) {
+            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
+            $this->pricePerItemWithoutVat = (0 !== bccomp($this->pricePerItemVatAmount, '0', 2))
+                ? bcsub($this->pricePerItemWithVat, $this->pricePerItemVatAmount, 2)
+                : bcdiv($this->pricePerItemWithVat, bcadd('1', bcdiv($this->pricePerItemVatPercentage, '100', 6), 6), 2);
+        } else if (0 !== bccomp($this->pricePerItemVatAmount, '0', 2) && 0 !== bccomp($this->pricePerItemVatPercentage, '0', 2)) {
+            // Without VAT = VAT amount / VAT%
+            $this->pricePerItemWithoutVat = bcdiv($this->pricePerItemVatAmount, bcdiv($this->pricePerItemVatPercentage, '100', 6), 2);
         }
 
         return $this;
@@ -48,7 +53,7 @@ trait PricePerItemTrait
 
     public function calculatePricePerItemVatAmount(): self
     {
-        $this->pricePerItemVatAmount = bcdiv(bcmul($this->pricePerItemWithoutVat, bcdiv($this->pricePerItemVatPercentage, 100, 2), 2), 1, 2);
+        $this->pricePerItemVatAmount = bcdiv(bcmul($this->pricePerItemWithoutVat, bcdiv($this->pricePerItemVatPercentage, 100, 6), 2), 1, 2);
         return $this;
     }
 

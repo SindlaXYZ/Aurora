@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\EventSubscriber;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Sindla\Bundle\AuroraBundle\EventSubscriber\BlackHoleSubscriber;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Symfony\Component\HttpClient\MockHttpClient;
@@ -86,5 +88,86 @@ class BlackHoleSubscriberTest extends TestCase
             'Authorization: Bearer test-bearer',
             $capturedOptions['options']['normalized_headers']['authorization']
         );
+    }
+
+    public function testDoesNotForwardCredentialHeaders(): void
+    {
+        $capturedBody = null;
+        $mockClient   = new MockHttpClient(
+            function (string $method, string $url, array $options) use (&$capturedBody): MockResponse {
+                $capturedBody = $options['body'];
+
+                return new MockResponse('', ['http_code' => 200]);
+            }
+        );
+
+        $request = Request::create('https://app.example/resource');
+        $request->headers->set('Cookie', 'PHPSESSID=secret-session-id');
+        $request->headers->set('Authorization', 'Bearer secret-user-token');
+        $request->headers->set('X-Custom', 'kept');
+
+        $this->dispatchNotFound(new BlackHoleSubscriber($this->createStub(AuroraIP::class), $mockClient), $request);
+
+        $this->assertIsString($capturedBody, 'The HTTP client was not invoked.');
+        $payload = json_decode($capturedBody, true, 512, JSON_THROW_ON_ERROR);
+        $this->assertArrayNotHasKey('cookie', $payload['headers']);
+        $this->assertArrayNotHasKey('authorization', $payload['headers']);
+        $this->assertSame(['kept'], $payload['headers']['x-custom']);
+    }
+
+    #[DataProvider('dataFailingApiResponses')]
+    public function testFailingApiDoesNotBreakTheNotFoundResponse(MockResponse $apiResponse): void
+    {
+        $logger = $this->createMock(LoggerInterface::class);
+        $logger->expects($this->once())->method('warning');
+
+        $subscriber = new BlackHoleSubscriber($this->createStub(AuroraIP::class), new MockHttpClient($apiResponse), $logger);
+
+        // Used to rethrow the HttpClient exception from the kernel.exception listener (every 404 became a 500)
+        $this->dispatchNotFound($subscriber, Request::create('https://app.example/resource'));
+    }
+
+    public static function dataFailingApiResponses(): array
+    {
+        return [
+            'server error'    => [new MockResponse('', ['http_code' => 500])],
+            'transport error' => [new MockResponse('', ['error' => 'Connection refused'])],
+        ];
+    }
+
+    private function dispatchNotFound(BlackHoleSubscriber $subscriber, Request $request): void
+    {
+        $env = [
+            'BLACK_HOLE_API_ENABLED'  => 'true',
+            'BLACK_HOLE_API_URL'      => 'https://blackhole.example',
+            'BLACK_HOLE_API_VERSION'  => 'v1',
+            'BLACK_HOLE_API_ENDPOINT' => 'events',
+            'BLACK_HOLE_API_BEARER'   => 'test-bearer',
+        ];
+
+        $previousEnv = [];
+        foreach ($env as $key => $value) {
+            $previousEnv[$key] = $_ENV[$key] ?? null;
+            $_ENV[$key]        = $value;
+        }
+
+        $event = new ExceptionEvent(
+            $this->createStub(HttpKernelInterface::class),
+            $request,
+            HttpKernelInterface::MAIN_REQUEST,
+            new NotFoundHttpException()
+        );
+
+        try {
+            $subscriber->onKernelException($event);
+        } finally {
+            foreach ($previousEnv as $key => $value) {
+                if (null === $value) {
+                    unset($_ENV[$key]);
+                } else {
+                    $_ENV[$key] = $value;
+                }
+            }
+        }
     }
 }

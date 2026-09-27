@@ -99,4 +99,51 @@ class AuroraIPTest extends TestCase
             $_SERVER = $originalServer;
         }
     }
+
+    public function testIpIgnoresInvalidCloudflareHeader(): void
+    {
+        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.5']);
+
+        $originalServer = $_SERVER;
+        unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_CLIENT_IP']);
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = '<script>alert(1)</script>';
+
+        try {
+            $this->assertSame('198.51.100.5', new AuroraIP()->ip($request));
+        } finally {
+            $_SERVER = $originalServer;
+        }
+    }
+
+    public function testIpReturnsValidCloudflareHeader(): void
+    {
+        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.5']);
+
+        $originalServer                   = $_SERVER;
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = ' 203.0.113.20 ';
+
+        try {
+            $this->assertSame('203.0.113.20', new AuroraIP()->ip($request));
+        } finally {
+            $_SERVER = $originalServer;
+        }
+    }
+
+    public function testIpFallsBackWhenTheRequestHasNoClientIp(): void
+    {
+        $originalServer = $_SERVER;
+        unset(
+            $_SERVER['HTTP_CF_CONNECTING_IP'],
+            $_SERVER['HTTP_X_FORWARDED_FOR'],
+            $_SERVER['HTTP_CLIENT_IP'],
+            $_SERVER['REMOTE_ADDR']
+        );
+
+        try {
+            // Request::getClientIp() returns null without REMOTE_ADDR (e.g. CLI)
+            $this->assertSame('127.0.0.1', new AuroraIP()->ip(new Request()));
+        } finally {
+            $_SERVER = $originalServer;
+        }
+    }
 }

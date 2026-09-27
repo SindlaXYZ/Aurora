@@ -8,9 +8,6 @@ namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\Event\GetResponseEvent;
 use Symfony\Component\HttpKernel\Event\RequestEvent;
 use Symfony\Component\HttpKernel\KernelEvents;
 
@@ -53,10 +50,11 @@ class LocaleSubscriber implements EventSubscriberInterface
         return [];
     }
 
-    protected function setLocaleByRouteName(GetResponseEvent $event)
+    protected function setLocaleByRouteName(RequestEvent $event)
     {
         $request   = $event->getRequest();
-        $routeName = $request->get('_route');
+        // GetResponseEvent was removed in Symfony 5, Request::get() is deprecated since Symfony 7.4; "_route" is not always set (e.g. 404)
+        $routeName = (string)$request->attributes->get('_route', '');
         $locales   = $this->container->getParameter('aurora.locales');
 
         $set = false;
@@ -121,7 +119,7 @@ class LocaleSubscriber implements EventSubscriberInterface
         }
     }
 
-    protected function setLocateBySession(GetResponseEvent $event)
+    protected function setLocateBySession(RequestEvent $event)
     {
 
     }
@@ -132,7 +130,11 @@ class LocaleSubscriber implements EventSubscriberInterface
 
         $request->setLocale($locale);
         $this->twig->addGlobal('locale', $locale);
-        $request->getSession()->set('locale', $locale);
-        $request->getSession()->set('_locale', $locale);
+
+        // getSession() throws a SessionNotFoundException on stateless requests
+        if ($request->hasSession()) {
+            $request->getSession()->set('locale', $locale);
+            $request->getSession()->set('_locale', $locale);
+        }
     }
 }

@@ -40,9 +40,22 @@ class AuroraMatch
         $needle = strtolower($needle);
         $domain = strtolower($domain);
 
-        preg_match('/(^|^[^:]+:\/\/|[^\.]+\.)' . preg_quote($domain, '/') . '$/i', $needle, $matches);
+        if ('' === $needle || '' === $domain) {
+            return false;
+        }
 
-        return isset($matches[0]) && $matches[0] !== '';
+        // An IP address only matches itself ("1.2.3.4" must not match "2.3.4")
+        if (false !== filter_var($needle, FILTER_VALIDATE_IP)) {
+            return $needle === $domain;
+        }
+
+        // A host name contains only letters, digits, dots, hyphens and underscores. Anything else must not match, e.g. browsers
+        // treat "\" as "/", so "http://evil.com\.example.com" is "evil.com" and must not match "example.com"
+        if (1 !== preg_match('/^[\p{L}\p{N}._-]+$/Du', $needle)) {
+            return false;
+        }
+
+        return 1 === preg_match('/(^|\.)' . preg_quote($domain, '/') . '$/Du', $needle);
     }
 
     /** @param string[] $domains */

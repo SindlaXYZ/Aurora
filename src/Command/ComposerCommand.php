@@ -88,7 +88,7 @@ final class ComposerCommand extends Command
 
         $this->io->success(sprintf('%s Start running %s', $this->p(), $this->getName()));
 
-        $action = trim($input->getOption('action'));
+        $action = trim((string)$input->getOption('action'));
 
         if (empty($action)) {
             $this->io->warning('Invalid action: not specified.');
@@ -231,7 +231,7 @@ final class ComposerCommand extends Command
 
         $tempDir             = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp')) . '/' . date('Y-m-d Hi') . '_' . microtime(true);
         $maxmindDir          = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
-        $maxmindLicenseKey   = trim($this->container->getParameter('aurora.maxmind.license_key'));
+        $maxmindLicenseKey   = trim((string)$this->container->getParameter('aurora.maxmind.license_key'));
         $destinationFile     = "{$maxmindDir}/GeoLite2{$type}.mmdb";
         $originalFileContent = file_exists($destinationFile) ? file_get_contents($destinationFile) : null;
 

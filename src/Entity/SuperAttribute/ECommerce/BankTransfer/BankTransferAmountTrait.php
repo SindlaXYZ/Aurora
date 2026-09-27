@@ -37,10 +37,15 @@ trait BankTransferAmountTrait
 
     public function calculateBankTransferAmountWithoutVat(): self
     {
-        if ($this->bankTransferAmountWithVat) {
-            $this->bankTransferAmountWithoutVat = bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2);
-        } else if ($this->bankTransferVatAmount) {
-            $this->bankTransferAmountWithoutVat = bcdiv($this->bankTransferVatAmount, bcadd(1, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 2);
+        // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
+        if (0 !== bccomp($this->bankTransferAmountWithVat, '0', 2)) {
+            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
+            $this->bankTransferAmountWithoutVat = (0 !== bccomp($this->bankTransferVatAmount, '0', 2))
+                ? bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2)
+                : bcdiv($this->bankTransferAmountWithVat, bcadd('1', bcdiv($this->bankTransferVatPercentage, '100', 6), 6), 2);
+        } else if (0 !== bccomp($this->bankTransferVatAmount, '0', 2) && 0 !== bccomp($this->bankTransferVatPercentage, '0', 2)) {
+            // Without VAT = VAT amount / VAT%
+            $this->bankTransferAmountWithoutVat = bcdiv($this->bankTransferVatAmount, bcdiv($this->bankTransferVatPercentage, '100', 6), 2);
         }
 
         return $this;
@@ -48,7 +53,7 @@ trait BankTransferAmountTrait
 
     public function calculateBankTransferVatAmount(): self
     {
-        $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 2), 2), 1, 2);
+        $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 6), 2), 1, 2);
         return $this;
     }
 
@@ -71,23 +76,23 @@ trait BankTransferAmountTrait
         return $this;
     }
 
-    public function getCardVatPercentage(): string
+    public function getBankTransferVatPercentage(): string
     {
         return $this->bankTransferVatPercentage;
     }
 
-    public function setCardVatPercentage(string $bankTransferVatPercentage): self
+    public function setBankTransferVatPercentage(string $bankTransferVatPercentage): self
     {
         $this->bankTransferVatPercentage = $bankTransferVatPercentage;
         return $this;
     }
 
-    public function getCardVatAmount(): string
+    public function getBankTransferVatAmount(): string
     {
         return $this->bankTransferVatAmount;
     }
 
-    public function setCardVatAmount(string $bankTransferVatAmount): self
+    public function setBankTransferVatAmount(string $bankTransferVatAmount): self
     {
         $this->bankTransferVatAmount = $bankTransferVatAmount;
         return $this;

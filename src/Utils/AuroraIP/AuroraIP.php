@@ -20,8 +20,10 @@ class AuroraIP
     {
         // CloudFlare: The real visitor IP addresses
         // https://support.cloudflare.com/hc/en-us/articles/200170986-How-does-Cloudflare-handle-HTTP-Request-headers-
-        if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-            return $_SERVER['HTTP_CF_CONNECTING_IP'];
+        // The header is client-controlled when the request does not come through Cloudflare, so return it only if it is an IP
+        $cfConnectingIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null;
+        if (is_string($cfConnectingIp) && $this->ipIsValid(trim($cfConnectingIp))) {
+            return trim($cfConnectingIp);
         }
 
         $forwardedForHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
@@ -47,8 +49,10 @@ class AuroraIP
             }
         }
 
-        if ($this->ipIsValid($request->getClientIp())) {
-            return $request->getClientIp();
+        // null when REMOTE_ADDR is not set (e.g. CLI, workers, sub-requests created with "new Request()")
+        $clientIp = $request->getClientIp();
+        if (null !== $clientIp && $this->ipIsValid($clientIp)) {
+            return $clientIp;
         }
 
         if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValid($_SERVER['HTTP_CLIENT_IP'])) {

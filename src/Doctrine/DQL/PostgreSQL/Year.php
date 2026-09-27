@@ -12,7 +12,7 @@ use Doctrine\ORM\Query\TokenType;
  *     orm:
  *         dql:
  *             string_functions:
- *                 YEAR: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\Hour
+ *                 YEAR: Sindla\Bundle\AuroraBundle\Doctrine\DQL\PostgreSQL\Year
  *
  * Usage : $qb->andWhere($qb->expr()->eq('YEAR(entity.column)', 2024));
  */
