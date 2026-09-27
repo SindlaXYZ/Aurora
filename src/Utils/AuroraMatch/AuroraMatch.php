@@ -37,15 +37,15 @@ class AuroraMatch
         $needle = rtrim($needle, '.');
         $domain = rtrim($domain, '.');
 
-        $needle = strtolower($needle);
-        $domain = strtolower($domain);
+        $needle = $this->unbracketIPv6(strtolower($needle));
+        $domain = $this->unbracketIPv6(strtolower($domain));
 
         if ('' === $needle || '' === $domain) {
             return false;
         }
 
-        // An IP address only matches itself ("1.2.3.4" must not match "2.3.4")
-        if (false !== filter_var($needle, FILTER_VALIDATE_IP)) {
+        // An IP address only matches itself ("1.2.3.4" must not match "2.3.4", "foo.1.2.3.4" must not match "1.2.3.4")
+        if (false !== filter_var($needle, FILTER_VALIDATE_IP) || false !== filter_var($domain, FILTER_VALIDATE_IP)) {
             return $needle === $domain;
         }
 
@@ -128,5 +128,19 @@ class AuroraMatch
         $match .= '$/u';
 
         return (bool)preg_match($match, $password);
+    }
+
+    /**
+     * IPv6 literals are bracketed in URLs ("http://[2001:db8::1]/" => "[2001:db8::1]" => "2001:db8::1")
+     */
+    private function unbracketIPv6(string $host): string
+    {
+        $unbracketed = substr($host, 1, -1);
+
+        if (str_starts_with($host, '[') && str_ends_with($host, ']') && false !== filter_var($unbracketed, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
+            return $unbracketed;
+        }
+
+        return $host;
     }
 }

@@ -50,6 +50,24 @@ class InvalidDomainTest extends TestCase
         $this->assertFalse($matcher->matchDomain('10.1.2.3', '1.2.3'));
         $this->assertTrue($matcher->matchDomain('1.2.3.4', '1.2.3.4'));
         $this->assertTrue($matcher->matchDomain('http://1.2.3.4/path', '1.2.3.4'));
+
+        // A host name ending with the allowed IP address must not match it
+        $this->assertFalse($matcher->matchDomain('foo.1.2.3.4', '1.2.3.4'));
+        $this->assertFalse($matcher->matchDomain('http://foo.1.2.3.4/', '1.2.3.4'));
+    }
+
+    public function testBracketedIPv6Hosts(): void
+    {
+        $matcher = new AuroraMatch();
+
+        // parse_url() keeps the brackets of IPv6 literals: "http://[2001:db8::1]/" => "[2001:db8::1]"
+        $this->assertTrue($matcher->matchDomain('http://[2001:db8::1]/', 'http://[2001:db8::1]/'));
+        $this->assertTrue($matcher->matchDomain('http://[2001:db8::1]:8080/path', '2001:db8::1'));
+        $this->assertTrue($matcher->matchDomain('[2001:db8::1]', '2001:db8::1'));
+        $this->assertFalse($matcher->matchDomain('http://[2001:db8::2]/', '2001:db8::1'));
+
+        // Only IPv6 literals are unbracketed
+        $this->assertFalse($matcher->matchDomain('http://[evil.example.com]/', 'example.com'));
     }
 
     public function testEmptyValuesDoNotMatch(): void
