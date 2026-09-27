@@ -3,13 +3,17 @@
 namespace Sindla\Bundle\AuroraBundle\Doctrine\DQL\MySQL;
 
 use Doctrine\ORM\Query\AST\Functions\FunctionNode;
+use Doctrine\ORM\Query\AST\Node;
 use Doctrine\ORM\Query\Parser;
 use Doctrine\ORM\Query\SqlWalker;
 use Doctrine\ORM\Query\TokenType;
 
 class Month extends FunctionNode
 {
-    public string $date;
+    /**
+     * The AST node returned by Parser::ArithmeticPrimary() (a "string" type would coerce the node to its debug dump)
+     */
+    public Node|string $date;
 
     /**
      * Usage example: ->andWhere('MONTH(created_at) = :date')

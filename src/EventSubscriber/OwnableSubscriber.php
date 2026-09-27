@@ -6,10 +6,8 @@ namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
 use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Sindla\Bundle\AuroraBundle\Entity\SuperAnnotation;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
-use Symfony\Component\Security\Core\Security;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -79,22 +77,10 @@ class OwnableSubscriber implements EventSubscriberInterface
     }
 
     /**
-     * @return UserInterface|User|null
+     * TokenInterface::isAuthenticated() was removed in Symfony 6.0: a token that exposes a user is an authenticated one.
      */
-    private function getUser(): ?User
+    private function getUser(): ?UserInterface
     {
-        if (!$token = $this->tokenStorage->getToken()) {
-            return null;
-        }
-
-        if (!$token->isAuthenticated()) {
-            return null;
-        }
-
-        if (!$user = $token->getUser()) {
-            return null;
-        }
-
-        return $user;
+        return $this->tokenStorage->getToken()?->getUser();
     }
 }

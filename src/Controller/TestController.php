@@ -2,21 +2,29 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\Client as AuroraClient;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 class TestController extends AbstractController
 {
-    public function __invoke(Request $Request)
-    {
-        $parts  = explode('/', $Request->getRequestUri());
-        $action = end($parts);
+    /**
+     * Actions that can be dispatched, see src/Resources/config/routes/routes.yaml
+     */
+    private const array ACTIONS = ['test', 'service'];
 
-        if (method_exists($this, $action)) {
-            return $this->$action($Request);
+    public function __invoke(Request $Request): Response
+    {
+        // Use the path (not the request URI, which contains the query string) and an allow-list: any method name used to be
+        // callable, e.g. "/aurora/test?/redirect" reflected the raw request (Cookie header included) and "?/__invoke" recursed forever
+        $action = basename($Request->getPathInfo());
+
+        if (!in_array($action, self::ACTIONS, true)) {
+            throw $this->createNotFoundException();
         }
+
+        return $this->$action($Request);
     }
 
     /**
@@ -36,13 +44,10 @@ class TestController extends AbstractController
      */
     public function service(Request $Request): Response
     {
-        /** @var AuroraClient $AuroraClient */
-        $AuroraClient = $this->get('aurora.client');
-
-        $Response = new Response($AuroraClient->ip($Request), Response::HTTP_OK);
+        // AbstractController::get() was removed in Symfony 6 and AuroraClient::ip() was moved to AuroraIP::ip()
+        $Response = new Response(new AuroraIP()->ip($Request), Response::HTTP_OK);
         $Response->headers->set('X-Backend-Hit', true);
         $Response->headers->set('X-Robots-Tag', 'noindex');
-        // $countryCode = $this->AuroraClient->ip2CountryCode($this->AuroraClient->ip($Request));
 
         return $Response;
     }

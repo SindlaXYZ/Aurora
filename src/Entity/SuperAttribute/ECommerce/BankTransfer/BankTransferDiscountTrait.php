@@ -29,7 +29,7 @@ trait BankTransferDiscountTrait
     /**
      * @throws \Exception
      */
-    public function calculateCashDiscountAmount(string $amount, ?string $discountPercentage = null): self
+    public function calculateBankTransferDiscountAmount(string $amount, ?string $discountPercentage = null): self
     {
         if (!($discountPercentage = $discountPercentage ?? $this->bankTransferDiscountPercentage)) {
             throw new \Exception('Bank transfer discount percentage is required to calculate discount amount');

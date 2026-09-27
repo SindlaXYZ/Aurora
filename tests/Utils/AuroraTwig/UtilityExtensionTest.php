@@ -134,6 +134,27 @@ class UtilityExtensionTest extends TestCase
         $this->assertSame(1, substr_count($output, 'nonce='));
     }
 
+    public function testIpAndIp2CountryWithoutTheAuroraClientService(): void
+    {
+        $originalServer = $_SERVER;
+        unset($_SERVER['HTTP_CF_CONNECTING_IP'], $_SERVER['HTTP_X_FORWARDED_FOR']);
+
+        $container = new Container();
+        // No GeoLite2 database in this directory: the country lookup is disabled (null)
+        $container->setParameter('aurora.resources', sys_get_temp_dir() . '/aurora-utility-extension-test-' . bin2hex(random_bytes(4)));
+
+        $extension = new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelperUtils());
+        $request   = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.8']);
+
+        try {
+            // Used to call AuroraClient::ip() (moved to AuroraIP::ip()) on the "aurora.client" service (no longer registered)
+            $this->assertSame('198.51.100.8', $extension->ip($request));
+            $this->assertNull($extension->ip2Country($request));
+        } finally {
+            $_SERVER = $originalServer;
+        }
+    }
+
     private function createUtilityExtensionWithGitHash(string $hash): UtilityExtension
     {
         $container = new Container();

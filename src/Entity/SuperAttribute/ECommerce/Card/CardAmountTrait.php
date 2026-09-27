@@ -37,10 +37,15 @@ trait CardAmountTrait
 
     public function calculateCardAmountWithoutVat(): self
     {
-        if ($this->cardAmountWithoutVat) {
-            $this->cardAmountWithoutVat = bcsub($this->cardAmountWithoutVat, $this->cardVatAmount, 2);
-        } else if ($this->cardVatAmount) {
-            $this->cardAmountWithoutVat = bcdiv($this->cardVatAmount, bcadd(1, bcdiv($this->cardVatPercentage, 100, 2), 2), 2);
+        // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
+        if (0 !== bccomp($this->cardAmountWithVat, '0', 2)) {
+            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
+            $this->cardAmountWithoutVat = (0 !== bccomp($this->cardVatAmount, '0', 2))
+                ? bcsub($this->cardAmountWithVat, $this->cardVatAmount, 2)
+                : bcdiv($this->cardAmountWithVat, bcadd('1', bcdiv($this->cardVatPercentage, '100', 6), 6), 2);
+        } else if (0 !== bccomp($this->cardVatAmount, '0', 2) && 0 !== bccomp($this->cardVatPercentage, '0', 2)) {
+            // Without VAT = VAT amount / VAT%
+            $this->cardAmountWithoutVat = bcdiv($this->cardVatAmount, bcdiv($this->cardVatPercentage, '100', 6), 2);
         }
 
         return $this;
@@ -48,7 +53,7 @@ trait CardAmountTrait
 
     public function calculateCardVatAmount(): self
     {
-        $this->cardVatAmount = bcdiv(bcmul($this->cardAmountWithoutVat, bcdiv($this->cardVatPercentage, 100, 2), 2), 1, 2);
+        $this->cardVatAmount = bcdiv(bcmul($this->cardAmountWithoutVat, bcdiv($this->cardVatPercentage, 100, 6), 2), 1, 2);
         return $this;
     }
 

@@ -42,6 +42,9 @@ parameters:
     aurora.minify.output: false
     aurora.minify.output.ignore.extensions: [ '.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip' ]
     aurora.minify.output.ignore.content.type: [ 'text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip' ]
+    # Replace strings in the response content (strtr() map, "search" => "replace")
+    aurora.minify.replace: false
+    aurora.minify.replace.mapper: { }
     # https://developers.google.com/web/fundamentals/web-app-manifest
     #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
     aurora.pwa.enabled: '%env(bool:AURORA_PWA_ENABLED)%'
