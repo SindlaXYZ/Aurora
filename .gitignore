@@ -10,8 +10,8 @@ composer.lock
 /symfony/[0-9]*.[0-9]*/
 /vendor
 
-# Docker container runtime artifacts - written into the bind-mounted project dir
-# (DKZ_PROJECT_DIR=/srv/dockraft == the host repo root), so they must never be committed.
+# Local container runtime artifacts - written into the bind-mounted project dir,
+# so they must never be committed.
 .docker/
 .docker/.logs/
 .docker/.test-results/
