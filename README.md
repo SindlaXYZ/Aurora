@@ -318,6 +318,22 @@ doctrine_migrations:
 
 ---
 
+#### Client IP behind a reverse proxy or a load balancer
+
+`AuroraIP::ip()` (used by the Twig `ip2Country()` / `ip2County()` / `ip2City()` functions, the Monolog `MiscProcessor` and the
+BlackHole API) reads the client IP with `Request::getClientIp()`: the `X-Forwarded-For` header is honoured only when the request
+comes from a proxy listed in `framework.trusted_proxies`. The `CF-Connecting-IP` header is honoured only when the request comes
+from a [Cloudflare edge server](https://www.cloudflare.com/ips/).
+
+```yaml
+# config/packages/framework.yaml
+framework:
+    trusted_proxies: 'private_ranges' # or the IPs / ranges of your proxies
+    trusted_headers: [ 'x-forwarded-for', 'x-forwarded-host', 'x-forwarded-proto', 'x-forwarded-port', 'x-forwarded-prefix' ]
+```
+
+---
+
 * For favicons, can use https://www.favicon-generator.org/
 
 ---

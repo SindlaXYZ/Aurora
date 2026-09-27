@@ -135,6 +135,28 @@ CSS;
 
         self::assertSame("<div>{$pre}{$textarea}</div>", $result);
     }
+
+    /**
+     * A PCRE failure (e.g. the backtrack limit, reached by a large page with an unclosed "<!--") used to return an empty page
+     */
+    public function testMinifyHtmlReturnsTheOriginalPageWhenTheMinificationFails(): void
+    {
+        $html = "<body>\n    <p>Aurora</p>\n    <!-- unclosed comment\n" . str_repeat("    <div>text</div>\n", 500) . '</body>';
+
+        $backtrackLimit = ini_get('pcre.backtrack_limit');
+        $jit            = ini_get('pcre.jit');
+        ini_set('pcre.backtrack_limit', '1000');
+        ini_set('pcre.jit', '0');
+
+        try {
+            $result = new AuroraSanitizer()->minifyHTML($html);
+        } finally {
+            ini_set('pcre.backtrack_limit', (string)$backtrackLimit);
+            ini_set('pcre.jit', (string)$jit);
+        }
+
+        self::assertSame($html, $result);
+    }
 }
 
 }

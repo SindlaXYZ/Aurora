@@ -14,56 +14,88 @@ class AuroraIP
     use KnownBotsAndCrawlers;
 
     /**
+     * Cloudflare edge servers: https://www.cloudflare.com/ips/
+     */
+    public const array CLOUDFLARE_IPS
+        = [
+            '173.245.48.0/20',
+            '103.21.244.0/22',
+            '103.22.200.0/22',
+            '103.31.4.0/22',
+            '141.101.64.0/18',
+            '108.162.192.0/18',
+            '190.93.240.0/20',
+            '188.114.96.0/20',
+            '197.234.240.0/22',
+            '198.41.128.0/17',
+            '162.158.0.0/15',
+            '104.16.0.0/13',
+            '104.24.0.0/14',
+            '172.64.0.0/13',
+            '131.0.72.0/22',
+            '2400:cb00::/32',
+            '2606:4700::/32',
+            '2803:f800::/32',
+            '2405:b500::/32',
+            '2405:8100::/32',
+            '2a06:98c0::/29',
+            '2c0f:f248::/32',
+        ];
+
+    /**
      * Returns the client IP
+     *
+     * The CF-Connecting-IP, X-Forwarded-For and Client-IP headers are sent by the client, so they must not be trusted blindly:
+     * anyone could otherwise choose the IP that is logged, geolocated and reported to the BlackHole API.
+     * X-Forwarded-For is honoured only from the trusted proxies (framework.trusted_proxies) by Request::getClientIp(), and
+     * CF-Connecting-IP only when the request comes from a Cloudflare edge server.
      */
     public function ip(Request $request): string
     {
-        // CloudFlare: The real visitor IP addresses
-        // https://support.cloudflare.com/hc/en-us/articles/200170986-How-does-Cloudflare-handle-HTTP-Request-headers-
-        // The header is client-controlled when the request does not come through Cloudflare, so return it only if it is an IP
-        $cfConnectingIp = $_SERVER['HTTP_CF_CONNECTING_IP'] ?? null;
-        if (is_string($cfConnectingIp) && $this->ipIsValid(trim($cfConnectingIp))) {
-            return trim($cfConnectingIp);
-        }
-
-        $forwardedForHeader = $_SERVER['HTTP_X_FORWARDED_FOR'] ?? null;
-
-        if (is_string($forwardedForHeader)) {
-            $forwardedForSingleIp = trim($forwardedForHeader);
-
-            if (
-                $forwardedForSingleIp !== ''
-                && false === strpos($forwardedForHeader, ',')
-                && $this->ipIsValid($forwardedForSingleIp)
-            ) {
-                return $forwardedForSingleIp;
-            }
-        }
-
-        if (is_string($forwardedForHeader) && strpos($forwardedForHeader, ',') !== false) {
-            foreach (explode(',', $forwardedForHeader) as $ip) {
-                $ip = trim($ip);
-                if ($this->ipIsValid($ip)) {
-                    return $ip;
-                }
-            }
-        }
-
         // null when REMOTE_ADDR is not set (e.g. CLI, workers, sub-requests created with "new Request()")
         $clientIp = $request->getClientIp();
+
         if (null !== $clientIp && $this->ipIsValid($clientIp)) {
+            // CloudFlare: The real visitor IP addresses
+            // https://developers.cloudflare.com/fundamentals/reference/http-headers/#cf-connecting-ip
+            $cfConnectingIp = trim((string)$request->headers->get('CF-Connecting-IP'));
+
+            if ($this->isCloudflare($clientIp) && $this->ipIsValid($cfConnectingIp)) {
+                return $cfConnectingIp;
+            }
+
             return $clientIp;
         }
 
-        if (isset($_SERVER['HTTP_CLIENT_IP']) && $this->ipIsValid($_SERVER['HTTP_CLIENT_IP'])) {
-            return $_SERVER['HTTP_CLIENT_IP'];
-        }
-
-        if (isset($_SERVER['REMOTE_ADDR']) && $this->ipIsValid($_SERVER['REMOTE_ADDR'])) {
+        if (isset($_SERVER['REMOTE_ADDR']) && is_string($_SERVER['REMOTE_ADDR']) && $this->ipIsValid($_SERVER['REMOTE_ADDR'])) {
             return $_SERVER['REMOTE_ADDR'];
         }
 
         return '127.0.0.1';
+    }
+
+    /**
+     * Returns true when the IP belongs to a Cloudflare edge server
+     */
+    public function isCloudflare(string $ip): bool
+    {
+        if (!$this->ipIsValid($ip)) {
+            return false;
+        }
+
+        // An IPv4 address seen by a dual-stack server: "::ffff:162.158.1.1"
+        $binary = inet_pton($ip);
+        if (false !== $binary && str_starts_with($binary, str_repeat("\0", 10) . "\xff\xff")) {
+            $ip = (string)inet_ntop(substr($binary, 12));
+        }
+
+        foreach (self::CLOUDFLARE_IPS as $cidr) {
+            if ($this->isIPInSubnet($ip, $cidr)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function ipIsValid(string $ip): bool

@@ -68,6 +68,27 @@ class PaymentMethodTraitsTest extends TestCase
         $this->assertSame('20.00', $entity->getCashDiscountAmount());
         $this->assertSame('30.00', $entity->getBankTransferDiscountAmount());
     }
+
+    public function testAmountsAreRoundedToTheCent(): void
+    {
+        $entity = new PaymentMethodTraitsMock()
+            ->calculateCardDiscountAmount('10.99', '15')
+            ->calculateCashDiscountAmount('10.99', '15')
+            ->calculateBankTransferDiscountAmount('10.99', '15')
+            ->setCardAmountWithoutVat('10.99')
+            ->setCardVatPercentage('19')
+            ->calculateCardVatAmount()
+            ->setCashAmountWithVat('17.00')
+            ->setCashVatPercentage('19')
+            ->calculateCashAmountWithoutVat();
+
+        // bcmath truncates: 15% of 10.99 (1.6485) was 1.64, the VAT of 10.99 at 19% (2.0881) was 2.08, 17.00 / 1.19 (14.2857) was 14.28
+        $this->assertSame('1.65', $entity->getCardDiscountAmount());
+        $this->assertSame('1.65', $entity->getCashDiscountAmount());
+        $this->assertSame('1.65', $entity->getBankTransferDiscountAmount());
+        $this->assertSame('2.09', $entity->getCardVatAmount());
+        $this->assertSame('14.29', $entity->getCashAmountWithoutVat());
+    }
 }
 
 class PaymentMethodTraitsMock

@@ -25,7 +25,8 @@ trait TimestampableSuspendedInterval
 
     public function setSuspendedFrom(?DateTimeInterface $suspendedFrom): self
     {
-        $this->suspendedFrom = $suspendedFrom;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->suspendedFrom = $suspendedFrom instanceof \DateTime ? \DateTimeImmutable::createFromMutable($suspendedFrom) : $suspendedFrom;
         return $this;
     }
 
@@ -36,7 +37,8 @@ trait TimestampableSuspendedInterval
 
     public function setSuspendedTo(?DateTimeInterface $suspendedTo): self
     {
-        $this->suspendedTo = $suspendedTo;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->suspendedTo = $suspendedTo instanceof \DateTime ? \DateTimeImmutable::createFromMutable($suspendedTo) : $suspendedTo;
         return $this;
     }
 

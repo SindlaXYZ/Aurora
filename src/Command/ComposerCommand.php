@@ -37,6 +37,11 @@ final class ComposerCommand extends Command
     private const  GEOIP2_ASN     = 'ASN';
 
     /**
+     * The only methods that "--action" can run ("--action=execute" was an infinite recursion)
+     */
+    private const array ACTIONS = ['postInstall', 'postUpdate'];
+
+    /**
      * {@inheritdoc}
      */
     protected function configure(): void
@@ -96,15 +101,12 @@ final class ComposerCommand extends Command
             return Command::FAILURE;
         }
 
-        if ('_' == substr($action, 0, 1)) {
-            $this->io->warning("Invalid action {$action}()");
+        // Case-insensitive, like the method names
+        $method = array_find(self::ACTIONS, static fn(string $name): bool => 0 === strcasecmp($name, $action));
 
-            return Command::FAILURE;
-        }
-
-        if (method_exists($this, $action)) {
-            $this->io->comment("[AURORA] Start to execute {$action}()");
-            $this->$action();
+        if (null !== $method) {
+            $this->io->comment("[AURORA] Start to execute {$method}()");
+            $this->$method();
             $this->io->newLine();
             $this->io->success('[AURORA] All commands were successfully run (post update).');
         } else {
@@ -188,18 +190,63 @@ final class ComposerCommand extends Command
             return;
         }
 
-        // Check https://phar.phpunit.de/
-        if (!$phar = fopen('https://phar.phpunit.de/phpunit.phar', 'r')) {
-            throw new \RuntimeException("[AURORA] Cannot download .phar file from phar.phpunit.de.");
+        // The PHAR is optional: a failed download (offline, firewall, no vendor/phpunit/ with "--no-dev") used to fail the command,
+        // so "composer update" failed too
+        if (!is_dir(dirname($phpUnitFile))) {
+            $this->io->comment(sprintf('%s ... skip updating (%s does not exist)', $this->p(), dirname($phpUnitFile)));
+            return;
         }
 
+        // Downloaded next to the PHAR, then renamed: an interrupted download used to leave a broken PHAR, "too new" to be replaced
+        $downloadFile = $phpUnitFile . '.download';
+
         try {
-            file_put_contents($phpUnitFile, $phar);
-        } catch (\Exception $e) {
-            throw new \RuntimeException(sprintf('[AURORA] Cannot write %s file on disk.', $phpUnitFile));
+            // Check https://phar.phpunit.de/
+            if (!$phar = $this->open('https://phar.phpunit.de/phpunit.phar')) {
+                throw new \RuntimeException('Cannot download .phar file from phar.phpunit.de.');
+            }
+
+            if (false === file_put_contents($downloadFile, $phar) || !rename($downloadFile, $phpUnitFile)) {
+                throw new \RuntimeException(sprintf('Cannot write %s file on disk.', $phpUnitFile));
+            }
+        } catch (\Throwable $e) {
+            if (is_file($downloadFile)) {
+                unlink($downloadFile);
+            }
+
+            $this->io->warning(sprintf('%s ... skip updating the PHPUnit PHAR: %s', $this->p(), $e->getMessage()));
+
+            return;
         }
 
         $this->io->comment(sprintf('%s ... done;', $this->p()));
+    }
+
+    /**
+     * fopen() without its PHP warning: the warning contains the URL, e.g. the MaxMind license key, and is printed or logged
+     *
+     * @return resource|false
+     */
+    private function open(string $url, string $secret = '')
+    {
+        $error = null;
+        set_error_handler(static function (int $type, string $message) use (&$error): bool {
+            $error = $message;
+
+            return true;
+        });
+
+        try {
+            $handle = fopen($url, 'r');
+        } finally {
+            restore_error_handler();
+        }
+
+        if (false === $handle && null !== $error) {
+            throw new \RuntimeException('' === $secret ? $error : str_replace([$secret, rawurlencode($secret)], '***', $error));
+        }
+
+        return $handle;
     }
 
     /**
@@ -215,17 +262,16 @@ final class ComposerCommand extends Command
 
         $this->io->comment(sprintf('%s Updating the <info>Maxmind GeoIP2/GeoIP2' . $type . '</info> ...', $this->p()));
 
-        if (!isset($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_CITY']) || !isset($_ENV['SINDLA_AURORA_GEO_LITE2_ASN'])) {
-            $this->io->warning('[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY or SINDLA_AURORA_GEO_LITE2_CITY or SINDLA_AURORA_GEO_LITE2_ASN are not defined in .env[.local]');
+        // SINDLA_AURORA_GEO_LITE2_COUNTRY / SINDLA_AURORA_GEO_LITE2_CITY / SINDLA_AURORA_GEO_LITE2_ASN, each database on its own (the three
+        // flags used to be required), also from the real environment (e.g. Docker): $_ENV is empty with variables_order = "GPCS"
+        $flag  = 'SINDLA_AURORA_GEO_LITE2_' . strtoupper($type);
+        $value = $_ENV[$flag] ?? $_SERVER[$flag] ?? getenv($flag);
+
+        if (false === $value) {
+            $this->io->warning(sprintf('[AURORA] ... skip because %s is not defined in .env[.local] or in the environment', $flag));
             return;
-        } else if (self::GEOIP2_COUNTRY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_COUNTRY'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_COUNTRY=false</warning>');
-            return;
-        } else if (self::GEOIP2_CITY == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_CITY'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_CITY=false</warning>');
-            return;
-        } else if (self::GEOIP2_ASN == $type && !filter_var($_ENV['SINDLA_AURORA_GEO_LITE2_ASN'] ?? false, FILTER_VALIDATE_BOOLEAN)) {
-            $this->io->comment('<warning>[AURORA] ... skip because SINDLA_AURORA_GEO_LITE2_ASN=false</warning>');
+        } else if (!filter_var($value, FILTER_VALIDATE_BOOLEAN)) {
+            $this->io->comment(sprintf('<warning>[AURORA] ... skip because %s=false</warning>', $flag));
             return;
         }
 
@@ -271,8 +317,17 @@ final class ComposerCommand extends Command
         }
 
         try {
-            $tarGz = fopen("https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-{$type}&license_key={$maxmindLicenseKey}&suffix=tar.gz", 'r');
+            $tarGz = $this->open(
+                sprintf('https://download.maxmind.com/app/geoip_download?edition_id=GeoLite2-%s&license_key=%s&suffix=tar.gz', $type, rawurlencode($maxmindLicenseKey)),
+                $maxmindLicenseKey
+            );
         } catch (\Exception $e) {
+            $this->io->error(sprintf('[AURORA] Cannot download .tar.gz file from geolite.maxmind.com: %s', $e->getMessage()));
+
+            return;
+        }
+
+        if (false === $tarGz) {
             $this->io->error('[AURORA] Cannot download .tar.gz file from geolite.maxmind.com.');
 
             return;
@@ -360,7 +415,8 @@ final class ComposerCommand extends Command
 
         $compiledDir = $this->container->getParameter('aurora.root') . '/public/static/compiled';
 
-        if ($files = glob("{$compiledDir}/*.{css,js}", GLOB_BRACE)) {
+        // GLOB_BRACE is not defined on Alpine Linux (musl): an "Undefined constant" error, so "composer install" failed
+        if ($files = array_merge(glob("{$compiledDir}/*.css") ?: [], glob("{$compiledDir}/*.js") ?: [])) {
             /** @var AuroraIO $IOService */
             $IOService = $this->container->get('aurora.io');
             foreach ($files as $file) {

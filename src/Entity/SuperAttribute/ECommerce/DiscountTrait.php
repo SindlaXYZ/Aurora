@@ -35,7 +35,8 @@ trait DiscountTrait
             throw new \Exception('Discount percentage is required to calculate discount amount');
         }
 
-        $this->discountAmount = bcdiv(bcmul($amount, $discountPercentage, 2), 100, 2);
+        // Rounded to the cent (half away from zero): bcmath truncates, e.g. 15% of 10.99 was 1.64 instead of 1.65
+        $this->discountAmount = bcround(bcdiv(bcmul($amount, $discountPercentage, 10), '100', 10), 2);
         return $this;
     }
 

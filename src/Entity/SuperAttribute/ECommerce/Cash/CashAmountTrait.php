@@ -42,10 +42,10 @@ trait CashAmountTrait
             // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
             $this->cashAmountWithoutVat = (0 !== bccomp($this->cashVatAmount, '0', 2))
                 ? bcsub($this->cashAmountWithVat, $this->cashVatAmount, 2)
-                : bcdiv($this->cashAmountWithVat, bcadd('1', bcdiv($this->cashVatPercentage, '100', 6), 6), 2);
+                : bcround(bcdiv($this->cashAmountWithVat, bcadd('1', bcdiv($this->cashVatPercentage, '100', 6), 6), 10), 2);
         } else if (0 !== bccomp($this->cashVatAmount, '0', 2) && 0 !== bccomp($this->cashVatPercentage, '0', 2)) {
             // Without VAT = VAT amount / VAT%
-            $this->cashAmountWithoutVat = bcdiv($this->cashVatAmount, bcdiv($this->cashVatPercentage, '100', 6), 2);
+            $this->cashAmountWithoutVat = bcround(bcdiv($this->cashVatAmount, bcdiv($this->cashVatPercentage, '100', 6), 10), 2);
         }
 
         return $this;
@@ -54,7 +54,8 @@ trait CashAmountTrait
 
     public function calculateCashVatAmount(): self
     {
-        $this->cashVatAmount = bcdiv(bcmul($this->cashAmountWithoutVat, bcdiv($this->cashVatPercentage, 100, 6), 2), 1, 2);
+        // Rounded to the cent (half away from zero): bcmath truncates, e.g. the VAT of 10.99 at 19% was 2.08 instead of 2.09
+        $this->cashVatAmount = bcround(bcmul($this->cashAmountWithoutVat, bcdiv($this->cashVatPercentage, '100', 6), 10), 2);
         return $this;
     }
 

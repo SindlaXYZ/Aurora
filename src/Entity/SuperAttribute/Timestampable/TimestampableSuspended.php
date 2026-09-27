@@ -21,7 +21,8 @@ trait TimestampableSuspended
 
     public function setSuspendedAt(?DateTimeInterface $suspendedAt): self
     {
-        $this->suspendedAt = $suspendedAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->suspendedAt = $suspendedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($suspendedAt) : $suspendedAt;
         return $this;
     }
 

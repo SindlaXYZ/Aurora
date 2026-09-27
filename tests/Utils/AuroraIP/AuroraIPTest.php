@@ -77,55 +77,85 @@ class AuroraIPTest extends TestCase
         ];
     }
 
-    public function testIpTrimsSingleForwardedHeader(): void
+    public function testIpIgnoresForwardingHeadersFromAnUntrustedClient(): void
     {
-        $request = Request::create(
-            '/',
-            'GET',
-            [],
-            [],
-            [],
-            ['REMOTE_ADDR' => '198.51.100.5']
-        );
+        $request = Request::create('/', 'GET', [], [], [], [
+            'REMOTE_ADDR'           => '198.51.100.5',
+            'HTTP_X_FORWARDED_FOR'  => '203.0.113.10',
+            'HTTP_CF_CONNECTING_IP' => '203.0.113.20',
+            'HTTP_CLIENT_IP'        => '203.0.113.30',
+        ]);
 
-        $originalServer                  = $_SERVER;
-        $_SERVER['HTTP_X_FORWARDED_FOR'] = ' 203.0.113.10 ';
-
-        $auroraClient = new AuroraIP();
+        $originalServer                   = $_SERVER;
+        $_SERVER['HTTP_X_FORWARDED_FOR']  = '203.0.113.10';
+        $_SERVER['HTTP_CF_CONNECTING_IP'] = '203.0.113.20';
+        $_SERVER['HTTP_CLIENT_IP']        = '203.0.113.30';
 
         try {
-            $this->assertSame('203.0.113.10', $auroraClient->ip($request));
-        } finally {
-            $_SERVER = $originalServer;
-        }
-    }
-
-    public function testIpIgnoresInvalidCloudflareHeader(): void
-    {
-        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.5']);
-
-        $originalServer = $_SERVER;
-        unset($_SERVER['HTTP_X_FORWARDED_FOR'], $_SERVER['HTTP_CLIENT_IP']);
-        $_SERVER['HTTP_CF_CONNECTING_IP'] = '<script>alert(1)</script>';
-
-        try {
+            // These headers are set by the client: honouring them let anyone choose the IP that is logged and reported to the BlackHole API
             $this->assertSame('198.51.100.5', new AuroraIP()->ip($request));
         } finally {
             $_SERVER = $originalServer;
         }
     }
 
-    public function testIpReturnsValidCloudflareHeader(): void
+    public function testIpHonoursTheForwardedHeaderOfATrustedProxy(): void
     {
-        $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.5']);
+        $request = Request::create('/', 'GET', [], [], [], [
+            'REMOTE_ADDR'          => '10.0.0.2',
+            'HTTP_X_FORWARDED_FOR' => '203.0.113.9, 203.0.113.10',
+        ]);
 
-        $originalServer                   = $_SERVER;
-        $_SERVER['HTTP_CF_CONNECTING_IP'] = ' 203.0.113.20 ';
+        $trustedProxies   = Request::getTrustedProxies();
+        $trustedHeaderSet = Request::getTrustedHeaderSet();
+        Request::setTrustedProxies(['10.0.0.2'], Request::HEADER_X_FORWARDED_FOR);
+
+        try {
+            // The last untrusted hop, the first entries are added by the client
+            $this->assertSame('203.0.113.10', new AuroraIP()->ip($request));
+        } finally {
+            Request::setTrustedProxies($trustedProxies, $trustedHeaderSet);
+        }
+    }
+
+    public function testIpIgnoresInvalidCloudflareHeader(): void
+    {
+        $request = Request::create('/', 'GET', [], [], [], [
+            'REMOTE_ADDR'           => '173.245.48.10',
+            'HTTP_CF_CONNECTING_IP' => '<script>alert(1)</script>',
+        ]);
+
+        $this->assertSame('173.245.48.10', new AuroraIP()->ip($request));
+    }
+
+    public function testIpReturnsTheCloudflareHeaderOfACloudflareRequest(): void
+    {
+        foreach (['173.245.48.10', '2606:4700::6810:84e5', '::ffff:162.158.1.1'] as $cloudflareIp) {
+            $request = Request::create('/', 'GET', [], [], [], [
+                'REMOTE_ADDR'           => $cloudflareIp,
+                'HTTP_CF_CONNECTING_IP' => ' 203.0.113.20 ',
+            ]);
+
+            $this->assertSame('203.0.113.20', new AuroraIP()->ip($request));
+        }
+    }
+
+    public function testIpReturnsTheCloudflareHeaderBehindATrustedProxy(): void
+    {
+        $request = Request::create('/', 'GET', [], [], [], [
+            'REMOTE_ADDR'           => '10.0.0.2',
+            'HTTP_X_FORWARDED_FOR'  => '162.158.1.1',
+            'HTTP_CF_CONNECTING_IP' => '203.0.113.20',
+        ]);
+
+        $trustedProxies   = Request::getTrustedProxies();
+        $trustedHeaderSet = Request::getTrustedHeaderSet();
+        Request::setTrustedProxies(['10.0.0.2'], Request::HEADER_X_FORWARDED_FOR);
 
         try {
             $this->assertSame('203.0.113.20', new AuroraIP()->ip($request));
         } finally {
-            $_SERVER = $originalServer;
+            Request::setTrustedProxies($trustedProxies, $trustedHeaderSet);
         }
     }
 

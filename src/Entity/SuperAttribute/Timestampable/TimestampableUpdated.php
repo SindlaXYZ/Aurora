@@ -29,7 +29,8 @@ trait TimestampableUpdated
 
     public function setUpdatedAt(?DateTimeInterface $updatedAt): self
     {
-        $this->updatedAt = $updatedAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->updatedAt = $updatedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($updatedAt) : $updatedAt;
         return $this;
     }
 

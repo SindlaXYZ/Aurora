@@ -42,10 +42,10 @@ trait BankTransferAmountTrait
             // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
             $this->bankTransferAmountWithoutVat = (0 !== bccomp($this->bankTransferVatAmount, '0', 2))
                 ? bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2)
-                : bcdiv($this->bankTransferAmountWithVat, bcadd('1', bcdiv($this->bankTransferVatPercentage, '100', 6), 6), 2);
+                : bcround(bcdiv($this->bankTransferAmountWithVat, bcadd('1', bcdiv($this->bankTransferVatPercentage, '100', 6), 6), 10), 2);
         } else if (0 !== bccomp($this->bankTransferVatAmount, '0', 2) && 0 !== bccomp($this->bankTransferVatPercentage, '0', 2)) {
             // Without VAT = VAT amount / VAT%
-            $this->bankTransferAmountWithoutVat = bcdiv($this->bankTransferVatAmount, bcdiv($this->bankTransferVatPercentage, '100', 6), 2);
+            $this->bankTransferAmountWithoutVat = bcround(bcdiv($this->bankTransferVatAmount, bcdiv($this->bankTransferVatPercentage, '100', 6), 10), 2);
         }
 
         return $this;
@@ -53,7 +53,8 @@ trait BankTransferAmountTrait
 
     public function calculateBankTransferVatAmount(): self
     {
-        $this->bankTransferVatAmount = bcdiv(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, 100, 6), 2), 1, 2);
+        // Rounded to the cent (half away from zero): bcmath truncates, e.g. the VAT of 10.99 at 19% was 2.08 instead of 2.09
+        $this->bankTransferVatAmount = bcround(bcmul($this->bankTransferAmountWithoutVat, bcdiv($this->bankTransferVatPercentage, '100', 6), 10), 2);
         return $this;
     }
 

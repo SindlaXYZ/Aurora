@@ -89,31 +89,25 @@ self.addEventListener('fetch', event => {
     var sameOrigin = event.request.url.startsWith(self.location.origin);
 
     if (sameOrigin || matchInArray(event.request.url, externalCache)) {
+        {# Pages are loaded from the network first, the cache is only their offline fallback. Served from the cache first, a page #}
+        {# stayed outdated until the next deploy, and the page of a signed-in user was shown again after the logout, also to the #}
+        {# next user of the browser. #}
+        const isNavigation = 'navigate' === event.request.mode;
+
         event.respondWith((async () => {
             try {
                 {# Try to return from the cache. #}
-                const cachedResponse = await caches.match(event.request);
-                if (cachedResponse) {
-                    return cachedResponse;
+                if (!isNavigation) {
+                    const cachedResponse = await caches.match(event.request);
+                    if (cachedResponse) {
+                        return cachedResponse;
+                    }
                 }
 
                 {# If it's not in the cache, get it from the network. #}
                 const response = await fetch(event.request);
 
-                {# Only store complete GET responses. Caching partial (206), error, or #}
-                {# unexpected responses would poison the cache. For same-origin requests we #}
-                {# require a successful "basic" response; for the allow-listed external hosts #}
-                {# we also accept "opaque" (no-cors) responses, which cannot be introspected. #}
-                const cacheable =
-                    'GET' === event.request.method &&
-                    response &&
-                    206 !== response.status &&
-                    (
-                        (sameOrigin && response.ok && 'basic' === response.type) ||
-                        (!sameOrigin && (response.ok || 'opaque' === response.type))
-                    );
-
-                if (cacheable) {
+                if (isCacheable(event.request, response, sameOrigin)) {
                     const cache = await caches.open(RUNTIME);
                     {# Put a copy of the response in the cache. #}
                     await cache.put(event.request, response.clone());
@@ -121,6 +115,13 @@ self.addEventListener('fetch', event => {
 
                 return response;
             } catch (err) {
+                if (isNavigation) {
+                    const cachedPage = await caches.match(event.request);
+                    if (cachedPage) {
+                        return cachedPage;
+                    }
+                }
+
                 {# https://web.dev/learn/pwa/caching/#generic_fallback #}
                 {# In case of a network error, return the precached offline page ("aurora.pwa.offline") when present. #}
                 const offlineResponse = await caches.match({{ offline|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }});
@@ -134,6 +135,26 @@ self.addEventListener('fetch', event => {
         })());
     }
 });
+
+{# Only store complete GET responses. Caching partial (206), error, or #}
+{# unexpected responses would poison the cache. For same-origin requests we #}
+{# require a successful "basic" response; for the allow-listed external hosts #}
+{# we also accept "opaque" (no-cors) responses, which cannot be introspected. #}
+{# A response that must not be reused ("Cache-Control: no-store / no-cache / private", the default of the Symfony responses) is not #}
+{# stored either: it is personal (e.g. the page of a signed-in user) or must be revalidated. #}
+function isCacheable(request, response, sameOrigin) {
+    if ('GET' !== request.method || !response || 206 === response.status) {
+        return false;
+    }
+
+    var cacheControl = (response.headers.get('Cache-Control') || '').toLowerCase();
+    if (/(^|[\s,])(no-store|no-cache|private)([\s,=]|$)/.test(cacheControl)) {
+        return false;
+    }
+
+    return (sameOrigin && response.ok && 'basic' === response.type) ||
+        (!sameOrigin && (response.ok || 'opaque' === response.type));
+}
 
 function matchInArray(string, expressions) {
     var len = expressions.length, i = 0;

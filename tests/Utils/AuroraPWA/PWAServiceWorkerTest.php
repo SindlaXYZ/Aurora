@@ -13,6 +13,7 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
+use Twig\Loader\FilesystemLoader;
 
 class PWAServiceWorkerTest extends TestCase
 {
@@ -47,6 +48,33 @@ class PWAServiceWorkerTest extends TestCase
         ];
     }
 
+    #[DataProvider('dataEnvironments')]
+    public function testServiceWorkerLoadsThePagesFromTheNetworkFirst(string $environment): void
+    {
+        $twig = new Environment(new FilesystemLoader());
+        $twig->getLoader()->addPath(dirname(__DIR__, 3) . '/src/templates', 'Aurora');
+
+        $serviceWorker = $this->createPWA(['kernel.environment' => $environment], null, $twig)
+            ->serviceWorkerJS(Request::create('/pwa-sw.js'))
+            ->getContent();
+
+        // Every page used to be served from the cache first: outdated pages, and the page of a signed-in user shown after the logout
+        $this->assertMatchesRegularExpression('/[\'"]navigate[\'"]\s*===\s*event\.request\.mode/', $serviceWorker);
+        $this->assertStringContainsString('function isCacheable(', $serviceWorker);
+        $this->assertStringContainsString('no-store|no-cache|private', $serviceWorker);
+        $this->assertStringContainsString('"/aurora/pwa-offline"', $serviceWorker);
+
+        foreach (['(' => ')', '{' => '}', '[' => ']'] as $open => $close) {
+            $this->assertSame(substr_count($serviceWorker, $open), substr_count($serviceWorker, $close), sprintf('Unbalanced "%s%s".', $open, $close));
+        }
+    }
+
+    public static function dataEnvironments(): iterable
+    {
+        yield 'dev' => ['dev'];
+        yield 'prod (minified)' => ['prod'];
+    }
+
     public function testIconIsFoundWhenTheRequestHasAQueryString(): void
     {
         $iconsDirectory = sys_get_temp_dir() . '/aurora-pwa-icons-' . bin2hex(random_bytes(4));
@@ -67,7 +95,7 @@ class PWAServiceWorkerTest extends TestCase
     /**
      * @param array<string, mixed> $parameters
      */
-    private function createPWA(array $parameters, string $serviceWorkerTemplate): AuroraPWA
+    private function createPWA(array $parameters, ?string $serviceWorkerTemplate, ?Environment $twig = null): AuroraPWA
     {
         $parameterBag = new ParameterBag(array_merge([
             'kernel.environment'     => 'dev',
@@ -90,6 +118,8 @@ class PWAServiceWorkerTest extends TestCase
             }
         };
 
-        return new AuroraPWA($parameterBag, new Environment(new ArrayLoader(['@Aurora/pwa-sw.js.twig' => $serviceWorkerTemplate])), $git);
+        $twig ??= new Environment(new ArrayLoader(['@Aurora/pwa-sw.js.twig' => (string)$serviceWorkerTemplate]));
+
+        return new AuroraPWA($parameterBag, $twig, $git);
     }
 }

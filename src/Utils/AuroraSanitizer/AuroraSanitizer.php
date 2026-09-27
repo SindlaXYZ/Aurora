@@ -119,9 +119,15 @@ class AuroraSanitizer
             "$1>",
             "=$1"];
 
-        $Html = preg_replace($Search, $Replace, $protected);
+        $minified = preg_replace($Search, $Replace, $protected);
 
-        return preg_replace_callback('/<' . $token . '(\d+)>/', fn(array $matches): string => $preserved[(int)$matches[1]], $Html);
+        if (null === $minified) {
+            // PCRE failure, e.g. the backtrack limit of the "<!-- ... -->" pattern on a large page with an unclosed comment: the
+            // null result used to become an empty page
+            return $Html;
+        }
+
+        return preg_replace_callback('/<' . $token . '(\d+)>/', fn(array $matches): string => $preserved[(int)$matches[1]], $minified) ?? $Html;
     }
 
     // HTML Minifier

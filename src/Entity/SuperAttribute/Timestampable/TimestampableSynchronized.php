@@ -21,7 +21,8 @@ trait TimestampableSynchronized
 
     public function setSynchronizedAt(?DateTimeInterface $synchronizedAt): self
     {
-        $this->synchronizedAt = $synchronizedAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->synchronizedAt = $synchronizedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($synchronizedAt) : $synchronizedAt;
         return $this;
     }
 
