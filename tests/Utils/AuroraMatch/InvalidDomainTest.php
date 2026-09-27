@@ -42,6 +42,26 @@ class InvalidDomainTest extends TestCase
         ];
     }
 
+    #[DataProvider('dataBackslashesEndTheHostLikeInBrowsers')]
+    public function testBackslashesEndTheHostLikeInBrowsers(string $needle, bool $expected): void
+    {
+        // parse_url() used to read "example.com" as the host of "https://evil.com\@example.com/" (a browser opens "evil.com")
+        $this->assertSame($expected, new AuroraMatch()->matchDomain($needle, 'example.com'));
+    }
+
+    public static function dataBackslashesEndTheHostLikeInBrowsers(): array
+    {
+        return [
+            'backslash before the at sign'       => ['https://evil.com\\@example.com/', false],
+            'two backslashes before the at sign' => ['https://evil.com\\\\@example.com/', false],
+            'protocol relative'                  => ['//evil.com\\@example.com', false],
+            'without scheme'                     => ['evil.com\\@example.com', false],
+            'backslashes after the scheme'       => ['https:\\\\evil.com\\@example.com', false],
+            'backslash in the path'              => ['https://www.example.com\\path\\@evil.com', true],
+            'user info'                          => ['https://user@example.com/', true],
+        ];
+    }
+
     public function testIpAddressMatchesOnlyItself(): void
     {
         $matcher = new AuroraMatch();

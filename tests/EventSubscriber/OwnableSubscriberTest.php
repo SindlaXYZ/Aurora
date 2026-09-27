@@ -33,6 +33,42 @@ class OwnableSubscriberTest extends TestCase
         $this->assertSame($user, $entity->updatedBy);
     }
 
+    public function testWithoutTokenTheOwnerFieldsAreKept(): void
+    {
+        $owner  = new InMemoryUser('owner', null);
+        $entity = new OwnableEntityMock();
+        $entity->setOwner($owner)->setCreatedBy($owner)->setUpdatedBy($owner);
+
+        $subscriber = new OwnableSubscriber(new TokenStorage());
+        $args       = new LifecycleEventArgs($entity, $this->createStub(ObjectManager::class));
+
+        // Console commands, Messenger workers, fixtures: the explicit values used to be overwritten with null
+        $subscriber->prePersist($args);
+        $subscriber->preUpdate($args);
+
+        $this->assertSame($owner, $entity->owner);
+        $this->assertSame($owner, $entity->createdBy);
+        $this->assertSame($owner, $entity->updatedBy);
+    }
+
+    public function testPrePersistKeepsAnExplicitOwnerAndCreator(): void
+    {
+        $admin        = new InMemoryUser('admin', null, ['ROLE_ADMIN']);
+        $customer     = new InMemoryUser('customer', null);
+        $tokenStorage = new TokenStorage();
+        $tokenStorage->setToken(new UsernamePasswordToken($admin, 'main', $admin->getRoles()));
+
+        // An admin creates a resource for a customer
+        $entity = new OwnableEntityMock();
+        $entity->setOwner($customer);
+
+        new OwnableSubscriber($tokenStorage)->prePersist(new LifecycleEventArgs($entity, $this->createStub(ObjectManager::class)));
+
+        $this->assertSame($customer, $entity->owner);
+        $this->assertSame($admin, $entity->createdBy);
+        $this->assertSame($admin, $entity->updatedBy);
+    }
+
     public function testPreUpdateWithoutTokenSetsNoUser(): void
     {
         $entity = new OwnableEntityMock();
@@ -48,6 +84,16 @@ class OwnableEntityMock
     public ?UserInterface $owner     = null;
     public ?UserInterface $createdBy = null;
     public ?UserInterface $updatedBy = null;
+
+    public function getOwner(): ?UserInterface
+    {
+        return $this->owner;
+    }
+
+    public function getCreatedBy(): ?UserInterface
+    {
+        return $this->createdBy;
+    }
 
     public function setOwner(?UserInterface $owner): self
     {

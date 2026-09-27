@@ -85,9 +85,24 @@ class AuroraSanitizer
 
     public function minifyHTML($Html)
     {
+        // <script>, <pre> and <textarea> are whitespace sensitive and are kept as they are: joining the lines turned a JavaScript
+        // "// comment" into a comment of the whole rest of the script, and changed the text displayed (and submitted) by <pre>/<textarea>
+        $preserved = [];
+        $token     = 'AURORA' . bin2hex(random_bytes(8)) . 'BLOCK';
+        $protected = preg_replace_callback('#<(script|pre|textarea)\b[^>]*>.*?</\1\s*>#is', function (array $matches) use (&$preserved, $token): string {
+            $preserved[] = $matches[0];
+
+            // Tag-like placeholder, so the whitespace around it is still handled like the whitespace around the original tag
+            return '<' . $token . (count($preserved) - 1) . '>';
+        }, (string)$Html);
+
+        if (null === $protected) {
+            // PCRE failure (e.g. backtrack limit): better not minified than broken
+            return $Html;
+        }
+
         $Search = [
             '/(\n|^)(\x20+|\t)/',
-            '/(\n|^)\/\/(.*?)(\n|$)/',
             '/\n/',
             '/\<\!--.*?-->/',
             '/(\x20+|\t)/', # Delete multispace (Without \n)
@@ -97,7 +112,6 @@ class AuroraSanitizer
 
         $Replace = [
             "\n",
-            "\n",
             " ",
             "",
             " ",
@@ -105,8 +119,9 @@ class AuroraSanitizer
             "$1>",
             "=$1"];
 
-        $Html = preg_replace($Search, $Replace, $Html);
-        return $Html;
+        $Html = preg_replace($Search, $Replace, $protected);
+
+        return preg_replace_callback('/<' . $token . '(\d+)>/', fn(array $matches): string => $preserved[(int)$matches[1]], $Html);
     }
 
     // HTML Minifier

@@ -102,6 +102,39 @@ CSS;
         self::assertStringContainsString('<style>css:.foo { color: red; }</style>', $result);
         self::assertStringContainsString('<script>js:console.log("x");</script>', $result);
     }
+
+    public function testMinifyHtmlCollapsesTheWhitespaceBetweenTags(): void
+    {
+        $html = "<div>\n    <p>Aurora   bundle</p>\n    <!-- comment -->\n    <a  href=\"/x\" >x</a>\n</div>";
+
+        self::assertSame('<div><p>Aurora bundle</p><a href="/x">x</a></div>', new AuroraSanitizer()->minifyHTML($html));
+    }
+
+    /**
+     * Joining the lines used to turn a "// comment" into a comment of the whole rest of the inline script
+     * (every second consecutive "//" line and every trailing "//" comment were left in place)
+     */
+    public function testMinifyHtmlKeepsInlineScriptsWorking(): void
+    {
+        $script = "<script>\n    // first comment\n    // second comment\n    foo();\n    var a = 1; // trailing comment\n    bar();\n</script>";
+
+        $result = new AuroraSanitizer()->minifyHTML("<body>\n    <p>Aurora</p>\n    {$script}\n</body>");
+
+        self::assertSame("<body><p>Aurora</p>{$script}</body>", $result);
+    }
+
+    /**
+     * The text displayed by <pre> and the value submitted by <textarea> used to lose their new lines and spaces
+     */
+    public function testMinifyHtmlKeepsPreformattedTextAndTextareaValues(): void
+    {
+        $pre      = "<pre class=\"code\">line 1\n    line 2</pre>";
+        $textarea = "<TEXTAREA name=\"message\">Hello,\n\n  World</TEXTAREA>";
+
+        $result = new AuroraSanitizer()->minifyHTML("<div>\n    {$pre}\n    {$textarea}\n</div>");
+
+        self::assertSame("<div>{$pre}{$textarea}</div>", $result);
+    }
 }
 
 }

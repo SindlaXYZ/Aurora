@@ -7,6 +7,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraMonolog;
 use DateTimeImmutable;
 use Monolog\Level;
 use Monolog\LogRecord;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraMonolog\HtmlFormatter;
 
@@ -93,6 +94,30 @@ class HtmlFormatterTest extends TestCase
         $this->assertSame(2, substr_count($batchHtml, '<table cellspacing="1" width="100%" class="monolog-output">'));
         $this->assertStringContainsString('First message', $batchHtml);
         $this->assertStringContainsString('Second message', $batchHtml);
+    }
+
+    /**
+     * The colors used to be keyed by the Symfony\Bridge\Monolog\Logger constants, removed in Symfony 8:
+     * the formatter could not even be instantiated (Class "Symfony\Bridge\Monolog\Logger" not found)
+     */
+    #[DataProvider('levelColorProvider')]
+    public function testAddTitleUsesTheColorOfEveryMonologLevel(Level $level, string $color): void
+    {
+        $formatter = new TestableHtmlFormatter();
+
+        $this->assertStringContainsString("background: {$color};", $formatter->callAddTitle($level->getName(), $level->value));
+    }
+
+    public static function levelColorProvider(): iterable
+    {
+        yield 'debug' => [Level::Debug, '#cccccc'];
+        yield 'info' => [Level::Info, '#468847'];
+        yield 'notice' => [Level::Notice, '#3a87ad'];
+        yield 'warning' => [Level::Warning, '#c09853'];
+        yield 'error' => [Level::Error, '#f0ad4e'];
+        yield 'critical' => [Level::Critical, '#FF7708'];
+        yield 'alert' => [Level::Alert, '#C12A19'];
+        yield 'emergency' => [Level::Emergency, '#000000'];
     }
 
     public function testConvertToStringNormalizesStructuredData(): void

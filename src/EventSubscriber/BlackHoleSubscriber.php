@@ -17,8 +17,16 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
 {
     /**
      * Request headers that carry credentials and must never be forwarded to the BlackHole API
+     *
+     * "php-auth-user", "php-auth-pw" and "php-auth-digest" are added by Symfony (ServerBag::getHeaders()) for HTTP Basic/Digest
+     * authentication: "php-auth-pw" is the plain text password
      */
-    private const array SENSITIVE_HEADERS = ['authorization', 'cookie', 'proxy-authorization'];
+    private const array SENSITIVE_HEADERS = ['authorization', 'cookie', 'proxy-authorization', 'php-auth-user', 'php-auth-pw', 'php-auth-digest'];
+
+    /**
+     * Any other header whose name looks like it carries a credential (X-Api-Key, X-Auth-Token, X-CSRF-Token, X-Session-Id, ...)
+     */
+    private const string SENSITIVE_HEADER_PATTERN = '/auth|token|secret|passw|api[-_]?key|session|csrf|xsrf|cookie|signature/i';
 
     public function __construct(
         private AuroraIP            $auroraIP,
@@ -67,7 +75,7 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                             'serverIP'  => $request->server->get('SERVER_ADDR'),
                             'clientIP'  => $this->auroraIP->ip($event->getRequest()),
                             'userAgent' => $request->headers->get('User-Agent'),
-                            'headers'   => array_diff_key($request->headers->all(), array_flip(self::SENSITIVE_HEADERS)),
+                            'headers'   => $this->forwardableHeaders($request->headers->all()),
                         ];
 
                         $response = $this->httpClient->request(
@@ -100,5 +108,19 @@ readonly class BlackHoleSubscriber implements EventSubscriberInterface
                 }
             }
         }
+    }
+
+    /**
+     * @param array<string, list<string|null>> $headers
+     *
+     * @return array<string, list<string|null>>
+     */
+    private function forwardableHeaders(array $headers): array
+    {
+        return array_filter(
+            array_diff_key($headers, array_flip(self::SENSITIVE_HEADERS)),
+            static fn(string $name): bool => !preg_match(self::SENSITIVE_HEADER_PATTERN, $name),
+            ARRAY_FILTER_USE_KEY
+        );
     }
 }

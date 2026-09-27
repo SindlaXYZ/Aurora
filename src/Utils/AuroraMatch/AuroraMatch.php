@@ -6,6 +6,10 @@ class AuroraMatch
 {
     public function matchDomain(string $needle, string $domain): bool
     {
+        // Browsers (WHATWG URL) treat "\" as "/" in http(s) URLs, parse_url() does not: "https://evil.com\@example.com/" is
+        // "evil.com" for a browser, but parse_url() reads the host "example.com" (with the user "evil.com\")
+        $needle = str_replace('\\', '/', $needle);
+
         $parsedNeedle = parse_url($needle);
         if (false !== $parsedNeedle) {
             if (isset($parsedNeedle['host'])) {

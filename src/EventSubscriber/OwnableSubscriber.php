@@ -48,16 +48,21 @@ class OwnableSubscriber implements EventSubscriberInterface
         /** @var Ownable $entity */
         $entity = $args->getObject();
 
-        if (method_exists($entity, 'setOwner')) {
-            $entity->setOwner($this->getUser());
+        // Without a user (console commands, Messenger workers, fixtures) the owner, created_by and updated_by that were set
+        // explicitly used to be overwritten with null
+        if (!($user = $this->getUser()) instanceof UserInterface) {
+            return;
         }
 
-        if (method_exists($entity, 'setCreatedBy')) {
-            $entity->setCreatedBy($this->getUser());
+        // An owner / a creator set explicitly (e.g. an admin creating a resource for another user) is kept
+        foreach (['Owner', 'CreatedBy'] as $property) {
+            if (method_exists($entity, "set{$property}") && !$this->isSet($entity, $property)) {
+                $entity->{"set{$property}"}($user);
+            }
         }
 
         if (method_exists($entity, 'setUpdatedBy')) {
-            $entity->setUpdatedBy($this->getUser());
+            $entity->setUpdatedBy($user);
         }
     }
 
@@ -71,8 +76,22 @@ class OwnableSubscriber implements EventSubscriberInterface
         /** @var Ownable $entity */
         $entity = $args->getObject();
 
-        if (method_exists($entity, 'setUpdatedBy')) {
-            $entity->setUpdatedBy($this->getUser());
+        if (method_exists($entity, 'setUpdatedBy') && ($user = $this->getUser()) instanceof UserInterface) {
+            $entity->setUpdatedBy($user);
+        }
+    }
+
+    private function isSet(object $entity, string $property): bool
+    {
+        if (!method_exists($entity, "get{$property}")) {
+            return false;
+        }
+
+        try {
+            return null !== $entity->{"get{$property}"}();
+        } catch (\Error) {
+            // A typed property that is not initialized yet
+            return false;
         }
     }
 

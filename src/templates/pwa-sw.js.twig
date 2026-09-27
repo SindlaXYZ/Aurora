@@ -15,7 +15,8 @@ PRECACHE_URLS = [
 ];
 #}
 
-PRECACHE_URLS = [{{ precache|raw }}];
+{# JSON arrays, see AuroraPWA::serviceWorkerJS() #}
+PRECACHE_URLS = {{ precache|raw }};
 
 {# Installing - the rest below handles the installing and caching #}
 self.addEventListener('install', event => {
@@ -60,7 +61,7 @@ self.addEventListener('fetch', event => {
 
     {# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #}
 
-    var preventCacheHeaderRequestAccept = [{{ prevent_cache_header_request_accept|raw }}];
+    var preventCacheHeaderRequestAccept = {{ prevent_cache_header_request_accept|raw }};
 
     {# https://developer.mozilla.org/en-US/docs/Web/API/Cache/match #}
     for (var k = 0; k < preventCacheHeaderRequestAccept.length; k++) {
@@ -73,7 +74,7 @@ self.addEventListener('fetch', event => {
     {# ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ #}
 
     {# ['/ajax-requests', '/q', '/xhr', ..] #}
-    var startsWith = [{{ prevent_cache|raw }}];
+    var startsWith = {{ prevent_cache|raw }};
 
     for (var i = 0; i < startsWith.length; i++) {
         if (event.request.url.startsWith(self.location.origin) && event.request.url.match(startsWith[i])) {
@@ -82,8 +83,8 @@ self.addEventListener('fetch', event => {
         }
     }
 
-    {# [/fonts.gstatic.com/, /fonts.googleapis.com/]; #}
-    var externalCache = [{{ external_cache|raw }}];
+    {# ['fonts.gstatic.com', 'fonts.googleapis.com'] (patterns, see matchInArray()) #}
+    var externalCache = {{ external_cache|raw }};
 
     var sameOrigin = event.request.url.startsWith(self.location.origin);
 
@@ -121,8 +122,8 @@ self.addEventListener('fetch', event => {
                 return response;
             } catch (err) {
                 {# https://web.dev/learn/pwa/caching/#generic_fallback #}
-                {# In case of a network error, return the precached offline page when present. #}
-                const offlineResponse = await caches.match('{{ path('aurora_pwa_offline')|raw }}');
+                {# In case of a network error, return the precached offline page ("aurora.pwa.offline") when present. #}
+                const offlineResponse = await caches.match({{ offline|json_encode(constant('JSON_UNESCAPED_SLASHES'))|raw }});
                 if (offlineResponse) {
                     return offlineResponse;
                 }

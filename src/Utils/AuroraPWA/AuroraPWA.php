@@ -46,7 +46,8 @@ class AuroraPWA
     {
         $cache = $this->createCacheAdapter();
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
+        // The manifest depends on the host (multi-domain apps, AuroraService hooks): one host used to get the manifest of another host
+        return $cache->get($this->cacheKey(__METHOD__, $request->getHost(), $request->getPathInfo()), function (ItemInterface $item) use ($request) {
 
             $appName        = $this->parameter('aurora.pwa.app_name');
             $appShortName   = $this->parameter('aurora.pwa.app_short_name');
@@ -134,7 +135,7 @@ class AuroraPWA
     {
         $cache = $this->createCacheAdapter();
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) {
+        return $cache->get($this->cacheKey(__METHOD__, $request->getPathInfo()), function (ItemInterface $item) {
             $encoder       = new XmlEncoder();
             $browserConfig = [
                 'msapplication' => [
@@ -240,14 +241,18 @@ class AuroraPWA
             return new Response('', Response::HTTP_NOT_FOUND, ['Content-Type' => 'text/javascript']);
         }
 
+        // JSON arrays (of strings): an empty list used to produce broken JavaScript ("[//]" comments out the rest of the line) or
+        // "['']", a pattern that matches every URL; the values were not escaped either
+        $precache = array_merge([$this->parameter('aurora.pwa.start_url'), $this->parameter('aurora.pwa.offline')], $this->parameter('aurora.pwa.precache', []));
+
         $rendered = $this->twig->render('@Aurora/pwa-sw.js.twig', [
             'pwaDebug'                            => filter_var($this->parameter('aurora.pwa.debug', false), FILTER_VALIDATE_BOOLEAN),
             'pwaVersion'                          => $this->version($request),
             'hostName'                            => $request->getHost(),
-            'precache'                            => "'" . implode("', '", array_unique(array_merge([$this->parameter('aurora.pwa.start_url'), $this->parameter('aurora.pwa.offline')], $this->parameter('aurora.pwa.precache')))) . "'",
-            'prevent_cache'                       => "'" . implode("', '", $this->parameter('aurora.pwa.prevent_cache')) . "'",
-            'prevent_cache_header_request_accept' => "'" . implode("', '", $this->parameter('aurora.pwa.prevent_cache_header_request_accept', [])) . "'",
-            'external_cache'                      => "/" . implode("/, /", $this->parameter('aurora.pwa.external_cache')) . "/",
+            'precache'                            => $this->jsonStringList($precache),
+            'prevent_cache'                       => $this->jsonStringList($this->parameter('aurora.pwa.prevent_cache', [])),
+            'prevent_cache_header_request_accept' => $this->jsonStringList($this->parameter('aurora.pwa.prevent_cache_header_request_accept', [])),
+            'external_cache'                      => $this->jsonStringList($this->parameter('aurora.pwa.external_cache', [])),
             'offline'                             => $this->parameter('aurora.pwa.offline')
         ]);
 
@@ -343,8 +348,9 @@ class AuroraPWA
     {
         $cache = $this->createCacheAdapter();
 
-        return $cache->get(sha1(__NAMESPACE__ . __CLASS__ . __METHOD__ . __LINE__ . sha1($request->getRequestUri())), function (ItemInterface $item) use ($request) {
-            $iconPath = $this->parameter('aurora.pwa.icons') . $request->getRequestUri();
+        return $cache->get($this->cacheKey(__METHOD__, $request->getPathInfo()), function (ItemInterface $item) use ($request) {
+            // The path: the request URI contains the query string ("/favicon.ico?v=2" was not found)
+            $iconPath = $this->parameter('aurora.pwa.icons') . $request->getPathInfo();
 
             if (!file_exists($iconPath)) {
                 preg_match('/(\d+)x(\d+)/i', $request->getPathInfo(), $matches);
@@ -382,13 +388,34 @@ class AuroraPWA
         return $response;
     }
 
+    /**
+     * JSON array of the unique, non-empty strings of the list
+     */
+    private function jsonStringList(mixed $values): string
+    {
+        $strings = array_filter(array_map('strval', is_array($values) ? $values : []), static fn(string $value): bool => '' !== $value);
+
+        return json_encode(array_values(array_unique($strings)), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
+    }
+
+    /**
+     * Built from the path, never from the request URI: every random query string used to create a new cache entry
+     */
+    private function cacheKey(string $method, string ...$parts): string
+    {
+        return sha1(__CLASS__ . $method . "\n" . implode("\n", $parts));
+    }
+
     private function createCacheAdapter(): AdapterInterface
     {
         $defaultLifetime = 'prod' == $this->parameter('kernel.environment') ? (60 * 60 * 24) : 1;
 
+        // APCu is shared by all the applications of the PHP (FPM) server: one namespace per application
+        $namespace = substr(sha1(__CLASS__ . (string)$this->parameter('kernel.project_dir', '')), 0, 16);
+
         if (ApcuAdapter::isSupported()) {
             try {
-                return new ApcuAdapter('', $defaultLifetime);
+                return new ApcuAdapter($namespace, $defaultLifetime);
             } catch (CacheException) {
                 // APCu support declared itself unavailable, fall back to an in-memory cache.
             }

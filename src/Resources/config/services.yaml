@@ -27,6 +27,11 @@ services:
         tags:
             - { name: doctrine.event_listener, event: loadClassMetadata }
 
+    # Runs the #[ORM\PrePersist] / #[ORM\PreUpdate] callbacks of the Aurora entity traits (e.g. TimestampableCreated)
+    Sindla\Bundle\AuroraBundle\EventSubscriber\TraitLifecycleCallbacksSubscriber:
+        tags:
+            - { name: doctrine.event_listener, event: loadClassMetadata }
+
     ###################################################################################################################
     ###  Aurora Controller ############################################################################################
 
@@ -61,11 +66,11 @@ services:
     ###################################################################################################################
     ###  Aurora Commands  #############################################################################################
 
-#    aurora.command.cloudlare.r2:
-#        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
-#        arguments: ['@aurora.cloudflare.r2']
-#        tags:
-#            - { name: console.command }
+    aurora.command.cloudflare.r2:
+        class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+        arguments: ['@aurora.cloudflare.r2']
+        tags:
+            - { name: console.command }
 
     # Register TestCommand (see the class file for the command name)
     aurora.command.test:
@@ -111,125 +116,85 @@ services:
     ###################################################################################################################
     ###  Aurora Twig  #################################################################################################
 
-#    aurora.twig.utility:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension
-#        tags:
-#            - { name: twig.extension }
-#        arguments: ['@service_container', "@request_stack", "@twig"]
-#        autowire: true
-#        autoconfigure: true
-#        public: true
+    # Used by the README Twig global (aurora: '@aurora.twig.utility') and by the OutputSubscriber
+    aurora.twig.utility:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension
+        arguments: ['@service_container', '@request_stack', '@twig', '@aurora.helper']
+        tags:
+            - { name: twig.extension }
+        public: true
 
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
+    # Public: they are fetched from the container by id (PWAController, ComposerCommand, UtilityExtension, host apps)
 
-#    aurora.array:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.calendar:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.chronos:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.client:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
-#        arguments: ['@service_container']
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.cookies.extractor:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.ip:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.match:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.calculus:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\AuroraCalculus
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.diacritics:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraDiacritics\AuroraDiacritics
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.git:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit
-#        # ParameterBagInterface is autowired.
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.helper:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.io:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    #   DEPRECATED
-#    #    aurora.params:
-#    #        class: Sindla\Bundle\AuroraBundle\Utils\Params\Params
-#    #        arguments: ['@service_container']
-#    #        autowire: true
-#    #        autoconfigure: true
-#    #        public: true
-#
-#    aurora.pwa:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA
-#        # ParameterBagInterface, Twig and the "aurora.git" service (via #[Autowire]) are autowired.
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.sanitizer:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer
-#        arguments: ['@service_container']
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.strink:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink
-#        autowire: true
-#        autoconfigure: true
-#        public: true
-#
-#    aurora.cloudflare.r2:
-#        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2
-#        autowire: true
-#        autoconfigure: true
-#        public: true
+    aurora.array:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
+        public: true
+
+    aurora.calendar:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar
+        public: true
+
+    aurora.chronos:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos
+        public: true
+
+    aurora.client:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient
+        arguments: ['@service_container']
+        public: true
+
+    aurora.cookies.extractor:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor
+        public: true
+
+    aurora.ip:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP
+        public: true
+
+    aurora.match:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch
+        public: true
+
+    aurora.calculus:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\AuroraCalculus
+        public: true
+
+    aurora.diacritics:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraDiacritics\AuroraDiacritics
+        public: true
+
+    aurora.git:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit
+        # ParameterBagInterface is autowired.
+        public: true
+
+    aurora.helper:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper
+        public: true
+
+    aurora.io:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO
+        public: true
+
+    aurora.pwa:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA
+        # ParameterBagInterface, Twig and the "aurora.git" service (via #[Autowire]) are autowired.
+        public: true
+
+    aurora.sanitizer:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer
+        public: true
+
+    aurora.strink:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink
+        shared: false # stateful fluent builder: a new instance every time
+        public: true
+
+    aurora.cloudflare.r2:
+        class: Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2
+        public: true
 
     ###################################################################################################################
     ###################################################################################################################
