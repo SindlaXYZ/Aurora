@@ -11,6 +11,13 @@ class AuroraMatch
         $needle = str_replace('\\', '/', $needle);
 
         $parsedNeedle = parse_url($needle);
+
+        // Only web URLs: "javascript://example.com/%0aalert(1)" (also "data://", "vbscript://", ...) used to match "example.com", so a
+        // link or a redirect allowed by this check ran a script
+        if (false !== $parsedNeedle && isset($parsedNeedle['scheme'], $parsedNeedle['host']) && !in_array(strtolower($parsedNeedle['scheme']), ['http', 'https'], true)) {
+            return false;
+        }
+
         if (false !== $parsedNeedle) {
             if (isset($parsedNeedle['host'])) {
                 $needle = $parsedNeedle['host'];

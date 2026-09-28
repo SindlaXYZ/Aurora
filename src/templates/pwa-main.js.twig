@@ -30,8 +30,16 @@ if ('serviceWorker' in navigator) {
     {# NOTE: "controllerchange" is an event on navigator.serviceWorker - NOT a property on the #}
     {# registration. The previous "registration.controllerchange = ..." assignment never fired, #}
     {# so the page was never reloaded automatically after an update. #}
+    {# Only an update replaces a controller: on the first visit, the new worker takes control of the page (clients.claim()) and the #}
+    {# page of every first-time visitor used to be reloaded a few seconds after it was loaded (losing what was typed in a form). #}
     let refreshing = false;
+    let hasController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (!hasController) {
+            hasController = true;
+            {% if _debug %}console.log('controllerchange fired for the first worker, not reloading.');{% endif %}
+            return;
+        }
         if (refreshing) {
             return;
         }
@@ -175,7 +183,7 @@ if ('serviceWorker' in navigator) {
         const message = document.createElement('p');
         message.textContent = '{{ translations.notificationNewVersion }}';
 
-        {# Butonul de reîncărcare #}
+        {# The reload button #}
         const refreshButton = document.createElement('button');
         refreshButton.textContent = '{{ translations.notificationReload }}';
         refreshButton.style.marginTop = '15px';

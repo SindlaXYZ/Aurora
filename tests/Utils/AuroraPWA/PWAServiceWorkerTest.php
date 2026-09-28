@@ -80,6 +80,38 @@ class PWAServiceWorkerTest extends TestCase
         }
     }
 
+    #[DataProvider('dataEnvironments')]
+    public function testServiceWorkerAnswersOnlyTheFailedNavigationsWithTheOfflinePage(string $environment): void
+    {
+        $serviceWorker = $this->createPWA(['kernel.environment' => $environment], null, $this->createBundleTwig())
+            ->serviceWorkerJS(Request::create('/pwa-sw.js'))
+            ->getContent();
+
+        // A PUT / PATCH / DELETE made offline (only POST was excluded) used to get the offline page, status 200: the application
+        // believed the change was saved
+        $this->assertMatchesRegularExpression('/if\s*\(\s*[\'"]GET[\'"]\s*!==\s*event\.request\.method\s*\)\s*\{\s*return\s*(false|!1)?;?\s*\}/', $serviceWorker);
+        $this->assertStringNotContainsString('POST', $serviceWorker);
+
+        // An image, a script or a fetch() used to get the offline page (HTML, status 200) instead of an error
+        $this->assertMatchesRegularExpression('/catch\s*\(\s*err\s*\)\s*\{\s*if\s*\(\s*!isNavigation\s*\)\s*\{?\s*return\s+Response\.error\(\)/', $serviceWorker);
+    }
+
+    #[DataProvider('dataEnvironments')]
+    public function testMainScriptDoesNotReloadThePageOfAFirstTimeVisitor(string $environment): void
+    {
+        $mainJs = $this->createPWA(['kernel.environment' => $environment], null, $this->createBundleTwig())
+            ->mainJS(Request::create('/pwa-main.js'))
+            ->getContent();
+
+        // The first worker takes control of the page (clients.claim()): the page of every first-time visitor used to be reloaded
+        $this->assertMatchesRegularExpression('/let\s+hasController\s*=\s*!!navigator\.serviceWorker\.controller/', $mainJs);
+        $this->assertMatchesRegularExpression(
+            '/[\'"]controllerchange[\'"]\s*,\s*function\s*\(\)\s*\{\s*if\s*\(\s*!hasController\s*\)\s*\{\s*hasController\s*=\s*(true|!0)\s*;?\s*return\s*;?\s*\}/',
+            $mainJs
+        );
+        $this->assertLessThan(strpos($mainJs, 'window.location.reload()'), strpos($mainJs, '!hasController'));
+    }
+
     public static function dataEnvironments(): iterable
     {
         yield 'dev' => ['dev'];
@@ -101,6 +133,14 @@ class PWAServiceWorkerTest extends TestCase
             @unlink($iconsDirectory . '/favicon.ico');
             @rmdir($iconsDirectory);
         }
+    }
+
+    private function createBundleTwig(): Environment
+    {
+        $twig = new Environment(new FilesystemLoader());
+        $twig->getLoader()->addPath(dirname(__DIR__, 3) . '/src/templates', 'Aurora');
+
+        return $twig;
     }
 
     /**

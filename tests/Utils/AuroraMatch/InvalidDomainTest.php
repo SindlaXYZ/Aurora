@@ -62,6 +62,31 @@ class InvalidDomainTest extends TestCase
         ];
     }
 
+    /**
+     * "javascript://example.com/%0aalert(1)" used to match "example.com": a link or a redirect allowed by matchDomain() ran a script
+     */
+    #[DataProvider('dataOnlyWebUrlsMatch')]
+    public function testOnlyWebUrlsMatch(string $needle, bool $expected): void
+    {
+        $this->assertSame($expected, new AuroraMatch()->matchDomain($needle, 'example.com'));
+        $this->assertSame($expected, new AuroraMatch()->matchAtLeastOneDomain($needle, ['example.org', 'example.com']));
+    }
+
+    public static function dataOnlyWebUrlsMatch(): array
+    {
+        return [
+            'javascript'           => ['javascript://example.com/%0aalert(document.domain)', false],
+            'javascript uppercase' => ['JavaScript://www.example.com/%0Aalert(1)', false],
+            'data'                 => ['data://example.com/text/html,<script>alert(1)</script>', false],
+            'vbscript'             => ['vbscript://example.com/', false],
+            'file'                 => ['file://example.com/etc/passwd', false],
+            'http'                 => ['http://example.com/', true],
+            'https uppercase'      => ['HTTPS://WWW.EXAMPLE.COM/path', true],
+            'protocol relative'    => ['//example.com/path', true],
+            'without scheme'       => ['www.example.com/path', true],
+        ];
+    }
+
     public function testIpAddressMatchesOnlyItself(): void
     {
         $matcher = new AuroraMatch();

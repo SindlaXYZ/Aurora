@@ -10,13 +10,14 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 trait IdentifiableIntNonNullableStrategyCustom
 {
+    // Nullable: getId() on a new entity used to be an Error, the typed property "must not be accessed before initialization"
     #[ORM\Id]
     #[ORM\Column(type: Types::STRING, nullable: false)]
     #[ORM\GeneratedValue(strategy: 'CUSTOM')]
     #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
-    protected string $id;
+    protected ?string $id = null;
 
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }

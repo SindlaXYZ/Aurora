@@ -395,7 +395,7 @@ $this->em->flush();
 - **Container-aware migrations**: Use `MigrationFactoryDecorator` — see README for service configuration.
 - **MaxMind GeoIP2**: Databases are auto-downloaded by Composer hooks when `MAXMIND_LICENSE_KEY`, `SINDLA_AURORA_GEO_LITE2_COUNTRY`, `SINDLA_AURORA_GEO_LITE2_CITY`, `SINDLA_AURORA_GEO_LITE2_ASN` env vars are set.
 - **PWA**: Inject `{{ aurora.pwa(app.request) }}` inside `<head>` in Twig layout.
-- **HTML Minifier**: Register `OutputSubscriber` as a `kernel.event_listener` for `kernel.response`.
+- **HTML Minifier**: Register `OutputSubscriber` as an event subscriber (`kernel.event_subscriber`, or autoconfigure) — not also as a `kernel.event_listener`.
 - **Tests with stubs**: `tests/bootstrap.php` provides Monolog and Twig stubs for running tests without all dependencies installed — allows standalone unit testing of utilities.
 - **AuroraStrink**: Fluent string builder — chain methods, call `->get()` or cast to string for the result.
 - **AuroraCryptor**: AES-128-CTR by default; configure via `->setCipher()` before `->encrypt()` / `->decrypt()`.

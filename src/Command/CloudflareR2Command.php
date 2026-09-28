@@ -217,12 +217,31 @@ final class CloudflareR2Command extends CommandMiddleware
             throw new \Exception('Please provide a local file name!');
         }
 
-        $s3Client = $this->cloudflareR2->createClient();
-        $s3Client->getObject([
-            'Bucket' => $this->cloudflareR2->getBucket(),
-            'Key'    => $remoteFile,
-            'SaveAs' => $localFile,
-        ]);
+        // Downloaded next to the local file, then renamed: "SaveAs" wrote the error body of a failed request (e.g. the 404 of a typo in
+        // "--remoteFile") or the part of an interrupted download over the local file, e.g. the database dump about to be imported
+        $partialFile = sprintf('%s.%s.download', $localFile, bin2hex(random_bytes(4)));
+
+        try {
+            $s3Client = $this->cloudflareR2->createClient();
+            $s3Client->getObject([
+                'Bucket' => $this->cloudflareR2->getBucket(),
+                'Key'    => $remoteFile,
+                'SaveAs' => $partialFile,
+            ]);
+
+            // The permissions of the replaced file are kept (e.g. a private database dump)
+            if (is_file($localFile) && false !== ($permissions = fileperms($localFile))) {
+                chmod($partialFile, $permissions & 0777);
+            }
+
+            if (!rename($partialFile, $localFile)) {
+                throw new \RuntimeException(sprintf('Cannot write the file "%s".', $localFile));
+            }
+        } finally {
+            if (is_file($partialFile)) {
+                unlink($partialFile);
+            }
+        }
 
         return self::SUCCESS;
     }

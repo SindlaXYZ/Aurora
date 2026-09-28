@@ -49,8 +49,10 @@ self.addEventListener('fetch', event => {
     console.log(event.request.url);
     {% endif %}
 
-    if (event.request.method === 'POST') {
-        {% if _debug %}console.log('Prevent caching: POST request');{% endif %}
+    {# Only the GET requests are handled: a PUT, PATCH or DELETE made offline (only POST was excluded) used to get the offline page, #}
+    {# status 200, so the application believed the change was saved. #}
+    if ('GET' !== event.request.method) {
+        {% if _debug %}console.log('Prevent caching: ' + event.request.method + ' request');{% endif %}
         return false;
     }
 
@@ -122,13 +124,16 @@ self.addEventListener('fetch', event => {
 
                 return response;
             } catch (err) {
-                if (isNavigation) {
-                    {# Only a page that may be reused: the precached pages (the start URL, "aurora.pwa.precache") are stored #}
-                    {# whatever their Cache-Control, e.g. the page of the user signed in when the service worker was installed. #}
-                    const cachedPage = await caches.match(event.request);
-                    if (cachedPage && mayBeReused(cachedPage)) {
-                        return cachedPage;
-                    }
+                {# The offline page is a page: an image, a script or a fetch() used to get it (HTML, status 200) instead of an error. #}
+                if (!isNavigation) {
+                    return Response.error();
+                }
+
+                {# Only a page that may be reused: the precached pages (the start URL, "aurora.pwa.precache") are stored #}
+                {# whatever their Cache-Control, e.g. the page of the user signed in when the service worker was installed. #}
+                const cachedPage = await caches.match(event.request);
+                if (cachedPage && mayBeReused(cachedPage)) {
+                    return cachedPage;
                 }
 
                 {# https://web.dev/learn/pwa/caching/#generic_fallback #}

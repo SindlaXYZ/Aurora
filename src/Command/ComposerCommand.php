@@ -275,20 +275,14 @@ final class ComposerCommand extends Command
             return;
         }
 
-        $tempDir             = (true ? sys_get_temp_dir() : $this->container->getParameter('aurora.tmp')) . '/' . date('Y-m-d Hi') . '_' . microtime(true);
-        $maxmindDir          = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
-        $maxmindLicenseKey   = trim((string)$this->container->getParameter('aurora.maxmind.license_key'));
-        $destinationFile     = "{$maxmindDir}/GeoLite2{$type}.mmdb";
-        $originalFileContent = file_exists($destinationFile) ? file_get_contents($destinationFile) : null;
+        $maxmindDir        = $this->container->getParameter('aurora.resources') . '/maxmind-geoip2';
+        $maxmindLicenseKey = trim((string)$this->container->getParameter('aurora.maxmind.license_key'));
+        $destinationFile   = "{$maxmindDir}/GeoLite2{$type}.mmdb";
 
         if (empty($maxmindLicenseKey)) {
             $this->io->error("[AURORA] Maxmind license key is not set.");
             $this->io->error("[AURORA] Check `MAXMIND_LICENSE_KEY=` inside .env file.");
             return;
-        }
-
-        if (!is_dir($tempDir) && !mkdir($tempDir, 0777, true)) {
-            throw new \RuntimeException(sprintf('[AURORA] Cannot create temporary dir "%s".', $tempDir));
         }
 
         if (!is_dir($maxmindDir)) {
@@ -333,52 +327,85 @@ final class ComposerCommand extends Command
             return;
         }
 
-        $tmpTar   = "{$tempDir}/GeoLite2-{$type}.tar";
-        $tmpTarGz = "{$tmpTar}.gz";
+        // A new directory for every download, always deleted: every run used to leave one (with the archive, the tar and the database) in
+        // the system temp dir, even when the update was skipped
+        $tempDir = sys_get_temp_dir() . '/aurora-geoip2-' . bin2hex(random_bytes(8));
 
-        if (file_exists($tmpTar)) {
-            unlink($tmpTar);
+        if (!mkdir($tempDir, 0700, true)) {
+            throw new \RuntimeException(sprintf('[AURORA] Cannot create temporary dir "%s".', $tempDir));
         }
 
-        if (file_exists($tmpTarGz)) {
-            unlink($tmpTarGz);
-        }
-
-        if (!file_put_contents($tmpTarGz, $tarGz)) {
-            if ($originalFileContent) {
-                file_put_contents($destinationFile, $originalFileContent);
-            }
-
-            $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
-
-            return;
-        }
-
-        // Decompress from gz; retry the whole download once when the archive is corrupted
         try {
-            $PharData = new \PharData($tmpTarGz);
-        } catch (\UnexpectedValueException|\BadMethodCallException $e) {
-            if ($retryOnPharError) {
-                $this->io->warning(sprintf('[AURORA] Could not read the .tar.gz file (%s); retrying once.', $e->getMessage()));
-                $this->_updateGeoIP2($type, false);
+            $tmpTarGz = "{$tempDir}/GeoLite2-{$type}.tar.gz";
+
+            if (!file_put_contents($tmpTarGz, $tarGz)) {
+                $this->io->error(sprintf('[AURORA] Cannot write %s file on disk.', $tmpTarGz));
 
                 return;
             }
 
-            throw new \Exception(sprintf('[AURORA] Could not read the .tar.gz file (%s).', $e->getMessage()), 0, $e);
-        }
+            // Decompress from gz; retry the whole download once when the archive is corrupted
+            try {
+                $PharData = new \PharData($tmpTarGz);
+            } catch (\UnexpectedValueException|\BadMethodCallException $e) {
+                if ($retryOnPharError) {
+                    $this->io->warning(sprintf('[AURORA] Could not read the .tar.gz file (%s); retrying once.', $e->getMessage()));
+                    $this->_updateGeoIP2($type, false);
 
-        $PharData->decompress();
+                    return;
+                }
 
-        // unarchive from the tar
-        $phar = new \PharData(glob($tempDir . "/*.tar")[0]);
-        $phar->extractTo($tempDir);
+                throw new \Exception(sprintf('[AURORA] Could not read the .tar.gz file (%s).', $e->getMessage()), 0, $e);
+            }
 
-        if (!copy(glob($tempDir . "/*/*.mmdb")[0], $destinationFile)) {
-            throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
+            $this->installGeoIP2Database($PharData, $tempDir, $destinationFile);
+        } finally {
+            new AuroraIO()->recursiveDelete($tempDir);
         }
 
         $this->io->comment(sprintf('%s ... done;', $this->p()));
+    }
+
+    /**
+     * Extract the database of the downloaded archive (inside $tempDir) and replace the live one atomically: copy() used to overwrite the
+     * live file in place, so the running PHP workers read a half-written database (a corrupt database error, a SIGBUS with libmaxminddb)
+     */
+    private function installGeoIP2Database(\PharData $archive, string $tempDir, string $destinationFile): void
+    {
+        $archive->extractTo($tempDir);
+
+        if (!$databases = glob($tempDir . '/*/*.mmdb') ?: []) {
+            throw new \RuntimeException('[AURORA] The archive does not contain a .mmdb file.');
+        }
+
+        // Next to the live file (the same file system): rename() replaces it atomically
+        $partialFile = sprintf('%s.%s.tmp', $destinationFile, bin2hex(random_bytes(4)));
+
+        if (!copy($databases[0], $partialFile) || !rename($partialFile, $destinationFile)) {
+            if (is_file($partialFile)) {
+                unlink($partialFile);
+            }
+
+            throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
+        }
+    }
+
+    /**
+     * The directory "aurora.tmp", when its whole content can be deleted: a directory inside the "var/" directory of the project.
+     *
+     * "postUpdate" used to delete the content of "aurora.tmp" whatever it was: "" (e.g. an empty environment variable) is "/", and "/tmp"
+     * or the project directory lost all their files on every "composer update".
+     */
+    private function clearableTmpDir(): ?string
+    {
+        $tmpDir = trim((string)$this->container->getParameter('aurora.tmp'));
+
+        // realpath("") is the current directory
+        if ('' === $tmpDir || false === ($tmpDir = realpath($tmpDir)) || !is_dir($tmpDir) || false === ($varDir = realpath($this->kernelRootDir . '/var'))) {
+            return null;
+        }
+
+        return str_starts_with($tmpDir, rtrim($varDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR) ? $tmpDir : null;
     }
 
     private function _cleanUpAndChecks(string $functionName): void
@@ -433,11 +460,29 @@ final class ComposerCommand extends Command
 
             $this->io->comment(sprintf('%s Clearing the <info>/var/tmp/*</info> ...', $this->p()));
 
+            $configuredTmpDir = trim((string)$this->container->getParameter('aurora.tmp'));
+
+            if ('' !== $configuredTmpDir && !file_exists($configuredTmpDir)) {
+                // Nothing to clear
+                $this->io->comment(sprintf('%s ... done;', $this->p()));
+
+                return;
+            }
+
+            if (null === $tmpDir = $this->clearableTmpDir()) {
+                $this->io->warning(sprintf(
+                    '%s ... skip clearing "%s": "aurora.tmp" must be an existing directory inside "%s/var".',
+                    $this->p(),
+                    $this->container->getParameter('aurora.tmp'),
+                    $this->kernelRootDir
+                ));
+
+                return;
+            }
+
             /** @var AuroraIO $IOService */
             $IOService = $this->container->get('aurora.io');
-            foreach (glob($this->container->getParameter('aurora.tmp') . '/', GLOB_ONLYDIR) as $directory) {
-                $IOService->recursiveDelete($directory, false);
-            }
+            $IOService->recursiveDelete($tmpDir, false);
 
             $this->io->comment(sprintf('%s ... done;', $this->p()));
         }
