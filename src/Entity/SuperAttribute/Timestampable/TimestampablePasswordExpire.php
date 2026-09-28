@@ -22,7 +22,8 @@ trait TimestampablePasswordExpire
 
     public function setPasswordExpireAt(?DateTimeInterface $passwordExpireAt): self
     {
-        $this->passwordExpireAt = $passwordExpireAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->passwordExpireAt = $passwordExpireAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($passwordExpireAt) : $passwordExpireAt;
         return $this;
     }
 

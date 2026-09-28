@@ -22,7 +22,8 @@ trait TimestampablePasswordUpdated
 
     public function setPasswordUpdatedAt(?DateTimeInterface $passwordUpdatedAt): self
     {
-        $this->passwordUpdatedAt = $passwordUpdatedAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->passwordUpdatedAt = $passwordUpdatedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($passwordUpdatedAt) : $passwordUpdatedAt;
         return $this;
     }
 

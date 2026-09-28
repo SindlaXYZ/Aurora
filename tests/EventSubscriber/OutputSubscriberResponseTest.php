@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\EventSubscriber;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
@@ -22,6 +23,14 @@ use Twig\Environment;
  */
 class OutputSubscriberResponseTest extends TestCase
 {
+    private const array SECURITY_HEADERS = [
+        'text/html' => [
+            'Strict-Transport-Security' => 'max-age=1536000; includeSubDomains',
+            'Content-Security-Policy'   => "script-src 'nonce-?aurora.nonce?'; object-src 'none'",
+            'Referrer-Policy'           => 'no-referrer-when-downgrade',
+        ],
+    ];
+
     public function testHtmlResponseIsMinified(): void
     {
         $response = $this->dispatch(new Response("<div>\n    <p>Aurora</p>\n</div>"), ['aurora.minify.replace' => false]);
@@ -72,10 +81,50 @@ class OutputSubscriberResponseTest extends TestCase
         $this->assertSame('<p>Aurora</p>', $response->getContent());
     }
 
+    #[DataProvider('dataHtmlContentTypes')]
+    public function testSecurityHeadersAreAddedToEveryHtmlResponse(?string $contentType): void
+    {
+        $headers  = null === $contentType ? [] : ['Content-Type' => $contentType];
+        $response = $this->dispatch(new Response('<p>Aurora</p>', Response::HTTP_OK, $headers), [], self::SECURITY_HEADERS);
+
+        // Only "text/html; charset=UTF-8" (exact case) used to get them: "text/html; charset=utf-8" had no CSP and no HSTS
+        $this->assertSame('max-age=1536000; includeSubDomains', $response->headers->get('Strict-Transport-Security'));
+        $this->assertMatchesRegularExpression("/^script-src 'nonce-[A-Za-z0-9+\\/=]+'; object-src 'none'$/", (string)$response->headers->get('Content-Security-Policy'));
+        $this->assertSame('no-referrer-when-downgrade', $response->headers->get('Referrer-Policy'));
+    }
+
+    public static function dataHtmlContentTypes(): iterable
+    {
+        yield 'not set yet' => [null];
+        yield 'text/html' => ['text/html'];
+        yield 'UTF-8' => ['text/html; charset=UTF-8'];
+        yield 'lowercase charset' => ['text/html; charset=utf-8'];
+        yield 'no space' => ['text/html;charset=UTF-8'];
+    }
+
+    public function testSecurityHeadersAreNotAddedToOtherResponses(): void
+    {
+        $response = $this->dispatch(new JsonResponse(['text' => 'Aurora']), [], self::SECURITY_HEADERS);
+
+        $this->assertFalse($response->headers->has('Content-Security-Policy'));
+        $this->assertFalse($response->headers->has('Strict-Transport-Security'));
+    }
+
+    public function testASecurityHeaderSetByTheControllerIsKept(): void
+    {
+        $response = new Response('<p>Aurora</p>', Response::HTTP_OK, ['Content-Security-Policy' => "default-src 'none'"]);
+        $response = $this->dispatch($response, [], self::SECURITY_HEADERS);
+
+        // The stricter policy of the controller used to be replaced by the default one
+        $this->assertSame("default-src 'none'", $response->headers->get('Content-Security-Policy'));
+        $this->assertSame('max-age=1536000; includeSubDomains', $response->headers->get('Strict-Transport-Security'));
+    }
+
     /**
-     * @param array<string, mixed> $parameters Parameters to override; a null value removes the parameter
+     * @param array<string, mixed>                       $parameters Parameters to override; a null value removes the parameter
+     * @param array<string, array<string, string>>|null $headers
      */
-    private function dispatch(Response $response, array $parameters = []): Response
+    private function dispatch(Response $response, array $parameters = [], ?array $headers = []): Response
     {
         $parameters += [
             'aurora.minify.output'                     => true,
@@ -94,7 +143,8 @@ class OutputSubscriberResponseTest extends TestCase
 
         $subscriber = new OutputSubscriber(
             $container,
-            new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelper())
+            new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelper()),
+            $headers
         );
 
         $event = new ResponseEvent(

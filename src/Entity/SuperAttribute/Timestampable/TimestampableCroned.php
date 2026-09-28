@@ -21,7 +21,8 @@ trait TimestampableCroned
 
     public function setCronedAt(?DateTimeInterface $createdAt): self
     {
-        $this->cronedAt = $createdAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->cronedAt = $createdAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($createdAt) : $createdAt;
         return $this;
     }
 

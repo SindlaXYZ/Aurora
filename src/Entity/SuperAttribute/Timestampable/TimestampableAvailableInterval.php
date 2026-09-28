@@ -25,7 +25,8 @@ trait TimestampableAvailableInterval
 
     public function setAvailableFrom(?DateTimeInterface $availableFrom): self
     {
-        $this->availableFrom = $availableFrom;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->availableFrom = $availableFrom instanceof \DateTime ? \DateTimeImmutable::createFromMutable($availableFrom) : $availableFrom;
         return $this;
     }
 
@@ -36,7 +37,8 @@ trait TimestampableAvailableInterval
 
     public function setAvailableTo(?DateTimeInterface $availableTo): self
     {
-        $this->availableTo = $availableTo;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->availableTo = $availableTo instanceof \DateTime ? \DateTimeImmutable::createFromMutable($availableTo) : $availableTo;
         return $this;
     }
 

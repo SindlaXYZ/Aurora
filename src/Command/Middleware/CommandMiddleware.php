@@ -27,13 +27,12 @@ class CommandMiddleware extends Command
     protected SymfonyStyle    $io;
     protected bool            $dryRun = false;
 
-    #[Required]
-    private ManagerRegistry        $managerRegistry;
-    #[Required]
-    private EntityManagerInterface $em;
-    private string                 $projectDir;
-    private ?ProgressBar           $progressBar = null;
-    private \DateTimeInterface     $progressBarPreviousDisplay;
+    // Optional: without DoctrineBundle the container of the host did not compile (every command of the bundle extends this class)
+    private ?ManagerRegistry        $managerRegistry = null;
+    private ?EntityManagerInterface $em              = null;
+    private string                  $projectDir;
+    private ?ProgressBar            $progressBar     = null;
+    private \DateTimeInterface      $progressBarPreviousDisplay;
 
     public function __construct()
     {
@@ -45,7 +44,7 @@ class CommandMiddleware extends Command
      * Inject ManagerRegistry using setter injection
      */
     #[Required]
-    public function setManagerRegistry(ManagerRegistry $managerRegistry): void
+    public function setManagerRegistry(?ManagerRegistry $managerRegistry = null): void
     {
         $this->managerRegistry = $managerRegistry;
     }
@@ -56,7 +55,7 @@ class CommandMiddleware extends Command
     #[Required]
     public function setEntityManager(
         #[Autowire(service: 'doctrine.orm.entity_manager')]
-        EntityManagerInterface $em
+        ?EntityManagerInterface $em = null
     ): void
     {
         $this->em = $em;
@@ -90,33 +89,55 @@ class CommandMiddleware extends Command
 
     protected function try(InputInterface $input, OutputInterface $output, Command $command): int
     {
-        $action = trim($input->getOption('action'));
+        $action = trim((string)$input->getOption('action'));
 
         if (empty($action)) {
             $this->outputWithTime("Invalid action: not specified.");
             return self::FAILURE;
         }
 
-        if ('_' == substr($action, 0, 1)) {
+        if ('_' == substr($action, 0, 1) || !$this->isAction($command, $action)) {
             $this->io->error("Invalid action {$action}()");
             return self::FAILURE;
         }
 
-        if (method_exists($command, $action)) {
-            $this->io->write(sprintf("[%s] Start running <fg=white;options=bold>%s()</> from <fg=white;options=bold>%s</> command", date('H:i:s'), $action, $command->getName()), true);
-            $executionStartTime      = microtime(true);
-            $actionResult            = $command->$action();
-            $executionElapsedSeconds = microtime(true) - $executionStartTime;
-            $elapsed                 = BigDecimal::of((string) $executionElapsedSeconds);
-            $hours                   = str_pad((string)$elapsed->dividedBy(3600, 0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
-            $minutes                 = str_pad((string)$elapsed->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, '0', STR_PAD_LEFT);
-            $seconds                 = str_pad((string)$elapsed->remainder(60)->toScale(0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
-            $this->io->write(sprintf("[%s] Done in <fg=white;options=bold>%s</>", date('H:i:s'), "{$hours}:{$minutes}:{$seconds}"), true);
+        $this->io->write(sprintf("[%s] Start running <fg=white;options=bold>%s()</> from <fg=white;options=bold>%s</> command", date('H:i:s'), $action, $command->getName()), true);
+        $executionStartTime      = microtime(true);
+        $actionResult            = $command->$action();
+        $executionElapsedSeconds = microtime(true) - $executionStartTime;
+        $elapsed                 = BigDecimal::of((string) $executionElapsedSeconds);
+        $hours                   = str_pad((string)$elapsed->dividedBy(3600, 0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
+        $minutes                 = str_pad((string)$elapsed->dividedBy(60, 0, RoundingMode::Floor)->remainder(60), 2, '0', STR_PAD_LEFT);
+        $seconds                 = str_pad((string)$elapsed->remainder(60)->toScale(0, RoundingMode::Floor), 2, '0', STR_PAD_LEFT);
+        $this->io->write(sprintf("[%s] Done in <fg=white;options=bold>%s</>", date('H:i:s'), "{$hours}:{$minutes}:{$seconds}"), true);
+
+        // A void action returns null: returning it from execute() was a TypeError
+        if (is_int($actionResult)) {
             return $actionResult;
-        } else {
-            $this->io->error("Invalid action {$action}()");
-            return self::FAILURE;
         }
+
+        return false === $actionResult ? self::FAILURE : self::SUCCESS;
+    }
+
+    /**
+     * An action is a method of the command itself, callable without arguments
+     *
+     * The methods of this class and of the Symfony Command are not actions: "--action=databaseDrop" used to drop the whole database
+     * (e.g. "aurora:test --action=databaseDrop"), and "--action=execute" was an infinite recursion.
+     */
+    private function isAction(Command $command, string $action): bool
+    {
+        if (!method_exists($command, $action) || method_exists(self::class, $action)) {
+            return false;
+        }
+
+        $method = new \ReflectionMethod($command, $action);
+
+        return !$method->isPrivate()
+            && !$method->isStatic()
+            && !$method->isAbstract()
+            && !$method->isConstructor()
+            && 0 === $method->getNumberOfRequiredParameters();
     }
 
     protected function output($message, $newLine = true)
@@ -552,7 +573,7 @@ class CommandMiddleware extends Command
      */
     protected function databaseTableTruncate(string $tableName, bool $cascade = false): void
     {
-        $connection = $this->em->getConnection();
+        $connection = $this->entityManager()->getConnection();
         $platform   = $connection->getDatabasePlatform();
         $connection->executeStatement($platform->getTruncateTableSQL($tableName, $cascade));
     }
@@ -581,6 +602,10 @@ class CommandMiddleware extends Command
 
     protected function auditDropAndRecreateSchema(): void
     {
+        if (null === $this->managerRegistry) {
+            throw new \LogicException('Doctrine is not available: install and enable "doctrine/doctrine-bundle".');
+        }
+
         $sqlDrop = 'DROP SCHEMA public CASCADE';
         $query   = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlDrop);
         $query->executeQuery();
@@ -588,6 +613,11 @@ class CommandMiddleware extends Command
         $sqlCreate = 'CREATE SCHEMA public';
         $query     = $this->managerRegistry->getManager('audit')->getConnection()->prepare($sqlCreate);
         $query->executeQuery();
+    }
+
+    private function entityManager(): EntityManagerInterface
+    {
+        return $this->em ?? throw new \LogicException('Doctrine is not available: install and enable "doctrine/doctrine-bundle".');
     }
 
     ###################################################################################################################################################################################################

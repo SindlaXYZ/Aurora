@@ -146,8 +146,14 @@ class OutputSubscriber implements EventSubscriberInterface
             $response->headers->set('X-Robots-Tag', 'none'); // none - Equivalent to noindex, nofollow
         }
 
-        if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($response->headers->get('content-type'), ['', 'text/html', 'text/html; charset=UTF-8'])) {
+        // Compared by media type: "text/html; charset=utf-8" or "text/html;charset=UTF-8" used to get no security header (CSP, HSTS, ...)
+        if (!empty($this->headers) && isset($this->headers['text/html']) && in_array($this->mediaType($response), ['', 'text/html'], true)) {
             foreach ($this->headers['text/html'] as $header => $value) {
+                // A header set by the controller, e.g. a stricter Content-Security-Policy, is kept: it used to be replaced by the default
+                if ($response->headers->has($header)) {
+                    continue;
+                }
+
                 if ('Content-Security-Policy' == $header) {
                     // set CPS header on the response object
                     $response->headers->set("Content-Security-Policy", str_replace('?aurora.nonce?', $this->UtilityExtension->getNonce(), $value));

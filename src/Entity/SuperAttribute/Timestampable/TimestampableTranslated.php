@@ -21,7 +21,8 @@ trait TimestampableTranslated
 
     public function setTranslatedAt(?DateTimeInterface $translatedAt): self
     {
-        $this->translatedAt = $translatedAt;
+        // A DATETIME_IMMUTABLE column: a DateTime was a conversion error on flush (and closed the EntityManager)
+        $this->translatedAt = $translatedAt instanceof \DateTime ? \DateTimeImmutable::createFromMutable($translatedAt) : $translatedAt;
         return $this;
     }
 

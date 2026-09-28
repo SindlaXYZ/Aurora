@@ -1,11 +1,20 @@
+# A list of paths is read by Symfony as localized paths (locale => path): every path became a route with "_locale" set to its index
+# ("0", "1", ..., "76"), so the request locale of "/favicon.ico", "/apple-icon-57x57.png", ... was "0", "7", ... and a sticky-locale
+# subscriber (https://symfony.com/doc/current/session/locale_sticky_session.html) saved it in the session of the visitor.
+# "_locale: ~" removes that locale.
+
 aurora.controller.test:
     controller: 'aurora.controller.test'
+    defaults:
+        _locale: ~
     path:
         - '/aurora/test'
         - '/aurora/test/service'
 
 aurora.controller.blackhole:
     controller: 'aurora.controller.blackhole::blackHole'
+    defaults:
+        _locale: ~
     requirements:
         anything: '.+'
     path:
@@ -119,6 +128,8 @@ aurora.controller.blackhole:
 
 aurora.controller.pwa.favicon:
     controller: 'aurora.controller.pwa::progressiveWebApplication'
+    defaults:
+        _locale: ~
     path:
         - '/favicon.ico'
         - '/favicon-{width<\d+>}x{height<\d+>}.png'
@@ -142,12 +153,16 @@ aurora.controller.pwa.favicon:
 
 aurora.controller.pwa.offline:
     controller: 'aurora.controller.pwa::offline'
+    defaults:
+        _locale: ~
     path:
         - '/aurora/pwa-offline'
         - '/pwa-offline'
 
 aurora.controller.compiled:
     controller: 'aurora.controller.compiled:cssJsFiles'
+    defaults:
+        _locale: ~
     path:
         - '/aurora/compiled/{fileName}'
         #- '/aurora/compiled/{fileName}.(css|js)'
