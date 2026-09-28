@@ -5,6 +5,7 @@ namespace Sindla\Bundle\AuroraBundle\Command;
 use Aws\Result;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Helper\TableCell;
@@ -229,14 +230,8 @@ final class CloudflareR2Command extends CommandMiddleware
                 'SaveAs' => $partialFile,
             ]);
 
-            // The permissions of the replaced file are kept (e.g. a private database dump)
-            if (is_file($localFile) && false !== ($permissions = fileperms($localFile))) {
-                chmod($partialFile, $permissions & 0777);
-            }
-
-            if (!rename($partialFile, $localFile)) {
-                throw new \RuntimeException(sprintf('Cannot write the file "%s".', $localFile));
-            }
+            // The owner, the group and the permissions of the replaced file are kept (e.g. a private dump, readable by the application user)
+            new AuroraIO()->replaceFile($partialFile, $localFile);
         } finally {
             if (is_file($partialFile)) {
                 unlink($partialFile);

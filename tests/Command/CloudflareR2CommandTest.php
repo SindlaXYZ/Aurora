@@ -47,6 +47,26 @@ class CloudflareR2CommandTest extends TestCase
         $this->assertSame(['database.sql'], array_values(array_diff(scandir($this->dir), ['.', '..'])));
     }
 
+    public function testDownloadKeepsTheOwnerOfTheLocalFile(): void
+    {
+        if (!function_exists('posix_geteuid') || 0 !== posix_geteuid()) {
+            $this->markTestSkipped('Only a privileged user can create a file of another user.');
+        }
+
+        file_put_contents($this->dir . '/database.sql', 'old dump');
+        chown($this->dir . '/database.sql', 65534);
+        chgrp($this->dir . '/database.sql', 65534);
+        chmod($this->dir . '/database.sql', 0640);
+
+        $this->assertSame(Command::SUCCESS, $this->download(new Response(200, [], 'new dump')));
+
+        // Replaced by root, the dump of the application user used to be "root:root 0640": the application could no longer read it
+        clearstatcache();
+        $stat = stat($this->dir . '/database.sql');
+        $this->assertSame('new dump', file_get_contents($this->dir . '/database.sql'));
+        $this->assertSame([65534, 65534, 0640], [$stat['uid'], $stat['gid'], $stat['mode'] & 0777]);
+    }
+
     /**
      * "SaveAs" wrote the error body over the local file (e.g. the 404 of a typo in "--remoteFile"): the dump about to be imported was lost
      */

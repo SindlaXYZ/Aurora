@@ -368,7 +368,8 @@ final class ComposerCommand extends Command
 
     /**
      * Extract the database of the downloaded archive (inside $tempDir) and replace the live one atomically: copy() used to overwrite the
-     * live file in place, so the running PHP workers read a half-written database (a corrupt database error, a SIGBUS with libmaxminddb)
+     * live file in place, so the running PHP workers read a half-written database (a corrupt database error, a SIGBUS with libmaxminddb).
+     * The owner, the group and the permissions of the live file are kept (see AuroraIO::replaceFile()).
      */
     private function installGeoIP2Database(\PharData $archive, string $tempDir, string $destinationFile): void
     {
@@ -381,12 +382,16 @@ final class ComposerCommand extends Command
         // Next to the live file (the same file system): rename() replaces it atomically
         $partialFile = sprintf('%s.%s.tmp', $destinationFile, bin2hex(random_bytes(4)));
 
-        if (!copy($databases[0], $partialFile) || !rename($partialFile, $destinationFile)) {
+        try {
+            if (!copy($databases[0], $partialFile)) {
+                throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
+            }
+
+            new AuroraIO()->replaceFile($partialFile, $destinationFile);
+        } finally {
             if (is_file($partialFile)) {
                 unlink($partialFile);
             }
-
-            throw new \RuntimeException("[AURORA] Cannot copy .mmdb file.");
         }
     }
 

@@ -151,6 +151,7 @@ class ComposerCommandTest extends TestCase
 
         $destinationFile = $dir . '/maxmind-geoip2/GeoLite2Country.mmdb';
         file_put_contents($destinationFile, 'old database');
+        chmod($destinationFile, 0644);
         $handle = fopen($destinationFile, 'r');
 
         // The layout of the MaxMind archives: GeoLite2-Country_YYYYMMDD/GeoLite2-Country.mmdb
@@ -160,9 +161,18 @@ class ComposerCommandTest extends TestCase
         $tar->compress(\Phar::GZ);
 
         $install = new \ReflectionMethod(ComposerCommand::class, 'installGeoIP2Database');
-        $install->invoke($this->createCommand(), new \PharData($dir . '/GeoLite2-Country.tar.gz'), $dir . '/download', $destinationFile);
+        // Composer run by a deployment account with a restrictive umask: the new database was not readable by the PHP workers
+        $umask = umask(0077);
 
+        try {
+            $install->invoke($this->createCommand(), new \PharData($dir . '/GeoLite2-Country.tar.gz'), $dir . '/download', $destinationFile);
+        } finally {
+            umask($umask);
+        }
+
+        clearstatcache();
         $this->assertSame('new database', file_get_contents($destinationFile));
+        $this->assertSame(0644, fileperms($destinationFile) & 0777);
         // A reader opened before the update keeps reading the complete old database
         $this->assertSame('old database', stream_get_contents($handle));
         $this->assertSame(['GeoLite2Country.mmdb'], array_values(array_diff(scandir($dir . '/maxmind-geoip2'), ['.', '..'])));
