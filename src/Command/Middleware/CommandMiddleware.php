@@ -204,9 +204,14 @@ class CommandMiddleware extends Command
         }
 
         if (function_exists('yaml_parse')) {
-            $parsed = yaml_parse($yamlContent);
-            if (is_array($parsed)) {
-                return $parsed;
+            try {
+                // yaml_parse() raises a warning for the content it cannot parse, thrown as an exception by the debug error handler of Symfony
+                $parsed = @yaml_parse($yamlContent);
+                if (is_array($parsed)) {
+                    return $parsed;
+                }
+            } catch (\Throwable) {
+                // Fallback handled below.
             }
         }
 

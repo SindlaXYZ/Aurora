@@ -266,7 +266,8 @@ YAML;
 
     public function testReadYamlFileFallsBackToTheSimpleParserWhenSymfonyYamlRejectsTheContent(): void
     {
-        // Symfony Yaml rejects the tabs used as indentation
+        // Symfony Yaml rejects the tabs used as indentation, and so does ext-yaml when it is loaded: without the PHP warning of
+        // yaml_parse(), which would fail the suite (failOnWarning)
         $file = $this->createTempFile("parent:\n\tchild: value\n\tenabled: yes\nother: 3\n");
 
         $this->assertSame(
