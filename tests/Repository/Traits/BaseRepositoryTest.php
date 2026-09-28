@@ -126,6 +126,81 @@ class BaseRepositoryTest extends TestCase
         $this->repository->findAllQueryBuilder([['operator' => 'EQ', 'field' => 'name = name OR 1', 'value' => 'a']]);
     }
 
+    /**
+     * @param list<array<string, mixed>> $filters
+     * @param list<string>               $expectedNames
+     */
+    #[DataProvider('dataApplyFilters')]
+    public function testApplyFilters(array $filters, array $expectedNames): void
+    {
+        $items = $this->repository->findAllQueryBuilder($filters)->orderBy('alias.id')->getQuery()->getResult();
+
+        $this->assertSame($expectedNames, $this->names($items));
+    }
+
+    public static function dataApplyFilters(): iterable
+    {
+        // Two filters on the same field and operator used to share one parameter: the value of the last filter was used for both
+        yield 'same field and operator' => [
+            [['operator' => 'GT', 'field' => 'quantity', 'value' => 2], ['operator' => 'GT', 'field' => 'quantity', 'value' => 0]],
+            ['c'],
+        ];
+        yield 'a bounded interval' => [
+            [['operator' => 'GTE', 'field' => 'quantity', 'value' => 2], ['operator' => 'LTE', 'field' => 'quantity', 'value' => 2]],
+            ['b'],
+        ];
+        // "Gt" used to be ignored: every row was returned
+        yield 'case-insensitive operator' => [[['operator' => 'Gt', 'field' => 'quantity', 'value' => 1]], ['b', 'c']];
+        // UNACCENT() is a PostgreSQL function: the query failed on the other platforms
+        yield 'is null' => [[['operator' => 'ISNULL', 'field' => 'name']], []];
+        yield 'is not null' => [[['operator' => 'notnull', 'field' => 'quantity']], ['a', 'b', 'c']];
+        // The keys of the list were written into the DQL (in the parameter names), the keys of the pairs had to be 0 and 1
+        yield 'ranges with keys' => [
+            [['operator' => 'RANGE', 'field' => 'quantity', 'value' => ['low' => ['from' => 0, 'to' => 2], 'high' => [3, 4]]]],
+            ['a', 'c'],
+        ];
+    }
+
+    public function testApplyFiltersRewritesTheZoneOnlyWhenTheQueryJoinsIt(): void
+    {
+        $filters = [['operator' => 'IN', 'field' => 'zone', 'value' => [1]], ['operator' => 'EQ', 'field' => 'zoneId', 'value' => 1]];
+
+        // Without the "zone" alias, "zoneId" was rewritten to "zone.parentId": an invalid query ("zone" is not defined)
+        $this->assertStringContainsString(
+            'WHERE alias.zone IN (:zoneIN0) AND alias.zoneId = :zoneIdEQ1',
+            $this->repository->findAllQueryBuilder($filters)->getDQL()
+        );
+
+        $queryBuilder = $this->repository->createQueryBuilder('alias')->innerJoin('alias.address', 'zone');
+        $applyFilters = new \ReflectionMethod($this->repository, 'applyFilters');
+
+        $this->assertStringContainsString(
+            'WHERE zone.parentId IN (:zoneIN0) AND zone.parentId = :zoneIdEQ1',
+            $applyFilters->invoke($this->repository, $queryBuilder, $filters)->getDQL()
+        );
+    }
+
+    /**
+     * An unknown operator used to be ignored: the filter was dropped and every row was returned (e.g. a filter by owner or tenant)
+     */
+    #[DataProvider('dataApplyFiltersRejectsAnInvalidFilter')]
+    public function testApplyFiltersRejectsAnInvalidFilter(array $filter, string $message): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessage($message);
+
+        $this->repository->findAllQueryBuilder([$filter]);
+    }
+
+    public static function dataApplyFiltersRejectsAnInvalidFilter(): iterable
+    {
+        yield 'unknown operator' => [['operator' => 'NEQ', 'field' => 'name', 'value' => 'a'], 'Invalid filter operator "NEQ".'];
+        yield 'no operator' => [['field' => 'name', 'value' => 'a'], 'Invalid filter operator "null".'];
+        yield 'not a string' => [['operator' => ['EQ'], 'field' => 'name', 'value' => 'a'], 'Invalid filter operator "array".'];
+        yield 'range without pairs' => [['operator' => 'RANGE', 'field' => 'quantity', 'value' => [1, 2]], 'a list of [from, to] pairs is expected'];
+        yield 'empty range' => [['operator' => 'RANGE', 'field' => 'quantity', 'value' => []], 'a list of [from, to] pairs is expected'];
+    }
+
     public function testTruncate(): void
     {
         // It used to be a fatal error: the "_em" property, the "App:Entity" aliases and executeUpdate() were removed in ORM 3 / DBAL 4

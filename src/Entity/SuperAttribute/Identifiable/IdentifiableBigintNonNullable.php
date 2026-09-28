@@ -9,11 +9,13 @@ use Symfony\Component\Serializer\Attribute\Groups;
 
 trait IdentifiableBigintNonNullable
 {
+    // Nullable: getId() on a new entity (e.g. "{% if entity.id %}" in a form template) or on a removed one used to be an Error, the
+    // typed property "must not be accessed before initialization"
     #[ORM\Id]
     #[ORM\GeneratedValue(strategy: 'SEQUENCE')]
     #[ORM\Column(type: Types::BIGINT, nullable: false, options: ['unsigned' => true])]
     #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_IDENTIFIABLE])]
-    protected int $id;
+    protected ?int $id = null;
 
     public function getId(): ?int
     {

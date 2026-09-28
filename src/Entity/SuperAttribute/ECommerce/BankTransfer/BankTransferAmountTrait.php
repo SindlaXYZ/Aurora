@@ -39,10 +39,11 @@ trait BankTransferAmountTrait
     {
         // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
         if (0 !== bccomp($this->bankTransferAmountWithVat, '0', 2)) {
-            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
-            $this->bankTransferAmountWithoutVat = (0 !== bccomp($this->bankTransferVatAmount, '0', 2))
-                ? bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2)
-                : bcround(bcdiv($this->bankTransferAmountWithVat, bcadd('1', bcdiv($this->bankTransferVatPercentage, '100', 6), 6), 10), 2);
+            // Without VAT = with VAT / (1 + VAT%), or with VAT - VAT amount when there is no VAT%: the VAT amount is the result of a previous
+            // calculation, stale once the price with VAT changes (119.00 with the VAT 10.00 of 52.63 used to be 109.00 without VAT)
+            $this->bankTransferAmountWithoutVat = (0 !== bccomp($this->bankTransferVatPercentage, '0', 2))
+                ? bcround(bcdiv($this->bankTransferAmountWithVat, bcadd('1', bcdiv($this->bankTransferVatPercentage, '100', 6), 6), 10), 2)
+                : bcsub($this->bankTransferAmountWithVat, $this->bankTransferVatAmount, 2);
         } else if (0 !== bccomp($this->bankTransferVatAmount, '0', 2) && 0 !== bccomp($this->bankTransferVatPercentage, '0', 2)) {
             // Without VAT = VAT amount / VAT%
             $this->bankTransferAmountWithoutVat = bcround(bcdiv($this->bankTransferVatAmount, bcdiv($this->bankTransferVatPercentage, '100', 6), 10), 2);

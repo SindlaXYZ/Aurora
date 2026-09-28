@@ -207,8 +207,8 @@ Then run `composer update` to update and install the rest of the dependencies.
             #Content-Security-Policy: "script-src 'nonce-?aurora.nonce?' 'unsafe-inline' 'unsafe-eval' 'strict-dynamic' https: http:; object-src 'none'"
             #Content-Security-Policy: "script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http:; object-src 'none'"
             #Referrer-Policy: "no-referrer-when-downgrade"
-        tags:
-            - { name: kernel.event_listener, event: kernel.response }
+        # An event subscriber: a "kernel.event_listener" tag registered it a second time (with autoconfigure), so it ran twice
+        tags: [kernel.event_subscriber]
 ```
 
 </details>

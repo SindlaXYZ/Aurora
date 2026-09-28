@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Command;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Command\ComposerCommand;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
@@ -89,12 +90,136 @@ class ComposerCommandTest extends TestCase
         $this->assertSame(['new.css', 'new.js', 'old.txt'], array_values(array_diff(scandir($projectDir . '/public/static/compiled'), ['.', '..'])));
     }
 
+    public function testPostUpdateClearsTheTmpDir(): void
+    {
+        [$projectDir, , $exitCode] = $this->runAction('postUpdate', function (string $projectDir): void {
+            mkdir($projectDir . '/var/tmp/sub', 0777, true);
+            touch($projectDir . '/var/tmp/old.txt');
+            touch($projectDir . '/var/tmp/sub/old.txt');
+        });
+
+        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertDirectoryExists($projectDir . '/var/tmp');
+        $this->assertSame(['.', '..'], scandir($projectDir . '/var/tmp'));
+    }
+
+    public function testPostUpdateDoesNotWarnWhenTheTmpDirDoesNotExist(): void
+    {
+        [, $display, $exitCode] = $this->runAction('postUpdate', null, '/var/missing');
+
+        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertStringNotContainsString('skip clearing', $display);
+    }
+
+    /**
+     * The content of "aurora.tmp" was deleted whatever it was: "" is "/", and "/tmp" or the project directory lost all their files
+     */
+    #[DataProvider('dataPostUpdateDoesNotClearATmpDirOutsideTheVarDir')]
+    public function testPostUpdateDoesNotClearATmpDirOutsideTheVarDir(string $tmpDir): void
+    {
+        [$projectDir, $display, $exitCode] = $this->runAction('postUpdate', function (string $projectDir): void {
+            touch($projectDir . '/composer.json');
+            touch($projectDir . '/var/keep.txt');
+            symlink($projectDir, $projectDir . '/var/tmp/project');
+        }, $tmpDir);
+
+        $this->assertSame(Command::SUCCESS, $exitCode);
+        $this->assertStringContainsString('skip clearing', $display);
+        $this->assertFileExists($projectDir . '/composer.json');
+        $this->assertFileExists($projectDir . '/var/keep.txt');
+    }
+
+    public static function dataPostUpdateDoesNotClearATmpDirOutsideTheVarDir(): array
+    {
+        return [
+            'the project directory'                => [''],
+            'the var directory'                    => ['/var'],
+            'a symbolic link to the project'       => ['/var/tmp/project'],
+            'a relative path out of the var dir'   => ['/var/tmp/../..'],
+        ];
+    }
+
+    /**
+     * copy() used to overwrite the live database in place: the running PHP workers read a half-written database
+     */
+    public function testTheGeoIPDatabaseIsReplacedAtomically(): void
+    {
+        $dir                 = sys_get_temp_dir() . '/aurora-geoip2-test-' . bin2hex(random_bytes(4));
+        $this->projectDirs[] = $dir;
+        mkdir($dir . '/download', 0777, true);
+        mkdir($dir . '/maxmind-geoip2', 0777, true);
+
+        $destinationFile = $dir . '/maxmind-geoip2/GeoLite2Country.mmdb';
+        file_put_contents($destinationFile, 'old database');
+        chmod($destinationFile, 0644);
+        $handle = fopen($destinationFile, 'r');
+
+        // The layout of the MaxMind archives: GeoLite2-Country_YYYYMMDD/GeoLite2-Country.mmdb
+        $tar = new \PharData($dir . '/GeoLite2-Country.tar');
+        $tar->addFromString('GeoLite2-Country_20260101/GeoLite2-Country.mmdb', 'new database');
+        $tar->addFromString('GeoLite2-Country_20260101/LICENSE.txt', 'license');
+        $tar->compress(\Phar::GZ);
+
+        $install = new \ReflectionMethod(ComposerCommand::class, 'installGeoIP2Database');
+        // Composer run by a deployment account with a restrictive umask: the new database was not readable by the PHP workers
+        $umask = umask(0077);
+
+        try {
+            $install->invoke($this->createCommand(), new \PharData($dir . '/GeoLite2-Country.tar.gz'), $dir . '/download', $destinationFile);
+        } finally {
+            umask($umask);
+        }
+
+        clearstatcache();
+        $this->assertSame('new database', file_get_contents($destinationFile));
+        $this->assertSame(0644, fileperms($destinationFile) & 0777);
+        // A reader opened before the update keeps reading the complete old database
+        $this->assertSame('old database', stream_get_contents($handle));
+        $this->assertSame(['GeoLite2Country.mmdb'], array_values(array_diff(scandir($dir . '/maxmind-geoip2'), ['.', '..'])));
+
+        fclose($handle);
+    }
+
+    public function testAnArchiveWithoutADatabaseDoesNotReplaceTheLiveOne(): void
+    {
+        $dir                 = sys_get_temp_dir() . '/aurora-geoip2-test-' . bin2hex(random_bytes(4));
+        $this->projectDirs[] = $dir;
+        mkdir($dir . '/download', 0777, true);
+
+        $destinationFile = $dir . '/GeoLite2Country.mmdb';
+        file_put_contents($destinationFile, 'old database');
+
+        $tar = new \PharData($dir . '/GeoLite2-Country.tar');
+        $tar->addFromString('GeoLite2-Country_20260101/LICENSE.txt', 'license');
+        $tar->compress(\Phar::GZ);
+
+        $install = new \ReflectionMethod(ComposerCommand::class, 'installGeoIP2Database');
+
+        try {
+            $install->invoke($this->createCommand(), new \PharData($dir . '/GeoLite2-Country.tar.gz'), $dir . '/download', $destinationFile);
+            $this->fail('An archive without a database is expected to fail.');
+        } catch (\RuntimeException $e) {
+            $this->assertStringContainsString('does not contain a .mmdb file', $e->getMessage());
+        }
+
+        $this->assertSame('old database', file_get_contents($destinationFile));
+    }
+
+    private function createCommand(): ComposerCommand
+    {
+        $container = new Container();
+        $container->setParameter('kernel.project_dir', sys_get_temp_dir());
+
+        return new ComposerCommand($container);
+    }
+
     /**
      * @param (callable(string): void)|null $prepare
+     * @param string                        $tmpDir  "aurora.tmp", relative to the project directory
      *
      * @return array{string, string, int}
      */
-    private function runAction(string $action, ?callable $prepare = null): array
+    private function runAction(string $action, ?callable $prepare = null, string $tmpDir = '/var/tmp'): array
     {
         $projectDir          = sys_get_temp_dir() . '/aurora-composer-' . bin2hex(random_bytes(4));
         $this->projectDirs[] = $projectDir;
@@ -107,7 +232,7 @@ class ComposerCommandTest extends TestCase
         $container = new Container();
         $container->setParameter('kernel.project_dir', $projectDir);
         $container->setParameter('aurora.root', $projectDir);
-        $container->setParameter('aurora.tmp', $projectDir . '/var/tmp');
+        $container->setParameter('aurora.tmp', $projectDir . $tmpDir);
         $container->set('aurora.io', new AuroraIO());
 
         $flags          = ['SINDLA_AURORA_GEO_LITE2_COUNTRY', 'SINDLA_AURORA_GEO_LITE2_CITY', 'SINDLA_AURORA_GEO_LITE2_ASN'];

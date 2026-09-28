@@ -39,10 +39,11 @@ trait PricePerItemTrait
     {
         // Decimal strings are always truthy (including '0.00'), so they are compared with bccomp()
         if (0 !== bccomp($this->pricePerItemWithVat, '0', 2)) {
-            // Without VAT = with VAT - VAT amount, or with VAT / (1 + VAT%) when the VAT amount is not known
-            $this->pricePerItemWithoutVat = (0 !== bccomp($this->pricePerItemVatAmount, '0', 2))
-                ? bcsub($this->pricePerItemWithVat, $this->pricePerItemVatAmount, 2)
-                : bcround(bcdiv($this->pricePerItemWithVat, bcadd('1', bcdiv($this->pricePerItemVatPercentage, '100', 6), 6), 10), 2);
+            // Without VAT = with VAT / (1 + VAT%), or with VAT - VAT amount when there is no VAT%: the VAT amount is the result of a previous
+            // calculation, stale once the price with VAT changes (119.00 with the VAT 10.00 of 52.63 used to be 109.00 without VAT)
+            $this->pricePerItemWithoutVat = (0 !== bccomp($this->pricePerItemVatPercentage, '0', 2))
+                ? bcround(bcdiv($this->pricePerItemWithVat, bcadd('1', bcdiv($this->pricePerItemVatPercentage, '100', 6), 6), 10), 2)
+                : bcsub($this->pricePerItemWithVat, $this->pricePerItemVatAmount, 2);
         } else if (0 !== bccomp($this->pricePerItemVatAmount, '0', 2) && 0 !== bccomp($this->pricePerItemVatPercentage, '0', 2)) {
             // Without VAT = VAT amount / VAT%
             $this->pricePerItemWithoutVat = bcround(bcdiv($this->pricePerItemVatAmount, bcdiv($this->pricePerItemVatPercentage, '100', 6), 10), 2);

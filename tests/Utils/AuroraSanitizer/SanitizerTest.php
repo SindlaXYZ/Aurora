@@ -20,6 +20,7 @@ namespace MatthiasMullie\Minify {
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraSanitizer {
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer;
 
@@ -108,6 +109,34 @@ CSS;
         $html = "<div>\n    <p>Aurora   bundle</p>\n    <!-- comment -->\n    <a  href=\"/x\" >x</a>\n</div>";
 
         self::assertSame('<div><p>Aurora bundle</p><a href="/x">x</a></div>', new AuroraSanitizer()->minifyHTML($html));
+    }
+
+    /**
+     * The whitespace between two inline elements is a visible space: "<b>Hello</b> <i>world</i>" used to be displayed "Helloworld"
+     */
+    #[DataProvider('dataMinifyHtmlKeepsTheSpaceBetweenInlineElements')]
+    public function testMinifyHtmlKeepsTheSpaceBetweenInlineElements(string $html, string $expected): void
+    {
+        self::assertSame($expected, new AuroraSanitizer()->minifyHTML($html));
+    }
+
+    public static function dataMinifyHtmlKeepsTheSpaceBetweenInlineElements(): array
+    {
+        return [
+            'inline elements'              => ['<p><b>Hello</b> <i>world</i></p>', '<p><b>Hello</b> <i>world</i></p>'],
+            'links on their own lines'     => [
+                "<p>\n    <a href=\"/terms\">Terms</a>\n    <a href=\"/privacy\">Privacy</a>\n</p>",
+                '<p><a href="/terms">Terms</a> <a href="/privacy">Privacy</a></p>',
+            ],
+            'a label and its input'        => ["<label>Name</label>\n<input name=\"name\">", '<label>Name</label> <input name="name">'],
+            'a label and its textarea'     => ["<label>Message</label>\n<textarea>a\n b</textarea>", "<label>Message</label> <textarea>a\n b</textarea>"],
+            'block elements'               => ["<ul>\n    <li>a</li>\n    <li>b</li>\n</ul>", '<ul><li>a</li><li>b</li></ul>'],
+            'the document head'            => [
+                "<!DOCTYPE html>\n<html>\n<head>\n    <title>x</title>\n    <meta charset=\"utf-8\">\n</head>",
+                '<!DOCTYPE html><html><head><title>x</title><meta charset="utf-8"></head>',
+            ],
+            'an inline element in a block' => ["<div>\n    <span>a</span>\n</div>", '<div><span>a</span></div>'],
+        ];
     }
 
     /**

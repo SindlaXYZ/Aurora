@@ -17,6 +17,17 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 class AuroraSanitizer
 {
     /**
+     * The elements whose surrounding whitespace is not displayed (block-level and document metadata elements): minifyHTML() removes the
+     * whitespace between two tags only when one of them is such an element
+     */
+    private const array HTML_BLOCK_TAGS = [
+        'address', 'article', 'aside', 'base', 'blockquote', 'body', 'br', 'caption', 'col', 'colgroup', 'dd', 'details', 'dialog', 'div',
+        'dl', 'doctype', 'dt', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'head', 'header',
+        'hgroup', 'hr', 'html', 'legend', 'li', 'link', 'main', 'menu', 'meta', 'nav', 'ol', 'optgroup', 'option', 'p', 'pre', 'section',
+        'source', 'style', 'summary', 'table', 'tbody', 'td', 'template', 'tfoot', 'th', 'thead', 'title', 'tr', 'track', 'ul',
+    ];
+
+    /**
      * Remove CSS comments
      *
      * @param string $css
@@ -87,10 +98,12 @@ class AuroraSanitizer
     {
         // <script>, <pre> and <textarea> are whitespace sensitive and are kept as they are: joining the lines turned a JavaScript
         // "// comment" into a comment of the whole rest of the script, and changed the text displayed (and submitted) by <pre>/<textarea>
-        $preserved = [];
-        $token     = 'AURORA' . bin2hex(random_bytes(8)) . 'BLOCK';
-        $protected = preg_replace_callback('#<(script|pre|textarea)\b[^>]*>.*?</\1\s*>#is', function (array $matches) use (&$preserved, $token): string {
-            $preserved[] = $matches[0];
+        $preserved     = [];
+        $preservedTags = [];
+        $token         = 'AURORA' . bin2hex(random_bytes(8)) . 'BLOCK';
+        $protected     = preg_replace_callback('#<(script|pre|textarea)\b[^>]*>.*?</\1\s*>#is', function (array $matches) use (&$preserved, &$preservedTags, $token): string {
+            $preserved[]     = $matches[0];
+            $preservedTags[] = strtolower($matches[1]);
 
             // Tag-like placeholder, so the whitespace around it is still handled like the whitespace around the original tag
             return '<' . $token . (count($preserved) - 1) . '>';
@@ -106,7 +119,6 @@ class AuroraSanitizer
             '/\n/',
             '/\<\!--.*?-->/',
             '/(\x20+|\t)/', # Delete multispace (Without \n)
-            '/\>\s+\</', # strip whitespaces between tags
             '/(\"|\')\s+\>/', # strip whitespaces between quotation ("') and end tags
             '/=\s+(\"|\')/']; # strip whitespaces between = "'
 
@@ -115,11 +127,28 @@ class AuroraSanitizer
             " ",
             "",
             " ",
-            "><",
             "$1>",
             "=$1"];
 
         $minified = preg_replace($Search, $Replace, $protected);
+
+        if (null !== $minified) {
+            // The whitespace between two tags is removed only next to a block-level element: between two inline elements it is a visible
+            // space, removed too ("<b>Hello</b> <i>world</i>" was displayed "Helloworld", "<a>Terms</a> <a>Privacy</a>" "TermsPrivacy")
+            $isBlock = static function (string $tag) use ($preservedTags, $token): bool {
+                if (str_starts_with($tag, $token)) {
+                    $tag = $preservedTags[(int)substr($tag, strlen($token))] ?? '';
+                }
+
+                return in_array(strtolower($tag), self::HTML_BLOCK_TAGS, true);
+            };
+
+            $minified = preg_replace_callback(
+                '#(<[/!]?([a-z][a-z0-9-]*)\b[^>]*>)\s+(?=<[/!]?([a-z][a-z0-9-]*))#i',
+                static fn(array $matches): string => $matches[1] . ($isBlock($matches[2]) || $isBlock($matches[3]) ? '' : ' '),
+                $minified
+            );
+        }
 
         if (null === $minified) {
             // PCRE failure, e.g. the backtrack limit of the "<!-- ... -->" pattern on a large page with an unclosed comment: the

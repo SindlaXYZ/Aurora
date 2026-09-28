@@ -331,100 +331,96 @@ trait BaseRepository
                 }
             }
 
-            switch ($operation['operator']) {
+            // Case-insensitive ("Gt" used to be ignored); an unknown operator used to be ignored as well, silently: the filter was dropped
+            // and every row was returned (e.g. a filter by owner or tenant)
+            $operator = is_string($operation['operator'] ?? null) ? strtoupper(trim($operation['operator'])) : '';
+            $field    = "{$operation['alias']}.{$operation['field']}";
+
+            // Unique: two filters on the same field and operator ("price GT 5" and "price GT 25") used to share one parameter, the value
+            // of the last filter was used for both
+            $parameter = $operation['field'] . $operator . $queryBuilder->getParameters()->count();
+
+            switch ($operator) {
                 case 'LT' :
-                case 'lt' :
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} < :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} < :{$parameter}");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'GT' :
-                case 'gt' :
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} > :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} > :{$parameter}");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'LTE' :
-                case 'lte' :
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} <= :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} <= :{$parameter}");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'GTE' :
-                case 'gte' :
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} >= :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} >= :{$parameter}");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'EQ' :
-                case 'eq' :
                 case 'EXACT' :
-                case 'exact' :
-                    if ($operation['field'] == 'zoneId') {
-                        $operation['field'] = 'parentId';
-                        $operation['alias'] = 'zone';
+                    // Only when the query joins the "zone" alias: without it, "zoneId" was an invalid query ("zone" is not defined)
+                    if ('zoneId' == $operation['field'] && in_array('zone', $queryBuilder->getAllAliases(), true)) {
+                        $field = 'zone.parentId';
                     }
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} = :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} = :{$parameter}");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'IN' :
-                case 'in' :
-                    if ($operation['field'] == 'zone') {
-                        $operation['field'] = 'parentId';
-                        $operation['alias'] = 'zone';
+                    if ('zone' == $operation['field'] && in_array('zone', $queryBuilder->getAllAliases(), true)) {
+                        $field = 'zone.parentId';
                     }
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} IN (:{$operation['field']}{$operation['operator']})");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", $operation['value']);
+                    $queryBuilder->andWhere("{$field} IN (:{$parameter})");
+                    $queryBuilder->setParameter($parameter, $operation['value']);
                     break;
 
                 case 'RANGE' :
-                case 'range' :
+                    // [[from, to], ...]: the keys of the list were written into the DQL (in the parameter names)
+                    if (!is_array($operation['value']) || [] === $operation['value']) {
+                        throw new \InvalidArgumentException(sprintf('Invalid filter value for the "RANGE" operator of "%s": a list of [from, to] pairs is expected.', $operation['field']));
+                    }
+
                     $orX = $queryBuilder->expr()->orX();
-                    foreach ($operation['value'] as $operatorIndex => $operationValue) {
-                        $andX = $queryBuilder->expr()->andX();
-                        $andX->add(
-                            $queryBuilder->expr()
-                                ->gte(
-                                    "{$operation['alias']}.{$operation['field']}",
-                                    ":{$operation['field']}{$operation['operator']}{$operatorIndex}i0"
-                                )
-                        );
-                        $andX->add(
-                            $queryBuilder->expr()
-                                ->lt(
-                                    "{$operation['alias']}.{$operation['field']}",
-                                    ":{$operation['field']}{$operation['operator']}{$operatorIndex}i1"
-                                )
-                        );
-                        $orX->add(
-                            $andX
-                        );
+                    foreach (array_values($operation['value']) as $rangeIndex => $range) {
+                        if (!is_array($range) || 2 !== count($range)) {
+                            throw new \InvalidArgumentException(sprintf('Invalid filter value for the "RANGE" operator of "%s": a list of [from, to] pairs is expected.', $operation['field']));
+                        }
+
+                        [$from, $to] = array_values($range);
+                        $orX->add($queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->gte($field, ":{$parameter}i{$rangeIndex}from"),
+                            $queryBuilder->expr()->lt($field, ":{$parameter}i{$rangeIndex}to")
+                        ));
+                        $queryBuilder->setParameter("{$parameter}i{$rangeIndex}from", $from);
+                        $queryBuilder->setParameter("{$parameter}i{$rangeIndex}to", $to);
                     }
                     $queryBuilder->andWhere($orX);
-                    foreach ($operation['value'] as $operatorIndex => $operationValue) {
-                        $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}{$operatorIndex}i0", $operationValue[0]);
-                        $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}{$operatorIndex}i1", $operationValue[1]);
-                    }
                     break;
 
                 case 'LIKE' :
-                case 'like' :
-                    $queryBuilder->andWhere("{$operation['alias']}.{$operation['field']} LIKE :{$operation['field']}{$operation['operator']}");
-                    $queryBuilder->setParameter("{$operation['field']}{$operation['operator']}", '%' . $operation['value'] . '%');
+                    $queryBuilder->andWhere("{$field} LIKE :{$parameter}");
+                    $queryBuilder->setParameter($parameter, '%' . $operation['value'] . '%');
                     break;
 
+                // Without UNACCENT(): a PostgreSQL function (a MySQL query failed), only for text columns
                 case 'ISNULL' :
-                case 'isnull' :
-                    $queryBuilder->andWhere("UNACCENT({$operation['alias']}.{$operation['field']}) IS NULL");
+                    $queryBuilder->andWhere("{$field} IS NULL");
                     break;
 
                 case 'ISNOTNULL' :
                 case 'NOTNULL' :
-                case 'isnotnull' :
-                case 'notnull' :
-                    $queryBuilder->andWhere("UNACCENT({$operation['alias']}.{$operation['field']}) IS NOT NULL");
+                    $queryBuilder->andWhere("{$field} IS NOT NULL");
                     break;
+
+                default:
+                    $invalidOperator = $operation['operator'] ?? null;
+
+                    throw new \InvalidArgumentException(sprintf('Invalid filter operator "%s".', is_scalar($invalidOperator) ? $invalidOperator : get_debug_type($invalidOperator)));
             }
         }
 

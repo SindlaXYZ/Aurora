@@ -9,6 +9,7 @@ use Sindla\Bundle\AuroraBundle\EventSubscriber\OutputSubscriber;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension;
 use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -16,6 +17,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\KernelEvents;
 use Twig\Environment;
 
 /**
@@ -118,6 +120,43 @@ class OutputSubscriberResponseTest extends TestCase
         // The stricter policy of the controller used to be replaced by the default one
         $this->assertSame("default-src 'none'", $response->headers->get('Content-Security-Policy'));
         $this->assertSame('max-age=1536000; includeSubDomains', $response->headers->get('Strict-Transport-Security'));
+    }
+
+    /**
+     * Registered as a "kernel.event_listener" (as the README used to say) and as an event subscriber (autoconfigure), it ran twice: the
+     * replacements were applied twice
+     */
+    public function testTheResponseIsHandledOnceWhenTheSubscriberIsRegisteredTwice(): void
+    {
+        $container = new Container();
+        $container->setParameter('aurora.minify.output', true);
+        $container->setParameter('aurora.minify.output.ignore.extensions', []);
+        $container->setParameter('aurora.minify.output.ignore.content.type', []);
+        $container->setParameter('aurora.minify.replace', true);
+        $container->setParameter('aurora.minify.replace.mapper', ['/static/' => 'https://cdn.example.com/static/']);
+
+        $subscriber = new OutputSubscriber(
+            $container,
+            new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelper()),
+            []
+        );
+
+        $dispatcher = new EventDispatcher();
+        $dispatcher->addSubscriber($subscriber);
+        $dispatcher->addListener(KernelEvents::RESPONSE, [$subscriber, 'onKernelResponse']);
+
+        $kernel   = $this->createStub(HttpKernelInterface::class);
+        $response = new Response();
+
+        foreach (['/page', '/other-page'] as $path) {
+            // The same response object for every request (e.g. kept by the controller in a long-running worker): handled once per request
+            $response->setContent('<img src="/static/a.png">');
+
+            $event = new ResponseEvent($kernel, Request::create($path), HttpKernelInterface::MAIN_REQUEST, $response);
+            $dispatcher->dispatch($event, KernelEvents::RESPONSE);
+
+            $this->assertSame('<img src="https://cdn.example.com/static/a.png">', $event->getResponse()->getContent(), $path);
+        }
     }
 
     /**
