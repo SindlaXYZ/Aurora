@@ -577,5 +577,161 @@ class AuroraChronosTest extends TestCase
         ];
     }
 
+    #[DataProvider('dataMonthFromYearAndWeekOfEveryDay')]
+    public function testMonthFromYearAndWeekOfEveryDay(string $day, int $expectedMonth): void
+    {
+        // ISO week 5 of 2024 spans Monday 2024-01-29 .. Sunday 2024-02-04
+        $this->assertSame($expectedMonth, new AuroraChronos()->monthFromYearAndWeek(2024, 5, $day));
+    }
+
+    public static function dataMonthFromYearAndWeekOfEveryDay(): array
+    {
+        return [
+            'tuesday'          => [AuroraChronos::DAY_TUESDAY, 1],
+            'wednesday'        => [AuroraChronos::DAY_WEDNESDAY, 1],
+            'thursday'         => [AuroraChronos::DAY_THURSDAY, 2],
+            'friday'           => [AuroraChronos::DAY_FRIDAY, 2],
+            'saturday'         => [AuroraChronos::DAY_SATURDAY, 2],
+            'sunday'           => [AuroraChronos::DAY_SUNDAY, 2],
+            'case-insensitive' => ['Wednesday', 1],
+            'most, uppercase'  => ['MOST', 2],
+        ];
+    }
+
+    public function testMonthFromYearAndWeekRejectsAnUnknownDay(): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+
+        new AuroraChronos()->monthFromYearAndWeek(2024, 5, 'someday');
+    }
+
+    public function testDateToMachineDateFallsBackToTheFreeFormatParser(): void
+    {
+        $chronos = new AuroraChronos();
+
+        // A machine date does not match the human format: it is kept
+        $this->assertSame('2013-09-28', $chronos->dateToMachineDate('2013-09-28', 'd.m.Y'));
+        $this->assertSame('2010-02-01 01:02:03', $chronos->dateToMachineDateTime('2010-02-01 01:02:03', 'd.m.Y H:i:s'));
+    }
+
+    #[DataProvider('dataDiffIsHigherThanOfDateTimeObjects')]
+    public function testDiffIsHigherThanOfDateTimeObjects(bool $expected, string $startDate, string $endDate, int $interval, int $timeUnit): void
+    {
+        $timezone = new \DateTimeZone('UTC');
+
+        $this->assertSame(
+            $expected,
+            new AuroraChronos()->diffIsHigherThan(new \DateTime($startDate, $timezone), new \DateTime($endDate, $timezone), $interval, $timeUnit)
+        );
+    }
+
+    public static function dataDiffIsHigherThanOfDateTimeObjects(): array
+    {
+        return [
+            'minutes, higher'              => [true, '2010-01-01 10:00:00', '2010-01-01 10:03:00', 2, AuroraChronos::TIME_UNIT_MINUTES],
+            'hours, higher'                => [true, '2010-01-01 10:00:00', '2010-01-01 13:00:00', 2, AuroraChronos::TIME_UNIT_HOURS],
+            'days, higher'                 => [true, '2010-01-01 10:00:00', '2010-01-04 10:00:00', 2, AuroraChronos::TIME_UNIT_DAYS],
+            'days, lower'                  => [false, '2010-01-01 10:00:00', '2010-01-02 10:00:00', 2, AuroraChronos::TIME_UNIT_DAYS],
+            'weeks, higher'                => [true, '2010-01-01 10:00:00', '2010-01-22 10:00:00', 2, AuroraChronos::TIME_UNIT_WEEKS],
+            'weeks, equal plus a few days' => [true, '2010-01-01 10:00:00', '2010-01-10 10:00:00', 1, AuroraChronos::TIME_UNIT_WEEKS],
+            'weeks, reversed'              => [false, '2010-01-22 10:00:00', '2010-01-01 10:00:00', 1, AuroraChronos::TIME_UNIT_WEEKS],
+            'years, lower'                 => [false, '2020-01-01 00:00:00', '2021-06-01 00:00:00', 2, AuroraChronos::TIME_UNIT_YEARS],
+            'unknown time unit'            => [false, '2010-01-01 10:00:00', '2030-01-01 10:00:00', 1, 99],
+        ];
+    }
+
+    public function testHoursDaysAndYearsBetweenTwoDateStrings(): void
+    {
+        $chronos = new AuroraChronos();
+
+        // Full hours only, negative when the end date is before the start date
+        $this->assertSame(2, $chronos->hoursBetweenTwoDates('2010-01-01 10:00:00', '2010-01-01 12:59:59'));
+        $this->assertSame(-2, $chronos->hoursBetweenTwoDates('2010-01-01 12:59:59', '2010-01-01 10:00:00'));
+
+        // 2024 is a leap year
+        $this->assertSame(3, $chronos->daysBetweenTwoDates('2024-02-27', '2024-03-01'));
+        $this->assertSame(-3, $chronos->daysBetweenTwoDates('2024-03-01', '2024-02-27'));
+
+        $this->assertSame(3, $chronos->yearsBetweenTwoDates('2000-02-29', '2004-02-28'));
+        $this->assertSame(4, $chronos->yearsBetweenTwoDates('2000-02-29', '2004-02-29'));
+    }
+
+    public function testSeconds2HMSCanCutTheHourWhenZero(): void
+    {
+        $chronos = new AuroraChronos();
+
+        $this->assertSame('01:01:01', $chronos->seconds2HMS(3661));
+        $this->assertSame('25:00:00', $chronos->seconds2HMS(90000));
+        $this->assertSame('01:01', $chronos->seconds2HMS(61, true));
+        $this->assertSame('01:01:01', $chronos->seconds2HMS(3661, true));
+    }
+
+    #[DataProvider('dataSeconds2HMRoundUp')]
+    public function testSeconds2HMRoundUp(string $expected, int $seconds, bool $roundUp): void
+    {
+        $this->assertSame($expected, new AuroraChronos()->seconds2HM($seconds, $roundUp));
+    }
+
+    public static function dataSeconds2HMRoundUp(): array
+    {
+        return [
+            'below half a minute'        => ['00:01', 89, true],
+            'half a minute'              => ['00:02', 90, true],
+            'rounded up to the hour'     => ['01:00', 3599, true],
+            'truncated without round up' => ['00:59', 3599, false],
+        ];
+    }
+
+    #[DataProvider('dataIsDateValid')]
+    public function testIsDateValid(bool $expected, string $date, string $format): void
+    {
+        $this->assertSame($expected, new AuroraChronos()->isDateValid($date, $format));
+    }
+
+    public static function dataIsDateValid(): array
+    {
+        return [
+            'leap day'      => [true, '2024-02-29 13:14:15', 'Y-m-d H:i:s'],
+            'no leap day'   => [false, '2023-02-29 13:14:15', 'Y-m-d H:i:s'],
+            'invalid hour'  => [false, '2024-01-01 24:00:00', 'Y-m-d H:i:s'],
+            'missing time'  => [false, '2024-02-29', 'Y-m-d H:i:s'],
+            'custom format' => [true, '29.02.2024', 'd.m.Y'],
+            'invalid month' => [false, '2024-13-01', 'Y-m-d'],
+            'not a date'    => [false, 'not a date', 'Y-m-d'],
+        ];
+    }
+
+    public function testIsDateValidUsesTheDateTimeFormatByDefault(): void
+    {
+        $chronos = new AuroraChronos();
+
+        $this->assertTrue($chronos->isDateValid('2024-01-02 03:04:05'));
+        $this->assertFalse($chronos->isDateValid('2024-01-02'));
+    }
+
+    #[DataProvider('dataIsDateBetween')]
+    public function testIsDateBetween(bool $expected, string $date): void
+    {
+        $timezone = new \DateTimeZone('UTC');
+        $start    = new \DateTimeImmutable('2024-03-01 00:00:00', $timezone);
+        $end      = new \DateTimeImmutable('2024-03-31 23:59:59', $timezone);
+
+        $this->assertSame($expected, new AuroraChronos()->isDateBetween(new \DateTimeImmutable($date), $start, $end));
+    }
+
+    public static function dataIsDateBetween(): array
+    {
+        return [
+            'inside'                    => [true, '2024-03-15 12:00:00+00:00'],
+            'at the start'              => [true, '2024-03-01 00:00:00+00:00'],
+            'at the end'                => [true, '2024-03-31 23:59:59+00:00'],
+            'one second before'         => [false, '2024-02-29 23:59:59+00:00'],
+            'one second after'          => [false, '2024-04-01 00:00:00+00:00'],
+            // The same instants in other timezones
+            'end in another timezone'   => [true, '2024-04-01 01:59:59+02:00'],
+            'after in another timezone' => [false, '2024-03-31 20:00:00-04:00'],
+        ];
+    }
+
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 }

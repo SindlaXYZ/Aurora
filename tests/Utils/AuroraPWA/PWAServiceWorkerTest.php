@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA;
 
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment;
 use Twig\Loader\ArrayLoader;
 use Twig\Loader\FilesystemLoader;
@@ -133,6 +136,205 @@ class PWAServiceWorkerTest extends TestCase
             @unlink($iconsDirectory . '/favicon.ico');
             @rmdir($iconsDirectory);
         }
+    }
+
+    #[DataProvider('dataScripts')]
+    public function testADisabledPwaServesNoScript(string $method): void
+    {
+        $twig = $this->createMock(Environment::class);
+        $twig->expects($this->never())->method('render');
+
+        $response = $this->createPWA(['aurora.pwa.enabled' => 'false'], null, $twig)->{$method}(Request::create('/script.js'));
+
+        $this->assertSame(Response::HTTP_NOT_FOUND, $response->getStatusCode());
+        $this->assertSame('', $response->getContent());
+        $this->assertSame('text/javascript', $response->headers->get('Content-Type'));
+    }
+
+    public static function dataScripts(): iterable
+    {
+        yield 'main script' => ['mainJS'];
+        yield 'service worker' => ['serviceWorkerJS'];
+    }
+
+    public function testIconFallsBackToTheAndroidThenToTheAppleIconOfTheRequestedSize(): void
+    {
+        $iconsDirectory = $this->createIconsDirectory(['android-icon-48x48.png' => 'android', 'apple-icon-57x57.png' => 'apple icon']);
+
+        try {
+            $pwa = $this->createPWA(['aurora.pwa.icons' => $iconsDirectory, 'kernel.project_dir' => $iconsDirectory], '');
+
+            $androidIcon = $pwa->icon(Request::create('/favicon-48x48.png'));
+            $this->assertInstanceOf(BinaryFileResponse::class, $androidIcon);
+            $this->assertSame($iconsDirectory . '/android-icon-48x48.png', $androidIcon->getFile()->getPathname());
+            $this->assertSame('7', $androidIcon->headers->get('Content-Length'));
+
+            $appleIcon = $pwa->icon(Request::create('/apple-touch-icon-57x57.png'));
+            $this->assertInstanceOf(BinaryFileResponse::class, $appleIcon);
+            $this->assertSame($iconsDirectory . '/apple-icon-57x57.png', $appleIcon->getFile()->getPathname());
+            $this->assertSame('10', $appleIcon->headers->get('Content-Length'));
+        } finally {
+            $this->removeIconsDirectory($iconsDirectory);
+        }
+    }
+
+    #[DataProvider('dataMissingIcons')]
+    public function testIconAnswersAPlaceholderIconWhenNoFileMatches(string $path): void
+    {
+        $iconsDirectory = $this->createIconsDirectory(['android-icon-48x48.png' => 'android']);
+
+        try {
+            $pwa = $this->createPWA(['aurora.pwa.icons' => $iconsDirectory, 'kernel.project_dir' => $iconsDirectory], '');
+
+            // The missing icon is also reported with E_USER_NOTICE, which is not asserted: in debug mode the notice is an exception
+            $previousHandler = null;
+            $previousHandler = set_error_handler(static function (int $errno, string $message, string $file, int $line) use (&$previousHandler): bool {
+                return E_USER_NOTICE === $errno || (null !== $previousHandler && (bool)$previousHandler($errno, $message, $file, $line));
+            });
+
+            try {
+                $response = $pwa->icon(Request::create($path));
+            } finally {
+                restore_error_handler();
+            }
+
+            $this->assertNotInstanceOf(BinaryFileResponse::class, $response);
+            $this->assertSame(Response::HTTP_OK, $response->getStatusCode());
+            $this->assertSame('image/x-icon', $response->headers->get('Content-Type'));
+            // A 16x16 ICO file
+            $this->assertStringStartsWith("\x00\x00\x01\x00\x01\x00\x10\x10", (string)$response->getContent());
+        } finally {
+            $this->removeIconsDirectory($iconsDirectory);
+        }
+    }
+
+    public static function dataMissingIcons(): iterable
+    {
+        yield 'no size in the name' => ['/missing.ico'];
+        yield 'a zero size' => ['/icon-0x48.png'];
+        yield 'no icon of this size' => ['/icon-72x72.png'];
+    }
+
+    /**
+     * The "App\Service\AuroraService" hooks of the host application (in a separate process: the class would exist for every other test)
+     */
+    #[RunInSeparateProcess]
+    #[PreserveGlobalState(false)]
+    public function testTheHostApplicationHooksCustomizeTheManifestTheMainScriptAndTheVersion(): void
+    {
+        $hook = new class {
+            public ?Request $request = null;
+
+            public function pwaAppName(): string
+            {
+                return 'App of ' . $this->request?->getHost();
+            }
+
+            public function pwaAppShortName(): string
+            {
+                return 'Short';
+            }
+
+            public function pwaDescription(): string
+            {
+                return 'Hooked description';
+            }
+
+            public function pwaThemeColor(): string
+            {
+                return '#111111';
+            }
+
+            public function pwaBackgroundColor(): string
+            {
+                return '#222222';
+            }
+
+            public function transNotificationInstallTheApp(): string
+            {
+                return "Installer l'application";
+            }
+
+            public function transNotificationNewVersion(): string
+            {
+                return 'Nouvelle version';
+            }
+
+            public function transNotificationReload(): string
+            {
+                return 'Recharger';
+            }
+
+            public function pwaVersionAppend(): string
+            {
+                return 'release-7';
+            }
+        };
+        class_alias($hook::class, 'App\Service\AuroraService');
+
+        // A 1x1 PNG: the size of the maskable icon is read from the image
+        $icons = ['android-icon-maskable.png' => (string)base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z/C/HwAFgwJ/lXzyNwAAAABJRU5ErkJggg==')];
+        foreach ([36, 48, 72, 96, 144, 192, 512] as $size) {
+            $icons["android-icon-{$size}x{$size}.png"] = 'png';
+        }
+        $iconsDirectory = $this->createIconsDirectory($icons);
+
+        try {
+            $parameters = [
+                'aurora.pwa.icons'            => $iconsDirectory,
+                'aurora.pwa.app_name'         => 'Configured name',
+                'aurora.pwa.theme_color'      => '#000000',
+                'aurora.pwa.background_color' => '#ffffff',
+                'kernel.project_dir'          => $iconsDirectory,
+            ];
+
+            $mainJsTemplate = '{{ translations.notificationInstallTheApp }}|{{ translations.notificationNewVersion }}|{{ translations.notificationReload }}|{{ pwaVersion }}';
+            $twig           = new Environment(new ArrayLoader(['@Aurora/pwa-main.js.twig' => $mainJsTemplate]), ['autoescape' => false]);
+            $pwa            = $this->createPWA($parameters, null, $twig);
+            $version        = 'hash_' . substr(sha1('release-7'), 0, 15);
+
+            $request  = Request::create('https://hooked.example.com/manifest.json');
+            $manifest = json_decode((string)$pwa->manifestJSON($request)->getContent(), true, 512, JSON_THROW_ON_ERROR);
+
+            $this->assertSame('App of hooked.example.com', $manifest['name']);
+            $this->assertSame('Short', $manifest['short_name']);
+            $this->assertSame('Hooked description', $manifest['description']);
+            $this->assertSame('#111111', $manifest['theme_color']);
+            $this->assertSame('#222222', $manifest['background_color']);
+
+            $this->assertSame("Installer l\\'application|Nouvelle version|Recharger|{$version}", $pwa->mainJS($request)->getContent());
+            $this->assertSame($version, $pwa->version($request));
+
+            // A configured suffix wins over the hook
+            $parameters['aurora.pwa.version_append'] = 'v2';
+            $this->assertSame('hash_v2', $this->createPWA($parameters, '')->version($request));
+        } finally {
+            $this->removeIconsDirectory($iconsDirectory);
+        }
+    }
+
+    /**
+     * @param array<string, string> $files
+     */
+    private function createIconsDirectory(array $files): string
+    {
+        $iconsDirectory = sys_get_temp_dir() . '/aurora-pwa-icons-' . bin2hex(random_bytes(4));
+        mkdir($iconsDirectory);
+
+        foreach ($files as $name => $content) {
+            file_put_contents($iconsDirectory . '/' . $name, $content);
+        }
+
+        return $iconsDirectory;
+    }
+
+    private function removeIconsDirectory(string $iconsDirectory): void
+    {
+        foreach (glob($iconsDirectory . '/*') ?: [] as $file) {
+            @unlink($file);
+        }
+
+        @rmdir($iconsDirectory);
     }
 
     private function createBundleTwig(): Environment

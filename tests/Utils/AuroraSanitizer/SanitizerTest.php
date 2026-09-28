@@ -186,6 +186,174 @@ CSS;
 
         self::assertSame($html, $result);
     }
+
+    /**
+     * The <script>, <pre> and <textarea> protection is a PCRE too: an unclosed "<script>" on a large page reaches the backtrack limit
+     */
+    public function testMinifyHtmlReturnsTheOriginalPageWhenProtectingTheScriptsFails(): void
+    {
+        $html = "<body>\n    <p>Aurora</p>\n    <script>\n" . str_repeat("    var a = 1;\n", 500) . '</body>';
+
+        $backtrackLimit = ini_get('pcre.backtrack_limit');
+        $jit            = ini_get('pcre.jit');
+        ini_set('pcre.backtrack_limit', '1000');
+        ini_set('pcre.jit', '0');
+
+        try {
+            $result = new AuroraSanitizer()->minifyHTML($html);
+        } finally {
+            ini_set('pcre.backtrack_limit', (string)$backtrackLimit);
+            ini_set('pcre.jit', (string)$jit);
+        }
+
+        self::assertSame($html, $result);
+    }
+
+    public function testCssMinifyKeepsTheDoubleQuotesOfARewrittenUrl(): void
+    {
+        $result = new AuroraSanitizer()->cssMinify('@font-face { src: url("fonts/aurora.woff2"); }', '/assets/css/fonts.css');
+
+        self::assertMatchesRegularExpression('#url\(("?)/assets/css/fonts/aurora\.woff2\1\)#', $result);
+    }
+
+    #[DataProvider('dataMinifyCss')]
+    public function testMinifyCss(string $css, string $expected): void
+    {
+        self::assertSame($expected, new AuroraSanitizer()->minifyCSS($css));
+    }
+
+    public static function dataMinifyCss(): array
+    {
+        return [
+            'comments, whitespace, empty rules and redundant values' => [
+                "/* comment */\nbody {\n    color : #ffffff;\n    margin: 0px 0px 0px 0px;\n    padding: 0.5em;\n    border: none;\n}\n.empty {}\n"
+                . "a { font-family: 'Arial'; background: url(\"img.png\"); }",
+                'body{color:#fff;margin:0;padding:.5em;border:0}a{font-family:Arial;background:url(img.png)}',
+            ],
+            'combinators and attribute selectors'                    => [
+                "a > b + c ~ d { margin : 0 auto ; }\n\n\ninput[type = \"text\"] { border: 1px solid #000000; }",
+                'a>b+c~d{margin:0 auto}input[type=text]{border:1px solid #000}',
+            ],
+            'important comments and declarations are kept'          => [
+                '/*! license */ a { width: 10px !important ; }',
+                '/*! license */ a{width:10px!important}',
+            ],
+            'strings are kept as they are'                           => [
+                'a { content: "a  /* b */  c"; }',
+                'a{content:"a  /* b */  c"}',
+            ],
+            'background position and leading zeros'                  => [
+                'a { background-position: 0; opacity: 0.60; margin: -0.5em 0.25em; }',
+                'a{background-position:0 0;opacity:.60;margin:-.5em .25em}',
+            ],
+            'blank input'                                            => ["  \n", "  \n"],
+        ];
+    }
+
+    #[DataProvider('dataMinifyJs')]
+    public function testMinifyJs(string $javascript, string $expected): void
+    {
+        self::assertSame($expected, new AuroraSanitizer()->minifyJS($javascript));
+    }
+
+    public static function dataMinifyJs(): array
+    {
+        return [
+            'line comments and whitespace'           => ["function add(x, y) {\n    // sum\n    return x + y;\n}\n", 'function add(x,y){return x+y;}'],
+            'block comments'                         => ["var a = 1; /* one */\nvar b = 2;", 'var a=1;var b=2;'],
+            'a "//" in a string is not a comment'    => ['var s = "a // b";', 'var s="a // b";'],
+            'a regular expression literal'           => ["var re = /ab+c/g; // re\nvar z = 3;", 'var re=/ab+c/g;var z=3;'],
+            'an escaped quote in a string'           => ["var s = 'it\\'s'; // q\nvar t = 1;", "var s='it\\'s';var t=1;"],
+            'objects, arrays and conditional blocks' => ["var o = { 'key' : [1, 2] };\nif (o) {\n  b();\n}\nelse {\n  c();\n}", "var o={'key':[1,2]};if (o){b();}else{c();}"],
+            'blank input'                            => ['   ', '   '],
+        ];
+    }
+
+    public function testMinifyJsRemovesTheConsoleCallsOnlyOnDemand(): void
+    {
+        $javascript = "var a = 1;\nconsole.log(a);\nconsole.warn('x');\nvar b = 2;\n";
+        $sanitizer  = new AuroraSanitizer();
+
+        self::assertSame("var a=1;console.log(a);console.warn('x');var b=2;", $sanitizer->minifyJS($javascript));
+        self::assertSame('var a=1;var b=2;', $sanitizer->minifyJS($javascript, true));
+    }
+
+    #[DataProvider('dataMinifyJsV1')]
+    public function testMinifyJsV1(string $javascript, string $expected): void
+    {
+        $sanitizer = new AuroraSanitizer();
+
+        self::assertSame($expected, new \ReflectionMethod($sanitizer, 'minifyJSV1')->invoke($sanitizer, $javascript));
+    }
+
+    public static function dataMinifyJsV1(): array
+    {
+        return [
+            'comments, whitespace and quoted property names' => [
+                "var a = 1; // comment\n/* block */\nfunction f ( x ) {\n    return { 'foo' : x };\n}\nvar b = obj['bar'];\n",
+                'var a=1;function f(x){return{foo:x}}var b=obj.bar;',
+            ],
+            'a "//" in a string is not a comment'            => ["var s = \"a // b\"; // c\nvar t = 'x';", "var s=\"a // b\";var t='x';"],
+            'blank input'                                    => ['  ', '  '],
+        ];
+    }
+
+    #[DataProvider('dataMinifyHtmlV1')]
+    public function testMinifyHtmlV1(string $html, string $expected): void
+    {
+        $sanitizer = new AuroraSanitizer();
+
+        self::assertSame($expected, new \ReflectionMethod($sanitizer, 'minifyHTMLV1')->invoke($sanitizer, $html));
+    }
+
+    public static function dataMinifyHtmlV1(): array
+    {
+        return [
+            'whitespace around the tags and inside the text' => ["<div>\n\t<p>Hello \t  world</p>\n</div>", '<div><p>Hello world</p></div>'],
+            'comments'                                       => ["<p>a</p>\n<!-- x -->\n<p>b</p>", '<p>a</p><p>b</p>'],
+        ];
+    }
+
+    #[DataProvider('dataUnderscoreHtmlMinify')]
+    public function testUnderscoreHtmlMinify(string $html, string $expected): void
+    {
+        self::assertSame($expected, new AuroraSanitizer()->_htmlMinify($html));
+    }
+
+    public static function dataUnderscoreHtmlMinify(): array
+    {
+        return [
+            // Only the line breaks and tabs next to a tag are removed: a space may be displayed
+            'whitespace'         => ["<div>\n    <p>Hello   world</p>\n</div>", '<div> <p>Hello world</p></div>'],
+            'multiline comments' => ["<p>a</p>\n<!-- x\n y -->\n<p>b</p>", '<p>a</p><p>b</p>'],
+        ];
+    }
+
+    #[DataProvider('dataDispatchLoopShutdown')]
+    public function testDispatchLoopShutdown(string $html, string $expected): void
+    {
+        self::assertSame($expected, new AuroraSanitizer()->dispatchLoopShutdown($html));
+    }
+
+    public static function dataDispatchLoopShutdown(): array
+    {
+        return [
+            'optional end tags and simple attribute values' => [
+                "<dl>\n  <dt>Term</dt>\n  <dd>Definition</dd>\n</dl>\n<select><option value=\"a\">A</option></select>\n"
+                . '<table><tr><th>H</th></tr><tr><td>D</td></tr></table>',
+                '<dl><dt>Term<dd>Definition</dl><select><option value=a>A</select><table><tr><th>H<tr><td>D</table>',
+            ],
+            'the quotes of an URL are kept'                 => [
+                "<ul>\n    <li class=\"item\">One</li>\n\n    <li data-url=\"http://example.com/\">Two</li>\n</ul>",
+                '<ul><li class=item>One<li data-url="http://example.com/">Two</ul>',
+            ],
+            // The new lines matter in JavaScript: only the simple comments and the new lines after a block are removed
+            'inline script'                                 => [
+                "<script>\n    var a = 1; // note\n    if (a) {\n        a++;\n    }\n    f(a),\n    g();\n</script>",
+                "<script> var a = 1; \nif (a){a++;\n}f(a),g();</script>",
+            ],
+        ];
+    }
 }
 
 }

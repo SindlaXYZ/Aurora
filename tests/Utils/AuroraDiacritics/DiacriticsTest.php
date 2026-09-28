@@ -37,4 +37,25 @@ class DiacriticsTest extends KernelTestCase
             $this->assertEquals($expected, $Diacritics->modify($given));
         }
     }
+
+    public function testInjectAddsPatternsWithoutTheRomanianSets(): void
+    {
+        $diacritics = new AuroraDiacritics();
+        $diacritics->inject(['(P|p)adure' => '$1ădure']);
+
+        // The Romanian sets are not loaded ("si" is kept), the cedillas are always replaced by commas
+        $this->assertSame('Pădurea si pădure lângă Ștefănești', $diacritics->modify('Padurea si padure lângă Ştefăneşti'));
+    }
+
+    public function testInjectExtendsAndOverridesTheRomanianSets(): void
+    {
+        $diacritics = new AuroraDiacritics();
+        $diacritics->useRomanian();
+        $diacritics->inject([
+            '(P|p)adure'  => '$1ădure',
+            '(C|c)omert' => '$1omerț electronic',
+        ]);
+
+        $this->assertSame('Pădure și comerț electronic', $diacritics->modify('Padure si comert'));
+    }
 }

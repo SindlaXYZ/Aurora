@@ -35,10 +35,10 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
     public function testToStringWithCookieObjects(): void
     {
-        $cookie1 = $this->createMock(Cookie::class);
+        $cookie1 = $this->createStub(Cookie::class);
         $cookie1->method('toArray')->willReturn(['name' => 'test1', 'value' => 'value1']);
 
-        $cookie2 = $this->createMock(Cookie::class);
+        $cookie2 = $this->createStub(Cookie::class);
         $cookie2->method('toArray')->willReturn(['name' => 'test2', 'value' => 'value2']);
 
         $cookies = [$cookie1, $cookie2];
@@ -50,7 +50,7 @@ class AuroraCookiesExtractorTest extends KernelTestCase
 
     public function testToStringWithMixedTypes(): void
     {
-        $cookie = $this->createMock(Cookie::class);
+        $cookie = $this->createStub(Cookie::class);
         $cookie->method('toArray')->willReturn(['name' => 'from_object', 'value' => 'obj_value']);
 
         $cookies = [
@@ -127,6 +127,23 @@ class AuroraCookiesExtractorTest extends KernelTestCase
         $result = $this->auroraCookiesExtractor->toString($cookies);
 
         $this->assertEquals('', $result);
+    }
+
+    public function testToStringWithoutAnyValidCookie(): void
+    {
+        $this->assertSame('', $this->auroraCookiesExtractor->toString([['name' => 'no_value'], ['value' => 'no_name'], 'not-a-cookie']));
+    }
+
+    public function testToStringWithRealCookieObjects(): void
+    {
+        $cookies = [
+            new Cookie()->setName('session_id')->setValue('abc123')->setPath('/'),
+            // A cookie without a value is skipped
+            new Cookie()->setName('no_value'),
+            new Cookie()->setName('lang')->setValue('ro'),
+        ];
+
+        $this->assertSame('session_id=abc123; lang=ro', $this->auroraCookiesExtractor->toString($cookies));
     }
 
     public function testOriginalArrayNotModified(): void

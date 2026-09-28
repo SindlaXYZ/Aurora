@@ -296,4 +296,89 @@ class AuroraCalendarTest extends KernelTestCase
         }
     }
 
+    public function testGenerateCalendarOfMutableDatesWithAWeekStartingOnWednesday(): void
+    {
+        $timezone = new \DateTimeZone('Europe/Bucharest');
+        $start    = new \DateTime('2025-04-07 00:00:00', $timezone); // Monday
+        $end      = new \DateTime('2025-04-11 00:00:00', $timezone); // Friday
+        // 2025-04-10 01:30 in Bucharest: the reference date is moved to the timezone of the start date
+        $reference = new \DateTime('2025-04-09 22:30:00', new \DateTimeZone('UTC'));
+
+        $calendar = new AuroraCalendar()->generateCalendar($start, $end, 3, 0, 0, $reference);
+
+        // From the Wednesday before the start date to the Tuesday after the end date
+        $this->assertSame(
+            [
+                '2025-04-02', '2025-04-03', '2025-04-04', '2025-04-05', '2025-04-06', '2025-04-07', '2025-04-08',
+                '2025-04-09', '2025-04-10', '2025-04-11', '2025-04-12', '2025-04-13', '2025-04-14', '2025-04-15',
+            ],
+            array_keys($calendar)
+        );
+        $this->assertSame([3, 4, 5, 6, 7, 1, 2], array_slice(array_column($calendar, 'dayOfTheWeek'), 0, 7));
+        $this->assertInstanceOf(\DateTimeImmutable::class, $calendar['2025-04-02']['date']);
+        $this->assertSame('2025-04-02 00:00:00 Europe/Bucharest', $calendar['2025-04-02']['date']->format('Y-m-d H:i:s e'));
+
+        $marked = static fn(string $marker): array => array_keys(array_filter($calendar, static fn(array $day): bool => $day[$marker]));
+        $this->assertSame(['2025-04-09'], $marked('isYesterday'));
+        $this->assertSame(['2025-04-10'], $marked('isToday'));
+        $this->assertSame(['2025-04-11'], $marked('isTomorrow'));
+
+        // The given dates are not modified
+        $this->assertSame('2025-04-07 00:00:00', $start->format('Y-m-d H:i:s'));
+        $this->assertSame('2025-04-11 00:00:00', $end->format('Y-m-d H:i:s'));
+    }
+
+    public function testGenerateCalendarAcrossTwoMonthsWithAWeekStartingOnSunday(): void
+    {
+        $timezone  = new \DateTimeZone('UTC');
+        $start     = new \DateTimeImmutable('2025-04-30 00:00:00', $timezone); // Wednesday
+        $end       = new \DateTimeImmutable('2025-05-03 00:00:00', $timezone); // Saturday, the last day of the week
+        $reference = new \DateTimeImmutable('2025-05-01 08:00:00', $timezone);
+
+        $calendar = new AuroraCalendar()->generateCalendar($start, $end, 7, 0, 1, $reference);
+
+        // Sunday 2025-04-27 .. Saturday 2025-05-03, then one more week
+        $this->assertSame(
+            [
+                '2025-04-27', '2025-04-28', '2025-04-29', '2025-04-30', '2025-05-01', '2025-05-02', '2025-05-03',
+                '2025-05-04', '2025-05-05', '2025-05-06', '2025-05-07', '2025-05-08', '2025-05-09', '2025-05-10',
+            ],
+            array_keys($calendar)
+        );
+        $this->assertSame(7, $calendar['2025-04-27']['dayOfTheWeek']);
+        $this->assertSame(6, $calendar['2025-05-10']['dayOfTheWeek']);
+        $this->assertTrue($calendar['2025-04-30']['isYesterday']);
+        $this->assertTrue($calendar['2025-05-01']['isToday']);
+        $this->assertTrue($calendar['2025-05-02']['isTomorrow']);
+    }
+
+    public function testGenerateCalendarMarksTheCurrentDayByDefault(): void
+    {
+        $timezone = new \DateTimeZone('UTC');
+        $before   = new \DateTimeImmutable('now', $timezone);
+        $calendar = new AuroraCalendar()->generateCalendar($before);
+        $after    = new \DateTimeImmutable('now', $timezone);
+
+        if ($before->format('Y-m-d') !== $after->format('Y-m-d')) {
+            $this->markTestSkipped('The day changed during the test.');
+        }
+
+        $today = array_keys(array_filter($calendar, static fn(array $day): bool => $day['isToday']));
+
+        $this->assertSame([$before->format('Y-m-d')], $today);
+    }
+
+    public function testGenerateCalendarUsesTheAbsoluteNumberOfWeeksBeforeAndAfter(): void
+    {
+        $auroraCalendar = new AuroraCalendar();
+        $start          = new \DateTimeImmutable('2025-04-11 00:00:00', new \DateTimeZone('UTC'));
+        $reference      = new \DateTimeImmutable('2025-04-11 12:00:00', new \DateTimeZone('UTC'));
+
+        $negative = array_keys($auroraCalendar->generateCalendar($start, null, 1, -1, -2, $reference));
+
+        $this->assertSame(array_keys($auroraCalendar->generateCalendar($start, null, 1, 1, 2, $reference)), $negative);
+        $this->assertCount(28, $negative);
+        $this->assertSame('2025-03-31', $negative[0]);
+        $this->assertSame('2025-04-27', $negative[27]);
+    }
 }

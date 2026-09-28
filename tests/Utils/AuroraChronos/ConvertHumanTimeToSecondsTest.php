@@ -30,6 +30,12 @@ class ConvertHumanTimeToSecondsTest extends TestCase
             [432000, '5 d'],
             [5184000, '2mo'],
             [0, '10Z'],
+            [1814400, '3w'],
+            [157680000, '5y'],
+            [0, ''],
+            [0, 'h'],
+            [0, '1.5h'],
+            [0, '-5m'],
         ];
     }
 }

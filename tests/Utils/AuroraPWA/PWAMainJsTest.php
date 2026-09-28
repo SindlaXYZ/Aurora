@@ -235,6 +235,7 @@ namespace Twig {
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA {
 
+    use PHPUnit\Framework\Attributes\DataProvider;
     use PHPUnit\Framework\TestCase;
     use Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit;
     use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
@@ -424,6 +425,27 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraPWA {
             self::assertIsArray($twig->lastContext);
             self::assertArrayHasKey('automatically_prompt', $twig->lastContext);
             self::assertFalse($twig->lastContext['automatically_prompt']);
+        }
+
+        /**
+         * A value that is not a boolean string falls back to its PHP truthiness
+         */
+        #[DataProvider('dataAutomaticallyPromptFallback')]
+        public function testAutomaticallyPromptFallsBackToTheTruthinessOfOtherValues(mixed $value, bool $expected): void
+        {
+            [$pwa, $request, $twig] = $this->createMainJsScenario([
+                'aurora.pwa.automatically_prompt' => $value,
+            ]);
+
+            $pwa->mainJS($request);
+
+            self::assertSame($expected, $twig->lastContext['automatically_prompt']);
+        }
+
+        public static function dataAutomaticallyPromptFallback(): iterable
+        {
+            yield 'non boolean string' => ['maybe', true];
+            yield 'empty list' => [[], false];
         }
 
         /**

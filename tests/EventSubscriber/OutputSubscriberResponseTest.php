@@ -159,11 +159,58 @@ class OutputSubscriberResponseTest extends TestCase
         }
     }
 
+    #[DataProvider('dataNotMinifiedRequests')]
+    public function testTheOutputIsNotMinified(string $url, array $parameters): void
+    {
+        $html     = "<div>\n    <p>Aurora</p>\n</div>";
+        $response = $this->dispatch(new Response($html), ['aurora.minify.replace' => false] + $parameters, [], Request::create($url));
+
+        $this->assertSame($html, $response->getContent());
+    }
+
+    public static function dataNotMinifiedRequests(): iterable
+    {
+        yield 'minifier disabled' => ['https://app.example/page', ['aurora.minify.output' => false]];
+        yield 'admin area' => ['https://app.example/admin/users', []];
+        yield 'profiler' => ['https://app.example/_profiler/abc123', []];
+        yield 'ignored extension' => ['https://app.example/export/report.pdf', []];
+    }
+
+    public function testAResponseMarkedAsNotMinifiableIsNeitherReplacedNorMinified(): void
+    {
+        $html     = "<div>\n    <p>Aurora</p>\n</div>";
+        $response = $this->dispatch(new Response($html, Response::HTTP_OK, ['X-Do-Not-Minify' => 'true']));
+
+        $this->assertSame($html, $response->getContent());
+    }
+
+    #[DataProvider('dataRobotsTag')]
+    public function testXRobotsTagIsSetForXhrRequestsAndDevelopmentHosts(Request $request, ?string $expected): void
+    {
+        $response = $this->dispatch(new Response('<p>Aurora</p>'), [], [], $request);
+
+        $this->assertSame($expected, $response->headers->get('X-Robots-Tag'));
+    }
+
+    public static function dataRobotsTag(): iterable
+    {
+        $xhrRoute = Request::create('https://app.example/search');
+        $xhrRoute->attributes->set('_route', 'XHR_search');
+
+        yield 'XHR path' => [Request::create('https://app.example/xhr/search'), 'none'];
+        yield 'XHR route' => [$xhrRoute, 'none'];
+        yield 'staging prefix' => [Request::create('https://stg.example.com/'), 'none'];
+        yield 'dev prefix' => [Request::create('https://dev.example.com/'), 'none'];
+        yield '.localhost suffix' => [Request::create('http://example.com.localhost/'), 'none'];
+        yield '.local suffix' => [Request::create('http://example.local/'), 'none'];
+        yield 'production host' => [Request::create('https://www.example.com/page'), null];
+    }
+
     /**
      * @param array<string, mixed>                       $parameters Parameters to override; a null value removes the parameter
      * @param array<string, array<string, string>>|null $headers
      */
-    private function dispatch(Response $response, array $parameters = [], ?array $headers = []): Response
+    private function dispatch(Response $response, array $parameters = [], ?array $headers = [], ?Request $request = null): Response
     {
         $parameters += [
             'aurora.minify.output'                     => true,
@@ -188,7 +235,7 @@ class OutputSubscriberResponseTest extends TestCase
 
         $event = new ResponseEvent(
             $this->createStub(HttpKernelInterface::class),
-            Request::create('https://app.example/page'),
+            $request ?? Request::create('https://app.example/page'),
             HttpKernelInterface::MAIN_REQUEST,
             $response
         );

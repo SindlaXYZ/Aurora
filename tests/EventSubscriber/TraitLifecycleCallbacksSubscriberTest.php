@@ -73,6 +73,24 @@ class TraitLifecycleCallbacksSubscriberTest extends TestCase
         $this->assertArrayNotHasKey(Events::prePersist, $metadata->lifecycleCallbacks);
         $this->assertSame(['preUpdateUpdatedAt'], $metadata->lifecycleCallbacks[Events::preUpdate]);
     }
+
+    public function testFollowsTheTraitsOfTheParentClassesAndTheAuroraTraitsNestedInOtherTraits(): void
+    {
+        $metadata = $this->em->getClassMetadata(TraitLifecycleCallbacksChildArticle::class);
+
+        // prePersistLocal() of the application trait is not an Aurora callback: the entity needs its own #[ORM\HasLifecycleCallbacks]
+        $this->assertSame(['prePersistCreatedAt'], $metadata->lifecycleCallbacks[Events::prePersist]);
+        $this->assertSame(['preUpdateUpdatedAt'], $metadata->lifecycleCallbacks[Events::preUpdate]);
+    }
+
+    public function testAnEmbeddableGetsNoCallback(): void
+    {
+        // Doctrine throws a MappingException when a lifecycle callback is added to an embeddable
+        $metadata = $this->em->getClassMetadata(TraitLifecycleCallbacksEmbeddable::class);
+
+        $this->assertTrue($metadata->isEmbeddedClass);
+        $this->assertSame([], $metadata->lifecycleCallbacks);
+    }
 }
 
 #[ORM\Entity]
@@ -115,4 +133,35 @@ class TraitLifecycleCallbacksOverridingArticle
     public function prePersistCreatedAt(): void
     {
     }
+}
+
+abstract class TraitLifecycleCallbacksPlainParent
+{
+    use TimestampableUpdated;
+}
+
+trait TraitLifecycleCallbacksApplicationTrait
+{
+    use TimestampableCreated;
+
+    #[ORM\PrePersist]
+    public function prePersistLocal(): void
+    {
+    }
+}
+
+#[ORM\Entity]
+class TraitLifecycleCallbacksChildArticle extends TraitLifecycleCallbacksPlainParent
+{
+    use TraitLifecycleCallbacksApplicationTrait;
+
+    #[ORM\Id]
+    #[ORM\Column(type: Types::INTEGER)]
+    public ?int $id = null;
+}
+
+#[ORM\Embeddable]
+class TraitLifecycleCallbacksEmbeddable
+{
+    use TimestampableCreated;
 }

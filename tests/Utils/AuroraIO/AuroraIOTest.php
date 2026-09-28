@@ -5,12 +5,23 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraIO;
 
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
+use Symfony\Component\Filesystem\Filesystem;
 
 /**
  * clear; php vendor/phpunit/phpunit.phar -c phpunit.xml.dist vendor/sindla/aurora/tests/Utils/AuroraIO/AuroraIOTest.php --no-coverage
  */
 class AuroraIOTest extends TestCase
 {
+    /**
+     * @var list<string>
+     */
+    private array $temporaryDirectories = [];
+
+    protected function tearDown(): void
+    {
+        new Filesystem()->remove($this->temporaryDirectories);
+    }
+
     public function testFileIsOlderThan(): void
     {
         $IO = new AuroraIO();
@@ -249,6 +260,137 @@ class AuroraIOTest extends TestCase
         } finally {
             new AuroraIO()->recursiveDelete($dir);
         }
+    }
+
+    public function testRecursiveCreateDirectoryCreatesTheMissingParents(): void
+    {
+        $IO        = new AuroraIO();
+        $directory = $this->createTemporaryDirectory() . '/a/b/c';
+
+        $this->assertTrue($IO->recursiveCreateDirectory($directory));
+        $this->assertDirectoryExists($directory);
+        // An existing directory
+        $this->assertTrue($IO->recursiveCreateDirectory($directory));
+    }
+
+    public function testRecursiveCreateDirectoryFailsBelowAFile(): void
+    {
+        $file = $this->createTemporaryDirectory() . '/file.txt';
+        file_put_contents($file, 'content');
+
+        // mkdir() also emits a "Not a directory" warning
+        $this->assertFalse(@new AuroraIO()->recursiveCreateDirectory($file . '/directory'));
+        $this->assertFileExists($file);
+    }
+
+    public function testRecursiveDeleteOfAFileAndOfAMissingPath(): void
+    {
+        $IO   = new AuroraIO();
+        $file = $this->createTemporaryDirectory() . '/file.txt';
+        file_put_contents($file, 'content');
+
+        $this->assertTrue($IO->recursiveDelete($file));
+        $this->assertFileDoesNotExist($file);
+        $this->assertFalse($IO->recursiveDelete($file));
+    }
+
+    public function testRecursiveDeleteRemovesASymbolicLinkButNotItsTarget(): void
+    {
+        $dir    = $this->createTemporaryDirectory();
+        $target = $this->createTemporaryDirectory();
+        file_put_contents($target . '/keep.txt', 'content');
+        symlink($target, $dir . '/link');
+
+        $this->assertTrue(new AuroraIO()->recursiveDelete($dir));
+        $this->assertDirectoryDoesNotExist($dir);
+        $this->assertFileExists($target . '/keep.txt');
+    }
+
+    public function testRecursiveDeleteGoesOnAfterAChildThatCannotBeDeleted(): void
+    {
+        if (!function_exists('posix_geteuid') || 0 === posix_geteuid()) {
+            $this->markTestSkipped('A privileged user can delete a file of a read-only directory.');
+        }
+
+        $dir = $this->createTemporaryDirectory();
+        mkdir($dir . '/locked');
+        file_put_contents($dir . '/locked/file.txt', 'content');
+        file_put_contents($dir . '/other.txt', 'content');
+        chmod($dir . '/locked', 0500);
+
+        try {
+            $this->assertFalse(new AuroraIO()->recursiveDelete($dir));
+            $this->assertFileExists($dir . '/locked/file.txt');
+            $this->assertFileDoesNotExist($dir . '/other.txt');
+        } finally {
+            chmod($dir . '/locked', 0700);
+        }
+    }
+
+    public function testReplaceFileWithAMissingSourceKeepsTheReplacedFile(): void
+    {
+        $dir = $this->createTemporaryDirectory();
+        file_put_contents($dir . '/database', 'old');
+
+        try {
+            new AuroraIO()->replaceFile($dir . '/missing.tmp', $dir . '/database');
+            $this->fail('A missing source is expected to fail.');
+        } catch (\RuntimeException $e) {
+            $this->assertSame(sprintf('Cannot write the file "%s".', $dir . '/database'), $e->getMessage());
+        }
+
+        $this->assertSame('old', file_get_contents($dir . '/database'));
+    }
+
+    public function testDirIsEmpty(): void
+    {
+        $IO  = new AuroraIO();
+        $dir = $this->createTemporaryDirectory();
+
+        $this->assertTrue($IO->dirIsEmpty($dir));
+
+        file_put_contents($dir . '/.hidden', 'hidden');
+        $this->assertFalse($IO->dirIsEmpty($dir));
+    }
+
+    public function testDirIsEmptyOfAnUnreadableDirectory(): void
+    {
+        if (!function_exists('posix_geteuid') || 0 === posix_geteuid()) {
+            $this->markTestSkipped('Every directory is readable by a privileged user.');
+        }
+
+        $dir = $this->createTemporaryDirectory();
+        chmod($dir, 0000);
+
+        try {
+            $this->assertFalse(new AuroraIO()->dirIsEmpty($dir));
+        } finally {
+            chmod($dir, 0700);
+        }
+    }
+
+    public function testFileIsOlderThanComparesTheModificationTime(): void
+    {
+        $IO   = new AuroraIO();
+        $dir  = $this->createTemporaryDirectory();
+        $file = $dir . '/file.txt';
+        file_put_contents($file, 'content');
+        touch($file, time() - 7200);
+        clearstatcache();
+
+        $this->assertTrue($IO->fileIsOlderThan($file, 1, AuroraIO::TIME_UNIT_HOURS));
+        $this->assertFalse($IO->fileIsOlderThan($file, 3, AuroraIO::TIME_UNIT_HOURS));
+        // Not a file
+        $this->assertFalse($IO->fileIsOlderThan($dir, 1, AuroraIO::TIME_UNIT_SECONDS));
+    }
+
+    private function createTemporaryDirectory(): string
+    {
+        $dir = sys_get_temp_dir() . '/aurora_io_' . bin2hex(random_bytes(6));
+        mkdir($dir);
+        $this->temporaryDirectories[] = $dir;
+
+        return $dir;
     }
 
     private function createReplaceFileDir(): string

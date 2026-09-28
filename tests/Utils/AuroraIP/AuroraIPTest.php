@@ -51,8 +51,107 @@ class AuroraIPTest extends TestCase
     {
         return [
             ['127.0.0.1', true],
-            ['999.999.999.999', false]
+            ['999.999.999.999', false],
+            ['10.0.0.1', true],
+            ['fd12:3456::1', true],
+            ['::1', true],
+            ['66.249.66.1', false],
+            ['2606:4700::1111', false],
         ];
+    }
+
+    #[DataProvider('dataIsPublic')]
+    public function testIsPublic(string $given, bool $expectedPublic, bool $expectedPublicIPV6): void
+    {
+        $auroraIP = new AuroraIP();
+
+        $this->assertSame($expectedPublic, $auroraIP->isPublic($given));
+        $this->assertSame($expectedPublicIPV6, $auroraIP->isPublicIPV6($given));
+    }
+
+    public static function dataIsPublic(): array
+    {
+        return [
+            'public IPv4'     => ['66.249.66.1', true, false],
+            'public IPv6'     => ['2606:4700::1111', true, true],
+            'private IPv4'    => ['10.0.0.1', false, false],
+            'loopback IPv4'   => ['127.0.0.1', false, false],
+            'unique local'    => ['fd12:3456::1', false, false],
+            'link-local IPv6' => ['fe80::1', false, false],
+            'loopback IPv6'   => ['::1', false, false],
+            'invalid'         => ['not-an-ip', false, false],
+        ];
+    }
+
+    #[DataProvider('dataIsCloudflare')]
+    public function testIsCloudflare(string $given, bool $expected): void
+    {
+        $this->assertSame($expected, new AuroraIP()->isCloudflare($given));
+    }
+
+    public static function dataIsCloudflare(): array
+    {
+        return [
+            'IPv4 edge server'             => ['104.16.0.1', true],
+            'IPv6 edge server'             => ['2a06:98c0::1', true],
+            'IPv4-mapped IPv6 edge server' => ['::ffff:104.16.0.1', true],
+            'another network'              => ['192.0.2.1', false],
+            'another IPv6 network'         => ['2001:db8::1', false],
+            'invalid'                      => ['not-an-ip', false],
+            'empty'                        => ['', false],
+        ];
+    }
+
+    /**
+     * Positive IPs taken from the ranges of KnownBotsAndCrawlers, negative ones next to them
+     */
+    #[DataProvider('dataKnownBotsAndCrawlers')]
+    public function testKnownBotsAndCrawlers(string $method, string $given, bool $expected): void
+    {
+        $auroraIP = new AuroraIP();
+
+        $this->assertSame($expected, $auroraIP->{$method}($given), sprintf('%s("%s")', $method, $given));
+        // Any known bot is a bot
+        $this->assertSame($expected, $auroraIP->isBot($given), sprintf('isBot("%s")', $given));
+    }
+
+    public static function dataKnownBotsAndCrawlers(): array
+    {
+        return [
+            'Google IPv6'                       => ['isGoogle', '2001:4860:4801:10::1', true],
+            'Google, invalid'                   => ['isGoogle', 'not-an-ip', false],
+            'Bing'                              => ['isBing', '157.55.39.1', true],
+            'Bing, other range'                 => ['isBing', '40.77.167.90', true],
+            'Bing, next network'                => ['isBing', '157.55.40.1', false],
+            'Bing, invalid'                     => ['isBing', 'not-an-ip', false],
+            'Apple'                             => ['isApple', '17.241.219.5', true],
+            'Apple, other range'                => ['isApple', '17.22.237.10', true],
+            'Apple, outside the ranges'         => ['isApple', '17.0.0.1', false],
+            'Apple, invalid'                    => ['isApple', 'not-an-ip', false],
+            'OpenAI, first IP of a /28'         => ['isOpenAI', '104.210.139.192', true],
+            'OpenAI, last IP of a /28'          => ['isOpenAI', '104.210.139.207', true],
+            'OpenAI, after a /28'               => ['isOpenAI', '104.210.139.208', false],
+            'OpenAI, invalid'                   => ['isOpenAI', 'not-an-ip', false],
+            'UptimeRobot, IPv4 range'           => ['isUpTimeRobot', '69.162.124.230', true],
+            'UptimeRobot, after the IPv4 range' => ['isUpTimeRobot', '69.162.124.240', false],
+            'UptimeRobot, IPv6 range'           => ['isUpTimeRobot', '2607:ff68:107::10', true],
+            'UptimeRobot, after the IPv6 range' => ['isUpTimeRobot', '2607:ff68:107::80', false],
+            'UptimeRobot, invalid'              => ['isUpTimeRobot', 'not-an-ip', false],
+            'documentation IPv4'                => ['isGoogle', '192.0.2.1', false],
+            'documentation IPv6'                => ['isBing', '2001:db8::1', false],
+        ];
+    }
+
+    public function testGoogleIsNotAnotherBot(): void
+    {
+        $auroraIP = new AuroraIP();
+
+        $this->assertTrue($auroraIP->isGoogle('66.249.69.69'));
+        $this->assertFalse($auroraIP->isBing('66.249.69.69'));
+        $this->assertFalse($auroraIP->isApple('66.249.69.69'));
+        $this->assertFalse($auroraIP->isOpenAI('66.249.69.69'));
+        $this->assertFalse($auroraIP->isUpTimeRobot('66.249.69.69'));
+        $this->assertTrue($auroraIP->isBot('66.249.69.69'));
     }
 
     #[DataProvider('dataIsIPInSubnet')]
@@ -74,6 +173,18 @@ class AuroraIPTest extends TestCase
             ['192.168.1.5', '192.168.1.0/24 ', true],
             ['192.168.1.5', ' 192.168.1.0/24', true],
             ['192.168.1.5', '192.168.1.0', false],
+            ['198.51.100.200', '198.51.96.0/20', true],
+            ['198.51.112.1', '198.51.96.0/20', false],
+            ['203.0.113.77', '0.0.0.0/0', true],
+            ['2001:db8::1', '::/0', true],
+            ['192.168.1.5', '192.168.1.0/abc', false],
+            ['192.168.1.5', '192.168.1.0/-1', false],
+            ['192.168.1.5', '192.168.1.0/', false],
+            ['192.168.1.5', '/24', false],
+            ['192.168.1.5', '2001:db8::/32', false],
+            ['2001:db8::1', '192.168.1.0/24', false],
+            ['not-an-ip', '192.168.1.0/24', false],
+            ['192.168.1.5', 'not-a-subnet/24', false],
         ];
     }
 
@@ -172,6 +283,26 @@ class AuroraIPTest extends TestCase
         try {
             // Request::getClientIp() returns null without REMOTE_ADDR (e.g. CLI)
             $this->assertSame('127.0.0.1', new AuroraIP()->ip(new Request()));
+        } finally {
+            $_SERVER = $originalServer;
+        }
+    }
+
+    public function testIpFallsBackToTheRemoteAddressOfTheServer(): void
+    {
+        $originalServer = $_SERVER;
+
+        try {
+            // e.g. a sub-request created with "new Request()"
+            $_SERVER['REMOTE_ADDR'] = '192.0.2.44';
+            $this->assertSame('192.0.2.44', new AuroraIP()->ip(new Request()));
+
+            // An invalid client IP is not returned
+            $request = Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => 'not-an-ip']);
+            $this->assertSame('192.0.2.44', new AuroraIP()->ip($request));
+
+            $_SERVER['REMOTE_ADDR'] = 'not-an-ip';
+            $this->assertSame('127.0.0.1', new AuroraIP()->ip($request));
         } finally {
             $_SERVER = $originalServer;
         }
