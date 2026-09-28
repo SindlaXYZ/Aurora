@@ -396,5 +396,24 @@ class StrinkTest extends TestCase
         $this->assertMatchesRegularExpression('/^[ăîșț]+$/u', $result);
     }
 
+    /**
+     * The sets were split with mb_internal_encoding(): with ISO-8859-1, "ăîșț" was split into 8 bytes (an invalid UTF-8 password)
+     */
+    public function testRandomStringOfMultibyteCharactersDoesNotDependOnTheInternalEncoding(): void
+    {
+        $internalEncoding = mb_internal_encoding();
+        mb_internal_encoding('ISO-8859-1');
+
+        try {
+            $result = (string)new AuroraStrink()->randomString(20, ['ăîșț']);
+        } finally {
+            mb_internal_encoding($internalEncoding);
+        }
+
+        $this->assertTrue(mb_check_encoding($result, 'UTF-8'));
+        $this->assertSame(20, mb_strlen($result, 'UTF-8'));
+        $this->assertMatchesRegularExpression('/^[ăîșț]+$/u', $result);
+    }
+
     ##########################################################################################################################################################################################
 }
