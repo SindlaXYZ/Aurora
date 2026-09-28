@@ -41,6 +41,17 @@ class TimestampableCreatedTest extends KernelTestCase
         $this->expectException(\TypeError::class);
         $timestampableCreated->setCreatedAt(new \DateTime())->getCreatedAt();
     }
+
+    public function testPrePersistKeepsTheCreatedAt(): void
+    {
+        $createdAt            = new \DateTimeImmutable('2021-01-12 01:02:03');
+        $timestampableCreated = new TimestampableCreatedMock()->setCreatedAt($createdAt);
+
+        // An entity created elsewhere (e.g. imported) keeps its date
+        $timestampableCreated->prePersistCreatedAt();
+
+        $this->assertSame($createdAt, $timestampableCreated->getCreatedAt());
+    }
 }
 
 class TimestampableCreatedMock

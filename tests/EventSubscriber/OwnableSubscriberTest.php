@@ -77,6 +77,68 @@ class OwnableSubscriberTest extends TestCase
 
         $this->assertNull($entity->updatedBy);
     }
+
+    public function testPreUpdateSetsOnlyTheUpdater(): void
+    {
+        $owner  = new InMemoryUser('owner', null);
+        $editor = new InMemoryUser('editor', null, ['ROLE_ADMIN']);
+        $entity = new OwnableEntityMock();
+        $entity->setOwner($owner)->setCreatedBy($owner)->setUpdatedBy($owner);
+
+        new OwnableSubscriber($this->createTokenStorage($editor))->preUpdate(new LifecycleEventArgs($entity, $this->createStub(ObjectManager::class)));
+
+        $this->assertSame($owner, $entity->owner);
+        $this->assertSame($owner, $entity->createdBy);
+        $this->assertSame($editor, $entity->updatedBy);
+    }
+
+    public function testPrePersistSetsTheOwnerOfAnEntityWithoutGetter(): void
+    {
+        $user   = new InMemoryUser('aurora', null);
+        $entity = new class {
+            public ?UserInterface $owner = null;
+
+            public function setOwner(UserInterface $owner): void
+            {
+                $this->owner = $owner;
+            }
+        };
+
+        new OwnableSubscriber($this->createTokenStorage($user))->prePersist(new LifecycleEventArgs($entity, $this->createStub(ObjectManager::class)));
+
+        $this->assertSame($user, $entity->owner);
+    }
+
+    public function testPrePersistSetsAnUninitializedTypedOwner(): void
+    {
+        $user   = new InMemoryUser('aurora', null);
+        $entity = new class {
+            private UserInterface $owner;
+
+            public function getOwner(): UserInterface
+            {
+                return $this->owner;
+            }
+
+            public function setOwner(UserInterface $owner): void
+            {
+                $this->owner = $owner;
+            }
+        };
+
+        // getOwner() throws an Error before the property is initialized
+        new OwnableSubscriber($this->createTokenStorage($user))->prePersist(new LifecycleEventArgs($entity, $this->createStub(ObjectManager::class)));
+
+        $this->assertSame($user, $entity->getOwner());
+    }
+
+    private function createTokenStorage(UserInterface $user): TokenStorage
+    {
+        $tokenStorage = new TokenStorage();
+        $tokenStorage->setToken(new UsernamePasswordToken($user, 'main', $user->getRoles()));
+
+        return $tokenStorage;
+    }
 }
 
 class OwnableEntityMock

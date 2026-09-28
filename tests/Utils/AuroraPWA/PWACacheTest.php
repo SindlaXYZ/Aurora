@@ -484,6 +484,109 @@ final class PWACacheTest extends TestCase
         self::assertInstanceOf(BinaryFileResponse::class, $response);
     }
 
+    public function testManifestJsonDescribesTheApplicationAndItsIcons(): void
+    {
+        $iconsDirectory = $this->createIconsDirectory();
+
+        $parameterBag = $this->createParameterBag([
+            'aurora.pwa.app_name'         => 'Aurora "Test" App',
+            'aurora.pwa.app_short_name'   => 'Aurora',
+            'aurora.pwa.app_description'  => 'Ünicode description',
+            'aurora.pwa.theme_color'      => '#123456',
+            'aurora.pwa.background_color' => '#abcdef',
+            'aurora.pwa.start_url'        => '/?pwa',
+            'aurora.pwa.display'          => 'standalone',
+            'aurora.pwa.icons'            => $iconsDirectory,
+            'kernel.project_dir'          => $iconsDirectory,
+        ]);
+
+        $request  = $this->createRequest(['HTTP_HOST' => 'manifest.example.com', 'REQUEST_URI' => '/manifest.webmanifest']);
+        $response = new AuroraPWA($parameterBag, $this->createTwigEnvironment(), $this->createGit())->manifestJSON($request);
+
+        $icons = [];
+        foreach ([36, 48, 72, 96, 144, 192, 512] as $size) {
+            $icons[] = ['src' => "/android-icon-{$size}x{$size}.png", 'sizes' => "{$size}x{$size}", 'type' => 'image/png', 'purpose' => 'any'];
+        }
+        // The maskable icon size is read from the image (a 1x1 PNG)
+        $icons[] = ['src' => '/android-icon-maskable.png', 'sizes' => '1x1', 'type' => 'image/png', 'purpose' => 'maskable'];
+
+        $manifest = json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR);
+        // "display_override" does not follow "aurora.pwa.display" yet: it is not asserted
+        unset($manifest['display_override']);
+
+        self::assertSame(
+            [
+                'name'             => 'Aurora "Test" App',
+                'short_name'       => 'Aurora',
+                'description'      => 'Ünicode description',
+                'id'               => '/?pwa',
+                'start_url'        => '/?pwa',
+                'display'          => 'standalone',
+                'theme_color'      => '#123456',
+                'background_color' => '#abcdef',
+                'icons'            => $icons,
+            ],
+            $manifest
+        );
+        // Unescaped slashes and unicode
+        self::assertStringContainsString('"start_url":"/?pwa"', $response->getContent());
+        self::assertStringContainsString('Ünicode', $response->getContent());
+    }
+
+    public function testManifestJsonListsOnlyTheExistingIcons(): void
+    {
+        $iconsDirectory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'aurora-pwa-' . uniqid('', true);
+        mkdir($iconsDirectory);
+        $this->tempDirectories[] = $iconsDirectory;
+
+        file_put_contents($iconsDirectory . '/android-icon-192x192.png', 'png');
+        // An empty maskable icon is ignored
+        file_put_contents($iconsDirectory . '/android-icon-maskable.png', '');
+
+        $parameterBag = $this->createParameterBag([
+            'aurora.pwa.icons'   => $iconsDirectory,
+            'kernel.project_dir' => $iconsDirectory,
+        ]);
+
+        $request = $this->createRequest(['HTTP_HOST' => 'missing-icons.example.com', 'REQUEST_URI' => '/manifest.json']);
+        $pwa     = new AuroraPWA($parameterBag, $this->createTwigEnvironment(), $this->createGit());
+
+        // The missing icons are reported with E_USER_NOTICE, which is not asserted: in debug mode the notice is an exception
+        [$response] = $this->collectUserNotices(static fn(): JsonResponse => $pwa->manifestJSON($request));
+
+        self::assertSame(
+            [['src' => '/android-icon-192x192.png', 'sizes' => '192x192', 'type' => 'image/png', 'purpose' => 'any']],
+            json_decode($response->getContent(), true, 512, JSON_THROW_ON_ERROR)['icons']
+        );
+    }
+
+    /**
+     * @return array{0: mixed, 1: list<string>} [the callback result, the E_USER_NOTICE messages]
+     */
+    private function collectUserNotices(callable $callback): array
+    {
+        $notices         = [];
+        $previousHandler = null;
+        $previousHandler = set_error_handler(static function (int $errno, string $message, string $file, int $line) use (&$notices, &$previousHandler): bool {
+            if (E_USER_NOTICE === $errno) {
+                $notices[] = $message;
+
+                return true;
+            }
+
+            // Any other error is still reported by PHPUnit
+            return null !== $previousHandler && (bool)$previousHandler($errno, $message, $file, $line);
+        });
+
+        try {
+            $result = $callback();
+        } finally {
+            restore_error_handler();
+        }
+
+        return [$result, $notices];
+    }
+
     private function createIconsDirectory(): string
     {
         $directory = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'aurora-pwa-' . uniqid('', true);

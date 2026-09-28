@@ -51,6 +51,48 @@ class MiscProcessorTest extends TestCase
         $this->assertSame([], $record->extra);
     }
 
+    public function testExtraAddsTheRemoteAddressAndTheClientIp(): void
+    {
+        // The proxy of the application
+        $_SERVER['REMOTE_ADDR'] = '192.0.2.10';
+
+        $requestStack = new RequestStack();
+        $requestStack->push(Request::create('/', 'GET', [], [], [], ['REMOTE_ADDR' => '198.51.100.9']));
+
+        $processor = new MiscProcessor($this->createContainer(), $requestStack);
+        $processor($this->createRecord());
+        $record = $processor->extra();
+
+        $this->assertSame('192.0.2.10', $record->extra['request_ip']);
+        $this->assertSame('198.51.100.9', $record->extra['client_ip']);
+    }
+
+    public function testExtraWithoutRequestNorRemoteAddress(): void
+    {
+        unset($_SERVER['REMOTE_ADDR']);
+
+        $processor = new MiscProcessor($this->createContainer(), new RequestStack());
+        $processor($this->createRecord());
+
+        $this->assertSame(['request_ip' => 'unavailable', 'client_ip' => 'unavailable'], $processor->extra()->extra);
+    }
+
+    public function testExtraOfARequestWithoutClientIp(): void
+    {
+        unset($_SERVER['REMOTE_ADDR']);
+
+        // e.g. a sub-request created with "new Request()": Request::getClientIp() is null
+        $requestStack = new RequestStack();
+        $requestStack->push(new Request());
+
+        $processor = new MiscProcessor($this->createContainer(), $requestStack);
+        $processor($this->createRecord());
+        $record = $processor->extra();
+
+        $this->assertSame('unavailable', $record->extra['request_ip']);
+        $this->assertSame('unavailable', $record->extra['client_ip']);
+    }
+
     private function createContainer(): Container
     {
         $container = new Container();

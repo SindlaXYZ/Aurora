@@ -98,7 +98,6 @@ class AuroraClientTest extends KernelTestCase
         $client = new AuroraClient($this->containerTest);
 
         $reflectionMethod = new \ReflectionMethod($client, 'ipMatchesCidr');
-        $reflectionMethod->setAccessible(true);
 
         self::assertFalse(
             $reflectionMethod->invoke($client, '198.51.100.23', '198.51.100.0/abc'),

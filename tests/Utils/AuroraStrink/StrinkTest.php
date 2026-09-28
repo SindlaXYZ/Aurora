@@ -415,5 +415,108 @@ class StrinkTest extends TestCase
         $this->assertMatchesRegularExpression('/^[ăîșț]+$/u', $result);
     }
 
+    public function testRandomStringWithoutAnyUsableSet(): void
+    {
+        $this->assertSame('', (string)new AuroraStrink('previous')->randomString(8, ['', '']));
+    }
+
+    public function testRandomStringShorterThanTheNumberOfSets(): void
+    {
+        for ($i = 0; $i < 20; $i++) {
+            // One character of each of the first sets: a lowercase and an uppercase letter
+            $this->assertMatchesRegularExpression('/^([a-z][A-Z]|[A-Z][a-z])$/', (string)new AuroraStrink()->randomString(2));
+        }
+    }
+
+    public function testConstructorSetsTheString(): void
+    {
+        $this->assertSame('Lorem ipsum', (string)new AuroraStrink('Lorem ipsum'));
+        $this->assertSame('', (string)new AuroraStrink());
+    }
+
+    public function testReplaceKeyValue(): void
+    {
+        $Strink = new AuroraStrink();
+
+        $this->assertSame(
+            'Hello Ana from Cluj, Ana!',
+            (string)$Strink->string('Hello {name} from {city}, {name}!')->replaceKeyValue(['{name}' => 'Ana', '{city}' => 'Cluj'])
+        );
+        $this->assertSame('Unchanged {name}', (string)$Strink->string('Unchanged {name}')->replaceKeyValue([]));
+    }
+
+    #[DataProvider('dataClassShortName')]
+    public function testClassShortName(string $expected, string $className): void
+    {
+        $this->assertSame($expected, (string)new AuroraStrink()->string($className)->classShortName());
+    }
+
+    public static function dataClassShortName(): array
+    {
+        return [
+            'namespaced class'  => ['AuroraStrink', AuroraStrink::class],
+            'leading backslash' => ['DateTimeImmutable', '\\DateTimeImmutable'],
+            'global class'      => ['DateTimeImmutable', 'DateTimeImmutable'],
+        ];
+    }
+
+    #[DataProvider('dataTrim')]
+    public function testTrim(string $expected, string $method, string $given, ?string $characters): void
+    {
+        $this->assertSame($expected, (string)new AuroraStrink()->string($given)->{$method}($characters));
+    }
+
+    public static function dataTrim(): array
+    {
+        return [
+            'trim whitespaces'       => ['Lorem ipsum', 'trim', " \t Lorem ipsum \n\r\0", null],
+            'trim characters'        => ['path/to', 'trim', '//path/to//', '/'],
+            'trim a character range' => ['Lorem', 'trim', '0042Lorem9', '0..9'],
+            'left trim whitespaces'  => ["Lorem ipsum \n", 'leftTrim', " \t Lorem ipsum \n", null],
+            'left trim characters'   => ['120', 'leftTrim', '000120', '0'],
+            'right trim whitespaces' => [" \t Lorem ipsum", 'rightTrim', " \t Lorem ipsum \n", null],
+            'right trim characters'  => ['path/to', 'rightTrim', 'path/to//', '/'],
+        ];
+    }
+
+    public function testTrimMethodsAreFluent(): void
+    {
+        $Strink = new AuroraStrink('--[Lorem]--');
+
+        $this->assertSame('Lorem', (string)$Strink->leftTrim('-')->rightTrim('-')->trim('[]'));
+    }
+
+    /**
+     * The middle of the string is replaced by the post text: the result has the requested length, and starts and ends like the string
+     */
+    #[DataProvider('dataLimitedStringCutInTheMiddle')]
+    public function testLimitedStringCutInTheMiddle(string $given, int $limit, string $postText, string $cut): void
+    {
+        $result = (string)new AuroraStrink()->string($given)->limitedString($limit, $postText, $cut);
+
+        $this->assertSame($limit, mb_strlen($result, 'UTF-8'));
+        $this->assertSame(1, substr_count($result, $postText));
+
+        [$left, $right] = explode($postText, $result, 2);
+        $this->assertNotSame('', $left);
+        $this->assertNotSame('', $right);
+        $this->assertStringStartsWith($left, $given);
+        $this->assertStringEndsWith($right, $given);
+    }
+
+    public static function dataLimitedStringCutInTheMiddle(): array
+    {
+        return [
+            'middle'    => ['abcdefghijklmnopqrst', 10, '...', 'middle'],
+            'center'    => ['abcdefghijklmnopqrst', 11, '...', 'center'],
+            'multibyte' => ['ăîșțăîșțăîșțĂÎȘȚ', 9, '…', 'middle'],
+        ];
+    }
+
+    public function testLimitedStringCutInTheMiddleKeepsAShortString(): void
+    {
+        $this->assertSame('abcdef', (string)new AuroraStrink()->string('abcdef')->limitedString(10, '...', 'middle'));
+    }
+
     ##########################################################################################################################################################################################
 }

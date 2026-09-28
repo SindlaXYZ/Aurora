@@ -64,7 +64,101 @@ class PriceTraitTest extends TestCase
             'with VAT and 0% VAT'                  => ['100.00', '0.00', '0.00', '0.00', '100.00'],
             'VAT amount / VAT%'                    => ['0.00', '19.00', '19.00', '0.00', '100.00'],
             'nothing to calculate from, unchanged' => ['0.00', '0.00', '19.00', '50.00', '50.00'],
+            'VAT amount without VAT%, unchanged'   => ['0.00', '19.00', '0.00', '50.00', '50.00'],
         ];
+    }
+
+    /**
+     * @param \Closure(string, string, string, string): string $calculate Sets the amounts with VAT, VAT amount, VAT % and without VAT, returns the
+     *                                                          calculated amount without VAT
+     */
+    #[DataProvider('dataCalculateAmountsWithoutVat')]
+    public function testCalculateAmountsWithoutVat(\Closure $calculate, string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat, string $expected): void
+    {
+        $this->assertSame($expected, $calculate($withVat, $vatAmount, $vatPercentage, $withoutVat));
+    }
+
+    public static function dataCalculateAmountsWithoutVat(): iterable
+    {
+        $traits = [
+            'price per item' => static fn(string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat): string => new PricePerItemTraitMock()
+                ->setPricePerItemWithVat($withVat)->setPricePerItemVatAmount($vatAmount)->setPricePerItemVatPercentage($vatPercentage)
+                ->setPricePerItemWithoutVat($withoutVat)->calculatePricePerItemWithoutVat()->getPricePerItemWithoutVat(),
+            'amount'         => static fn(string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat): string => new AmountTraitMock()
+                ->setAmountWithVat($withVat)->setAmountVatAmount($vatAmount)->setAmountVatPercentage($vatPercentage)
+                ->setAmountWithoutVat($withoutVat)->calculateAmountWithoutVat()->getAmountWithoutVat(),
+            'card'           => static fn(string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat): string => new PaymentMethodAmountTraitsMock()
+                ->setCardAmountWithVat($withVat)->setCardVatAmount($vatAmount)->setCardVatPercentage($vatPercentage)
+                ->setCardAmountWithoutVat($withoutVat)->calculateCardAmountWithoutVat()->getCardAmountWithoutVat(),
+            'cash'           => static fn(string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat): string => new PaymentMethodAmountTraitsMock()
+                ->setCashAmountWithVat($withVat)->setCashVatAmount($vatAmount)->setCashVatPercentage($vatPercentage)
+                ->setCashAmountWithoutVat($withoutVat)->calculateCashAmountWithoutVat()->getCashAmountWithoutVat(),
+            'bank transfer'  => static fn(string $withVat, string $vatAmount, string $vatPercentage, string $withoutVat): string => new PaymentMethodAmountTraitsMock()
+                ->setBankTransferAmountWithVat($withVat)->setBankTransferVatAmount($vatAmount)->setBankTransferVatPercentage($vatPercentage)
+                ->setBankTransferAmountWithoutVat($withoutVat)->calculateBankTransferAmountWithoutVat()->getBankTransferAmountWithoutVat(),
+        ];
+
+        // "with VAT / (1 + VAT%)" is asserted for every trait by testThePriceWithoutVatIsRecalculatedFromTheNewPriceWithVat()
+        $scenarios = [
+            'with VAT - VAT amount'                => ['119.00', '19.00', '0.00', '0.00', '100.00'],
+            'VAT amount / VAT%'                    => ['0.00', '19.00', '19.00', '0.00', '100.00'],
+            'nothing to calculate from, unchanged' => ['0.00', '0.00', '19.00', '50.00', '50.00'],
+            'VAT amount without VAT%, unchanged'   => ['0.00', '19.00', '0.00', '50.00', '50.00'],
+        ];
+
+        foreach ($traits as $trait => $calculate) {
+            foreach ($scenarios as $scenario => $amounts) {
+                // Cash "with VAT - VAT amount" is asserted by PaymentMethodTraitsTest::testCardAndCashAmountsWithoutVat()
+                if ('cash' === $trait && 'with VAT - VAT amount' === $scenario) {
+                    continue;
+                }
+
+                yield sprintf('%s, %s', $trait, $scenario) => [$calculate, ...$amounts];
+            }
+        }
+    }
+
+    /**
+     * @param \Closure(): array{string, string, string} $calculate Calculates the VAT and the amount with VAT of 100.00 without VAT at 19%, returns
+     *                                                    the VAT %, the VAT amount and the amount with VAT
+     */
+    #[DataProvider('dataCalculateVatAndAmountWithVat')]
+    public function testCalculateVatAndAmountWithVat(\Closure $calculate): void
+    {
+        $this->assertSame(['19', '19.00', '119.00'], $calculate());
+    }
+
+    public static function dataCalculateVatAndAmountWithVat(): iterable
+    {
+        yield 'price per item' => [static function (): array {
+            $entity = new PricePerItemTraitMock()
+                ->setPricePerItemWithoutVat('100.00')->setPricePerItemVatPercentage('19')->calculatePricePerItemVatAmount()->calculatePricePerItemWithVat();
+
+            return [$entity->getPricePerItemVatPercentage(), $entity->getPricePerItemVatAmount(), $entity->getPricePerItemWithVat()];
+        }];
+        yield 'amount' => [static function (): array {
+            $entity = new AmountTraitMock()->setAmountWithoutVat('100.00')->setAmountVatPercentage('19')->calculateVatAmount()->calculateAmountWithVat();
+
+            return [$entity->getAmountVatPercentage(), $entity->getAmountVatAmount(), $entity->getAmountWithVat()];
+        }];
+        yield 'card' => [static function (): array {
+            $entity = new PaymentMethodAmountTraitsMock()
+                ->setCardAmountWithoutVat('100.00')->setCardVatPercentage('19')->calculateCardVatAmount()->calculateCardAmountWithVat();
+
+            return [$entity->getCardVatPercentage(), $entity->getCardVatAmount(), $entity->getCardAmountWithVat()];
+        }];
+        yield 'cash' => [static function (): array {
+            $entity = new PaymentMethodAmountTraitsMock()
+                ->setCashAmountWithoutVat('100.00')->setCashVatPercentage('19')->calculateCashVatAmount()->calculateCashAmountWithVat();
+
+            return [$entity->getCashVatPercentage(), $entity->getCashVatAmount(), $entity->getCashAmountWithVat()];
+        }];
+        yield 'bank transfer' => [static function (): array {
+            $entity = new PaymentMethodAmountTraitsMock()
+                ->setBankTransferAmountWithoutVat('100.00')->setBankTransferVatPercentage('19')->calculateBankTransferVatAmount()->calculateBankTransferAmountWithVat();
+
+            return [$entity->getBankTransferVatPercentage(), $entity->getBankTransferVatAmount(), $entity->getBankTransferAmountWithVat()];
+        }];
     }
 
     #[DataProvider('dataCalculationsAreRoundedToTheCent')]
@@ -136,6 +230,7 @@ class PriceTraitTest extends TestCase
             ->calculatePriceWithVat();
 
         $this->assertSame('119.00', $priceTrait->getPriceWithVat());
+        $this->assertSame('19', $priceTrait->getPriceVatPercentage());
     }
 }
 

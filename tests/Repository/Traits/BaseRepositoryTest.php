@@ -10,11 +10,18 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\ORMSetup;
+use Doctrine\ORM\Query\AST\Functions\FunctionNode;
+use Doctrine\ORM\Query\AST\Node;
+use Doctrine\ORM\Query\Parser;
+use Doctrine\ORM\Query\SqlWalker;
+use Doctrine\ORM\Query\TokenType;
 use Doctrine\ORM\Tools\SchemaTool;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresPhpExtension;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Repository\Traits\BaseRepository;
+use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[RequiresPhpExtension('pdo_sqlite')]
@@ -70,6 +77,45 @@ class BaseRepositoryTest extends TestCase
         yield 'IS NULL' => [['AND' => [['name', '=', null]]], []];
         yield 'IS NOT NULL' => [['AND' => [['name', '!=', null]]], ['a', 'b', 'c']];
         yield 'field of an embeddable' => [['AND' => [['address.city', '=', 'city-b']]], ['b']];
+        yield 'empty group' => [['OR' => [], 'AND' => [['quantity', '>', 1]]], ['b', 'c']];
+    }
+
+    public function testSetContainerAndSetRequest(): void
+    {
+        $container = new Container();
+        $request   = new Request();
+
+        $this->assertSame($this->repository, $this->repository->setContainer($container)->setRequest($request));
+        $this->assertSame($container, new \ReflectionProperty($this->repository, 'container')->getValue($this->repository));
+        $this->assertSame($request, new \ReflectionProperty($this->repository, 'request')->getValue($this->repository));
+    }
+
+    /**
+     * @param array<string, list<array{0: string, 1: string, 2: mixed}>> $where
+     * @param list<string>                                               $expectedNames
+     */
+    #[DataProvider('dataJsonConditions')]
+    public function testGetResultsFiltersAJsonColumn(array $where, array $expectedNames): void
+    {
+        $documents = $this->createDocumentRepository()->setWhere($where)->setOrder(['name' => 'ASC'])->getResults();
+
+        $this->assertSame($expectedNames, $this->names($documents));
+    }
+
+    public static function dataJsonConditions(): iterable
+    {
+        yield 'LIKE on the JSON text' => [['AND' => [['data', 'LIKE', '%"red"%']]], ['apple', 'cherry']];
+        yield 'value of a key' => [['AND' => [['data.color', '=', 'yellow']]], ['banana']];
+        // A quote in the key used to end the DQL string literal
+        yield 'key with a quote' => [['AND' => [["data.it's", '=', 'yes']]], ['cherry']];
+    }
+
+    public function testGetResultsRejectsAJsonConditionWithoutAKey(): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("Invalid \$column parameter: WHERE ... data ->> '' = 'red' ; This parameter should be like this: data.jsonKey");
+
+        $this->createDocumentRepository()->setWhere(['AND' => [['data', '=', 'red']]])->getResults();
     }
 
     public function testGetResultsOrdersByEveryColumn(): void
@@ -159,6 +205,26 @@ class BaseRepositoryTest extends TestCase
             [['operator' => 'RANGE', 'field' => 'quantity', 'value' => ['low' => ['from' => 0, 'to' => 2], 'high' => [3, 4]]]],
             ['a', 'c'],
         ];
+        yield 'less than' => [[['operator' => 'LT', 'field' => 'quantity', 'value' => 2]], ['a']];
+    }
+
+    public function testApplyFiltersLikeMatchesTheValueAnywhere(): void
+    {
+        $this->em->persist(new BaseRepositoryItem('xbx', 4));
+        $this->em->flush();
+
+        $queryBuilder = $this->repository->findAllQueryBuilder([['operator' => 'like', 'field' => 'name', 'value' => 'b']]);
+
+        $this->assertSame('%b%', $queryBuilder->getParameter('nameLIKE0')?->getValue());
+        $this->assertSame(['b', 'xbx'], $this->names($queryBuilder->orderBy('alias.id')->getQuery()->getResult()));
+    }
+
+    public function testFindAllQueryBuilderWithoutFilters(): void
+    {
+        $queryBuilder = $this->repository->findAllQueryBuilder();
+
+        $this->assertSame(sprintf('SELECT alias FROM %s alias', BaseRepositoryItem::class), $queryBuilder->getDQL());
+        $this->assertSame(['a', 'b', 'c'], $this->names($queryBuilder->orderBy('alias.id')->getQuery()->getResult()));
     }
 
     public function testApplyFiltersRewritesTheZoneOnlyWhenTheQueryJoinsIt(): void
@@ -208,14 +274,94 @@ class BaseRepositoryTest extends TestCase
         $this->assertSame(0, (int)$this->repository->getResultsNumber());
     }
 
+    public function testTruncateReturnsFalseWhenTheStatementFails(): void
+    {
+        $this->em->getConnection()->executeStatement('DROP TABLE base_repository_item');
+
+        if (!in_array(BaseRepositoryTestStderrFilter::NAME, stream_get_filters(), true)) {
+            stream_filter_register(BaseRepositoryTestStderrFilter::NAME, BaseRepositoryTestStderrFilter::class);
+        }
+
+        BaseRepositoryTestStderrFilter::$buffer = '';
+        $filter = stream_filter_append(STDERR, BaseRepositoryTestStderrFilter::NAME, STREAM_FILTER_WRITE);
+
+        try {
+            $truncated = $this->repository->truncate();
+        } finally {
+            stream_filter_remove($filter);
+        }
+
+        $this->assertFalse($truncated);
+        $this->assertStringStartsWith("Can't truncate table base_repository_item. Reason: ", BaseRepositoryTestStderrFilter::$buffer);
+        $this->assertStringContainsString('no such table', BaseRepositoryTestStderrFilter::$buffer);
+    }
+
     /**
-     * @param list<BaseRepositoryItem> $items
+     * @param list<BaseRepositoryItem|BaseRepositoryDocument> $items
      *
      * @return list<string>
      */
     private function names(array $items): array
     {
-        return array_map(static fn(BaseRepositoryItem $item): string => $item->name, $items);
+        return array_map(static fn(BaseRepositoryItem|BaseRepositoryDocument $item): string => $item->name, $items);
+    }
+
+    private function createDocumentRepository(): BaseRepositoryDocumentRepository
+    {
+        // The JSON functions a host application registers for PostgreSQL (JSON_TEXT of this bundle, JSON_GET_TEXT of
+        // scienta/doctrine-json-functions), written for SQLite
+        $config = $this->em->getConfiguration();
+        $config->addCustomStringFunction('JSON_TEXT', self::sqliteFunction('%s', 1));
+        $config->addCustomStringFunction('JSON_GET_TEXT', self::sqliteFunction('json_extract(%s, \'$.\' || %s)', 2));
+
+        new SchemaTool($this->em)->createSchema([$this->em->getClassMetadata(BaseRepositoryDocument::class)]);
+
+        $this->em->persist(new BaseRepositoryDocument('apple', ['color' => 'red', 'size' => 'small']));
+        $this->em->persist(new BaseRepositoryDocument('banana', ['color' => 'yellow']));
+        $this->em->persist(new BaseRepositoryDocument('cherry', ['color' => 'red', "it's" => 'yes']));
+        $this->em->flush();
+        $this->em->clear();
+
+        return $this->em->getRepository(BaseRepositoryDocument::class);
+    }
+
+    /**
+     * @return \Closure(string): FunctionNode
+     */
+    private static function sqliteFunction(string $format, int $argumentCount): \Closure
+    {
+        return static fn(string $name): FunctionNode => new class ($name, $format, $argumentCount) extends FunctionNode {
+            /**
+             * @var list<Node>
+             */
+            private array $arguments = [];
+
+            public function __construct(string $name, private readonly string $format, private readonly int $argumentCount)
+            {
+                parent::__construct($name);
+            }
+
+            public function parse(Parser $parser): void
+            {
+                $parser->match(TokenType::T_IDENTIFIER);
+                $parser->match(TokenType::T_OPEN_PARENTHESIS);
+
+                for ($index = 0; $index < $this->argumentCount; $index++) {
+                    if (0 < $index) {
+                        $parser->match(TokenType::T_COMMA);
+                    }
+
+                    $this->arguments[] = $parser->StringPrimary();
+                }
+
+                $parser->match(TokenType::T_CLOSE_PARENTHESIS);
+            }
+
+            public function getSql(SqlWalker $sqlWalker): string
+            {
+                return vsprintf($this->format, array_map(static fn(Node $argument): string => $argument->dispatch($sqlWalker), $this->arguments));
+            }
+        };
     }
 }
 
@@ -259,5 +405,58 @@ class BaseRepositoryAddress
         public string $city,
     )
     {
+    }
+}
+
+/**
+ * @extends EntityRepository<BaseRepositoryDocument>
+ */
+class BaseRepositoryDocumentRepository extends EntityRepository
+{
+    use BaseRepository;
+}
+
+#[ORM\Entity(repositoryClass: BaseRepositoryDocumentRepository::class)]
+#[ORM\Table(name: 'base_repository_document')]
+class BaseRepositoryDocument
+{
+    #[ORM\Id]
+    #[ORM\GeneratedValue]
+    #[ORM\Column(type: Types::INTEGER)]
+    public ?int $id = null;
+
+    /**
+     * @param array<string, string> $data
+     */
+    public function __construct(
+        #[ORM\Column(length: 20)]
+        public string $name,
+        #[ORM\Column(type: Types::JSON)]
+        public array  $data,
+    )
+    {
+    }
+}
+
+final class BaseRepositoryTestStderrFilter extends \php_user_filter
+{
+    public const string NAME = 'aurora.base_repository_test.stderr';
+
+    public static string $buffer = '';
+
+    /**
+     * @param resource $in
+     * @param resource $out
+     * @param int      $consumed
+     */
+    public function filter($in, $out, &$consumed, bool $closing): int
+    {
+        // Captured, not passed on: nothing reaches the real STDERR
+        while ($bucket = stream_bucket_make_writeable($in)) {
+            self::$buffer .= $bucket->data;
+            $consumed     += $bucket->datalen;
+        }
+
+        return PSFS_PASS_ON;
     }
 }

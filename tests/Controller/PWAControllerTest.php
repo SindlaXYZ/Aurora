@@ -12,7 +12,10 @@ use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Profiler\Profiler;
+use Symfony\Component\HttpKernel\Profiler\ProfilerStorageInterface;
 use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
 class PWAControllerTest extends TestCase
 {
@@ -54,5 +57,39 @@ class PWAControllerTest extends TestCase
         ];
         yield 'favicon with a query string' => [Request::create('/favicon.ico?v=3'), 'icon'];
         yield 'icon' => [Request::create('/android-icon-192x192.png'), 'icon'];
+    }
+
+    public function testOfflineRendersTheOfflinePage(): void
+    {
+        $response = $this->createOfflineController(new Container())->offline();
+
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertStringStartsWith('<!DOCTYPE html>', $response->getContent());
+        $this->assertStringContainsString('<title>No internet!</title>', $response->getContent());
+        $this->assertSame('text/html', $response->headers->get('Content-Type'));
+        $this->assertSame('true', $response->headers->get('X-Do-Not-Minify'));
+    }
+
+    public function testOfflineDisablesTheProfiler(): void
+    {
+        $profiler  = new Profiler($this->createStub(ProfilerStorageInterface::class));
+        $container = new Container();
+        $container->set('profiler', $profiler);
+
+        $response = $this->createOfflineController($container)->offline();
+
+        $this->assertFalse($profiler->isEnabled());
+        $this->assertSame(200, $response->getStatusCode());
+    }
+
+    private function createOfflineController(Container $container): PWAController
+    {
+        $loader = new FilesystemLoader();
+        $loader->addPath(dirname(__DIR__, 2) . '/src/templates', 'Aurora');
+
+        $controller = new PWAController(new Environment($loader));
+        $controller->setContainer($container);
+
+        return $controller;
     }
 }

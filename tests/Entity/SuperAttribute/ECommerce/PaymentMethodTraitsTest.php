@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\ECommerce;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\BankTransfer\BankTransferAmountTrait;
 use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\ECommerce\BankTransfer\BankTransferDiscountTrait;
@@ -88,6 +89,57 @@ class PaymentMethodTraitsTest extends TestCase
         $this->assertSame('1.65', $entity->getBankTransferDiscountAmount());
         $this->assertSame('2.09', $entity->getCardVatAmount());
         $this->assertSame('14.29', $entity->getCashAmountWithoutVat());
+    }
+
+    #[DataProvider('dataDiscounts')]
+    public function testTheStoredDiscountPercentageIsUsedWhenNoneIsGiven(string $discount): void
+    {
+        $entity = new PaymentMethodTraitsMock();
+
+        $this->assertSame($entity, $entity->{sprintf('set%sPercentage', $discount)}('10'));
+        $this->assertSame($entity, $entity->{sprintf('set%sAmount', $discount)}('5.00'));
+        $entity->{sprintf('calculate%sAmount', $discount)}('200.00');
+
+        // The fixed amount is replaced by the calculated one
+        $this->assertSame('10', $entity->{sprintf('get%sPercentage', $discount)}());
+        $this->assertSame('20.00', $entity->{sprintf('get%sAmount', $discount)}());
+
+        // A given percentage takes precedence over the stored one, which is kept
+        $entity->{sprintf('calculate%sAmount', $discount)}('200.00', '25');
+        $this->assertSame('50.00', $entity->{sprintf('get%sAmount', $discount)}());
+        $this->assertSame('10', $entity->{sprintf('get%sPercentage', $discount)}());
+
+        $entity->{sprintf('set%sAmount', $discount)}(null);
+        $entity->{sprintf('set%sPercentage', $discount)}(null);
+        $this->assertNull($entity->{sprintf('get%sAmount', $discount)}());
+        $this->assertNull($entity->{sprintf('get%sPercentage', $discount)}());
+    }
+
+    #[DataProvider('dataDiscountsWithoutAPercentage')]
+    public function testADiscountAmountCannotBeCalculatedWithoutAPercentage(string $discount, string $message): void
+    {
+        // The other payment methods have a percentage: each one must check its own
+        $entity = new PaymentMethodTraitsMock()->setCardDiscountPercentage('5')->setCashDiscountPercentage('10')->setBankTransferDiscountPercentage('15');
+        $entity->{sprintf('set%sPercentage', $discount)}(null);
+
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage($message);
+
+        $entity->{sprintf('calculate%sAmount', $discount)}('200.00');
+    }
+
+    public static function dataDiscounts(): iterable
+    {
+        yield 'card' => ['CardDiscount'];
+        yield 'cash' => ['CashDiscount'];
+        yield 'bank transfer' => ['BankTransferDiscount'];
+    }
+
+    public static function dataDiscountsWithoutAPercentage(): iterable
+    {
+        yield 'card' => ['CardDiscount', 'Discount percentage is required to calculate discount amount'];
+        yield 'cash' => ['CashDiscount', 'Discount percentage is required to calculate discount amount'];
+        yield 'bank transfer' => ['BankTransferDiscount', 'Bank transfer discount percentage is required to calculate discount amount'];
     }
 }
 

@@ -38,4 +38,29 @@ final class AuroraClientProtocolTest extends TestCase
         $_SERVER['HTTP_X_FORWARDED_PROTO'] = '  , https ';
         self::assertSame('https://', $client->protocol());
     }
+
+    public function testProtocolKeepsOnlyTheSchemeOfAForwardedProtoUrl(): void
+    {
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] = 'HTTPS://proxy.example.com';
+
+        self::assertSame('https://', new AuroraClient()->protocol());
+    }
+
+    public function testProtocolFallsBackToTheHttpsServerVariable(): void
+    {
+        $client = new AuroraClient();
+
+        // Only empty entries: the reverse proxy header gives no protocol
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] = ' , ';
+        $_SERVER['HTTPS']                  = 'on';
+        self::assertSame('https://', $client->protocol());
+
+        // Not a string: ignored
+        $_SERVER['HTTP_X_FORWARDED_PROTO'] = ['http'];
+        self::assertSame('https://', $client->protocol());
+
+        unset($_SERVER['HTTP_X_FORWARDED_PROTO'], $_SERVER['HTTPS']);
+        self::assertSame('http://', $client->protocol());
+        self::assertFalse($client->isSSL());
+    }
 }
