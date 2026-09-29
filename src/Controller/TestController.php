@@ -3,11 +3,11 @@
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
-class TestController extends AbstractController
+class TestController
 {
     /**
      * Actions that can be dispatched, see src/Resources/config/routes/routes.yaml
@@ -21,7 +21,7 @@ class TestController extends AbstractController
         $action = basename($Request->getPathInfo());
 
         if (!in_array($action, self::ACTIONS, true)) {
-            throw $this->createNotFoundException();
+            throw new NotFoundHttpException('Not Found');
         }
 
         return $this->$action($Request);
@@ -44,7 +44,7 @@ class TestController extends AbstractController
      */
     public function service(Request $Request): Response
     {
-        // AbstractController::get() was removed in Symfony 6 and AuroraClient::ip() was moved to AuroraIP::ip()
+        // AuroraClient::ip() was moved to AuroraIP::ip()
         $Response = new Response(new AuroraIP()->ip($Request), Response::HTTP_OK);
         $Response->headers->set('X-Backend-Hit', true);
         $Response->headers->set('X-Robots-Tag', 'noindex');

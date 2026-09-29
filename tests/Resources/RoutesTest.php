@@ -6,9 +6,12 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Resources;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\RequiresMethod;
 use PHPUnit\Framework\TestCase;
+use Sindla\Bundle\AuroraBundle\AuroraBundle;
 use Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\Config\Loader\LoaderResolver;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Routing\Loader\YamlFileLoader;
 use Symfony\Component\Routing\Matcher\UrlMatcher;
 use Symfony\Component\Routing\RequestContext;
@@ -54,6 +57,30 @@ class RoutesTest extends TestCase
             ['/.env', 'aurora.controller.blackhole'],
             ['/aurora/test', 'aurora.controller.test'],
         ];
+    }
+
+    /**
+     * "service::method" (or an invokable service): "aurora.controller.compiled:cssJsFiles" (the single colon notation, removed in
+     * Symfony 6) answered a 500, and the "extra" routes referenced the controller by its class instead of its service id
+     */
+    public function testEveryControllerIsAMethodOfAServiceOfTheBundle(): void
+    {
+        $container = new ContainerBuilder(new ParameterBag(['kernel.environment' => 'test']));
+        new AuroraBundle()->getContainerExtension()->load([], $container);
+
+        foreach ($this->loadRoutes() as $name => $route) {
+            $controller = (string)$route->getDefault('_controller');
+
+            $this->assertMatchesRegularExpression('/^[a-z_.]+(::[A-Za-z]+)?$/', $controller, sprintf('The controller of the route "%s" is not a service id.', $name));
+
+            [$id, $method] = explode('::', $controller) + [1 => '__invoke'];
+
+            $this->assertTrue($container->hasDefinition($id), sprintf('The controller service "%s" of the route "%s" does not exist.', $id, $name));
+            $this->assertTrue(
+                method_exists($container->getDefinition($id)->getClass(), $method),
+                sprintf('The controller "%s" of the route "%s" does not exist.', $controller, $name)
+            );
+        }
     }
 
     private function loadRoutes(): RouteCollection

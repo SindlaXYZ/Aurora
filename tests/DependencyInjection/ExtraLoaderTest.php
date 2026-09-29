@@ -18,6 +18,11 @@ class ExtraLoaderTest extends TestCase
             ['aurora_aurora_pwa_offline' => '/aurora/pwa-offline', 'aurora_pwa_offline' => '/pwa-offline'],
             array_map(static fn(Route $route): string => $route->getPath(), $routes->all())
         );
+
+        foreach ($routes as $route) {
+            // The id of the controller service: "Sindla\...\PWAController::offline" was not a service
+            $this->assertSame('aurora.controller.pwa::offline', $route->getDefault('_controller'));
+        }
     }
 
     #[DataProvider('dataSupports')]

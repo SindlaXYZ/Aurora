@@ -7,7 +7,6 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Controller;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,13 +21,7 @@ class CustomExceptionControllerTest extends TestCase
         $loader = new FilesystemLoader();
         $loader->addPath(dirname(__DIR__, 2) . '/src/templates', 'Aurora');
 
-        $container = new Container();
-        $container->set('twig', new Environment($loader));
-
-        $controller = new CustomExceptionController();
-        $controller->setContainer($container);
-
-        $response = $controller->handler(Request::create('/missing'), $exception);
+        $response = new CustomExceptionController(new Environment($loader))->handler(Request::create('/missing'), $exception);
 
         $this->assertSame($expectedStatusCode, $response->getStatusCode());
         $this->assertStringContainsString(sprintf('<title>[%d] ', $expectedStatusCode), $response->getContent());

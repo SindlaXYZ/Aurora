@@ -16,8 +16,7 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
 
 #[AsCommand(
     name       : 'aurora:composer',
-    description: 'Composer update command',
-    aliases    : ['aurora:composer']
+    description: 'Composer update command'
 )]
 final class ComposerCommand extends Command
 {

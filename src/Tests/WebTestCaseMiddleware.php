@@ -74,7 +74,9 @@ class WebTestCaseMiddleware extends WebTestCase
      */
     protected function loginWithoutValidation(UserInterface $user): void
     {
-        $token = new UsernamePasswordToken($user, $user->getPassword(), "database", $user->getRoles());
+        // Symfony 6 removed the credentials argument: the password used to be passed as the firewall name and the firewall name as the
+        // roles (a TypeError)
+        $token = new UsernamePasswordToken($user, "database", $user->getRoles());
         static::getContainer()->get("security.token_storage")->setToken($token);
     }
 

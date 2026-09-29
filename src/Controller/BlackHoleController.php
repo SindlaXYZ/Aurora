@@ -2,19 +2,16 @@
 
 namespace Sindla\Bundle\AuroraBundle\Controller;
 
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\DependencyInjection\Container;
-use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
-use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 
-class BlackHoleController extends AbstractController
+class BlackHoleController
 {
     /**
      * @see /src/Resources/config/routes/routes.yaml
      */
     public function blackHole(): Response
     {
-        return $this->redirect('/', Response::HTTP_PERMANENTLY_REDIRECT);
+        return new RedirectResponse('/', Response::HTTP_PERMANENTLY_REDIRECT);
     }
 }

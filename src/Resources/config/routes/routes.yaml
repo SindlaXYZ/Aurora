@@ -159,8 +159,9 @@ aurora.controller.pwa.offline:
         - '/aurora/pwa-offline'
         - '/pwa-offline'
 
+# "service::method": the single colon notation ("aurora.controller.compiled:cssJsFiles") was removed in Symfony 6, the route answered a 500
 aurora.controller.compiled:
-    controller: 'aurora.controller.compiled:cssJsFiles'
+    controller: 'aurora.controller.compiled::cssJsFiles'
     defaults:
         _locale: ~
     path:

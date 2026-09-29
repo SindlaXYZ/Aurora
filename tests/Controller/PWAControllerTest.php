@@ -8,7 +8,6 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Controller\PWAController;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA;
-use Symfony\Component\DependencyInjection\Container;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -33,11 +32,7 @@ class PWAControllerTest extends TestCase
                 ->willReturn('manifestJSON' === $method ? new JsonResponse([$method]) : new Response($method));
         }
 
-        $container = new Container();
-        $container->set('aurora.pwa', $pwa);
-
-        $controller = new PWAController($this->createStub(Environment::class));
-        $controller->setContainer($container);
+        $controller = new PWAController($this->createStub(Environment::class), $pwa);
 
         // Used to answer "/pwa-sw.js?v42" (e.g. an asset version) with the favicon, and to require APCu (500 when not enabled)
         $this->assertSame(200, $controller->progressiveWebApplication($request, null, null)->getStatusCode());
@@ -61,7 +56,8 @@ class PWAControllerTest extends TestCase
 
     public function testOfflineRendersTheOfflinePage(): void
     {
-        $response = $this->createOfflineController(new Container())->offline();
+        // Without the profiler (not registered in production)
+        $response = $this->createOfflineController()->offline();
 
         $this->assertSame(200, $response->getStatusCode());
         $this->assertStringStartsWith('<!DOCTYPE html>', $response->getContent());
@@ -72,24 +68,19 @@ class PWAControllerTest extends TestCase
 
     public function testOfflineDisablesTheProfiler(): void
     {
-        $profiler  = new Profiler($this->createStub(ProfilerStorageInterface::class));
-        $container = new Container();
-        $container->set('profiler', $profiler);
+        $profiler = new Profiler($this->createStub(ProfilerStorageInterface::class));
 
-        $response = $this->createOfflineController($container)->offline();
+        $response = $this->createOfflineController($profiler)->offline();
 
         $this->assertFalse($profiler->isEnabled());
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    private function createOfflineController(Container $container): PWAController
+    private function createOfflineController(?Profiler $profiler = null): PWAController
     {
         $loader = new FilesystemLoader();
         $loader->addPath(dirname(__DIR__, 2) . '/src/templates', 'Aurora');
 
-        $controller = new PWAController(new Environment($loader));
-        $controller->setContainer($container);
-
-        return $controller;
+        return new PWAController(new Environment($loader), $this->createStub(AuroraPWA::class), $profiler);
     }
 }

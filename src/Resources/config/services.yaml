@@ -1,117 +1,149 @@
+# The services of the bundle are defined explicitly: a bundle must not rely on autowiring nor on autoconfiguration
+# (https://symfony.com/doc/current/bundles/best_practices.html#services). Autoconfiguration used to tag the commands and the
+# SoftDeleteIndexSubscriber twice, e.g. "aurora:composer" was registered as "aurora:composer|aurora:composer" too.
+# The ids are prefixed with the alias of the bundle ("aurora."): a service of the application registered by its class (e.g. a
+# resource import of the Aurora classes) no longer replaces the definition of the bundle.
 services:
-    # default configuration for services in *this* file
     _defaults:
-        autowire: true      # Automatically injects dependencies in your services.
-        autoconfigure: true # Automatically registers your services as commands, event subscribers, etc.
-
-        # controllers are imported separately to make sure services can be injected
-        # as action arguments even if you don't extend any base controller class
-        #Aurora\Controller\:
-        #resource: 'src/Controller/'
-        #tags: ['controller.service_arguments']
-
-    #    AuroraBundleControllers:
-    #        resource: Sindla\Bundle\AuroraBundle\Controller
-    #        type:     annotation
-
-    #    aurora.controller.pwa:
-    #        class: Sindla\Bundle\AuroraBundle\Controller\PWAController
-    #        autowire: true
-    #        autoconfigure: true
-    #        public: true
+        autowire: false
+        autoconfigure: false
 
     ###################################################################################################################
     ###  Aurora Doctrine Event Subscribers  ###########################################################################
 
-    Sindla\Bundle\AuroraBundle\EventSubscriber\SoftDeleteIndexSubscriber:
+    aurora.doctrine.soft_delete_index_subscriber:
+        class: Sindla\Bundle\AuroraBundle\EventSubscriber\SoftDeleteIndexSubscriber
         tags:
             - { name: doctrine.event_listener, event: loadClassMetadata }
 
     # Runs the #[ORM\PrePersist] / #[ORM\PreUpdate] callbacks of the Aurora entity traits (e.g. TimestampableCreated)
-    Sindla\Bundle\AuroraBundle\EventSubscriber\TraitLifecycleCallbacksSubscriber:
+    aurora.doctrine.trait_lifecycle_callbacks_subscriber:
+        class: Sindla\Bundle\AuroraBundle\EventSubscriber\TraitLifecycleCallbacksSubscriber
         tags:
             - { name: doctrine.event_listener, event: loadClassMetadata }
 
+    # The former ids (a reference to them in the configuration of an application keeps working)
+    Sindla\Bundle\AuroraBundle\EventSubscriber\SoftDeleteIndexSubscriber: '@aurora.doctrine.soft_delete_index_subscriber'
+    Sindla\Bundle\AuroraBundle\EventSubscriber\TraitLifecycleCallbacksSubscriber: '@aurora.doctrine.trait_lifecycle_callbacks_subscriber'
+
     ###################################################################################################################
     ###  Aurora Controller ############################################################################################
+    # The dependencies are injected in the constructor: the controllers used to extend AbstractController and to receive the
+    # whole service container (setContainer), the recommended way is the dependency injection
 
     aurora.controller.test:
-        class: 'Sindla\Bundle\AuroraBundle\Controller\TestController'
+        class: Sindla\Bundle\AuroraBundle\Controller\TestController
         tags: ['controller.service_arguments']
-        calls:
-            - [setContainer, ["@service_container"]]
 
     aurora.controller.blackhole:
-        class: 'Sindla\Bundle\AuroraBundle\Controller\BlackHoleController'
+        class: Sindla\Bundle\AuroraBundle\Controller\BlackHoleController
         tags: ['controller.service_arguments']
-        calls:
-            - [setContainer, ["@service_container"]]
 
     aurora.controller.pwa:
-        class: 'Sindla\Bundle\AuroraBundle\Controller\PWAController'
+        class: Sindla\Bundle\AuroraBundle\Controller\PWAController
+        arguments: ['@twig', '@aurora.pwa', '@?profiler']
         tags: ['controller.service_arguments']
-        calls:
-            - [setContainer, ["@service_container"]]
 
     aurora.controller.compiled:
-        class: 'Sindla\Bundle\AuroraBundle\Controller\CompiledController'
+        class: Sindla\Bundle\AuroraBundle\Controller\CompiledController
+        arguments: ['@parameter_bag']
         tags: ['controller.service_arguments']
-        calls:
-            - [setContainer, ["@service_container"]]
 
-    # Extra controller. See `src/Resources/config/routes/routes.yaml : aurora_extra` &
-    Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader:
+    # Error page of the application: framework.error_controller: 'Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController::handler'
+    aurora.controller.custom_exception:
+        class: Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController
+        arguments: ['@twig']
+        tags: ['controller.service_arguments']
+
+    # A controller can also be referenced by its class (e.g. "Sindla\Bundle\AuroraBundle\Controller\PWAController::offline")
+    Sindla\Bundle\AuroraBundle\Controller\TestController:
+        alias: aurora.controller.test
+        public: true
+
+    Sindla\Bundle\AuroraBundle\Controller\BlackHoleController:
+        alias: aurora.controller.blackhole
+        public: true
+
+    Sindla\Bundle\AuroraBundle\Controller\PWAController:
+        alias: aurora.controller.pwa
+        public: true
+
+    Sindla\Bundle\AuroraBundle\Controller\CompiledController:
+        alias: aurora.controller.compiled
+        public: true
+
+    Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController:
+        alias: aurora.controller.custom_exception
+        public: true
+
+    # Extra routes. See `src/Resources/config/routes/routes.yaml : aurora_extra`
+    aurora.routing.extra_loader:
+        class: Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader
         tags: [routing.loader]
+
+    Sindla\Bundle\AuroraBundle\DependencyInjection\ExtraLoader: '@aurora.routing.extra_loader'
 
     ###################################################################################################################
     ###  Aurora Commands  #############################################################################################
+    # The name, the aliases and the description of a command are read from its #[AsCommand] attribute
+
+    # The optional dependencies of the commands that extend the CommandMiddleware (its #[Required] setters)
+    aurora.command.middleware:
+        abstract: true
+        calls:
+            - [setManagerRegistry, ['@?doctrine']]
+            - [setEntityManager, ['@?doctrine.orm.entity_manager']]
+            - [setProjectDir, ['%kernel.project_dir%']]
 
     aurora.command.cloudflare.r2:
         class: Sindla\Bundle\AuroraBundle\Command\CloudflareR2Command
+        parent: aurora.command.middleware
         arguments: ['@aurora.cloudflare.r2']
-        tags:
-            - { name: console.command }
+        tags: [console.command]
 
     # Register TestCommand (see the class file for the command name)
     aurora.command.test:
         class: Sindla\Bundle\AuroraBundle\Command\TestCommand
-        tags:
-            - { name: console.command }
+        parent: aurora.command.middleware
+        tags: [console.command]
 
-#    # Register TestCommand (see the class file for the command name)
+#    # Register I18nCommand (see the class file for the command name)
 #    aurora.command.i18n:
 #        class: Sindla\Bundle\AuroraBundle\Command\I18nCommand
-#        tags:
-#            - { name: console.command }
+#        tags: [console.command]
 
     # Register LazyEntity command (see the class file for the command name)
     aurora.command.lazy_entity:
         class: Sindla\Bundle\AuroraBundle\Command\LazyEntityCommand
         arguments: ['@service_container']
-        tags:
-            - { name: console.command }
+        tags: [console.command]
 
     # Register PHPUnit command (see the class file for the command name)
     aurora.command.php_unit:
         class: Sindla\Bundle\AuroraBundle\Command\PHPUnitCommand
+        parent: aurora.command.middleware
         arguments: ['@parameter_bag']
-        tags:
-            - { name: console.command }
+        tags: [console.command]
 
     # Register the ComposerUpdate command (see the class file for the command name)
     aurora.command.composer:
         class: Sindla\Bundle\AuroraBundle\Command\ComposerCommand
         arguments: ['@service_container']
-        tags:
-            - { name: console.command }
+        tags: [console.command]
 
     ###################################################################################################################
     ###  Aurora Console  ##############################################################################################
 
-    Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory: ~
+    aurora.console.symfony_style_factory:
+        class: Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory
 
-    Symfony\Component\Console\Style\SymfonyStyle:
-        factory: ['@Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory', 'create']
+    aurora.console.symfony_style:
+        class: Symfony\Component\Console\Style\SymfonyStyle
+        factory: ['@aurora.console.symfony_style_factory', 'create']
+
+    # Autowiring: "public function __construct(private SymfonyStyle $symfonyStyle)" (see SymfonyStyleFactory)
+    Sindla\Bundle\AuroraBundle\Console\SymfonyStyleFactory: '@aurora.console.symfony_style_factory'
+    Symfony\Component\Console\Style\SymfonyStyle: '@aurora.console.symfony_style'
 
     ###################################################################################################################
     ###  Aurora Twig  #################################################################################################
@@ -122,11 +154,13 @@ services:
         arguments: ['@service_container', '@request_stack', '@twig', '@aurora.helper']
         tags:
             - { name: twig.extension }
+            # A new CSP nonce for each request of a long-running process (e.g. a FrankenPHP worker)
+            - { name: kernel.reset, method: reset }
         public: true
 
     ###################################################################################################################
     ###  Aurora Services / Utils  #####################################################################################
-    # Public: they are fetched from the container by id (PWAController, ComposerCommand, UtilityExtension, host apps)
+    # Public: they are fetched from the container by id (ComposerCommand, UtilityExtension, host apps)
 
     aurora.array:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray
@@ -167,7 +201,7 @@ services:
 
     aurora.git:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit
-        # ParameterBagInterface is autowired.
+        arguments: ['@parameter_bag']
         public: true
 
     aurora.helper:
@@ -180,7 +214,7 @@ services:
 
     aurora.pwa:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA
-        # ParameterBagInterface, Twig and the "aurora.git" service (via #[Autowire]) are autowired.
+        arguments: ['@parameter_bag', '@twig', '@aurora.git']
         public: true
 
     aurora.sanitizer:
@@ -195,6 +229,25 @@ services:
     aurora.cloudflare.r2:
         class: Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2
         public: true
+
+    # Autowiring: e.g. "public function __construct(private AuroraClient $auroraClient)" in a service of the application
+    Sindla\Bundle\AuroraBundle\Utils\AuroraTwig\UtilityExtension: '@aurora.twig.utility'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraArray\AuroraArray: '@aurora.array'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraCalendar\AuroraCalendar: '@aurora.calendar'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraChronos\AuroraChronos: '@aurora.chronos'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient: '@aurora.client'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraCookiesExtractor\AuroraCookiesExtractor: '@aurora.cookies.extractor'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP: '@aurora.ip'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch: '@aurora.match'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\AuroraCalculus: '@aurora.calculus'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraDiacritics\AuroraDiacritics: '@aurora.diacritics'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraGit\AuroraGit: '@aurora.git'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraHelper\AuroraHelper: '@aurora.helper'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO: '@aurora.io'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraPWA\AuroraPWA: '@aurora.pwa'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer: '@aurora.sanitizer'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraStrink\AuroraStrink: '@aurora.strink'
+    Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2: '@aurora.cloudflare.r2'
 
     ###################################################################################################################
     ###################################################################################################################

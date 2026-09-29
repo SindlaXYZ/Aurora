@@ -15,8 +15,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 
 #[AsCommand(
     name       : 'aurora:test',
-    description: 'Aurora test command',
-    aliases    : ['aurora:test']
+    description: 'Aurora test command'
 )]
 final class TestCommand extends CommandMiddleware
 {

@@ -4,10 +4,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-use Doctrine\Bundle\DoctrineBundle\Attribute\AsDoctrineListener;
 use Doctrine\ORM\Event\LoadClassMetadataEventArgs;
-use Doctrine\ORM\Events;
-use Doctrine\ORM\Mapping\ClassMetadataInfo;
 use Sindla\Bundle\AuroraBundle\Entity\SuperClass\AbstractTimestampableDeletedNotNullable;
 
 /**
@@ -16,8 +13,10 @@ use Sindla\Bundle\AuroraBundle\Entity\SuperClass\AbstractTimestampableDeletedNot
  *
  * This solves the PostgreSQL limitation where index names must be unique across the entire database,
  * not just within a single table.
+ *
+ * Registered by src/Resources/config/services.yaml ("aurora.doctrine.soft_delete_index_subscriber"): the #[AsDoctrineListener]
+ * attribute registered it a second time when the services of the bundle were autoconfigured
  */
-#[AsDoctrineListener(event: Events::loadClassMetadata)]
 class SoftDeleteIndexSubscriber
 {
     public function loadClassMetadata(LoadClassMetadataEventArgs $eventArgs): void

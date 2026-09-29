@@ -4,38 +4,31 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\EventSubscriber;
 
-use Doctrine\ORM\Events;
 use Doctrine\Persistence\Event\LifecycleEventArgs;
-use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * Updates owner_id, created_by and updated_by when creating or updating a resource, only if the resource uses Ownable trait
  *
+ * A Doctrine listener: it used to implement the EventSubscriberInterface of the Symfony EventDispatcher, so an autoconfigured service
+ * listened to the kernel events "0" and "1" (the list of the Doctrine events was read as a map of Symfony events)
+ *
  * services.yaml:
  *
- * Sindla\Bundle\AuroraBundle\EventSubscriber\OwnableSubscriber:
- * arguments: [ "@security.token_storage" ]
- * tags:
- * - { name: doctrine.event_listener, event: prePersist, connection: default }
- * - { name: doctrine.event_listener, event: preUpdate, connection: default }
+ *     Sindla\Bundle\AuroraBundle\EventSubscriber\OwnableSubscriber:
+ *         arguments: [ "@security.token_storage" ]
+ *         tags:
+ *             - { name: doctrine.event_listener, event: prePersist, connection: default }
+ *             - { name: doctrine.event_listener, event: preUpdate, connection: default }
  */
-class OwnableSubscriber implements EventSubscriberInterface
+class OwnableSubscriber
 {
     private TokenStorageInterface $tokenStorage;
 
     public function __construct(TokenStorageInterface $tokenStorage)
     {
         $this->tokenStorage = $tokenStorage;
-    }
-
-    public static function getSubscribedEvents(): array
-    {
-        return [
-            Events::prePersist,
-            Events::preUpdate
-        ];
     }
 
     /**

@@ -13,6 +13,7 @@ use Symfony\Component\PasswordHasher\Hasher\PasswordHasherFactory;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasher;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
+use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
 
 class WebTestCaseMiddlewareTest extends TestCase
@@ -101,6 +102,33 @@ class WebTestCaseMiddlewareTest extends TestCase
     {
         $tokenStorage = new TokenStorage();
 
+        $this->login($tokenStorage, new InMemoryUser('user', 'your-password-here', ['ROLE_USER']), 'a-wrong-password');
+
+        $this->assertNull($tokenStorage->getToken());
+    }
+
+    #[RequiresMethod(UserPasswordHasher::class, 'isPasswordValid')]
+    public function testLoginWithRawPasswordLogsInWithTheRightPassword(): void
+    {
+        $tokenStorage = new TokenStorage();
+        $user         = new InMemoryUser('user', 'your-password-here', ['ROLE_USER', 'ROLE_ADMIN']);
+
+        // The Symfony 5 UsernamePasswordToken constructor ($user, $credentials, $firewallName, $roles) used to be a TypeError
+        $this->login($tokenStorage, $user, 'your-password-here');
+
+        $token = $tokenStorage->getToken();
+
+        $this->assertInstanceOf(UsernamePasswordToken::class, $token);
+        $this->assertSame($user, $token->getUser());
+        $this->assertSame('database', $token->getFirewallName());
+        $this->assertSame(['ROLE_USER', 'ROLE_ADMIN'], $token->getRoleNames());
+    }
+
+    /**
+     * Logs the user in with loginWithRawPassword() (which calls loginWithoutValidation()) in a test case that uses the $tokenStorage
+     */
+    private function login(TokenStorage $tokenStorage, InMemoryUser $user, string $rawPassword): void
+    {
         $container = new Container();
         $container->set(UserPasswordHasherInterface::class, new UserPasswordHasher(new PasswordHasherFactory([InMemoryUser::class => ['algorithm' => 'plaintext']])));
         $container->set('security.token_storage', $tokenStorage);
@@ -120,9 +148,7 @@ class WebTestCaseMiddlewareTest extends TestCase
         };
         $testCase::$testContainer = $container;
 
-        $testCase->login(new InMemoryUser('user', 'your-password-here', ['ROLE_USER']), 'a-wrong-password');
-
-        $this->assertNull($tokenStorage->getToken());
+        $testCase->login($user, $rawPassword);
     }
 
     /**
