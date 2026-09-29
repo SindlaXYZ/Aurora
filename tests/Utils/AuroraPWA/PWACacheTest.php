@@ -100,7 +100,7 @@ namespace Symfony\Component\Cache\Adapter {
             {
             }
 
-            public function get(string $key, callable $callback, float $beta = null, array &$metadata = null): mixed
+            public function get(string $key, callable $callback, ?float $beta = null, ?array &$metadata = null): mixed
             {
                 $item = new DummyCacheItem($key);
 
