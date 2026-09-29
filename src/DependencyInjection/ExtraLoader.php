@@ -18,6 +18,7 @@ class ExtraLoader extends Loader
             throw new \RuntimeException('Do not add the "extra" loader twice');
         }
 
+        // The id of the controller service, like src/Resources/config/routes/routes.yaml
         $customRoutes = [
             [
                 'name'         => 'aurora_aurora_pwa_offline',
@@ -25,7 +26,7 @@ class ExtraLoader extends Loader
                     '/aurora/pwa-offline'
                 ],
                 'defaults'     => [
-                    '_controller' => 'Sindla\Bundle\AuroraBundle\Controller\PWAController::offline'
+                    '_controller' => 'aurora.controller.pwa::offline'
                 ],
                 'requirements' => [
 
@@ -37,7 +38,7 @@ class ExtraLoader extends Loader
                     '/pwa-offline'
                 ],
                 'defaults'     => [
-                    '_controller' => 'Sindla\Bundle\AuroraBundle\Controller\PWAController::offline'
+                    '_controller' => 'aurora.controller.pwa::offline'
                 ],
                 'requirements' => [
 

@@ -34,11 +34,25 @@
         "geoip2/geoip2": "^3.3",
         "matthiasmullie/minify": "^1.3",
         "scienta/doctrine-json-functions": "^6.5",
-        "symfony/uid": "^8.1",
+        "symfony/asset": "^8.1",
+        "symfony/cache": "^8.1",
+        "symfony/config": "^8.1",
+        "symfony/console": "^8.1",
+        "symfony/dependency-injection": "^8.1",
+        "symfony/event-dispatcher": "^8.1",
+        "symfony/finder": "^8.1",
+        "symfony/framework-bundle": "^8.1",
+        "symfony/http-foundation": "^8.1",
+        "symfony/http-kernel": "^8.1",
         "symfony/process": "^8.1",
         "symfony/property-info": "^8.1",
+        "symfony/routing": "^8.1",
+        "symfony/serializer": "^8.1",
         "symfony/twig-bundle": "^8.1",
-        "tedivm/jshrink": "^1.8"
+        "symfony/uid": "^8.1",
+        "symfony/yaml": "^8.1",
+        "tedivm/jshrink": "^1.8",
+        "twig/twig": "^3.25"
     },
     "@comment require": [
         "no comments at this moment"
@@ -53,11 +67,15 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Sindla\\Bundle\\AuroraBundle\\": "src/"
+            "Sindla\\Bundle\\AuroraBundle\\Tests\\": "tests/"
         }
     },
     "suggest": {
-        "sindla/aurora": "no suggestions at this moment"
+        "doctrine/doctrine-bundle": "To run the Doctrine listeners of the bundle (the lifecycle callbacks of the entity traits, the soft delete index)",
+        "doctrine/doctrine-migrations-bundle": "To inject the service container into the migrations (MigrationFactoryDecorator)",
+        "symfony/http-client": "To report the 404 requests to the BlackHole API (BlackHoleSubscriber)",
+        "symfony/monolog-bundle": "To use the Monolog HtmlFormatter and MiscProcessor",
+        "symfony/security-bundle": "To use the OwnableSubscriber and the login helpers of the WebTestCaseMiddleware"
     },
     "minimum-stability": "dev",
     "prefer-stable": true,

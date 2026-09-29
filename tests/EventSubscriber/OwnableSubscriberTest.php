@@ -7,6 +7,7 @@ use Doctrine\Persistence\Event\LifecycleEventArgs;
 use Doctrine\Persistence\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\EventSubscriber\OwnableSubscriber;
+use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorage;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 use Symfony\Component\Security\Core\User\InMemoryUser;
@@ -17,6 +18,12 @@ use Symfony\Component\Security\Core\User\UserInterface;
  */
 class OwnableSubscriberTest extends TestCase
 {
+    public function testIsADoctrineListenerNotASymfonyEventSubscriber(): void
+    {
+        // Its Doctrine events were read as a map of Symfony events: an autoconfigured service listened to the kernel events "0" and "1"
+        $this->assertNotInstanceOf(EventSubscriberInterface::class, new OwnableSubscriber(new TokenStorage()));
+    }
+
     public function testPrePersistSetsTheAuthenticatedUser(): void
     {
         $user         = new InMemoryUser('aurora', null, ['ROLE_USER']);

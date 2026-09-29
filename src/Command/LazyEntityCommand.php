@@ -21,8 +21,7 @@ use Sindla\Bundle\AuroraBundle\Doctrine\Annotation\Aurora;
 
 #[AsCommand(
     name: 'aurora:lazy.entity',
-    description: 'Aurora entity generator',
-    aliases: ['aurora:composer']
+    description: 'Aurora entity generator'
 )]
 class LazyEntityCommand extends CommandMiddlewareV1
 {

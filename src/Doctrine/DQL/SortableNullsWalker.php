@@ -32,8 +32,11 @@ use Doctrine\ORM\Query\AST\OrderByItem;
  *
  * @support: MySQL
  * @support: PostgreSQL
+ *
+ * An output walker extends the SqlOutputWalker (Doctrine ORM 3.3): a SqlWalker is deprecated as output walker, the SQL finalizer
+ * (LIMIT / OFFSET) replaces the SQL executor of the parser result in Doctrine ORM 4
  */
-class SortableNullsWalker extends Query\SqlWalker
+class SortableNullsWalker extends Query\SqlOutputWalker
 {
     public const NULLS_FIRST = 'NULLS FIRST';
     public const NULLS_LAST  = 'NULLS LAST';

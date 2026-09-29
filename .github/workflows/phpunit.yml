@@ -108,8 +108,10 @@ jobs:
                     composer require dama/doctrine-test-bundle:^8.4 -W --dev --no-progress
 
                     echo -e "\033[0;35m * sync files \033[0m"
-                    cp -rf "${{ env.WORKSPACE }}/src/"* "${{ env.BUILD_DIR }}/vendor/sindla/aurora/src"
-                    cp -rf "${{ env.WORKSPACE }}/tests/"* "${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests"
+                    # Replaced, not merged: a file deleted by the branch used to stay in the installed package (and a deleted test still ran)
+                    rm -rf "${{ env.BUILD_DIR }}/vendor/sindla/aurora/src" "${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests"
+                    cp -rf "${{ env.WORKSPACE }}/src" "${{ env.BUILD_DIR }}/vendor/sindla/aurora/src"
+                    cp -rf "${{ env.WORKSPACE }}/tests" "${{ env.BUILD_DIR }}/vendor/sindla/aurora/tests"
                     cp -f ${{ env.WORKSPACE }}/src/Resources/schema/packages/aurora.yaml ${{ env.BUILD_DIR }}/config/packages/aurora.yaml
                     cat ${{ env.WORKSPACE }}/src/Resources/schema/routes.append.yaml >> ${{ env.BUILD_DIR }}/config/routes.yaml
                     cp -f ${{ env.WORKSPACE }}/tests/bootstrap.php ${{ env.BUILD_DIR }}/tests/bootstrap.php

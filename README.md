@@ -25,7 +25,8 @@ Even though Aurora is Packagist-ready and is a Symfony bundle, no recipe will be
 <details>
         <summary><h4>🗂️ config/packages/aurora.yaml</h4></summary>
 
-* Create the file `config/packages/aurora.yaml` and add the following content:
+* Create the file `config/packages/aurora.yaml` and add the following content (the reference template is
+  `src/Resources/schema/packages/aurora.yaml`):
 
 ```yaml
 parameters:
@@ -40,16 +41,21 @@ parameters:
     aurora.maxmind.license_key: '%env(default::MAXMIND_LICENSE_KEY)%'
     # Minify output
     aurora.minify.output: false
-    aurora.minify.output.ignore.extensions: [ '.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip' ]
-    aurora.minify.output.ignore.content.type: [ 'text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip' ]
+    aurora.minify.output.ignore.extensions:   ['.pdf', '.csv', '.jpg', '.png', '.gif', '.doc', '.docx', '.xls', '.xlsm', '.xlsx', '.xml', '.zip']
+    aurora.minify.output.ignore.content.type: ['text/plain', 'text/csv', 'application/octet-stream', 'image/jpeg', 'image/png', 'image/gif', 'application/pdf', 'application/xml', 'application/zip']
     # Replace strings in the response content (strtr() map, "search" => "replace")
     aurora.minify.replace: false
     aurora.minify.replace.mapper: { }
     # https://developers.google.com/web/fundamentals/web-app-manifest
-    #aurora.pwa.version_append:        "!php/eval `date('Y-m-d H')`"
-    aurora.pwa.enabled: '%env(bool:AURORA_PWA_ENABLED)%'
-    aurora.pwa.debug: '%env(bool:AURORA_PWA_DEBUG)%'
-    aurora.pwa.version_append: "!php/eval `App\Utils::pwaVersionAppend()`"
+    # Optional suffix appended to the PWA / service-worker version (used in the SW cache names).
+    # It MUST be stable for the lifetime of a deploy (a build hash, a release tag, APP_VERSION).
+    # NEVER use a time-based or per-request value (e.g. date()/time()/a session id): the service
+    # worker embeds the version in its cache names, so a value that changes between requests makes
+    # the browser treat the worker as updated and shows a false "new version available" prompt on
+    # every revisit. Leave empty to use the git hash alone, set a stable string / env var, or
+    # implement App\Service\AuroraService::pwaVersionAppend(): string (auto-detected when present).
+    aurora.pwa.version_append: ''
+    #aurora.pwa.version_append: '%env(default::APP_VERSION)%'
     aurora.pwa.automatically_prompt: false
     aurora.pwa.app_name: ''
     aurora.pwa.app_short_name: ''
@@ -62,10 +68,6 @@ parameters:
     aurora.pwa.offline: '/aurora/pwa-offline'
     aurora.pwa.precache:
         - '/'
-    aurora.pwa.prevent_cache_header_request_accept:
-        - 'text/html'
-        - 'text/html; charset=UTF-8'
-        - 'application/json'
     aurora.pwa.prevent_cache:
         - '/ajax-requests'
         - '/q'
@@ -109,6 +111,9 @@ parameters:
         - 'casalemedia.com'
 ```
 
+* Optional parameters: `aurora.pwa.enabled` (default `true`), `aurora.pwa.debug` (default `false`) and
+  `aurora.pwa.prevent_cache_header_request_accept` (default `[]`, e.g. `[ 'text/html', 'application/json' ]`).
+
 </details>
 
 <details>
@@ -148,15 +153,12 @@ parameters:
 
 ```yaml
 twig:
-    default_path: '%kernel.project_dir%/templates'
-    debug: '%kernel.debug%'
-    strict_variables: '%kernel.debug%'
-    exception_controller: ~
-    paths:
-        '%kernel.project_dir%/vendor/sindla/aurora/src/templates': Aurora
     globals:
         aurora: '@aurora.twig.utility'
 ```
+
+* The templates of the bundle are registered by TwigBundle as the `@Aurora` namespace: a `paths` entry is not needed (the
+  `exception_controller` option was removed in Symfony 5, see the error page below).
 
 </details>
 
@@ -169,6 +171,18 @@ twig:
 ```yaml
 aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
+```
+
+</details>
+
+<details>
+        <summary><h4>🗂️ config/packages/framework.yaml</h4></summary>
+
+* Optional: to render the errors with the Aurora error page, edit `config/packages/framework.yaml` and add the following content:
+
+```yaml
+framework:
+    error_controller: 'Sindla\Bundle\AuroraBundle\Controller\CustomExceptionController::handler'
 ```
 
 </details>
@@ -228,46 +242,29 @@ SINDLA_AURORA_GEO_LITE2_CITY=true
 SINDLA_AURORA_GEO_LITE2_ASN=true
 ```
 
-* Edit `config/services.yaml` and add/append the following content:
-
-```yaml
-services:
-    _defaults:
-        bind:
-            $auroraClient: '@aurora.client'
-```
-
-* Or edit `config/services.yaml` and add the following code to inject the `@aurora.client` only where it is needed:
-
-```yaml
-services:
-    App\Controller\TestController:
-        arguments:
-            $auroraClient: '@aurora.client'
-```
-
-* Edit your controller and add/append the following code:
+* The public services of the bundle (`aurora.client`, `aurora.ip`, `aurora.pwa`, ...) are autowired by their class, e.g. edit your
+  controller and add/append the following code:
 
 ```php
 <?php
 
 namespace App\Controller;
 
-use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\Client;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraClient\AuroraClient;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraIP\AuroraIP;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Attribute\Cache;
-use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Attribute\Route;
 
 #[Route('/test-controller')]
 final class TestController extends AbstractController
 {
     public function __construct(
-        protected Client $auroraClient
-    )
-    {
+        private readonly AuroraClient $auroraClient,
+        private readonly AuroraIP $auroraIP,
+    ) {
     }
 
     #[Route(path: '/client-ip-2-country', name: 'TestController:clientIp2Country', methods: ['OPTIONS', 'GET'])]
@@ -275,11 +272,13 @@ final class TestController extends AbstractController
     public function clientIp2Country(Request $request): JsonResponse
     {
         return new JsonResponse([
-            'countryCode' => $this->auroraClient->ip2CountryCode($this->auroraClient->ip($request))
+            'countryCode' => $this->auroraClient->ip2CountryCode($this->auroraIP->ip($request))
         ]);
     }
 }
 ```
+
+* Or inject a service by its id, e.g. `$auroraClient: '@aurora.client'` in `config/services.yaml`.
 
 </details>
 
@@ -350,8 +349,8 @@ cd symfony/
 composer create-project symfony/skeleton:8.1.* . --no-cache
 yes | composer require symfony/webapp-pack
 yes | composer require sindla/aurora:8.1.x-dev -W --no-cache --no-progress
-yes | composer require phpunit/phpunit:10.5.* -W --dev --no-progress
-yes | composer require dama/doctrine-test-bundle:8.0.* -W --dev --no-progress
+yes | composer require phpunit/phpunit:^12.4 -W --dev --no-progress
+yes | composer require dama/doctrine-test-bundle:^8.6 -W --dev --no-progress
 php vendor/bin/phpunit -c phpunit.dist.xml vendor/sindla/aurora/tests/
 php vendor/bin/phpunit -c vendor/sindla/aurora/phpunit.xml.dist vendor/sindla/aurora/tests/
 ```

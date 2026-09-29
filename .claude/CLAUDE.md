@@ -89,7 +89,7 @@ The `.claude/rules/` directory holds detailed, topic-specific reference guides f
 
 ```
 src/
-├── AuroraBundle.php                  # Bundle entry point
+├── AuroraBundle.php                  # Bundle entry point (AbstractBundle, getPath() = src/)
 ├── Attribute/                        # PHP attributes (FormElement)
 ├── Command/                          # Symfony console commands
 │   ├── PHPUnitCommand.php            # aurora:php-unit — generates SVG badges
@@ -105,7 +105,7 @@ src/
 │   ├── PWAController.php             # Progressive Web App endpoints
 │   ├── CompiledController.php
 │   └── TestController.php
-├── DependencyInjection/              # Extension, Configuration, ExtraLoader
+├── DependencyInjection/              # ExtraLoader (route loader of the "extra" routes)
 ├── Doctrine/
 │   ├── DQL/MySQL/                    # MySQL DQL functions
 │   ├── DQL/PostgreSQL/               # PostgreSQL DQL functions
@@ -289,11 +289,9 @@ aurora:
     resource: "@AuroraBundle/Resources/config/routes/routes.yaml"
 ```
 
-Twig (add to `config/packages/twig.yaml`):
+Twig (add to `config/packages/twig.yaml`; TwigBundle registers `src/templates/` as the `@Aurora` namespace itself):
 ```yaml
 twig:
-    paths:
-        '%kernel.project_dir%/vendor/sindla/aurora/src/templates': Aurora
     globals:
         aurora: '@aurora.twig.utility'
 ```
@@ -391,6 +389,9 @@ $this->em->flush();
 
 ## Notable Patterns
 
+- **Bundle services**: defined explicitly in `src/Resources/config/services.yaml` — no autowiring, no autoconfiguration (Symfony bundle
+  best practice); commands get their name/aliases from `#[AsCommand]` plus a single `console.command` tag; public `aurora.*` services
+  have a class alias for autowiring. Controllers get their dependencies in the constructor (no `AbstractController`, no container).
 - **Doctrine soft-delete**: `SoftDeleteIndexSubscriber` + `TimestampableDeletedNullable` / `TimestampableDeletedNotNullable` traits.
 - **Container-aware migrations**: Use `MigrationFactoryDecorator` — see README for service configuration.
 - **MaxMind GeoIP2**: Databases are auto-downloaded by Composer hooks when `MAXMIND_LICENSE_KEY`, `SINDLA_AURORA_GEO_LITE2_COUNTRY`, `SINDLA_AURORA_GEO_LITE2_CITY`, `SINDLA_AURORA_GEO_LITE2_ASN` env vars are set.

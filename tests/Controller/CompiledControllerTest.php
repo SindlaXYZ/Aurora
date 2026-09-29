@@ -7,7 +7,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Controller;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Controller\CompiledController;
-use Symfony\Component\DependencyInjection\Container;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\HttpFoundation\Request;
 
 class CompiledControllerTest extends TestCase
@@ -35,12 +35,8 @@ class CompiledControllerTest extends TestCase
     #[DataProvider('dataFiles')]
     public function testServesTheCompiledFile(string $fileName, int $expectedStatus, string $expectedContent, string $expectedContentType): void
     {
-        $container = new Container();
         // A trailing slash, as in "%kernel.project_dir%/var/tmp/"
-        $container->setParameter('aurora.tmp', $this->tmpDir . '/');
-
-        $controller = new CompiledController();
-        $controller->setContainer($container);
+        $controller = new CompiledController(new ParameterBag(['aurora.tmp' => $this->tmpDir . '/']));
 
         $response = $controller->cssJsFiles(Request::create('/aurora/compiled/' . $fileName), $fileName);
 
