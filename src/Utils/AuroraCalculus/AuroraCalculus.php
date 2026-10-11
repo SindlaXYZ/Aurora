@@ -7,11 +7,8 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\Extension\Calculus3D;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\Extension\CalculusGeo;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\Extension\Graph;
 
-require dirname(__FILE__) . '/Extension/Calculus2D.php';
-require dirname(__FILE__) . '/Extension/Calculus3D.php';
-require dirname(__FILE__) . '/Extension/Graph.php';
-require dirname(__FILE__) . '/Extension/CalculusGeo.php';
-
+// The traits are autoloaded (PSR-4): they used to be require()d here, a "Cannot redeclare trait" fatal error once a trait was loaded first,
+// e.g. by the factory of the "aurora.calculus" service in a debug container (it include_once()s the traits of a class, then the class)
 class AuroraCalculus
 {
     use Calculus2D;

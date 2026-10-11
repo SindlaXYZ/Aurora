@@ -39,14 +39,15 @@ abstract class AbstractTimestampableDeletedNotNullable
     #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeleted(): bool
     {
-        return $this->deletedAt && $this->deletedAt->getTimestamp() < time();
+        // From the second of the deletion on: setDeletedAt(new \DateTimeImmutable()) used to be "not deleted" (and "deleted in the future")
+        return $this->deletedAt && $this->deletedAt->getTimestamp() <= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeletedInFuture(): bool
     {
         return $this->deletedAt && $this->deletedAt->format('Y-m-d H:i:s') != new \DateTimeImmutable(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT)->format('Y-m-d H:i:s')
-        && $this->deletedAt->getTimestamp() >= time();
+        && $this->deletedAt->getTimestamp() > time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]

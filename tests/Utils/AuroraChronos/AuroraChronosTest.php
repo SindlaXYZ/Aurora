@@ -496,6 +496,52 @@ class AuroraChronosTest extends TestCase
         }
     }
 
+    /**
+     * The ISO week was paired with the calendar year: 2024-12-30 (week 1 of 2025) had the key of the week of 2024-01-01, and the
+     * week 1 of 2025 was listed twice; an end time later than the start time added the next week
+     */
+    #[DataProvider('dataGetUniqueWeeksInRangeAroundTheEndOfTheYear')]
+    public function testGetUniqueWeeksInRangeAroundTheEndOfTheYear(string $start, string $end, int $count, array $first, array $last): void
+    {
+        $weeks = new AuroraChronos()->getUniqueWeeksInRange(new \DateTimeImmutable($start), new \DateTimeImmutable($end));
+
+        self::assertCount($count, $weeks);
+        self::assertSame($first, $weeks[0]);
+        self::assertSame($last, end($weeks));
+    }
+
+    public static function dataGetUniqueWeeksInRangeAroundTheEndOfTheYear(): iterable
+    {
+        yield 'the whole year 2024' => [
+            '2024-01-01',
+            '2024-12-31',
+            53,
+            ['week' => 1, 'year' => 2024, 'firstDayOfWeek' => '2024-01-01', 'lastDayOfWeek' => '2024-01-07'],
+            ['week' => 1, 'year' => 2025, 'firstDayOfWeek' => '2024-12-30', 'lastDayOfWeek' => '2024-12-31'],
+        ];
+        yield 'a week shared by two years' => [
+            '2024-12-23',
+            '2025-01-05',
+            2,
+            ['week' => 52, 'year' => 2024, 'firstDayOfWeek' => '2024-12-23', 'lastDayOfWeek' => '2024-12-29'],
+            ['week' => 1, 'year' => 2025, 'firstDayOfWeek' => '2024-12-30', 'lastDayOfWeek' => '2025-01-05'],
+        ];
+        yield 'the last week of the previous ISO year' => [
+            '2021-01-01',
+            '2021-01-03',
+            1,
+            ['week' => 53, 'year' => 2020, 'firstDayOfWeek' => '2021-01-01', 'lastDayOfWeek' => '2021-01-03'],
+            ['week' => 53, 'year' => 2020, 'firstDayOfWeek' => '2021-01-01', 'lastDayOfWeek' => '2021-01-03'],
+        ];
+        yield 'an end time later than the start time' => [
+            '2024-01-01 10:00',
+            '2024-01-07 12:00',
+            1,
+            ['week' => 1, 'year' => 2024, 'firstDayOfWeek' => '2024-01-01', 'lastDayOfWeek' => '2024-01-07'],
+            ['week' => 1, 'year' => 2024, 'firstDayOfWeek' => '2024-01-01', 'lastDayOfWeek' => '2024-01-07'],
+        ];
+    }
+
     public function testSeconds2HMS(): void
     {
         $Chronos = new AuroraChronos();

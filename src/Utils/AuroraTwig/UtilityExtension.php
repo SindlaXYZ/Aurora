@@ -494,18 +494,9 @@ class UtilityExtension extends AbstractExtension implements ResetInterface
                     // Load local files
                     if (!preg_match('/http:|https:|ftp:/', $assetWebPath)) {
 
+                        // The JavaScript is minified as it is: the workarounds of old JShrink bugs (" || " => "||", "| {" => '\n{') changed the
+                        // strings and the regular expressions of the code, e.g. /(NaN| {2}|^$)/ became /(NaN\n{2}|^$)/
                         $assetContent = file_get_contents($assetAbsPath);
-                        if ('js' == $assetType) {
-                            /**
-                             * Fix for the following bug: `a || b` will be replaced with `a|\nb` (only if there are spaces around ||)
-                             */
-                            $assetContent = str_replace(' || ', '||', $assetContent);
-
-                            /**
-                             * HightChart bug: `/(NaN| {2}|^$)/` will be replaced with `/(NaN|{2}|^$)/`
-                             */
-                            $assetContent = str_replace('| {', '\n{', $assetContent);
-                        }
 
                         $combineAndMinifyOutputContent .= ('css' == $assetType
                             ? $serviceSanitizer->cssMinify($assetContent, $assetWebPath)
@@ -526,6 +517,14 @@ class UtilityExtension extends AbstractExtension implements ResetInterface
 
         if ($combineAndMinify) {
             if ($onDev || !file_exists($combineAndMinifyOutputAbsPath)) {
+                // A generated directory (not deployed): it used to be never created, so after a fresh deploy every page linked a combined file
+                // that could not be written (a warning, a 500 in debug); "@": a concurrent request may create it meanwhile
+                $compiledDir = dirname($combineAndMinifyOutputAbsPath);
+
+                if (!is_dir($compiledDir) && !@mkdir($compiledDir, 0777, true) && !is_dir($compiledDir)) {
+                    trigger_error(sprintf('[AURORA] Cannot create the directory "%s".', $compiledDir), E_USER_WARNING);
+                }
+
                 file_put_contents($combineAndMinifyOutputAbsPath, '/*' . date('Y-m-d H:i:s') . '*/' . ($combineAndMinifyOutputContentHead . $combineAndMinifyOutputContent));
             }
 

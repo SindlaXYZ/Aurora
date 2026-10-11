@@ -34,7 +34,9 @@ trait TimestampableDeletedMutable
 
     public function isDeleted(): bool
     {
-        return !(null == $this->deletedAt || $this->deletedAt == AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT);
+        // Deleted from deletedAt on, like the other Deleted traits: a DateTime is never equal (==) to the string of the placeholder, so
+        // the "not deleted" placeholder (2222-02-22, the column default) and a deletion scheduled in the future used to be "deleted"
+        return null !== $this->deletedAt && $this->deletedAt->getTimestamp() <= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ, AuroraConstants::GROUP_READ_TIMESTAMPABLE])]

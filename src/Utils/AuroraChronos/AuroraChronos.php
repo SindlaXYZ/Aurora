@@ -475,11 +475,14 @@ class AuroraChronos
     {
         $weeks    = [];
         $interval = new \DateInterval('P1D');
-        $period   = new \DatePeriod($start, $interval, $end->modify('+1 day'));
+        // Whole days: an end time later than the start time used to add the next week ("2024-01-08" - "2024-01-07")
+        $period   = new \DatePeriod($start->setTime(0, 0), $interval, $end->setTime(0, 0)->modify('+1 day'));
 
         foreach ($period as $date) {
             $week     = (int)$date->format('W');
-            $year     = (int)$date->format('Y');
+            // The year of the ISO week ("o"), not the calendar year: 2024-12-30 (week 1 of 2025) used to be "2024-01", the key of the
+            // week of 2024-01-01 (so it was lost in a range of the whole year 2024), and the week 1 of 2025 was listed twice
+            $year     = (int)$date->format('o');
             $weekYear = sprintf('%d-%02d', $year, $week);
 
             if (!isset($weeks[$weekYear])) {
