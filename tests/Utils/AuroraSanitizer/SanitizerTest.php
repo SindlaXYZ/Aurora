@@ -22,6 +22,7 @@ namespace Sindla\Bundle\AuroraBundle\Tests\Utils\AuroraSanitizer {
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Sindla\Bundle\AuroraBundle\Utils\AuroraMatch\AuroraMatch;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraSanitizer\AuroraSanitizer;
 
 class SanitizerTest extends TestCase
@@ -214,6 +215,32 @@ CSS;
         $result = new AuroraSanitizer()->cssMinify('@font-face { src: url("fonts/aurora.woff2"); }', '/assets/css/fonts.css');
 
         self::assertMatchesRegularExpression('#url\(("?)/assets/css/fonts/aurora\.woff2\1\)#', $result);
+    }
+
+    /**
+     * The combined stylesheet is served from /static/compiled/: a relative asset path ("static/css/main.css") is a path from the root of
+     * the site; a root-relative or a fragment URL was prefixed too, and the spaces of "url( 'a.png' )" stayed between the prefix and the quote
+     */
+    #[DataProvider('dataCssMinifyRewritesOnlyTheUrlsRelativeToTheStylesheet')]
+    public function testCssMinifyRewritesOnlyTheUrlsRelativeToTheStylesheet(string $css, string $asset, string $expected): void
+    {
+        $result = new AuroraSanitizer()->cssMinify($css, $asset);
+
+        self::assertSame([$expected], new AuroraMatch()->matchCssUrls($result, false)[1]);
+    }
+
+    public static function dataCssMinifyRewritesOnlyTheUrlsRelativeToTheStylesheet(): iterable
+    {
+        yield 'a relative asset path' => [".logo { background: url('../img/logo.png'); }", 'static/css/main.css', '/static/css/../img/logo.png'];
+        yield 'an asset at the root of the site' => ['.logo { background: url(img/logo.png); }', 'main.css', '/img/logo.png'];
+        yield 'an asset of another site' => [
+            '.logo { background: url(img/logo.png); }',
+            'https://cdn.example.com/css/main.css',
+            'https://cdn.example.com/css/img/logo.png',
+        ];
+        yield 'a root-relative URL' => ['.logo { background: url("/img/logo.png"); }', 'static/css/main.css', '/img/logo.png'];
+        yield 'a fragment' => ['.mask { mask: url(#gradient); }', 'static/css/main.css', '#gradient'];
+        yield 'spaces inside url()' => [".icon { background: url( 'img/icon.png' ); }", '/static/css/main.css', '/static/css/img/icon.png'];
     }
 
     #[DataProvider('dataMinifyCss')]

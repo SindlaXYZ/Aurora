@@ -84,6 +84,13 @@ class OutputSubscriber implements EventSubscriberInterface
         /** @var Response $response */
         $response = $event->getResponse();
 
+        // The main response only: a sub-request response is a part of it, so it was handled twice, e.g. every error page (rendered by the
+        // error controller in a sub-request, then returned as the main response) and every {{ render(controller()) }} fragment got the
+        // "aurora.minify.replace.mapper" replacements twice ("https://cdn.example.comhttps://cdn.example.com/static/")
+        if (!$event->isMainRequest()) {
+            return;
+        }
+
         // Once per response: registered as a "kernel.event_listener" (as the README used to say) and as an event subscriber (autoconfigure),
         // it ran twice, e.g. "aurora.minify.replace.mapper" was applied twice ("/static/" => "https://cdn.example.com/static/" became
         // "https://cdn.example.comhttps://cdn.example.com/static/")

@@ -677,7 +677,10 @@ PHP);
     {
         $method         = new \ReflectionMethod(PHPUnitCommand::class, 'updateTestMethodComments');
         $command        = new PHPUnitCommand(new ParameterBag(['kernel.project_dir' => $this->projectDir]));
-        $content        = (string)file_get_contents(__DIR__ . '/PHPUnit/GivenTest.php');
+        // A `// clear; cd` comment to delete: without one, the JIT rejects every position before the limit is reached
+        $content        = "<?php\n\nclass ShopTest extends WebTestCaseMiddleware\n{\n"
+            . "    // clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Shop/ShopTest.php --no-coverage --filter testShop\n"
+            . "    #[Test]\n    public function testShop(): void\n    {\n    }\n}\n";
         $backtrackLimit = ini_set('pcre.backtrack_limit', '1');
 
         try {

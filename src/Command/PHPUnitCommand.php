@@ -385,8 +385,7 @@ COMMENT;
         $deletePattern = '~
         (^[ \t]*(?:\/\/\sclear;\scd\s[^\r\n]*\r?\n)+)    # the `// clear; cd` comment lines
         (?=                                                 # followed only by attributes, "#" comments, empty lines, then the test method
-            (?:^[ \t]*\#\[[^\r\n]*\]\r?\n                   # a PHP 8 attribute: #[...]
-              |^[ \t]*\#(?!\[)[^\r\n]*\r?\n                 # a "#" comment
+            (?:^[ \t]*\#[^\r\n]*\r?\n                       # a PHP 8 attribute (#[...]) or a "#" comment
               |^[ \t]*\r?\n                                 # an empty line
             )*+
             ^[ \t]*public[ \t]+function[ \t]+test\w+[ \t]*\(
