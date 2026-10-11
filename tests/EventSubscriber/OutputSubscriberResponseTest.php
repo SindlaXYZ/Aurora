@@ -128,18 +128,7 @@ class OutputSubscriberResponseTest extends TestCase
      */
     public function testTheResponseIsHandledOnceWhenTheSubscriberIsRegisteredTwice(): void
     {
-        $container = new Container();
-        $container->setParameter('aurora.minify.output', true);
-        $container->setParameter('aurora.minify.output.ignore.extensions', []);
-        $container->setParameter('aurora.minify.output.ignore.content.type', []);
-        $container->setParameter('aurora.minify.replace', true);
-        $container->setParameter('aurora.minify.replace.mapper', ['/static/' => 'https://cdn.example.com/static/']);
-
-        $subscriber = new OutputSubscriber(
-            $container,
-            new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelper()),
-            []
-        );
+        $subscriber = $this->createSubscriberWithACdnMapper();
 
         $dispatcher = new EventDispatcher();
         $dispatcher->addSubscriber($subscriber);
@@ -157,6 +146,27 @@ class OutputSubscriberResponseTest extends TestCase
 
             $this->assertSame('<img src="https://cdn.example.com/static/a.png">', $event->getResponse()->getContent(), $path);
         }
+    }
+
+    /**
+     * A sub-request response is a part of the main response: the error page (rendered by the error controller in a sub-request, then
+     * returned as the main response) and the {{ render(controller()) }} fragments got the replacements twice
+     */
+    public function testOnlyTheMainResponseIsHandled(): void
+    {
+        $subscriber = $this->createSubscriberWithACdnMapper();
+        $kernel     = $this->createStub(HttpKernelInterface::class);
+        $response   = new Response('<img src="/static/a.png">');
+
+        $subscriber->onKernelResponse(new ResponseEvent($kernel, Request::create('/_error'), HttpKernelInterface::SUB_REQUEST, $response));
+
+        $this->assertSame('<img src="/static/a.png">', $response->getContent());
+        $this->assertFalse($response->headers->has('Content-Security-Policy'));
+
+        $subscriber->onKernelResponse(new ResponseEvent($kernel, Request::create('/missing-page'), HttpKernelInterface::MAIN_REQUEST, $response));
+
+        $this->assertSame('<img src="https://cdn.example.com/static/a.png">', $response->getContent());
+        $this->assertSame("script-src 'self'", $response->headers->get('Content-Security-Policy'));
     }
 
     #[DataProvider('dataNotMinifiedRequests')]
@@ -243,5 +253,21 @@ class OutputSubscriberResponseTest extends TestCase
         $subscriber->onKernelResponse($event);
 
         return $event->getResponse();
+    }
+
+    private function createSubscriberWithACdnMapper(): OutputSubscriber
+    {
+        $container = new Container();
+        $container->setParameter('aurora.minify.output', true);
+        $container->setParameter('aurora.minify.output.ignore.extensions', []);
+        $container->setParameter('aurora.minify.output.ignore.content.type', []);
+        $container->setParameter('aurora.minify.replace', true);
+        $container->setParameter('aurora.minify.replace.mapper', ['/static/' => 'https://cdn.example.com/static/']);
+
+        return new OutputSubscriber(
+            $container,
+            new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelper()),
+            ['text/html' => ['Content-Security-Policy' => "script-src 'self'"]]
+        );
     }
 }

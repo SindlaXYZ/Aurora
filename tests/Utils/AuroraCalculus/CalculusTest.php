@@ -9,6 +9,28 @@ use Sindla\Bundle\AuroraBundle\Utils\AuroraCalculus\AuroraCalculus;
 
 class CalculusTest extends TestCase
 {
+    /**
+     * The factory of the "aurora.calculus" service in a debug container include_once()s the traits of the class, then the class: the
+     * traits that AuroraCalculus.php require()d were declared twice, a "Cannot redeclare trait" fatal error (hence a separate process)
+     */
+    public function testTheClassCanBeLoadedAfterItsTraits(): void
+    {
+        $classFile  = (new \ReflectionClass(AuroraCalculus::class))->getFileName();
+        $autoloader = dirname((new \ReflectionClass(\Composer\Autoload\ClassLoader::class))->getFileName(), 2) . '/autoload.php';
+        $code       = sprintf('require %s;', var_export($autoloader, true));
+
+        foreach (['Calculus2D', 'Calculus3D', 'CalculusGeo', 'Graph', '../AuroraCalculus'] as $file) {
+            $code .= sprintf(' include_once %s;', var_export(dirname($classFile) . "/Extension/{$file}.php", true));
+        }
+
+        $code .= sprintf(' echo new %s()->isPrimeNumber(7) ? "loaded" : "wrong";', AuroraCalculus::class);
+
+        exec(implode(' ', array_map('escapeshellarg', [PHP_BINARY, '-r', $code])) . ' 2>&1', $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+        $this->assertSame('loaded', implode("\n", $output));
+    }
+
     #[DataProvider('providePercentageChange')]
     public function testPercentageChange(float $expected, float $new, float $original): void
     {

@@ -109,4 +109,44 @@ class TimestampableDeletedTest extends TestCase
         $entity->setDeletedAt(null);
         $this->assertFalse($entity->isDeleted());
     }
+
+    /**
+     * A DateTime was compared (==) with the string of the placeholder, never equal: the "not deleted" placeholder (the default of the
+     * column, e.g. of the rows of a table the trait was added to) and a deletion scheduled in the future were "deleted"
+     */
+    public function testIsDeletedMutableIsFalseForThePlaceholderAndForAFutureDate(): void
+    {
+        $entity = new class {
+            use TimestampableDeletedMutable;
+        };
+
+        $entity->setDeletedAt(new \DateTime(AuroraConstants::TIMESTAMPABLE_DELETED_DEFAULT_DELETED_AT));
+        $this->assertFalse($entity->isDeleted());
+
+        $entity->setDeletedAt(new \DateTime(sprintf('@%d', time() + self::TEN_DAYS)));
+        $this->assertFalse($entity->isDeleted());
+    }
+
+    /**
+     * Deleted from the second of the deletion on: deleted "now", the entity used to be not deleted (and deleted in the future)
+     */
+    #[DataProvider('dataDeleted')]
+    public function testIsDeletedFromTheSecondOfTheDeletion(object $entity): void
+    {
+        $entity->setDeletedAt(new \DateTimeImmutable());
+
+        $this->assertTrue($entity->isDeleted());
+        $this->assertFalse($entity->isDeletedInFuture());
+    }
+
+    public function testIsDeletedMutableFromTheSecondOfTheDeletion(): void
+    {
+        $entity = new class {
+            use TimestampableDeletedMutable;
+        };
+
+        $entity->setDeletedAt(new \DateTime());
+
+        $this->assertTrue($entity->isDeleted());
+    }
 }

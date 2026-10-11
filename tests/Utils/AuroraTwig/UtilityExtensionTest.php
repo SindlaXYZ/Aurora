@@ -656,6 +656,51 @@ class UtilityExtensionTest extends TestCase
         $this->assertSame('/* compiled */', file_get_contents($root . '/public/static/compiled/' . $fileName));
     }
 
+    /**
+     * public/static/compiled is generated, not deployed: it was never created (every page linked a file that could not be written). The
+     * relative URLs were prefixed with the relative path of the stylesheet ("static/css/../img/logo.png" is not found from /static/compiled/),
+     * the root-relative and fragment URLs too, and the whitespace of "url( 'a.png' )" was kept between the prefix and the quote
+     */
+    public function testCompressCssJsCreatesTheCombinedStylesheetWithUrlsRelativeToTheRootOfTheSite(): void
+    {
+        $root = $this->createProjectWithAssets(['static/css/main.css' => ".logo { background: url('../img/logo.png'); }\n"
+            . ".root { background: url(\"/img/root.png\"); }\n.mask { mask: url(#gradient); }\n.icon { background: url( 'img/icon.png' ); }\n"]);
+
+        $fileName = sha1(json_encode(['static/css/main.css']) . 'abcdef') . '.css';
+
+        $this->expectOutputString("\n\t" . '<link type="text/css" rel="stylesheet" href="/static/compiled/' . $fileName . '" />');
+
+        $this->createExtension($this->createContainerForCompressCssJsWithTheSanitizer('prod', $root))->compressCSSJS(new Request(), 'css', true, 'static/css/main.css');
+
+        $compiled = (string)file_get_contents($root . '/public/static/compiled/' . $fileName);
+
+        // The quotes and the spaces are kept by the stub of the minifier that SanitizerTest declares (a run of the whole suite)
+        $this->assertMatchesRegularExpression("~url\('?/static/css/\.\./img/logo\.png'?\)~", $compiled);
+        $this->assertMatchesRegularExpression('~url\("?/img/root\.png"?\)~', $compiled);
+        $this->assertMatchesRegularExpression('~url\(\#gradient\)~', $compiled);
+        $this->assertMatchesRegularExpression("~url\('?/static/css/img/icon\.png'? ?\)~", $compiled);
+    }
+
+    /**
+     * The workarounds of old JShrink bugs changed the code: " || " became "||" in the strings, "| {" a literal "\n{"
+     */
+    public function testCompressCssJsKeepsTheStringsAndTheRegularExpressionsOfTheScripts(): void
+    {
+        $root = $this->createProjectWithAssets(['static/js/app.js' => "var separator = ' || ';\nvar spaces = /(NaN| {2}|^$)/;\n"]);
+        mkdir($root . '/public/static/compiled', 0777, true);
+
+        $fileName = sha1(json_encode(['static/js/app.js']) . 'abcdef') . '.js';
+
+        ob_start();
+        $this->createExtension($this->createContainerForCompressCssJsWithTheSanitizer('prod', $root))->compressCSSJS(new Request(), 'js', true, 'static/js/app.js');
+        ob_end_clean();
+
+        $compiled = (string)file_get_contents($root . '/public/static/compiled/' . $fileName);
+
+        $this->assertStringContainsString("var separator=' || ';", $compiled);
+        $this->assertStringContainsString('var spaces=/(NaN| {2}|^$)/;', $compiled);
+    }
+
     private function createExtension(Container $container): UtilityExtension
     {
         return new UtilityExtension($container, new RequestStack(), $this->createStub(Environment::class), new AuroraHelperUtils());
@@ -689,6 +734,16 @@ class UtilityExtensionTest extends TestCase
                 return sprintf('[%s|%s]', $css, $asset);
             }
         });
+
+        return $container;
+    }
+
+    private function createContainerForCompressCssJsWithTheSanitizer(string $environment, string $root): Container
+    {
+        $container = $this->createContainerWithGit('abcdef');
+        $container->setParameter('kernel.environment', $environment);
+        $container->setParameter('aurora.root', $root);
+        $container->set('aurora.sanitizer', new AuroraSanitizer());
 
         return $container;
     }

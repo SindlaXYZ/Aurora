@@ -272,6 +272,7 @@ COMMENT;
         $updatedClass   = 0;
         $createdMethods = 0;
         $updatedMethods = 0;
+        $failedFiles    = 0;
 
         foreach ($finder as $file) {
             $fileName         = $file->getFilename();
@@ -316,6 +317,12 @@ COMMENT;
                 1
             );
 
+            if (null === $content) {
+                $this->io->error(sprintf('The test file %s was not updated: %s.', $file->getRelativePathname(), preg_last_error_msg()));
+                $failedFiles++;
+                continue;
+            }
+
             if (!$classUpdated) {
                 $this->io->warning(sprintf('The test file %s does not contain a class that extends the WebTestCaseMiddleware.', $file->getRelativePathname()));
                 continue;
@@ -323,6 +330,13 @@ COMMENT;
 
             // Update comments for test methods
             $content = $this->updateTestMethodComments($content, $relativeFilePath);
+
+            // A PCRE error: the file is kept as it is (it used to be written empty)
+            if (null === $content) {
+                $this->io->error(sprintf('The test file %s was not updated: %s.', $file->getRelativePathname(), preg_last_error_msg()));
+                $failedFiles++;
+                continue;
+            }
 
             // Counting updated/created methods
             preg_match_all('/public function (test\w+)\(\)/', $content, $methodMatches);
@@ -339,35 +353,50 @@ COMMENT;
             file_put_contents($filePath, $content);
         }
 
-        $this->io->success(sprintf(
+        $summary = sprintf(
             'Comment blocks updated: %d class files updated, %d class files created, %d test methods processed.',
             $updatedClass,
             $createdClass,
             $createdMethods
-        ));
+        );
+
+        if ($failedFiles > 0) {
+            $this->io->warning(sprintf('%s %d test files were not updated.', $summary, $failedFiles));
+
+            return self::FAILURE;
+        }
+
+        $this->io->success($summary);
 
         return self::SUCCESS;
     }
 
     /**
      * Update the comments for the test methods
+     *
+     * Null when the content cannot be processed (a PCRE error): it used to be written as an empty test file
      */
-    private function updateTestMethodComments(string $content, string $relativeFilePath): string
+    private function updateTestMethodComments(string $content, string $relativeFilePath): ?string
     {
         // 1) Delete any `// clear; cd` comment block located immediately above the test method
         //    Allow attributes (#\[] / #\[Attribute]) and empty lines between the comment and the method signature.
+        //    Every line matches one alternative only, and the lines are not given back (*+): an attribute line used to match two of them, so
+        //    a comment followed by many attributes and a method that is not a public test backtracked exponentially (PCRE error)
         $deletePattern = '~
-        (^[ \t]*(?:\/\/\sclear;\scd\s[^\r\n]*\r?\n)+)           # blocul de linii `//`
-        (?=                                       # lookahead: urmează doar atribute/linii goale și apoi metoda test
-            (?:^[ \t]*\#\[[^\r\n]*\]\r?\n|        # linie cu atribut PHP 8: # [...]
-               ^[ \t]*\#\s*[^\r\n]*\r?\n|         # linie cu # ... (coment/atribut simplu)
-               ^[ \t]*\r?\n                       # linie goală
-            )*
+        (^[ \t]*(?:\/\/\sclear;\scd\s[^\r\n]*\r?\n)+)    # the `// clear; cd` comment lines
+        (?=                                                 # followed only by attributes, "#" comments, empty lines, then the test method
+            (?:^[ \t]*\#[^\r\n]*\r?\n                       # a PHP 8 attribute (#[...]) or a "#" comment
+              |^[ \t]*\r?\n                                 # an empty line
+            )*+
             ^[ \t]*public[ \t]+function[ \t]+test\w+[ \t]*\(
         )
     ~mx';
 
         $content = preg_replace($deletePattern, '', $content);
+
+        if (null === $content) {
+            return null;
+        }
 
         // 2) Insert the correct comment before each test method
         $lines                = explode("\n", $content);

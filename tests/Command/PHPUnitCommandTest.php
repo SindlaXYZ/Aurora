@@ -645,6 +645,53 @@ PHP);
         self::assertStringEndsWith("}\n", $result);
     }
 
+    /**
+     * A `// clear; cd` comment followed by many attributes and by a method that is not a public test: the pattern that deletes the old
+     * method comments backtracked exponentially, preg_replace() returned null and the test file was written empty
+     */
+    public function testUpdateDocumentationBlocksUpdatesATestWithManyAttributes(): void
+    {
+        $content = "<?php\n\nnamespace App\\Tests\\Shop;\n\nuse Sindla\\Bundle\\AuroraBundle\\Tests\\WebTestCaseMiddleware;\n\n"
+            . "class ShopTest extends WebTestCaseMiddleware\n{\n"
+            . "    // clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Shop/ShopTest.php --no-coverage --filter testOld\n"
+            . str_repeat("    #[TestWith([1])]\n", 24)
+            . "    protected function testHelper(int \$value): void\n    {\n    }\n\n"
+            . "    public function testShop(): void\n    {\n        \$this->assertTrue(true);\n    }\n}\n";
+
+        self::assertTrue(mkdir($this->projectDir . '/tests/Shop', 0777, true));
+        file_put_contents($this->projectDir . '/tests/Shop/ShopTest.php', $content);
+
+        self::assertSame(PHPUnitCommand::SUCCESS, $this->commandTester()->execute(['--action' => 'updateDocumentationBlocks']));
+
+        $result = (string)file_get_contents($this->projectDir . '/tests/Shop/ShopTest.php');
+
+        self::assertStringContainsString(" */\nclass ShopTest extends WebTestCaseMiddleware\n", $result);
+        self::assertStringContainsString(str_repeat("    #[TestWith([1])]\n", 24) . "    protected function testHelper(int \$value): void\n", $result);
+        self::assertStringContainsString("--testdox --filter testShop\n    public function testShop(): void\n", $result);
+    }
+
+    /**
+     * A PCRE error (here the backtrack limit) used to return an empty content, written over the test file: null, the file is kept
+     */
+    public function testUpdateTestMethodCommentsReturnsNullOnAPcreError(): void
+    {
+        $method         = new \ReflectionMethod(PHPUnitCommand::class, 'updateTestMethodComments');
+        $command        = new PHPUnitCommand(new ParameterBag(['kernel.project_dir' => $this->projectDir]));
+        // A `// clear; cd` comment to delete: without one, the JIT rejects every position before the limit is reached
+        $content        = "<?php\n\nclass ShopTest extends WebTestCaseMiddleware\n{\n"
+            . "    // clear; cd /srv/\${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Shop/ShopTest.php --no-coverage --filter testShop\n"
+            . "    #[Test]\n    public function testShop(): void\n    {\n    }\n}\n";
+        $backtrackLimit = ini_set('pcre.backtrack_limit', '1');
+
+        try {
+            $result = $method->invoke($command, $content, 'Integration/GivenTest.php');
+        } finally {
+            ini_set('pcre.backtrack_limit', (string)$backtrackLimit);
+        }
+
+        self::assertNull($result);
+    }
+
     private function commandTester(): CommandTester
     {
         return new CommandTester(new PHPUnitCommand(new ParameterBag([

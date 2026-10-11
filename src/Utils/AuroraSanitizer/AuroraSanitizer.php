@@ -62,6 +62,12 @@ class AuroraSanitizer
         $assetBasename = $asset ? basename($asset) : null;
         $assetBaseDir  = $asset ? str_ireplace($assetBasename, '', $asset) : null;
 
+        // A path relative to the root of the site ("static/css/main.css" => "/static/css/"): the combined file is served from another directory
+        // (/static/compiled/), where "url(static/css/../img/logo.png)" was not found
+        if (null !== $assetBaseDir && !preg_match('~^(?:[a-z][a-z0-9+.-]*:|/)~i', $assetBaseDir)) {
+            $assetBaseDir = '/' . $assetBaseDir;
+        }
+
         $css         = $this->cssClearComments($css);
         $minifier    = new Minify\CSS();
         $AuroraMatch = new AuroraMatch();
@@ -69,18 +75,25 @@ class AuroraSanitizer
         // Change url(path) relative to the css file, line by line
         $cssLineByLine = '';
         foreach (preg_split("/((\r?\n)|(\r\n?))/", $css) as $line) {
-            $matches = $AuroraMatch->matchCssUrls($line);
+            $matches = null === $assetBaseDir ? [] : $AuroraMatch->matchCssUrls($line);
 
             if (isset($matches[0]) && !empty($matches[0])) {
-                foreach ($matches[0] as $urlToImport) {
-                    $quote = '';
-                    if (0 === strpos($urlToImport, "url('")) {
-                        $quote = "'";
-                    } else if (0 === strpos($urlToImport, 'url("')) {
-                        $quote = '"';
+                foreach ($matches[0] as $index => $urlToImport) {
+                    $url = $matches[1][$index] ?? '';
+
+                    // A root-relative ("/img/a.png") or a fragment ("#gradient") URL does not depend on the location of the stylesheet: it
+                    // used to be prefixed too ("static/css//img/a.png")
+                    if ('' === $url || str_starts_with($url, '/') || str_starts_with($url, '#')) {
+                        continue;
                     }
-                    $urlToImport2 = preg_replace("/url\('?\"?/i", "url({$quote}{$assetBaseDir}", $urlToImport);
-                    $line         = str_replace($urlToImport, $urlToImport2, $line);
+
+                    // The quote is kept; the whitespace after "url(" used to stay between the prefix and the quoted URL ("url(/static/css/ 'a.png')")
+                    $urlToImport2 = preg_replace_callback(
+                        '/^url\(\s*([\'"]?)/i',
+                        static fn(array $quote): string => 'url(' . $quote[1] . $assetBaseDir,
+                        $urlToImport
+                    );
+                    $line         = str_replace($urlToImport, $urlToImport2 ?? $urlToImport, $line);
                 }
             }
 

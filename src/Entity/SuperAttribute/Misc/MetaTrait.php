@@ -89,10 +89,22 @@ trait MetaTrait
 
     public function removeMeta(mixed $meta): self
     {
-        if (true === in_array($meta, $this->meta, true)) {
-            $index = array_search($meta, $this->meta);
-            array_splice($this->meta, $index, 1);
+        // The key of the identical value: a loose array_search() found another, loosely equal entry first (removeMeta('x') of
+        // [true, 'x'] removed true), and array_splice() takes a position, not a key ("color" => "red" was a TypeError, [5 => 'a',
+        // 9 => 'b'] lost nothing)
+        $key = array_search($meta, $this->meta, true);
+
+        if (false !== $key) {
+            $isList = array_is_list($this->meta);
+
+            unset($this->meta[$key]);
+
+            // A list stays a list (a JSON array, not an object)
+            if ($isList) {
+                $this->meta = array_values($this->meta);
+            }
         }
+
         return $this;
     }
 }

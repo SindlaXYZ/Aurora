@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Sindla\Bundle\AuroraBundle\Tests\Entity\SuperAttribute\Misc;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use Sindla\Bundle\AuroraBundle\Entity\SuperAttribute\Misc\MetaTrait;
 
@@ -88,6 +89,29 @@ class MetaTraitTest extends TestCase
         $this->metaTrait->removeMeta('missing');
 
         self::assertSame(['keep'], $this->metaTrait->getMeta());
+    }
+
+    /**
+     * array_search() compared loosely (it removed another, loosely equal entry) and array_splice() takes a position, not a key
+     */
+    #[DataProvider('dataRemoveMetaRemovesOnlyTheIdenticalValue')]
+    public function testRemoveMetaRemovesOnlyTheIdenticalValue(array $meta, mixed $remove, array $expected): void
+    {
+        $this->metaTrait->setMeta($meta);
+
+        $this->metaTrait->removeMeta($remove);
+
+        self::assertSame($expected, $this->metaTrait->getMeta());
+    }
+
+    public static function dataRemoveMetaRemovesOnlyTheIdenticalValue(): iterable
+    {
+        yield 'a loosely equal value before it' => [[true, 'x'], 'x', [true]];
+        yield 'a numeric string before the integer' => [['1', 1], 1, ['1']];
+        // "array_splice(): Argument #2 ($offset) must be of type int, string given"
+        yield 'keyed meta (appendMeta())' => [['color' => 'red', 'size' => 'L'], 'L', ['color' => 'red']];
+        yield 'integer keys that are not positions' => [[5 => 'a', 9 => 'b'], 'b', [5 => 'a']];
+        yield 'a list stays a list' => [['a', 'b', 'c'], 'b', ['a', 'c']];
     }
 
     ###############################################################################################

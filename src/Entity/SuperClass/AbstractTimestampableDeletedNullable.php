@@ -31,7 +31,8 @@ abstract class AbstractTimestampableDeletedNullable
     #[Groups([AuroraConstants::GROUP_READ])]
     public function isDeleted(): bool
     {
-        return $this->deletedAt && $this->deletedAt->getTimestamp() < time();
+        // From the second of the deletion on: setDeletedAt(new \DateTimeImmutable()) used to be "not deleted" (and "deleted in the future")
+        return $this->deletedAt && $this->deletedAt->getTimestamp() <= time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
@@ -51,7 +52,7 @@ abstract class AbstractTimestampableDeletedNullable
             }
         }
 
-        return $this->deletedAt->getTimestamp() >= time();
+        return $this->deletedAt->getTimestamp() > time();
     }
 
     #[Groups([AuroraConstants::GROUP_READ])]
