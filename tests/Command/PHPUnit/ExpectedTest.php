@@ -25,7 +25,7 @@ class ExpectedTest extends WebTestCaseMiddleware
 {
     use PersistenceTrait;
 
-    // clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/GivenTest.php --no-coverage --do-not-cache-result --display-phpunit-notices --display-phpunit-deprecations --testdox --filter testCompanyConfigRelation
+    // clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Integration/GivenTest.php --no-coverage --do-not-record-test-run-history --display-phpunit-notices --display-phpunit-deprecations --testdox --filter testCompanyConfigRelation
     #[Test]
     public function testCompanyConfigRelation(): void
     {

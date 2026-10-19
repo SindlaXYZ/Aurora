@@ -630,7 +630,7 @@ PHP);
 
         $result = (string)file_get_contents($this->projectDir . '/tests/Api/V2/OrderTest.php');
         $filter = '// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/Api/V2/OrderTest.php --no-coverage'
-            . ' --do-not-cache-result --display-phpunit-notices --display-phpunit-deprecations --testdox --filter %s';
+            . ' --do-not-record-test-run-history --display-phpunit-notices --display-phpunit-deprecations --testdox --filter %s';
 
         self::assertStringContainsString(
             sprintf("{\n    %s\n    public function testList(): void\n", sprintf($filter, 'testList')),

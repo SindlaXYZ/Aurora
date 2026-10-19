@@ -432,7 +432,7 @@ COMMENT;
             }
 
             $commentLine = sprintf(
-                '%s// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-cache-result --display-phpunit-notices --display-phpunit-deprecations --testdox --filter %s',
+                '%s// clear; cd /srv/${DKZ_DOMAIN}/; /usr/bin/php bin/phpunit -c phpunit.xml.dist tests/%s --no-coverage --do-not-record-test-run-history --display-phpunit-notices --display-phpunit-deprecations --testdox --filter %s',
                 $indent,
                 $relativeFilePath,
                 $methodName
