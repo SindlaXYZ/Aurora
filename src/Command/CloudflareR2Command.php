@@ -2,7 +2,6 @@
 
 namespace Sindla\Bundle\AuroraBundle\Command;
 
-use Aws\Result;
 use Sindla\Bundle\AuroraBundle\Command\Middleware\CommandMiddleware;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraCloudflareR2\AuroraCloudflareR2;
 use Sindla\Bundle\AuroraBundle\Utils\AuroraIO\AuroraIO;
@@ -39,7 +38,8 @@ final class CloudflareR2Command extends CommandMiddleware
             ->addOption('localFile', null, InputOption::VALUE_OPTIONAL)
             ->addOption('remoteFile', null, InputOption::VALUE_OPTIONAL)
             ->addOption('orderBy', null, InputOption::VALUE_OPTIONAL)
-            ->addOption('orderDir', null, InputOption::VALUE_OPTIONAL);
+            ->addOption('orderDir', null, InputOption::VALUE_OPTIONAL)
+            ->addOption('prefix', null, InputOption::VALUE_OPTIONAL);
     }
 
     /**
@@ -83,24 +83,56 @@ final class CloudflareR2Command extends CommandMiddleware
     }
 
     /**
+     * Every page of the listing is read (one page holds at most 1000 keys), then the keys are sorted and rendered once, in a table.
+     *
+     * "--prefix" lists only the keys starting with it, sent as given: nothing is added or trimmed (pass the trailing "/" of a "directory").
+     * The "Key" column always holds the full key, prefix included. A given but empty "--prefix" is refused: it would list the whole bucket.
+     *
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list --orderBy=Size --orderDir=desc
      * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list --orderBy=LastModified --orderDir=asc
+     * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=list --prefix=snapshots/current/
+     *
+     * @throws \Exception
      */
     protected function list(): int
     {
         $orderBy  = $this->input->getOption('orderBy') ?? 'Key';
         $orderDir = strtolower($this->input->getOption('orderDir') ?? 'asc');
+        $prefix   = $this->input->getOption('prefix');
+
+        // An empty prefix matches every key: a caller deleting each listed key would empty the whole bucket ("0" or " " are valid prefixes)
+        if ($this->isPrefixGiven() && (null === $prefix || '' === $prefix)) {
+            throw new \Exception('The "--prefix" option must not be empty.');
+        }
 
         $s3Client = $this->cloudflareR2->createClient();
 
-        /** @var Result $contents */
-        $contents = $s3Client->listObjectsV2([
-            'Bucket' => $this->cloudflareR2->getBucket()
-        ]);
+        // The same Bucket and Prefix for every page, without a Delimiter: the keys of the "subdirectories" are listed as well
+        $params = ['Bucket' => $this->cloudflareR2->getBucket()];
+        if (null !== $prefix) {
+            $params['Prefix'] = $prefix;
+        }
 
-        // Prepare and sort rows according to orderBy/orderDir
-        $rows = $contents->toArray()['Contents'] ?? [];
+        // The rows of every page, in the order of the server, then sorted according to orderBy/orderDir
+        $rows       = [];
+        $seenTokens = [];
+        do {
+            $page = $s3Client->listObjectsV2($params);
+            array_push($rows, ...($page['Contents'] ?? []));
+
+            $truncated = (bool)($page['IsTruncated'] ?? false);
+            if ($truncated) {
+                // Stopping there would silently hide the next keys, and a token already sent would list the same pages again, forever
+                $token = $page['NextContinuationToken'] ?? null;
+                if (null === $token || '' === $token || isset($seenTokens[$token])) {
+                    throw new \RuntimeException('ListObjectsV2 returned a truncated page without a new continuation token.');
+                }
+
+                $seenTokens[$token]          = true;
+                $params['ContinuationToken'] = $token;
+            }
+        } while ($truncated);
 
         // Normalize and validate ordering
         $validOrderBy = ['Key', 'LastModified', 'ETag', 'Size', 'Bytes', 'StorageClass'];
@@ -112,7 +144,7 @@ final class CloudflareR2Command extends CommandMiddleware
         $orderDir = $orderDir === 'desc' ? 'desc' : 'asc';
 
         // Apply sorting if there are rows
-        if (is_array($rows) && count($rows) > 1) {
+        if (1 < count($rows)) {
             usort($rows, function (array $a, array $b) use ($orderKey, $orderDir): int {
                 $va = $a[$orderKey] ?? null;
                 $vb = $b[$orderKey] ?? null;
@@ -239,6 +271,42 @@ final class CloudflareR2Command extends CommandMiddleware
         }
 
         return self::SUCCESS;
+    }
+
+    /**
+     * Deletes exactly one object, the "--remoteFile" key, permanently: R2 has no versioning
+     *
+     * clear; /usr/bin/php /srv/${DKZ_DOMAIN}/bin/console aurora:cloudflare:r2 --verbose --action=delete --remoteFile=snapshots/current/database.sql
+     *
+     * @throws \Exception
+     */
+    protected function delete(): int
+    {
+        // Refused rather than ignored, with or without a value: not to be mistaken for a delete of every key under a prefix
+        if ($this->isPrefixGiven()) {
+            throw new \Exception('The "--prefix" option can only be used with "--action=list".');
+        }
+
+        if (empty($remoteFile = $this->input->getOption('remoteFile'))) {
+            throw new \Exception('Please provide a remote file name!');
+        }
+
+        // Never DeleteObjects: only the given key. An S3 error is not caught, so a failed delete ends with a non-zero exit code
+        $s3Client = $this->cloudflareR2->createClient();
+        $s3Client->deleteObject([
+            'Bucket' => $this->cloudflareR2->getBucket(),
+            'Key'    => $remoteFile,
+        ]);
+
+        return self::SUCCESS;
+    }
+
+    /**
+     * "--prefix" was given, with or without a value (set by the caller or on the command line)
+     */
+    private function isPrefixGiven(): bool
+    {
+        return null !== $this->input->getOption('prefix') || $this->input->hasParameterOption('--prefix');
     }
 
     private function humanFilesize(int $bytes, int $decimals = 2): string

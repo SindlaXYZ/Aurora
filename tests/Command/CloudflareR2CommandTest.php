@@ -5,11 +5,13 @@ declare(strict_types=1);
 namespace Sindla\Bundle\AuroraBundle\Tests\Command;
 
 use Aws\Handler\Guzzle\GuzzleHandler;
+use Aws\S3\Exception\S3Exception;
 use Aws\S3\S3Client;
 use GuzzleHttp\Client;
 use GuzzleHttp\Handler\MockHandler;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Middleware;
+use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -244,6 +246,313 @@ class CloudflareR2CommandTest extends TestCase
         $this->assertSame([], $this->tableRows($tester->getDisplay()));
     }
 
+    public function testListWithAPrefixReadsEveryPage(): void
+    {
+        $tester = $this->commandTester([
+            $this->listObjectsResponse([
+                ['snapshots/2026-10-20/database.sql', '2026-10-20T10:00:00.000Z', 2048],
+                ['snapshots/2026-10-21/database.sql', '2026-10-21T10:00:00.000Z', 1024],
+            ], true, 'page/2+token=='),
+            $this->listObjectsResponse([
+                ['snapshots/2026-10-22/database.sql', '2026-10-22T10:00:00.000Z', 512],
+            ]),
+        ]);
+
+        // No "/" at the end: the prefix matches the keys of every "directory" from 2026-10-20 to 2026-10-29
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'list', '--prefix' => 'snapshots/2026-10-2']));
+
+        // The full keys of both pages, prefix included, in a single table
+        $display = $tester->getDisplay();
+        $this->assertSame(
+            ['snapshots/2026-10-20/database.sql', 'snapshots/2026-10-21/database.sql', 'snapshots/2026-10-22/database.sql'],
+            array_column($this->tableRows($display), 0)
+        );
+        $this->assertSame(1, preg_match_all('/^\| Key /m', $display));
+
+        $queries = $this->queries();
+        $this->assertCount(2, $queries);
+        foreach ($queries as $query) {
+            $this->assertSame('2', $query['list-type'] ?? null);
+            $this->assertSame('snapshots/2026-10-2', $query['prefix'] ?? null);
+            $this->assertArrayNotHasKey('delimiter', $query);
+        }
+        $this->assertArrayNotHasKey('continuation-token', $queries[0]);
+        $this->assertSame('page/2+token==', $queries[1]['continuation-token'] ?? null);
+    }
+
+    public function testListSortsTheObjectsOfEveryPage(): void
+    {
+        $tester = $this->commandTester([
+            $this->listObjectsResponse([
+                ['a.sql', '2026-01-02T10:00:00.000Z', 512],
+                ['b.sql', '2026-01-03T10:00:00.000Z', 512],
+            ], true, 't1'),
+            $this->listObjectsResponse([
+                ['c.sql', '2026-01-01T10:00:00.000Z', 512],
+            ]),
+        ]);
+
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'list', '--orderBy' => 'LastModified']));
+        // The oldest object is on the second page: the rows of every page are sorted together, then rendered once
+        $this->assertSame(['c.sql', 'a.sql', 'b.sql'], array_column($this->tableRows($tester->getDisplay()), 0));
+        $this->assertSame(1, preg_match_all('/^\| Key /m', $tester->getDisplay()));
+        $this->assertCount(2, $this->history);
+    }
+
+    public function testListWithoutAPrefixReadsEveryPageOfTheBucket(): void
+    {
+        $tester = $this->commandTester([
+            $this->listObjectsResponse([['a.sql', '2026-01-01T10:00:00.000Z', 1]], true, 't1'),
+            $this->listObjectsResponse([['b.sql', '2026-01-01T10:00:00.000Z', 2]], true, 't2'),
+            $this->listObjectsResponse([['c.sql', '2026-01-01T10:00:00.000Z', 3]]),
+        ]);
+
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'list']));
+        $this->assertSame(['a.sql', 'b.sql', 'c.sql'], array_column($this->tableRows($tester->getDisplay()), 0));
+
+        $queries = $this->queries();
+        $this->assertCount(3, $queries);
+        foreach ($queries as $query) {
+            $this->assertSame('2', $query['list-type'] ?? null);
+            $this->assertArrayNotHasKey('prefix', $query);
+            $this->assertArrayNotHasKey('delimiter', $query);
+        }
+        $this->assertArrayNotHasKey('continuation-token', $queries[0]);
+        $this->assertSame('t1', $queries[1]['continuation-token'] ?? null);
+        $this->assertSame('t2', $queries[2]['continuation-token'] ?? null);
+    }
+
+    public function testListOfAPrefixWithoutKeysRendersOnlyTheHeader(): void
+    {
+        $tester = $this->commandTester([$this->listObjectsResponse([])]);
+
+        // An empty result is not an error
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'list', '--prefix' => 'snapshots/current/']));
+        $this->assertStringContainsString('| Key | LastModified | Ago | ETag | Bytes | Size | StorageClass |', $tester->getDisplay());
+        $this->assertSame([], $this->tableRows($tester->getDisplay()));
+        $this->assertCount(1, $this->history);
+    }
+
+    /**
+     * @return iterable<string, array{0: string}>
+     */
+    public static function dataLiteralPrefix(): iterable
+    {
+        yield 'zero' => ['0'];
+        yield 'a trailing slash' => ['snapshots/current/'];
+        yield 'a leading slash' => ['/snapshots/'];
+        yield 'a single space' => [' '];
+        yield 'spaces at both ends' => [' snapshots/x '];
+    }
+
+    #[DataProvider('dataLiteralPrefix')]
+    public function testListSendsThePrefixAsGiven(string $prefix): void
+    {
+        $tester = $this->commandTester([$this->listObjectsResponse([])]);
+
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'list', '--prefix' => $prefix]));
+
+        $queries = $this->queries();
+        $this->assertCount(1, $queries);
+        $this->assertSame($prefix, $queries[0]['prefix'] ?? null);
+        $this->assertArrayNotHasKey('delimiter', $queries[0]);
+    }
+
+    /**
+     * @return iterable<string, array{0: string|null}>
+     */
+    public static function dataEmptyPrefix(): iterable
+    {
+        yield '"--prefix=", an empty value' => [''];
+        yield '"--prefix" without a value' => [null];
+    }
+
+    /**
+     * An empty prefix would list the whole bucket: a caller deleting every listed key would empty it
+     */
+    #[DataProvider('dataEmptyPrefix')]
+    public function testListRefusesAnEmptyPrefix(?string $prefix): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The "--prefix" option must not be empty.');
+
+        try {
+            $this->commandTester([$this->listObjectsResponse([])], false)->execute(['--action' => 'list', '--prefix' => $prefix]);
+        } finally {
+            $this->assertSame([], $this->history);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{0: string|null}>
+     */
+    public static function dataMissingContinuationToken(): iterable
+    {
+        yield 'no NextContinuationToken' => [null];
+        yield 'an empty NextContinuationToken' => [''];
+    }
+
+    /**
+     * Stopping at the truncated page would silently hide the rest of the keys
+     */
+    #[DataProvider('dataMissingContinuationToken')]
+    public function testListRefusesATruncatedPageWithoutAContinuationToken(?string $nextToken): void
+    {
+        $tester = $this->commandTester([
+            $this->listObjectsResponse([['a.sql', '2026-01-01T10:00:00.000Z', 1]], true, $nextToken),
+            $this->listObjectsResponse([['b.sql', '2026-01-01T10:00:00.000Z', 2]]),
+        ]);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('ListObjectsV2 returned a truncated page without a new continuation token.');
+
+        try {
+            $tester->execute(['--action' => 'list']);
+        } finally {
+            $this->assertCount(1, $this->history);
+            $this->assertDoesNotMatchRegularExpression('/^\|/m', $tester->getDisplay());
+        }
+    }
+
+    /**
+     * @return iterable<string, array{0: list<string>}>
+     */
+    public static function dataRepeatedContinuationToken(): iterable
+    {
+        yield 'the token of the previous page' => [['t1', 't1']];
+        // A guard comparing the token only with the last one sent would go on
+        yield 'the token of an earlier page' => [['t1', 't2', 't1']];
+    }
+
+    /**
+     * A token already sent would list the same pages again, forever
+     *
+     * @param list<string> $nextTokens the NextContinuationToken of each truncated page
+     */
+    #[DataProvider('dataRepeatedContinuationToken')]
+    public function testListRefusesARepeatedContinuationToken(array $nextTokens): void
+    {
+        $responses = [];
+        foreach ($nextTokens as $page => $nextToken) {
+            $responses[] = $this->listObjectsResponse([[sprintf('page-%d.sql', $page), '2026-01-01T10:00:00.000Z', 1]], true, $nextToken);
+        }
+        $responses[] = $this->listObjectsResponse([['last-page.sql', '2026-01-01T10:00:00.000Z', 1]]);
+        $tester      = $this->commandTester($responses);
+
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('ListObjectsV2 returned a truncated page without a new continuation token.');
+
+        try {
+            $tester->execute(['--action' => 'list']);
+        } finally {
+            $this->assertCount(count($nextTokens), $this->history);
+            $this->assertDoesNotMatchRegularExpression('/^\|/m', $tester->getDisplay());
+        }
+    }
+
+    public function testDeleteRemovesExactlyTheRemoteFile(): void
+    {
+        $tester = $this->commandTester([new Response(204)]);
+
+        $this->assertSame(Command::SUCCESS, $tester->execute(['--action' => 'delete', '--remoteFile' => 'snapshots/current/database.sql']));
+        $this->assertCount(1, $this->history);
+
+        // DeleteObject (DeleteObjects is a POST) of exactly the given key, slashes kept
+        $request = $this->history[0]['request'];
+        $this->assertSame('DELETE', $request->getMethod());
+        $this->assertSame('bucket.r2.example.com', $request->getUri()->getHost());
+        $this->assertSame('/snapshots/current/database.sql', $request->getUri()->getPath());
+        // Nothing is rendered but the "Start running" and "Done in" lines
+        $this->assertMatchesRegularExpression('/\A\[[\d:]{8}\] Start running [^\n]+\n\[[\d:]{8}\] Done in [^\n]+\n\z/', $tester->getDisplay(true));
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, string>}>
+     */
+    public static function dataDeleteWithoutARemoteFile(): iterable
+    {
+        yield 'no remote file' => [[]];
+        yield 'empty remote file' => [['--remoteFile' => '']];
+    }
+
+    /**
+     * @param array<string, string> $options
+     */
+    #[DataProvider('dataDeleteWithoutARemoteFile')]
+    public function testDeleteRequiresARemoteFileName(array $options): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Please provide a remote file name!');
+
+        try {
+            $this->commandTester([new Response(204)], false)->execute(['--action' => 'delete'] + $options);
+        } finally {
+            $this->assertSame([], $this->history);
+        }
+    }
+
+    /**
+     * @return iterable<string, array{0: array<string, string|null>}>
+     */
+    public static function dataDeleteWithAPrefix(): iterable
+    {
+        yield 'a prefix and a remote file' => [['--prefix' => 'x', '--remoteFile' => 'y']];
+        yield 'a prefix without a remote file' => [['--prefix' => 'x']];
+        yield 'a prefix without a value' => [['--prefix' => null, '--remoteFile' => 'y']];
+    }
+
+    /**
+     * Not a delete of every key under a prefix: "--prefix" is refused, not ignored
+     *
+     * @param array<string, string|null> $options
+     */
+    #[DataProvider('dataDeleteWithAPrefix')]
+    public function testDeleteRefusesAPrefix(array $options): void
+    {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('The "--prefix" option can only be used with "--action=list".');
+
+        try {
+            $this->commandTester([new Response(204)], false)->execute(['--action' => 'delete'] + $options);
+        } finally {
+            $this->assertSame([], $this->history);
+        }
+    }
+
+    public function testDeleteDoesNotCatchTheS3Error(): void
+    {
+        $tester = $this->commandTester([new Response(404, ['Content-Type' => 'application/xml'], '<Error><Code>NoSuchKey</Code></Error>')]);
+
+        try {
+            $tester->execute(['--action' => 'delete', '--remoteFile' => 'snapshots/current/missing.sql']);
+            $this->fail('A failed delete is expected to throw.');
+        } catch (S3Exception $e) {
+            $this->assertSame('NoSuchKey', $e->getAwsErrorCode());
+        }
+
+        $this->assertCount(1, $this->history);
+        $this->assertSame('DELETE', $this->history[0]['request']->getMethod());
+    }
+
+    public function testThePrefixOptionIsDeclared(): void
+    {
+        $definition = new CloudflareR2Command($this->createStub(AuroraCloudflareR2::class))->getDefinition();
+
+        // Listed by "--help" as "--prefix[=PREFIX]": the sign that "list --prefix" and "delete" are available
+        $this->assertTrue($definition->hasOption('prefix'));
+        $this->assertTrue($definition->getOption('prefix')->isValueOptional());
+    }
+
+    public function testThePrefixHelperIsNotAnAction(): void
+    {
+        $tester = $this->commandTester([]);
+
+        // Every method that is not private and has no required parameter is an action: the helper has to stay private
+        $this->assertSame(Command::FAILURE, $tester->execute(['--action' => 'isPrefixGiven']));
+        $this->assertStringContainsString('Invalid action isPrefixGiven()', $tester->getDisplay());
+        $this->assertSame([], $this->history);
+    }
+
     /**
      * @return iterable<string, array{0: int, 1: int, 2: string}>
      */
@@ -311,9 +620,12 @@ class CloudflareR2CommandTest extends TestCase
     /**
      * The R2 client is a real S3Client whose HTTP layer is a Guzzle mock: the requests it sends are recorded in $this->history
      *
+     * A refused input must fail before the client is created: with $clientCreated = false, createClient() is never expected. The test of a
+     * refused input still queues a valid response and checks "$this->history === []": a request sent to an empty queue throws unrecorded.
+     *
      * @param list<Response> $responses
      */
-    private function commandTester(array $responses): CommandTester
+    private function commandTester(array $responses, bool $clientCreated = true): CommandTester
     {
         $handlerStack = HandlerStack::create(new MockHandler($responses));
         $handlerStack->push(Middleware::history($this->history));
@@ -327,24 +639,31 @@ class CloudflareR2CommandTest extends TestCase
             'http_handler' => new GuzzleHandler(new Client(['handler' => $handlerStack])),
         ]);
 
-        $cloudflareR2 = $this->createStub(AuroraCloudflareR2::class);
-        $cloudflareR2->method('createClient')->willReturn($s3Client);
+        if ($clientCreated) {
+            $cloudflareR2 = $this->createStub(AuroraCloudflareR2::class);
+            $cloudflareR2->method('createClient')->willReturn($s3Client);
+        } else {
+            $cloudflareR2 = $this->createMock(AuroraCloudflareR2::class);
+            $cloudflareR2->expects($this->never())->method('createClient');
+        }
         $cloudflareR2->method('getBucket')->willReturn('bucket');
 
         return new CommandTester(new CloudflareR2Command($cloudflareR2));
     }
 
     /**
+     * A ListObjectsV2 page: a null $nextToken leaves out the NextContinuationToken element, "" renders it empty
+     *
      * @param list<array{0: string, 1: string, 2: int}> $objects [Key, LastModified, Size]
      */
-    private function listObjectsResponse(array $objects): Response
+    private function listObjectsResponse(array $objects, bool $isTruncated = false, ?string $nextToken = null): Response
     {
         $contents = '';
         foreach ($objects as [$key, $lastModified, $size]) {
             $contents .= sprintf(
                 '<Contents><Key>%1$s</Key><LastModified>%2$s</LastModified><ETag>"etag-%1$s"</ETag><Size>%3$d</Size>'
                 . '<StorageClass>STANDARD</StorageClass></Contents>',
-                $key,
+                htmlspecialchars($key, ENT_XML1),
                 $lastModified,
                 $size
             );
@@ -352,9 +671,24 @@ class CloudflareR2CommandTest extends TestCase
 
         return new Response(200, ['Content-Type' => 'application/xml'], sprintf(
             '<?xml version="1.0" encoding="UTF-8"?><ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/"><Name>bucket</Name>'
-            . '<KeyCount>%d</KeyCount><MaxKeys>1000</MaxKeys><IsTruncated>false</IsTruncated>%s</ListBucketResult>',
+            . '<KeyCount>%d</KeyCount><MaxKeys>1000</MaxKeys><IsTruncated>%s</IsTruncated>%s%s</ListBucketResult>',
             count($objects),
+            $isTruncated ? 'true' : 'false',
+            null === $nextToken ? '' : sprintf('<NextContinuationToken>%s</NextContinuationToken>', htmlspecialchars($nextToken, ENT_XML1)),
             $contents
+        ));
+    }
+
+    /**
+     * The decoded query of every request sent: the SDK encodes the "/" of a prefix as "%2F"
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function queries(): array
+    {
+        return array_values(array_map(
+            static fn(array $transaction): array => Query::parse($transaction['request']->getUri()->getQuery()),
+            $this->history
         ));
     }
 
